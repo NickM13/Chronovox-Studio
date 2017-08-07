@@ -9,8 +9,8 @@ CCounter::CCounter(std::string p_compName, std::string p_title, Vector2<Sint32> 
 	m_colorTheme = m_colorThemes[1];
 	m_numValue = &p_currValue;
 
-	m_buttonAdd = new CButton("", "+", Vector2<Sint32>(p_pos.x + m_title.length() * 16 + 20, p_pos.y), Vector2<Sint32>(16, 16));
-	m_buttonSubtract = new CButton("", "-", Vector2<Sint32>(p_pos.x + m_title.length() * 16, p_pos.y), Vector2<Sint32>(16, 16));
+	m_buttonAdd = new CButton("", "+", Vector2<Sint32>(p_pos.x + m_title.length() * 16 + 20, p_pos.y), Vector2<Sint32>(16, 16), true);
+	m_buttonSubtract = new CButton("", "-", Vector2<Sint32>(p_pos.x + m_title.length() * 16, p_pos.y), Vector2<Sint32>(16, 16), true);
 }
 CCounter::~CCounter()
 {

@@ -26,12 +26,15 @@ bool Application::init()
 		return false;
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
+	glfwWindowHint(GLFW_DECORATED, false);
 
-	m_mainWindow = glfwCreateWindow(m_screenSize.x, m_screenSize.y, "Voxel Engine Indev v0.1", 0, 0);
+	const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-	int wx, wy;
-	glfwGetWindowSize(m_mainWindow, &wx, &wy);
-	m_screenSize = Vector2<Uint16>(wx, wy);
+	m_mainWindow = glfwCreateWindow(min(m_screenSize.x, mode->width), min(m_screenSize.y, mode->height), "Voxel Engine Indev v0.1", 0, 0);
+
+	glfwSetWindowPos(m_mainWindow, (mode->width - m_screenSize.x) / 2, (mode->height - m_screenSize.y) / 2);
+
+
 	Globals::m_screenSize = m_screenSize;
 
 	if(!m_mainWindow)
@@ -240,6 +243,7 @@ void Application::update()
 	_last = glfwGetTime();
 
 	if(Globals::m_windowCommand == Globals::MINIMIZE) glfwIconifyWindow(m_mainWindow);
+	//if(Globals::m_windowCommand == Globals::RESIZE) glfwSetWindowSize(m_mainWindow);
 	if(Globals::m_windowCommand == Globals::CLOSE) glfwSetWindowShouldClose(m_mainWindow, true);
 	Globals::m_windowCommand = Globals::NONE;
 

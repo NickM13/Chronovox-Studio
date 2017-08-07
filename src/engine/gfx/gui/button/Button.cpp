@@ -1,6 +1,6 @@
 #include "engine\gfx\gui\button\Button.h"
 
-CButton::CButton(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, function p_func)
+CButton::CButton(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, bool p_showBorder, function p_func)
 {
 	m_selected = 0;
 	m_compName = p_compName;
@@ -9,13 +9,13 @@ CButton::CButton(std::string p_compName, std::string p_title, Vector2<Sint32> p_
 	m_size = p_size;
 	m_colorTheme = m_colorThemes[ACTION];
 	m_texture = -1;
-
+	m_showBorder = p_showBorder;
 	m_function = p_func;
 
 	m_soundClick.setSound(MBuffer::getInstance().getUnit("gui\\Click.wav"));
 	m_soundHover.setSound(MBuffer::getInstance().getUnit("gui\\Hover.wav"));
 }
-CButton::CButton(std::string p_compName, std::string p_title, Texture p_buttonTex, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, function p_func)
+CButton::CButton(std::string p_compName, std::string p_title, Texture p_buttonTex, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, bool p_showBorder, function p_func)
 {
 	m_selected = 0;
 	m_compName = p_compName;
@@ -24,7 +24,7 @@ CButton::CButton(std::string p_compName, std::string p_title, Texture p_buttonTe
 	m_size = p_size;
 	m_colorTheme = m_colorThemes[ACTION];
 	m_texture = -1;
-
+	m_showBorder = p_showBorder;
 	m_function = p_func;
 
 	m_soundClick.setSound(MBuffer::getInstance().getUnit("gui\\Click.wav"));
@@ -92,7 +92,9 @@ void CButton::update(GLfloat p_deltaUpdate)
 }
 void CButton::render()
 {
-	Component::renderBack();
+	glBindTexture(GL_TEXTURE_2D, 0);
+	if(m_showBorder)
+		Component::renderBack();
 	if(m_selected)
 		m_colorTheme.m_active.useColor();
 	else

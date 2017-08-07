@@ -23,7 +23,7 @@ public:
 	{
 		if(m_container) clear();
 		m_model = p_model;
-		
+
 		CButtonRadio* _toolbar;
 		m_container = new Container("GUI_OVERLAY", {0, 0}, Globals::m_screenSize, true);
 
@@ -32,7 +32,15 @@ public:
 		//m_container->addComponent(new CButton("", "", LTexture::getTexture("gui\\Close.png"), {4, 4}, {20, 20}, []() { Globals::m_windowCommand = Globals::CLOSE; }), PANEL_ALIGN_TOP_RIGHT)->setPriorityLayer(5);
 		//m_container->addComponent(new CButton("", "", LTexture::getTexture("gui\\Minimize.png"), {28, 4}, {20, 20}, []() { Globals::m_windowCommand = Globals::MINIMIZE; }), PANEL_ALIGN_TOP_RIGHT)->setPriorityLayer(5);
 
-		m_container->addComponent(new CToolbar("TOOLBAR_MAIN", {0, 0}, {Globals::m_screenSize.x, 18}), PANEL_ALIGN_TOP)->setPriorityLayer(4);
+		Container* titleBar = new Container("", {0, 0}, {Globals::m_screenSize.x, 28}, true);
+		titleBar->addComponent(new Panel("", "", {0, 0}, {Globals::m_screenSize.x, 28}, Component::Theme::TOOLBAR, 0));
+		titleBar->addComponent(new CIcon("", LTexture::getTexture("gui\\MatrixAnimate.png"), {2, 2}, {24, 24}));
+		titleBar->addComponent(new CText("", "Voxel Model Editor 0.1.0", {30, 14}, {0, 0}, Alignment::ALIGN_LEFT, Color(1, 1, 1)));
+		titleBar->addComponent(new CButton("BUTTON_MINIMIZE_WINDOW", "", LTexture::getTexture("gui\\Minimize.png"), {64, 0}, {32, 22}, false, []() { Globals::m_windowCommand = Globals::WindowCommand::MINIMIZE; }), PANEL_ALIGN_TOP_RIGHT);
+		titleBar->addComponent(new CButton("BUTTON_Resize_WINDOW", "", LTexture::getTexture("gui\\Resize.png"), {32, 0}, {32, 22}, false, []() { Globals::m_windowCommand = Globals::WindowCommand::RESIZE; }), PANEL_ALIGN_TOP_RIGHT);
+		titleBar->addComponent(new CButton("BUTTON_CLOSE_WINDOW", "", LTexture::getTexture("gui\\Close.png"), {0, 0}, {32, 22}, false, []() { Globals::m_windowCommand = Globals::WindowCommand::CLOSE; }), PANEL_ALIGN_TOP_RIGHT);
+		m_container->addComponent(titleBar)->setPriorityLayer(4);
+		m_container->addComponent(new CToolbar("TOOLBAR_MAIN", {0, 28}, {Globals::m_screenSize.x, 18}), PANEL_ALIGN_TOP)->setPriorityLayer(4);
 		m_container->findComponent("TOOLBAR_MAIN")->addButton("", "File")->addButton("File", "New", "", []() { m_model->newModel(); })->addButton("File", "Open", "Ctrl+O", []() { m_model->open(); })->addButton("File", "Save", "Ctrl+S", []() { m_model->save(); });
 		m_container->findComponent("TOOLBAR_MAIN")->addButton("", "Edit")->addButton("Edit", "Undo", "Ctrl+Z", []() { m_model->undo(); })->addButton("Edit", "Redo", "Ctrl+Y", []() { m_model->redo(); });
 		m_container->findComponent("TOOLBAR_MAIN")->addButton("", "Matrix")->addButton("Matrix", "New Matrix", "Ctrl+N", []() { m_container->setPauseScreen("NEW"); })->addButton("Matrix", "Resize", "Ctrl+T", []() { m_container->setPauseScreen("RESIZE")->findComponent("MATRICES")->setList(m_model->getMatrixNames()); })->addButton("Matrix", "Rename", "", []() { m_container->setPauseScreen("RENAME")->findComponent("MATRICES")->setList(m_model->getMatrixNames()); })->addButton("Matrix", "Flip X", "", []() { m_model->flipMatrix(FLIP_X); })->addButton("Matrix", "Flip Y", "", []() { m_model->flipMatrix(FLIP_Y); })->addButton("Matrix", "Flip Z", "", []() { m_model->flipMatrix(FLIP_Z); });
@@ -40,21 +48,21 @@ public:
 		m_container->findComponent("TOOLBAR_MAIN")->addButton("", "View")->addButton("View", "Focus Matrix", "Space", []() { m_model->focus(); })->addButton("View", "Toggle Grid", "Ctrl+G", []() { m_model->toggleGrid(); })->addButton("View", "Toggle Outline", "Ctrl+H", []() { m_model->toggleOutline(); });
 		m_container->findComponent("TOOLBAR_MAIN")->addButton("", "Tools")->addButton("Tools", "Add Voxel", "B", []() { *toolbar = 0; })->addButton("Tools", "Remove Voxel", "E", []() { *toolbar = 1; })->addButton("Tools", "Replace Voxel", "R", []() { *toolbar = 2; })->addButton("Tools", "Eyedropper", "K", []() { *toolbar = 3; })->addButton("Tools", "Select Matrix", "S", []() { *toolbar = 4; })->addButton("Tools", "Move Matrix", "M", []() { *toolbar = 5; })->addButton("Tools", "Resize Matrix", "T", []() { *toolbar = 6; });
 
-		m_container->addComponent(new ContainerPanel("GUI_TOOLBAR_0", "", {36, 22}, {32, 88}, Component::Theme::PRIMARY, Component::Border::BORDER_ALL, false));
+		m_container->addComponent(new ContainerPanel("GUI_TOOLBAR_0", "", {36, 50}, {32, 88}, Component::Theme::PRIMARY, Component::Border::BORDER_ALL, false));
 		_toolbar = new CButtonRadio("TOOLBAR", "", {-12, 0}, {0, 0}, toolbarMeta);
 		m_container->findComponent("GUI_TOOLBAR_0")->addComponent(_toolbar, PANEL_ALIGN_TOP);
 		_toolbar->addButton(new CButtonToggle("ADDVOXEL", LTexture::getTexture("gui\\VoxelAdd.png"), {0, 4}, {24, 24}))->setTooltip("Single - 1");			//0
 		_toolbar->addButton(new CButtonToggle("BOXVOXEL", LTexture::getTexture("gui\\VoxelBox.png"), {0, 32}, {24, 24}))->setTooltip("Box - 2");			//1
 		_toolbar->addButton(new CButtonToggle("FILLVOXEL", LTexture::getTexture("gui\\VoxelFill.png"), {0, 60}, {24, 24}))->setTooltip("Fill - 3");			//2
 
-		m_container->addComponent(new ContainerPanel("GUI_TOOLBAR_1", "", {36, 22}, {32, 88}, Component::Theme::PRIMARY, Component::Border::BORDER_ALL, false));
+		m_container->addComponent(new ContainerPanel("GUI_TOOLBAR_1", "", {36, 50}, {32, 88}, Component::Theme::PRIMARY, Component::Border::BORDER_ALL, false));
 		_toolbar = new CButtonRadio("TOOLBAR", "", {-12, 0}, {0, 0}, toolbarMeta);
 		m_container->findComponent("GUI_TOOLBAR_1")->addComponent(_toolbar, PANEL_ALIGN_TOP);
 		_toolbar->addButton(new CButtonToggle("DELVOXEL", LTexture::getTexture("gui\\VoxelDelete.png"), {0, 4}, {24, 24}))->setTooltip("Single - 1");			//0
 		_toolbar->addButton(new CButtonToggle("BOXVOXEL", LTexture::getTexture("gui\\VoxelBox.png"), {0, 32}, {24, 24}))->setTooltip("Box - 2");			//1
 		_toolbar->addButton(new CButtonToggle("FILLVOXEL", LTexture::getTexture("gui\\VoxelFill.png"), {0, 60}, {24, 24}))->setTooltip("Fill - 3");			//2
 
-		m_container->addComponent(new ContainerPanel("GUI_TOOLBAR_2", "", {36, 56}, {32, 88}, Component::Theme::PRIMARY, Component::Border::BORDER_ALL, false));
+		m_container->addComponent(new ContainerPanel("GUI_TOOLBAR_2", "", {36, 84}, {32, 88}, Component::Theme::PRIMARY, Component::Border::BORDER_ALL, false));
 		_toolbar = new CButtonRadio("TOOLBAR", "", {-12, 0}, {0, 0}, toolbarMeta);
 		m_container->findComponent("GUI_TOOLBAR_2")->addComponent(_toolbar, PANEL_ALIGN_TOP);
 		_toolbar->addButton(new CButtonToggle("REPLACEVOXEL", LTexture::getTexture("gui\\VoxelReplace.png"), {0, 4}, {24, 24}))->setTooltip("Single - 1");	//0
@@ -66,7 +74,7 @@ public:
 		m_container->addComponent(new ContainerPanel("GUI_TOOLBAR", "", {0, 0}, {32, Globals::m_screenSize.y}, Component::Theme::PRIMARY, Component::Border::BORDER_RIGHT));
 
 		m_model->setToolVar(toolbar, toolbarMeta);
-		_toolbar = new CButtonRadio("TOOLBAR", "", {-12, 4}, {0, 0}, toolbar);
+		_toolbar = new CButtonRadio("TOOLBAR", "", {-12, 32}, {0, 0}, toolbar);
 		m_container->findComponent("GUI_TOOLBAR")->addComponent(_toolbar, PANEL_ALIGN_TOP);
 		_toolbar->setFunction([]()
 		{
@@ -159,12 +167,12 @@ public:
 			m_container->setPauseScreen("");
 		});
 
-		m_container->findComponent("RESIZE")->addComponent(new CButton("OK", "Resize", {-40, 172}, {64, 24}, 0), PANEL_ALIGN_CENTER)->setFunction([]()
+		m_container->findComponent("RESIZE")->addComponent(new CButton("OK", "Resize", {-40, 172}, {64, 24}, true), PANEL_ALIGN_CENTER)->setFunction([]()
 		{
 			m_model->resize(m_container->findComponent("RESIZE")->findComponent("MATRICES")->getSelectedItem(), {*x, *y, *z}, {*w, *h, *d});
 			m_container->setPauseScreen("");
 		});
-		m_container->findComponent("RESIZE")->addComponent(new CButton("CANCEL", "Cancel", {40, 172}, {64, 24}, 0), PANEL_ALIGN_CENTER)->setFunction([]() {	m_container->setPauseScreen(""); });
+		m_container->findComponent("RESIZE")->addComponent(new CButton("CANCEL", "Cancel", {40, 172}, {64, 24}, true), PANEL_ALIGN_CENTER)->setFunction([]() {	m_container->setPauseScreen(""); });
 
 
 
@@ -195,7 +203,7 @@ public:
 			}
 		});
 
-		m_container->findComponent("NEW")->addComponent(new CButton("OK", "Create", {-40, 172}, {64, 24}, 0), PANEL_ALIGN_CENTER)->setFunction([]()
+		m_container->findComponent("NEW")->addComponent(new CButton("OK", "Create", {-40, 172}, {64, 24}, true), PANEL_ALIGN_CENTER)->setFunction([]()
 		{
 			if(m_container->findComponent("NEW")->findComponent("MATRIXNAME")->getTitle() != "")
 			{
@@ -204,7 +212,7 @@ public:
 				m_container->setPauseScreen("");
 			}
 		});
-		m_container->findComponent("NEW")->addComponent(new CButton("CANCEL", "Cancel", {40, 172}, {64, 24}, 0), PANEL_ALIGN_CENTER)->setFunction([]() { m_container->setPauseScreen(""); });
+		m_container->findComponent("NEW")->addComponent(new CButton("CANCEL", "Cancel", {40, 172}, {64, 24}, true), PANEL_ALIGN_CENTER)->setFunction([]() { m_container->setPauseScreen(""); });
 
 
 
@@ -226,7 +234,7 @@ public:
 			}
 		});
 
-		m_container->findComponent("RENAME")->addComponent(new CButton("OK", "Rename", {-40, 172}, {64, 24}, 0), PANEL_ALIGN_CENTER)->setFunction([]()
+		m_container->findComponent("RENAME")->addComponent(new CButton("OK", "Rename", {-40, 172}, {64, 24}, true), PANEL_ALIGN_CENTER)->setFunction([]()
 		{
 			if(m_container->findComponent("RENAME")->findComponent("MATRIXNAME")->getTitle() != "")
 			{
@@ -234,7 +242,7 @@ public:
 				m_container->setPauseScreen("");
 			}
 		});
-		m_container->findComponent("RENAME")->addComponent(new CButton("CANCEL", "Cancel", {40, 172}, {64, 24}, 0), PANEL_ALIGN_CENTER)->setFunction([]() { m_container->setPauseScreen(""); });
+		m_container->findComponent("RENAME")->addComponent(new CButton("CANCEL", "Cancel", {40, 172}, {64, 24}, true), PANEL_ALIGN_CENTER)->setFunction([]() { m_container->setPauseScreen(""); });
 
 
 
@@ -272,12 +280,12 @@ public:
 			}
 		})->setPriorityLayer(3);
 
-		m_container->findComponent("PARENT")->addComponent(new CButton("OK", "Set", {-40, 172}, {64, 24}, 0), PANEL_ALIGN_CENTER)->setFunction([]()
+		m_container->findComponent("PARENT")->addComponent(new CButton("OK", "Set", {-40, 172}, {64, 24}, true), PANEL_ALIGN_CENTER)->setFunction([]()
 		{
 			m_container->setPauseScreen("");
 			m_model->getMatrix(m_container->findComponent("PARENT")->findComponent("MATRICES")->getSelectedItem())->setParent(m_model->getMatrix(m_container->findComponent("PARENT")->findComponent("PARENTMATRIX")->getSelectedItem() - 1));
 		});
-		m_container->findComponent("PARENT")->addComponent(new CButton("CANCEL", "Cancel", {40, 172}, {64, 24}, 0), PANEL_ALIGN_CENTER)->setFunction([]() { m_container->setPauseScreen(""); });
+		m_container->findComponent("PARENT")->addComponent(new CButton("CANCEL", "Cancel", {40, 172}, {64, 24}, true), PANEL_ALIGN_CENTER)->setFunction([]() { m_container->setPauseScreen(""); });
 
 
 
@@ -299,7 +307,7 @@ public:
 			}
 		});
 
-		m_container->findComponent("KEYFRAME")->addComponent(new CButton("OK", "Rename", {-40, 172}, {64, 24}, 0), PANEL_ALIGN_CENTER)->setFunction([]()
+		m_container->findComponent("KEYFRAME")->addComponent(new CButton("OK", "Rename", {-40, 172}, {64, 24}, true), PANEL_ALIGN_CENTER)->setFunction([]()
 		{
 			if(m_container->findComponent("KEYFRAME")->findComponent("MATRIXNAME")->getTitle() != "")
 			{
@@ -307,7 +315,7 @@ public:
 				m_container->setPauseScreen("");
 			}
 		});
-		m_container->findComponent("KEYFRAME")->addComponent(new CButton("CANCEL", "Cancel", {40, 172}, {64, 24}, 0), PANEL_ALIGN_CENTER)->setFunction([]() { m_container->setPauseScreen(""); });
+		m_container->findComponent("KEYFRAME")->addComponent(new CButton("CANCEL", "Cancel", {40, 172}, {64, 24}, true), PANEL_ALIGN_CENTER)->setFunction([]() { m_container->setPauseScreen(""); });
 
 
 

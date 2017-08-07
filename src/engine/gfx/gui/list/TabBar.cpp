@@ -11,8 +11,8 @@ CTabBar::CTabBar(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32> 
 	m_selected = 0;
 	m_updated = 0;
 
-	m_buttonLShift = new CButton("", "<", {0, 0}, {20, m_size.y});
-	m_buttonRShift = new CButton("", ">", {m_size.x - 20, 0}, {20, m_size.y});
+	m_buttonLShift = new CButton("", "<", {0, 0}, {20, m_size.y}, true);
+	m_buttonRShift = new CButton("", ">", {m_size.x - 20, 0}, {20, m_size.y}, true);
 
 	m_maxScroll = 0;
 }
@@ -83,7 +83,7 @@ void CTabBar::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseSt
 
 	if(p_mousePos.x >= 0 && p_mousePos.y >= 0 && p_mousePos.x <= m_size.x && p_mousePos.y <= m_size.y)
 	{
-		CButton* _button = new CButton("", "", {}, {});
+		CButton* _button = new CButton("", "", {}, {}, true);
 
 		Sint32 _offset = 24 - m_scroll;
 		for(Sint32 i = 0; i < Sint32(m_tabList.size()); i++)
@@ -140,7 +140,7 @@ void CTabBar::render()
 
 		glPushMatrix();
 		{
-			CButton* _button = new CButton("", "", {}, {});
+			CButton* _button = new CButton("", "", {}, {}, true);
 
 			_button->setPosition(Vector2<Sint32>(24 - m_scroll, 0));
 			for(Sint32 i = 0; i < Sint32(m_tabList.size()); i++)

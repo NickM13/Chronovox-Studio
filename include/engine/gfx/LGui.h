@@ -16,6 +16,7 @@
 #include "gui\field\TextField.h"
 #include "gui\frequency\Counter.h"
 #include "gui\frequency\Slider.h"
+#include "gui\icon\CIcon.h"
 #include "gui\list\DropDown.h"
 #include "gui\list\List.h"
 #include "gui\list\TabBar.h"

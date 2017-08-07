@@ -20,6 +20,7 @@ public:
 	{
 		NONE = 0,
 		CLOSE,
+		RESIZE,
 		MINIMIZE
 	} m_windowCommand;
 

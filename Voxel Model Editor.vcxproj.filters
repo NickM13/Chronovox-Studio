@@ -150,6 +150,9 @@
     <ClCompile Include="src\engine\editor\model\tool\MatrixResize.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\engine\gfx\gui\icon\CIcon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\engine\gfx\font\Font.h">
@@ -354,6 +357,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\engine\editor\menu\AnimationOverlay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\gfx\gui\icon\CIcon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,7 +4,7 @@
 #include "..\Component.h"
 #include "engine\gfx\font\Font.h"
 
-struct CText : public Component
+class CText : public Component
 {
 private:
 	Alignment m_align;

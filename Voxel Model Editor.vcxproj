@@ -153,6 +153,7 @@
     <ClCompile Include="src\engine\gfx\gui\field\DataField.cpp" />
     <ClCompile Include="src\engine\gfx\gui\field\FileField.cpp" />
     <ClCompile Include="src\engine\gfx\gui\frequency\Counter.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\icon\CIcon.cpp" />
     <ClCompile Include="src\engine\gfx\gui\list\DropDown.cpp" />
     <ClCompile Include="src\engine\gfx\gui\list\List.cpp" />
     <ClCompile Include="src\engine\gfx\gui\field\NumberField.cpp" />
@@ -210,6 +211,7 @@
     <ClInclude Include="include\engine\gfx\gui\field\DataField.h" />
     <ClInclude Include="include\engine\gfx\gui\field\FileField.h" />
     <ClInclude Include="include\engine\gfx\gui\frequency\Counter.h" />
+    <ClInclude Include="include\engine\gfx\gui\icon\CIcon.h" />
     <ClInclude Include="include\engine\gfx\gui\list\DropDown.h" />
     <ClInclude Include="include\engine\gfx\gui\list\List.h" />
     <ClInclude Include="include\engine\gfx\gui\field\NumberField.h" />
