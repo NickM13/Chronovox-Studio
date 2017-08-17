@@ -11,7 +11,8 @@ enum OutlineType
 {
 	NONE = 0,
 	OUTLINE = 1,
-	HIGHLIGHT = 2
+	HOVERED = 2,
+	SELECTED = 3
 };
 
 // Data of one component of the Model
@@ -55,7 +56,7 @@ public:
 	void shiftVoxels(Vector3<Sint32> p_direction);
 	void flip(Sint8 p_axes);
 
-	std::string getName() { return m_name; };
+	std::string &getName() { return m_name; };
 	Vector3<GLfloat> getPos() { return m_pos; };
 	Vector3<Sint32> getSize() { return m_size; };
 	Sint16 getId() { return m_id; };

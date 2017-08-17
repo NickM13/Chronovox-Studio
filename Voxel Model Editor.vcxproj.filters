@@ -114,12 +114,6 @@
     <ClCompile Include="src\engine\gfx\gui\field\FileField.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\gfx\mesh\SVoxel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\utils\Globals.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\editor\menu\Overlay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -135,12 +129,6 @@
     <ClCompile Include="src\engine\editor\model\tool\MatrixCast.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\utils\event\KeyStates.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\utils\event\MouseStates.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\editor\model\tool\Box.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -150,7 +138,25 @@
     <ClCompile Include="src\engine\editor\model\tool\MatrixResize.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\gfx\gui\icon\CIcon.cpp">
+    <ClCompile Include="src\engine\utils\global\GScreen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\utils\global\event\GKey.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\utils\global\event\GMouse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\gfx\gui\frequency\SliderV.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\engine\gfx\mesh\object\MCube.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\gfx\mesh\object\TMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\gfx\gui\icon\Icon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -302,9 +308,6 @@
     <ClInclude Include="include\engine\gfx\gui\field\FileField.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\engine\gfx\mesh\SVoxel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\engine\editor\command\MoveCommand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -338,12 +341,6 @@
     <ClInclude Include="include\engine\editor\model\EditMatrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\engine\utils\event\KeyStates.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\utils\event\MouseStates.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\engine\editor\model\tool\Box.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -359,7 +356,31 @@
     <ClInclude Include="include\engine\editor\menu\AnimationOverlay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\engine\gfx\gui\icon\CIcon.h">
+    <ClInclude Include="include\engine\utils\global\GScreen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\utils\global\event\GMouse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\utils\global\event\GKey.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\gfx\gui\frequency\SliderV.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\gfx\mesh\object\TMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\gfx\mesh\object\MArrow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\gfx\mesh\object\TMeshObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\gfx\mesh\object\MScale.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\gfx\gui\icon\Icon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

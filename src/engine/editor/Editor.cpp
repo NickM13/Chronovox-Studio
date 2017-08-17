@@ -29,12 +29,13 @@ Editor::~Editor()
 	delete m_model;
 }
 
-void Editor::resize()
+void Editor::resize(bool p_maximizedByDrag)
 {
-	m_mainGui.removeComponent(Overlay::getContainer()->getName());
-	Overlay::clear();
-	Overlay::init(m_model);
-	m_mainGui.addComponent(Overlay::getContainer());
+	GScreen::m_screenSize.print();
+	m_mainGui.findComponent("GUI_OVERLAY")->setSize(GScreen::m_screenSize);
+
+	if(p_maximizedByDrag)
+		m_mainGui.findComponent("GUI_OVERLAY\\TITLE\\DRAGBAR")->setState(1);
 }
 
 void Editor::dropFile(const char* path)
@@ -61,12 +62,12 @@ void Editor::setEngineState(EngineState p_state)
 
 void Editor::renderMouse()
 {
-	if(Globals::m_tooltip != "")
+	if(GScreen::m_tooltip != "")
 	{
-		Vector2<Sint32> _size = Font::getInstance().getMessageWidth(Globals::m_tooltip);
+		Vector2<Sint32> _size = Font::getInstance().getMessageWidth(GScreen::m_tooltip);
 		Vector2<Sint32> _pos;
-		_pos.x = min(Globals::m_screenSize.x - _size.x - 4, max(4, m_mouseBuffer.x - _size.x / 2));
-		_pos.y = m_mouseBuffer.y - _size.y - 6;
+		_pos.x = min(GScreen::m_screenSize.x - _size.x - 4, max(4, m_mouseBuffer.x + 5));
+		_pos.y = m_mouseBuffer.y + 26;
 		glPushMatrix();
 		{
 			glBindTexture(GL_TEXTURE_2D, 0);
@@ -104,18 +105,19 @@ void Editor::renderMouse()
 				glVertex2f(-5, _size.y + 5);
 			}
 			glEnd();
-			Font::getInstance().print(Globals::m_tooltip, 0, Font::getInstance().getHeight() / 2);
+			Font::getInstance().setAlignment(Alignment::ALIGN_LEFT);
+			Font::getInstance().print(GScreen::m_tooltip, 0, Font::getInstance().getHeight() / 2);
 		}
 		glPopMatrix();
+		GScreen::m_tooltip = "";
 	}
-	Globals::m_tooltip = "";
 }
 
 void Editor::input()
 {
-	Vector2<Sint32> _mouseMoved = MouseStates::m_mousePos - m_mouseBuffer;
-	m_mouseBuffer = MouseStates::m_mousePos;
-	MouseStates::m_guiMousePos = MouseStates::m_mousePos;
+	Vector2<Sint32> _mouseMoved = GMouse::m_mousePos - m_mouseBuffer;
+	m_mouseBuffer = GMouse::m_mousePos;
+	GMouse::m_guiMousePos = GMouse::m_mousePos;
 
 	switch(m_engineState)
 	{
@@ -125,43 +127,43 @@ void Editor::input()
 	case GAME:
 		Sint8 _interact = Component::EventFlag::EVENT_ALL;
 
-		m_mainGui.input(_interact, KeyStates::m_keyStates, MouseStates::m_mouseStates, MouseStates::m_mousePos);
+		m_mainGui.input(_interact, GKey::m_keyStates, GMouse::m_mouseStates, GMouse::m_mousePos);
 		m_model->input(_interact);
 
 		if(!Overlay::getContainer()->isPaused() && (_interact & Component::EventFlag::EVENT_MOUSEOVER))
 		{
-			if(MouseStates::m_mouseStates[GLFW_MOUSE_BUTTON_RIGHT] & MouseStates::MOUSE_DOWN)
+			if(GMouse::m_mouseStates[GLFW_MOUSE_BUTTON_RIGHT] & GMouse::MOUSE_DOWN)
 			{
-				if(KeyStates::m_keyStates[GLFW_KEY_LEFT_SHIFT])	m_model->pan(_mouseMoved);
+				if(GKey::m_keyStates[GLFW_KEY_LEFT_SHIFT])	m_model->pan(_mouseMoved);
 				else m_model->turn(_mouseMoved);
 			}
 
-			m_model->zoom(MouseStates::m_mouseScroll);
+			m_model->zoom(GMouse::m_mouseScroll);
 		}
-		if(!Overlay::getContainer()->isPaused())
+		if(!Overlay::getContainer()->isPaused() && (_interact & Component::EventFlag::EVENT_KEYPRESS))
 		{
-			if(KeyStates::m_keyStates[GLFW_KEY_LEFT_CONTROL] && KeyStates::m_keyStates[GLFW_KEY_Z] & KeyStates::KEY_PRESS) m_model->undo();
-			else if(KeyStates::m_keyStates[GLFW_KEY_LEFT_CONTROL] && KeyStates::m_keyStates[GLFW_KEY_C] & KeyStates::KEY_PRESS) m_model->copyMatrix();
-			else if(KeyStates::m_keyStates[GLFW_KEY_LEFT_CONTROL] && KeyStates::m_keyStates[GLFW_KEY_V] & KeyStates::KEY_PRESS) m_model->pasteMatrix();
-			else if(KeyStates::m_keyStates[GLFW_KEY_LEFT_CONTROL] && KeyStates::m_keyStates[GLFW_KEY_Y] & KeyStates::KEY_PRESS) m_model->redo();
-			else if(KeyStates::m_keyStates[GLFW_KEY_LEFT_CONTROL] && KeyStates::m_keyStates[GLFW_KEY_S] & KeyStates::KEY_PRESS) m_model->save();
-			else if(KeyStates::m_keyStates[GLFW_KEY_LEFT_CONTROL] && KeyStates::m_keyStates[GLFW_KEY_O] & KeyStates::KEY_PRESS) m_model->open();
-			else if(KeyStates::m_keyStates[GLFW_KEY_LEFT_CONTROL] && KeyStates::m_keyStates[GLFW_KEY_G] & KeyStates::KEY_PRESS) m_model->toggleGrid();
-			else if(KeyStates::m_keyStates[GLFW_KEY_LEFT_CONTROL] && KeyStates::m_keyStates[GLFW_KEY_H] & KeyStates::KEY_PRESS) m_model->toggleOutline();
-			else if(KeyStates::m_keyStates[GLFW_KEY_LEFT_CONTROL] && KeyStates::m_keyStates[GLFW_KEY_T] & KeyStates::KEY_PRESS) Overlay::getContainer()->setPauseScreen("RESIZE");
-			else if(KeyStates::m_keyStates[GLFW_KEY_LEFT_CONTROL] && KeyStates::m_keyStates[GLFW_KEY_N] & KeyStates::KEY_PRESS) Overlay::getContainer()->setPauseScreen("NEW");
-			else if(KeyStates::m_keyStates[GLFW_KEY_SPACE] & KeyStates::KEY_PRESS) m_model->focus();
-			else if(KeyStates::m_keyStates[GLFW_KEY_DELETE] & KeyStates::KEY_PRESS) m_model->removeMatrix();
-			else if(KeyStates::m_keyStates[GLFW_KEY_B] & KeyStates::KEY_PRESS) m_model->setTool(ADD);
-			else if(KeyStates::m_keyStates[GLFW_KEY_E] & KeyStates::KEY_PRESS) m_model->setTool(ERASE);
-			else if(KeyStates::m_keyStates[GLFW_KEY_R] & KeyStates::KEY_PRESS) m_model->setTool(REPLACE);
-			else if(KeyStates::m_keyStates[GLFW_KEY_K] & KeyStates::KEY_PRESS) m_model->setTool(EYEDROP);
-			else if(KeyStates::m_keyStates[GLFW_KEY_S] & KeyStates::KEY_PRESS) m_model->setTool(SELECT);
-			else if(KeyStates::m_keyStates[GLFW_KEY_M] & KeyStates::KEY_PRESS) m_model->setTool(MOVE);
-			else if(KeyStates::m_keyStates[GLFW_KEY_T] & KeyStates::KEY_PRESS) m_model->setTool(RESIZE);
-			else if(KeyStates::m_keyStates[GLFW_KEY_1] & KeyStates::KEY_PRESS) m_model->setToolMeta(0);
-			else if(KeyStates::m_keyStates[GLFW_KEY_2] & KeyStates::KEY_PRESS) m_model->setToolMeta(1);
-			else if(KeyStates::m_keyStates[GLFW_KEY_3] & KeyStates::KEY_PRESS) m_model->setToolMeta(2);
+			if(GKey::m_keyStates[GLFW_KEY_LEFT_CONTROL] && GKey::m_keyStates[GLFW_KEY_Z] & GKey::KEY_PRESS) m_model->undo();
+			else if(GKey::m_keyStates[GLFW_KEY_LEFT_CONTROL] && GKey::m_keyStates[GLFW_KEY_C] & GKey::KEY_PRESS) m_model->copyMatrix();
+			else if(GKey::m_keyStates[GLFW_KEY_LEFT_CONTROL] && GKey::m_keyStates[GLFW_KEY_V] & GKey::KEY_PRESS) m_model->pasteMatrix();
+			else if(GKey::m_keyStates[GLFW_KEY_LEFT_CONTROL] && GKey::m_keyStates[GLFW_KEY_Y] & GKey::KEY_PRESS) m_model->redo();
+			else if(GKey::m_keyStates[GLFW_KEY_LEFT_CONTROL] && GKey::m_keyStates[GLFW_KEY_S] & GKey::KEY_PRESS) m_model->save();
+			else if(GKey::m_keyStates[GLFW_KEY_LEFT_CONTROL] && GKey::m_keyStates[GLFW_KEY_O] & GKey::KEY_PRESS) m_model->open();
+			else if(GKey::m_keyStates[GLFW_KEY_LEFT_CONTROL] && GKey::m_keyStates[GLFW_KEY_G] & GKey::KEY_PRESS) m_model->toggleGrid();
+			else if(GKey::m_keyStates[GLFW_KEY_LEFT_CONTROL] && GKey::m_keyStates[GLFW_KEY_H] & GKey::KEY_PRESS) m_model->toggleOutline();
+			else if(GKey::m_keyStates[GLFW_KEY_LEFT_CONTROL] && GKey::m_keyStates[GLFW_KEY_T] & GKey::KEY_PRESS) Overlay::getContainer()->setPauseScreen("RESIZE");
+			else if(GKey::m_keyStates[GLFW_KEY_LEFT_CONTROL] && GKey::m_keyStates[GLFW_KEY_N] & GKey::KEY_PRESS) Overlay::getContainer()->setPauseScreen("NEW");
+			else if(GKey::m_keyStates[GLFW_KEY_SPACE] & GKey::KEY_PRESS) m_model->focus();
+			else if(GKey::m_keyStates[GLFW_KEY_DELETE] & GKey::KEY_PRESS) m_model->removeMatrix();
+			else if(GKey::m_keyStates[GLFW_KEY_B] & GKey::KEY_PRESS) m_model->setTool(ADD);
+			else if(GKey::m_keyStates[GLFW_KEY_E] & GKey::KEY_PRESS) m_model->setTool(ERASE);
+			else if(GKey::m_keyStates[GLFW_KEY_R] & GKey::KEY_PRESS) m_model->setTool(REPLACE);
+			else if(GKey::m_keyStates[GLFW_KEY_K] & GKey::KEY_PRESS) m_model->setTool(EYEDROP);
+			else if(GKey::m_keyStates[GLFW_KEY_S] & GKey::KEY_PRESS) m_model->setTool(SELECT);
+			else if(GKey::m_keyStates[GLFW_KEY_M] & GKey::KEY_PRESS) m_model->setTool(MOVE);
+			else if(GKey::m_keyStates[GLFW_KEY_T] & GKey::KEY_PRESS) m_model->setTool(RESIZE);
+			else if(GKey::m_keyStates[GLFW_KEY_1] & GKey::KEY_PRESS) m_model->setToolMeta(0);
+			else if(GKey::m_keyStates[GLFW_KEY_2] & GKey::KEY_PRESS) m_model->setToolMeta(1);
+			else if(GKey::m_keyStates[GLFW_KEY_3] & GKey::KEY_PRESS) m_model->setToolMeta(2);
 		}
 		break;
 	}
@@ -172,7 +174,7 @@ void Editor::update()
 	m_deltaUpdate = min(0.5f, GLfloat(glfwGetTime() - m_lastUpdate));
 	m_lastUpdate = GLfloat(glfwGetTime());
 
-	Globals::m_deltaTime = m_deltaUpdate;
+	GScreen::m_deltaTime = m_deltaUpdate;
 
 	switch(m_engineState)
 	{

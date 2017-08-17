@@ -12,7 +12,7 @@
 struct EditMatrix
 {
 private:
-	Sint32 m_matrixId;
+	Sint16 m_matrixId;
 	Matrix* m_matrix, *m_initMatrix;
 
 	std::vector<Command*> m_recentCommands;
@@ -162,7 +162,7 @@ public:
 			return m_initMatrix->getVoxel(p_pos);
 		return Voxel();
 	}
-	Sint32 getId()
+	Sint16 &getId()
 	{
 		return m_matrixId;
 	}

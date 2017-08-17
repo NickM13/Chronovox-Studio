@@ -10,7 +10,7 @@ CButton::CButton(std::string p_compName, std::string p_title, Vector2<Sint32> p_
 	m_colorTheme = m_colorThemes[ACTION];
 	m_texture = -1;
 	m_showBorder = p_showBorder;
-	m_function = p_func;
+	m_pressFunction = p_func;
 
 	m_soundClick.setSound(MBuffer::getInstance().getUnit("gui\\Click.wav"));
 	m_soundHover.setSound(MBuffer::getInstance().getUnit("gui\\Hover.wav"));
@@ -25,7 +25,7 @@ CButton::CButton(std::string p_compName, std::string p_title, Texture p_buttonTe
 	m_colorTheme = m_colorThemes[ACTION];
 	m_texture = -1;
 	m_showBorder = p_showBorder;
-	m_function = p_func;
+	m_pressFunction = p_func;
 
 	m_soundClick.setSound(MBuffer::getInstance().getUnit("gui\\Click.wav"));
 	m_soundHover.setSound(MBuffer::getInstance().getUnit("gui\\Hover.wav"));
@@ -50,9 +50,9 @@ void CButton::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseSt
 	if(m_hover)
 	{
 		addTooltip();
-		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_DOWN)
+		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN)
 		{
-			if((p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS) || m_selected != 0)
+			if((p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS) || m_selected != 0)
 			{
 				if(m_selected == 0) m_selected = 1;
 				else m_selected = 2;
@@ -70,8 +70,8 @@ void CButton::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseSt
 			{
 				m_soundClick.play2d();
 				m_selected = 0;
-				if(m_function)
-					m_function();
+				if(m_pressFunction)
+					m_pressFunction();
 				return;
 			}
 		}
@@ -96,13 +96,13 @@ void CButton::render()
 	if(m_showBorder)
 		Component::renderBack();
 	if(m_selected)
-		m_colorTheme.m_active.useColor();
+		m_colorTheme.m_select.useColor();
 	else
 	{
 		if(m_hover)
-			Color((m_colorTheme.m_active / 2 + m_colorTheme.m_fore / 2)).useColor();
+			Color((m_colorTheme.m_select / 2 + m_colorTheme.m_primary / 2)).useColor();
 		else
-			m_colorTheme.m_fore.useColor();
+			m_colorTheme.m_primary.useColor();
 	}
 	Component::renderFill(false);
 
@@ -144,8 +144,8 @@ void CButton::render()
 void CButton::setState(Sint8 p_selected)
 {
 	m_selected = p_selected;
-	if(p_selected == 1 && m_function != 0)
-		m_function();
+	if(p_selected == 1 && m_pressFunction != 0)
+		m_pressFunction();
 }
 
 Sint8 CButton::isSelected() // 0 = not selected, 1 = JUST pressed, 2 = is held, 3 = JUST released

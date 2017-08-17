@@ -46,7 +46,7 @@ void CTileSet::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseS
 		p_mousePos.x >= m_pos.x && p_mousePos.x <= m_pos.x + _size.x &&
 		p_mousePos.y >= m_pos.y && p_mousePos.y <= m_pos.y + _size.y)
 	{
-		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 		{
 			if(Sint16(GLfloat(p_mousePos.x - m_pos.x + (GLfloat(m_scroll.x) / m_tileSize) * m_tileSize) < m_tileSheet.getSize().x) &&
 				Sint16(GLfloat(p_mousePos.y - m_pos.y + (GLfloat(m_scroll.y) / m_tileSize) * m_tileSize) < m_tileSheet.getSize().y))
@@ -57,7 +57,7 @@ void CTileSet::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseS
 				p_interactFlags += 1;
 
 		}
-		else if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS || (p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_DOWN) && m_dragging)
+		else if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS || (p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN) && m_dragging)
 		{
 			m_dragging = true;
 			if((p_interactFlags & 1) == 0)
@@ -67,7 +67,7 @@ void CTileSet::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseS
 
 	if((p_interactFlags & 2) == 0)
 	{
-		if(p_keyStates[GLFW_KEY_LEFT] & KeyStates::KEY_PRESS || p_keyStates[GLFW_KEY_A] & KeyStates::KEY_PRESS)
+		if(p_keyStates[GLFW_KEY_LEFT] & GKey::KEY_PRESS || p_keyStates[GLFW_KEY_A] & GKey::KEY_PRESS)
 		{
 			m_selectedTile.x--;
 			if(m_selectedTile.x < 0)
@@ -76,7 +76,7 @@ void CTileSet::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseS
 				m_scroll.x = m_selectedTile.x * m_tileSize;
 			p_interactFlags += 2;
 		}
-		if(p_keyStates[GLFW_KEY_RIGHT] & KeyStates::KEY_PRESS || p_keyStates[GLFW_KEY_D] & KeyStates::KEY_PRESS)
+		if(p_keyStates[GLFW_KEY_RIGHT] & GKey::KEY_PRESS || p_keyStates[GLFW_KEY_D] & GKey::KEY_PRESS)
 		{
 			m_selectedTile.x++;
 			if(m_selectedTile.x > (m_tileSheet.getSize().x / m_tileSize) - 1)
@@ -85,7 +85,7 @@ void CTileSet::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseS
 				m_scroll.x = m_selectedTile.x * m_tileSize - m_size.x + m_tileSize;
 			p_interactFlags += 2;
 		}
-		if(p_keyStates[GLFW_KEY_UP] & KeyStates::KEY_PRESS || p_keyStates[GLFW_KEY_W] & KeyStates::KEY_PRESS)
+		if(p_keyStates[GLFW_KEY_UP] & GKey::KEY_PRESS || p_keyStates[GLFW_KEY_W] & GKey::KEY_PRESS)
 		{
 			m_selectedTile.y--;
 			if(m_selectedTile.y < 0)
@@ -94,7 +94,7 @@ void CTileSet::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseS
 				m_scroll.y = m_selectedTile.y * m_tileSize;
 			p_interactFlags += 2;
 		}
-		if(p_keyStates[GLFW_KEY_DOWN] & KeyStates::KEY_PRESS || p_keyStates[GLFW_KEY_S] & KeyStates::KEY_PRESS)
+		if(p_keyStates[GLFW_KEY_DOWN] & GKey::KEY_PRESS || p_keyStates[GLFW_KEY_S] & GKey::KEY_PRESS)
 		{
 			m_selectedTile.y++;
 			if(m_selectedTile.y > (m_tileSheet.getSize().y / m_tileSize) - 1)
@@ -107,7 +107,7 @@ void CTileSet::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseS
 
 	if(m_dragging)
 	{
-		if(p_mouseStates[1] == 0 || p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+		if(p_mouseStates[1] == 0 || p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 			m_dragging = false;
 		else
 		{
@@ -151,7 +151,7 @@ void CTileSet::render()
 		else
 			MScissor::getInstance().toggle();
 
-		m_colorTheme.m_back.useColor();
+		m_colorTheme.m_border.useColor();
 		glBegin(GL_QUADS);
 		{
 			glVertex2f(-GLfloat(1), -GLfloat(1) - 20);
@@ -161,7 +161,7 @@ void CTileSet::render()
 		}
 		glEnd();
 
-		m_colorTheme.m_fore.useColor();
+		m_colorTheme.m_primary.useColor();
 		glBegin(GL_QUADS);
 		{
 			glVertex2f(-GLfloat(1), GLfloat(_size.y + (1)));
@@ -245,7 +245,7 @@ void CTileSet::render()
 
 		if(m_hover || m_dragging)
 		{
-			m_colorTheme.m_back.useColor();
+			m_colorTheme.m_border.useColor();
 			glBegin(GL_QUADS);
 			{
 				glVertex2f((GLfloat(m_scroll.x) / (m_tileSheet.getSize().x - _size.x + m_tileSize - 1)) * (_size.x - 80) + 4, GLfloat(_size.y - 12));
@@ -259,7 +259,7 @@ void CTileSet::render()
 				glVertex2f(GLfloat(_size.x - 12), (GLfloat(m_scroll.y) / (m_tileSheet.getSize().y - _size.y + m_tileSize - 1)) * (_size.y - 80) + 60);
 			}
 			glEnd();
-			m_colorTheme.m_fore.useColor();
+			m_colorTheme.m_primary.useColor();
 			glBegin(GL_QUADS);
 			{
 				glVertex2f((GLfloat(m_scroll.x) / (m_tileSheet.getSize().x - _size.x + m_tileSize - 1)) * (_size.x - 80) + 5, GLfloat(_size.y - 11));

@@ -77,16 +77,17 @@ void TextField::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouse
 	if((p_interactFlags & EVENT_MOUSEOVER) && p_mousePos.x >= 0 && p_mousePos.x < m_size.x
 		&& p_mousePos.y >= 0 && p_mousePos.y < m_size.y)
 	{
+		p_interactFlags -= EVENT_MOUSEOVER;
 		addTooltip();
-		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 			m_selected = 1;
 	}
-	else if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+	else if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 		m_selected = 0;
 	if((p_interactFlags & EVENT_KEYPRESS) && m_selected != 0)
 	{
 		p_interactFlags -= EVENT_KEYPRESS;
-		std::vector<KeyStates::keyPress> _keyEvents = KeyStates::m_keyEvents;
+		std::vector<GKey::keyPress> _keyEvents = GKey::m_keyEvents;
 		for(Uint16 i = 0; i < _keyEvents.size(); i++)
 		{
 			if(_keyEvents[i].m_action != 0)
@@ -103,13 +104,13 @@ void TextField::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouse
 					else
 					{
 						m_selected = 0;
-						callFunction();
+						callPressFunction();
 					}
 				}
 				else if(_keyEvents[i].m_keyCode == GLFW_KEY_TAB)
 				{
 					m_selected = 0;
-					callFunction();
+					callPressFunction();
 				}
 				else if(_keyEvents[i].m_keyCode == GLFW_KEY_ESCAPE)
 				{
@@ -317,14 +318,14 @@ void TextField::render()
 		glTranslatef(GLfloat(m_pos.x), GLfloat(m_pos.y), 0);
 		glBegin(GL_QUADS);
 		{
-			m_colorTheme.m_back.useColor();
+			m_colorTheme.m_border.useColor();
 			glVertex2f(-1, -1);
 			glVertex2f(GLfloat(m_size.x + 1), -1);
 			glVertex2f(GLfloat(m_size.x + 1), GLfloat(m_size.y + 1));
 			glVertex2f(-1, GLfloat(m_size.y + 1));
 
-			if(m_selected) m_colorTheme.m_active.useColor();
-			else m_colorTheme.m_fore.useColor();
+			if(m_selected) m_colorTheme.m_select.useColor();
+			else m_colorTheme.m_primary.useColor();
 			glVertex2f(0, 0);
 			glVertex2f(GLfloat(m_size.x), 0);
 			glVertex2f(GLfloat(m_size.x), GLfloat(m_size.y));

@@ -153,7 +153,8 @@
     <ClCompile Include="src\engine\gfx\gui\field\DataField.cpp" />
     <ClCompile Include="src\engine\gfx\gui\field\FileField.cpp" />
     <ClCompile Include="src\engine\gfx\gui\frequency\Counter.cpp" />
-    <ClCompile Include="src\engine\gfx\gui\icon\CIcon.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\frequency\SliderV.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\icon\Icon.cpp" />
     <ClCompile Include="src\engine\gfx\gui\list\DropDown.cpp" />
     <ClCompile Include="src\engine\gfx\gui\list\List.cpp" />
     <ClCompile Include="src\engine\gfx\gui\field\NumberField.cpp" />
@@ -166,12 +167,13 @@
     <ClCompile Include="src\engine\gfx\gui\list\Toolbar.cpp" />
     <ClCompile Include="src\engine\gfx\gui\Component.cpp" />
     <ClCompile Include="src\engine\gfx\LTexture.cpp" />
-    <ClCompile Include="src\engine\gfx\mesh\SVoxel.cpp" />
+    <ClCompile Include="include\engine\gfx\mesh\object\MCube.h" />
+    <ClCompile Include="src\engine\gfx\mesh\object\TMesh.cpp" />
     <ClCompile Include="src\engine\gfx\mesh\VoxelMesh.cpp" />
     <ClCompile Include="src\engine\sfx\Sound.cpp" />
-    <ClCompile Include="src\engine\utils\event\KeyStates.cpp" />
-    <ClCompile Include="src\engine\utils\event\MouseStates.cpp" />
-    <ClCompile Include="src\engine\utils\Globals.cpp" />
+    <ClCompile Include="src\engine\utils\global\event\GKey.cpp" />
+    <ClCompile Include="src\engine\utils\global\event\GMouse.cpp" />
+    <ClCompile Include="src\engine\utils\global\GScreen.cpp" />
     <ClCompile Include="src\engine\utils\Utilities.cpp" />
     <ClCompile Include="src\engine\utils\variable\manager\ColorManager.cpp" />
     <ClCompile Include="src\engine\utils\variable\manager\Manager.cpp" />
@@ -211,7 +213,7 @@
     <ClInclude Include="include\engine\gfx\gui\field\DataField.h" />
     <ClInclude Include="include\engine\gfx\gui\field\FileField.h" />
     <ClInclude Include="include\engine\gfx\gui\frequency\Counter.h" />
-    <ClInclude Include="include\engine\gfx\gui\icon\CIcon.h" />
+    <ClInclude Include="include\engine\gfx\gui\icon\Icon.h" />
     <ClInclude Include="include\engine\gfx\gui\list\DropDown.h" />
     <ClInclude Include="include\engine\gfx\gui\list\List.h" />
     <ClInclude Include="include\engine\gfx\gui\field\NumberField.h" />
@@ -225,13 +227,17 @@
     <ClInclude Include="include\engine\gfx\gui\Component.h" />
     <ClInclude Include="include\engine\gfx\LGui.h" />
     <ClInclude Include="include\engine\gfx\LTexture.h" />
-    <ClInclude Include="include\engine\gfx\mesh\SVoxel.h" />
+    <ClInclude Include="include\engine\gfx\mesh\object\MArrow.h" />
+    <ClInclude Include="include\engine\gfx\mesh\object\MScale.h" />
+    <ClInclude Include="include\engine\gfx\mesh\object\TMesh.h" />
+    <ClInclude Include="include\engine\gfx\mesh\object\TMeshObject.h" />
     <ClInclude Include="include\engine\gfx\mesh\VoxelMesh.h" />
     <ClInclude Include="include\engine\sfx\LOpenAL.h" />
     <ClInclude Include="include\engine\sfx\Sound.h" />
-    <ClInclude Include="include\engine\utils\event\KeyStates.h" />
-    <ClInclude Include="include\engine\utils\event\MouseStates.h" />
+    <ClInclude Include="include\engine\utils\global\event\GKey.h" />
+    <ClInclude Include="include\engine\utils\global\event\GMouse.h" />
     <ClInclude Include="include\engine\utils\Globals.h" />
+    <ClInclude Include="include\engine\utils\global\GScreen.h" />
     <ClInclude Include="include\engine\utils\OpenGL.h" />
     <ClInclude Include="include\engine\utils\Singleton.h" />
     <ClInclude Include="include\engine\utils\Utilities.h" />
@@ -249,6 +255,7 @@
     <ClInclude Include="include\engine\utils\variable\manager\TextureManager.h" />
     <ClInclude Include="include\engine\utils\variable\manager\VoxelManager.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="include\engine\gfx\gui\frequency\SliderV.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Voxel Model Editor.rc" />

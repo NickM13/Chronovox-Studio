@@ -129,6 +129,7 @@ void Font::clean()
 		glDeleteTextures(255, m_fontList[i].m_textures);
 		delete[] m_fontList[i].m_textures;
 	}
+	m_fontList.clear();
 }
 
 Vector2<Sint32> Font::getMessageWidth(std::string p_msg)

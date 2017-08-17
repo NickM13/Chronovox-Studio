@@ -1,6 +1,5 @@
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\vc141.pdb
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\vc141.idb
-c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\slider.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\tabbar.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\text.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\textfield.obj
@@ -8,21 +7,19 @@ c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\toolbar.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\component.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\ltexture.obj
-c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\svoxel.obj
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\mcube.obj
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\tmesh.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\voxelmesh.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\sound.obj
-c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\keystates.obj
-c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\mousestates.obj
-c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\globals.obj
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\gkey.obj
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\gmouse.obj
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\gscreen.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\utilities.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\colormanager.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\manager.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\scissormanager.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\texturemanager.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\main.obj
-c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\model.obj
-c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\box.obj
-c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\fill.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\matrixcast.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\matrixmove.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\matrixresize.obj
@@ -36,22 +33,32 @@ c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\datafield.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\filefield.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\counter.obj
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\sliderv.obj
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\icon.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\dropdown.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\list.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\numberfield.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\panel.obj
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\slider.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\application.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\editor.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\overlay.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\nvmformat.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\matrix.obj
-c:\users\nick\documents\visual studio 2017\projects\voxel model editor\bin\debug\voxel model editor.ilk
-c:\users\nick\documents\visual studio 2017\projects\voxel model editor\bin\debug\voxel model editor.exe
-c:\users\nick\documents\visual studio 2017\projects\voxel model editor\bin\debug\voxel model editor.pdb
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\model.obj
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\box.obj
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\fill.obj
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\voxel model editor.res
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\bin\debug\voxel model editor.pdb
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\voxel mo.1f8be261.tlog\cl.command.1.tlog
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\voxel mo.1f8be261.tlog\cl.read.1.tlog
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\voxel mo.1f8be261.tlog\cl.write.1.tlog
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\voxel mo.1f8be261.tlog\link.9760-cvtres.read.1.tlog
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\voxel mo.1f8be261.tlog\link.9760-cvtres.write.1.tlog
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\voxel mo.1f8be261.tlog\link.9760-rc.read.1.tlog
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\voxel mo.1f8be261.tlog\link.9760-rc.write.1.tlog
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\voxel mo.1f8be261.tlog\link.9760.read.1.tlog
+c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\voxel mo.1f8be261.tlog\link.9760.write.1.tlog
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\voxel mo.1f8be261.tlog\link.command.1.tlog
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\voxel mo.1f8be261.tlog\link.read.1.tlog
 c:\users\nick\documents\visual studio 2017\projects\voxel model editor\log\debug\voxel mo.1f8be261.tlog\link.write.1.tlog

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine\utils\Globals.h"
+#include "engine\utils\global\GScreen.h"
 #include "..\Component.h"
 #include "engine\gfx\font\Font.h"
 #include <iostream>

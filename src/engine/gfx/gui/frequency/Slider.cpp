@@ -33,7 +33,7 @@ void CSlider::setValue(Sint32 p_value)
 			*m_numValue = m_maxValue;
 		else
 			*m_numValue = p_value;
-		callFunction();
+		callPressFunction();
 	}
 }
 
@@ -46,7 +46,7 @@ void CSlider::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseSt
 {
 	if((p_interactFlags & EVENT_MOUSEOVER) || m_held)
 	{
-		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 		{
 			if(p_mousePos.x >= m_pos.x - m_width && p_mousePos.x < m_pos.x + m_length + m_width &&
 				p_mousePos.y >= m_pos.y - m_height / 2 && p_mousePos.y < m_pos.y + m_height / 2)
@@ -54,7 +54,7 @@ void CSlider::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseSt
 				m_held = true;
 			}
 		}
-		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_DOWN)
+		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN)
 		{
 			if(m_held)
 			{
@@ -62,7 +62,7 @@ void CSlider::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseSt
 				setValue(Sint32(round((m_slideValue / GLfloat(m_length)) * (m_maxValue))));
 			}
 		}
-		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_RELEASE)
+		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_RELEASE)
 		{
 			m_held = false;
 		}
@@ -88,27 +88,27 @@ void CSlider::render()
 		glBegin(GL_QUADS);
 		{
 			//Outline
-			m_colorTheme.m_back.useColor(0.5f, 0.5f, 0.5f);
+			m_colorTheme.m_border.useColor(0.5f, 0.5f, 0.5f);
 			glVertex2f(-m_width - 1, -GLfloat(m_height / 2) - 1);
 			glVertex2f(GLfloat(m_length + m_width + 1), -GLfloat(m_height / 2) - 1);
 			glVertex2f(GLfloat(m_length + m_width + 1), GLfloat(m_height / 2) + 1);
 			glVertex2f(-m_width - 1, GLfloat(m_height / 2) + 1);
 
 			//Background
-			m_colorTheme.m_back.useColor();
+			m_colorTheme.m_border.useColor();
 			glVertex2f(-m_width, -GLfloat(m_height / 2));
 			glVertex2f(GLfloat(m_length + m_width), -GLfloat(m_height / 2));
 			glVertex2f(GLfloat(m_length + m_width), GLfloat(m_height / 2));
 			glVertex2f(-m_width, GLfloat(m_height / 2));
 
-			m_colorTheme.m_fore.useColor();
+			m_colorTheme.m_primary.useColor();
 			glVertex2f(-m_width, -GLfloat(m_height / 2));
 			glVertex2f(GLfloat(m_slideValue), -GLfloat(m_height / 2));
 			glVertex2f(GLfloat(m_slideValue), GLfloat(m_height / 2));
 			glVertex2f(-m_width, GLfloat(m_height / 2));
 
 			//Slider
-			m_colorTheme.m_active.useColor();
+			m_colorTheme.m_select.useColor();
 			glVertex2f(GLfloat(m_slideValue - m_width), -GLfloat(m_height / 2));
 			glVertex2f(GLfloat(m_slideValue + m_width), -GLfloat(m_height / 2));
 			glVertex2f(GLfloat(m_slideValue + m_width), GLfloat(m_height / 2));
@@ -118,7 +118,7 @@ void CSlider::render()
 	}
 	glPopMatrix();
 
-	m_colorTheme.m_textInfo.useColor();
+	m_colorTheme.m_textLight.useColor();
 	Font::getInstance().setAlignment(ALIGN_CENTER);
 	Font::getInstance().print(m_title, Sint32(m_pos.x + m_length / 2), Sint32(m_pos.y - m_height));
 

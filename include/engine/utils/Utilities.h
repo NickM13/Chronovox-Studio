@@ -8,9 +8,9 @@
 #include "engine\utils\variable\datatype\Vector3.h"
 #include "engine\utils\variable\datatype\Vector4.h"
 #include "engine\utils\variable\datatype\Macros.h"
-#include "engine\utils\event\KeyStates.h"
-#include "engine\utils\event\MouseStates.h"
-#include "engine\utils\Globals.h"
+#include "engine\utils\global\event\GKey.h"
+#include "engine\utils\global\event\GMouse.h"
+#include "engine\utils\global\GScreen.h"
 #include "engine\utils\OpenGL.h"
 #include <sstream>
 #include <stdlib.h>

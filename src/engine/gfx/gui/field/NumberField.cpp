@@ -23,15 +23,15 @@ void NumberField::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mou
 		&& p_mousePos.y >= 0 && p_mousePos.y < m_size.y)
 	{
 		addTooltip();
-		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 			m_selected = 1;
 	}
-	else if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+	else if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 		m_selected = 0;
 	if((p_interactFlags & EVENT_KEYPRESS) && m_selected != 0)
 	{
 		p_interactFlags -= EVENT_KEYPRESS;
-		std::vector<KeyStates::keyPress> _keyEvents = KeyStates::m_keyEvents;
+		std::vector<GKey::keyPress> _keyEvents = GKey::m_keyEvents;
 		for(Uint16 i = 0; i < _keyEvents.size(); i++)
 		{
 			if(_keyEvents[i].m_action != 0)
@@ -40,7 +40,7 @@ void NumberField::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mou
 				{
 					p_interactFlags += EVENT_KEYPRESS;
 					m_selected = 0;
-					callFunction();
+					callPressFunction();
 				}
 				else if(_keyEvents[i].m_keyCode == GLFW_KEY_ESCAPE)
 				{
@@ -100,21 +100,21 @@ void NumberField::render()
 		glTranslatef(GLfloat(m_pos.x), GLfloat(m_pos.y), 0);
 		glBegin(GL_QUADS);
 		{
-			m_colorTheme.m_back.useColor();
+			m_colorTheme.m_border.useColor();
 			glVertex2f(-1, -1);
 			glVertex2f(GLfloat(m_size.x + 1), -1);
 			glVertex2f(GLfloat(m_size.x + 1), GLfloat(m_size.y + 1));
 			glVertex2f(-1, GLfloat(m_size.y + 1));
 
-			if(m_selected) m_colorTheme.m_active.useColor();
-			else m_colorTheme.m_fore.useColor();
+			if(m_selected) m_colorTheme.m_select.useColor();
+			else m_colorTheme.m_primary.useColor();
 			glVertex2f(0, 0);
 			glVertex2f(GLfloat(m_size.x), 0);
 			glVertex2f(GLfloat(m_size.x), GLfloat(m_size.y));
 			glVertex2f(0, GLfloat(m_size.y));
 		}
 		glEnd();
-		m_colorTheme.m_textInfo.useColor();
+		m_colorTheme.m_textLight.useColor();
 		Font::getInstance().setAlignment(ALIGN_RIGHT);
 		Font::getInstance().print(m_title, -2, Sint32(0.5f * Font::getInstance().getSpacingHeight()));
 		m_colorTheme.m_text.useColor();

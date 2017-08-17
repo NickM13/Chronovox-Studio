@@ -60,9 +60,20 @@ Container::~Container()
 
 Container::Component* Container::findComponent(std::string p_compName)
 {
-	for(Uint16 i = 0; i < m_componentList.size(); i++)
-		if(m_componentList[i].m_component->getName() == p_compName)
-			return m_componentList[i].m_component;
+	Uint16 _loc = Uint16(p_compName.find('\\'));
+	if(_loc < p_compName.length())
+	{
+		for(Uint16 i = 0; i < m_componentList.size(); i++)
+			if(m_componentList[i].m_component->getName() == p_compName.substr(0, _loc))
+				return m_componentList[i].m_component->findComponent(p_compName.substr(_loc + 1));
+	}
+	else
+	{
+		for(Uint16 i = 0; i < m_componentList.size(); i++)
+			if(m_componentList[i].m_component->getName() == p_compName)
+				return m_componentList[i].m_component;
+	}
+
 	return 0;
 }
 void Container::removeComponent(std::string p_compName)
@@ -103,9 +114,9 @@ void Container::updateSize()
 void Container::input()
 {
 	Sint8 interactFlags = 0;
-	Sint8* keyStates = KeyStates::m_keyStates;
-	Sint8* mouseStates = MouseStates::m_mouseStates;
-	Vector2<Sint32> mousePos = MouseStates::m_guiMousePos;
+	Sint8* keyStates = GKey::m_keyStates;
+	Sint8* mouseStates = GMouse::m_mouseStates;
+	Vector2<Sint32> mousePos = GMouse::m_guiMousePos;
 
 	input(interactFlags, keyStates, mouseStates, mousePos);
 }

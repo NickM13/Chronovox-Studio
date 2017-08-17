@@ -6,11 +6,11 @@ CButtonToggle::CButtonToggle(std::string p_compName, std::string p_title, Vector
 	m_title = p_title;
 	m_pos = p_pos;
 	m_size = p_size;
-	m_colorTheme = m_colorThemes[ACTION];
+	m_colorTheme = m_colorThemes[Theme::ACTION];
 	m_selected = p_state;
 
 	m_texType = 0;
-	m_function = p_func;
+	m_pressFunction = p_func;
 
 	m_soundClick.setSound(MBuffer::getInstance().getUnit("gui\\Click.wav"));
 	m_soundHover.setSound(MBuffer::getInstance().getUnit("gui\\Hover.wav"));
@@ -23,10 +23,10 @@ CButtonToggle::CButtonToggle(std::string p_compName, Texture p_buttonTex, Vector
 	m_title = "";
 	m_pos = p_pos;
 	m_size = p_size;
-	m_colorTheme = m_colorThemes[ACTION];
+	m_colorTheme = m_colorThemes[Theme::ACTION];
 	m_selected = p_state;
 
-	m_function = p_func;
+	m_pressFunction = p_func;
 
 	m_soundClick.setSound(MBuffer::getInstance().getUnit("gui\\Click.wav"));
 	m_soundHover.setSound(MBuffer::getInstance().getUnit("gui\\Hover.wav"));
@@ -42,10 +42,10 @@ CButtonToggle::CButtonToggle(std::string p_compName, Texture p_activeTex, Textur
 	m_title = "";
 	m_pos = p_pos;
 	m_size = p_size;
-	m_colorTheme = m_colorThemes[ACTION];
+	m_colorTheme = m_colorThemes[Theme::ACTION];
 	m_selected = p_state;
 
-	m_function = p_func;
+	m_pressFunction = p_func;
 
 	m_soundClick.setSound(MBuffer::getInstance().getUnit("gui\\Click.wav"));
 	m_soundHover.setSound(MBuffer::getInstance().getUnit("gui\\Hover.wav"));
@@ -66,19 +66,19 @@ void CButtonToggle::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_m
 		p_mousePos.y >= 0 && p_mousePos.y <= m_size.y)
 	{
 		addTooltip();
-		if(!m_hover)
+		if(!m_hovered)
 		{
 			m_soundHover.play2d();
-			m_hover = true;
+			m_hovered = true;
 		}
-		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 		{
 			*m_numValue = 1;
 			m_selected = !m_selected;
-			if(m_function != 0)
+			if(m_pressFunction != 0)
 			{
 				m_soundClick.play2d();
-				m_function();
+				m_pressFunction();
 			}
 		}
 		p_interactFlags -= EVENT_MOUSEOVER;
@@ -99,43 +99,10 @@ void CButtonToggle::render()
 		Component::renderBack();
 		Component::renderFill();
 		glTranslatef(GLfloat(m_pos.x), GLfloat(m_pos.y), 0);
-		if(m_texType == 0)
-		{
-			if(m_selected && m_texType != 2)
-				m_colorTheme.m_active.useColor();
-			else
-			{
-				if(m_hover)
-					((m_colorTheme.m_active / 2 + m_colorTheme.m_fore / 2)).useColor();
-				else
-					m_colorTheme.m_fore.useColor();
-			}
-			glBegin(GL_QUADS);
-			{
-				glVertex2f(0, 0);
-				glVertex2f(GLfloat(m_size.x), 0);
-				glVertex2f(GLfloat(m_size.x), GLfloat(m_size.y));
-				glVertex2f(0, GLfloat(m_size.y));
-			}
-			glEnd();
-		}
 
 		glTranslatef(GLfloat(m_size.x / 2), GLfloat(m_size.y / 2), 0);
 		if(m_texType != 0)
 		{
-			if(m_texType == 1)
-			{
-				if(m_selected && m_texType != 2)
-					m_colorTheme.m_active.useColor();
-				else
-				{
-					if(m_hover)
-						((m_colorTheme.m_active / 2 + m_colorTheme.m_fore / 2)).useColor();
-					else
-						m_colorTheme.m_fore.useColor();
-				}
-			}
-			else
 				glColor3f(1, 1, 1);
 			if(m_selected != 0 || m_texType == 1)
 				glBindTexture(GL_TEXTURE_2D, m_buttonTex[0].getId());
@@ -164,5 +131,5 @@ void CButtonToggle::render()
 	}
 	glPopMatrix();
 
-	m_hover = false;
+	m_hovered = false;
 }

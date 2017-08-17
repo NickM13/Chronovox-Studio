@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LOpenAL.h"
+#include "engine\utils\Singleton.h"
 #include "engine\utils\Utilities.h"
 
 //Stores sound

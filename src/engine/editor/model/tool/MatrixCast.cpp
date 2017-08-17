@@ -95,18 +95,19 @@ bool MatrixCast::castRayVoxel(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direc
 }
 bool MatrixCast::castRayScale(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direction, Matrix* p_matrix, GLfloat &p_near, GLfloat &p_far, Vector3<GLfloat> &p_scalePos, Sint8 &p_scale)
 {
-	if(!(MouseStates::m_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_DOWN))
+	if(!(GMouse::m_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN))
 	{
 		GLfloat _near = 0, _far = 1;
 		Sint8 _side = 0;
 		Sint32 _close = -1;
 		Vector2<GLfloat> _closest = {1, 1};
 		p_scale = 0;
+		GLfloat size = 0.2f;
 
 		Vector3<GLfloat> s = Vector3<GLfloat>(p_matrix->getSize()) / 2;
 		Vector3<GLfloat> _offset = p_matrix->getPos() + s;
 
-		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{-(s.x + 0.25f), -0.5f, -0.5f}, {0.25f, 1, 1}, _near, _far, _side);
+		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{-(s.x + 2), -size, -size}, {2, size * 2, size * 2}, _near, _far, _side);
 		if(_near < _closest.x)
 		{
 			p_scale = FACE_SOUTH;
@@ -114,7 +115,7 @@ bool MatrixCast::castRayScale(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direc
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{(s.x), -0.5f, -0.5f}, {0.25f, 1, 1}, _near, _far, _side);
+		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{(s.x), -size, -size}, {2, size * 2, size * 2}, _near, _far, _side);
 		if(_near < _closest.x)
 		{
 			p_scale = FACE_NORTH;
@@ -122,7 +123,7 @@ bool MatrixCast::castRayScale(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direc
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{-0.5f, -(s.y + 0.25f), -0.5f}, {1, 0.25f, 1}, _near, _far, _side);
+		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{-size, -(s.y + 2), -size}, {size * 2, 2, size * 2}, _near, _far, _side);
 		if(_near < _closest.x)
 		{
 			p_scale = FACE_BOTTOM;
@@ -130,7 +131,7 @@ bool MatrixCast::castRayScale(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direc
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{-0.5f, (s.y), -0.5f}, {1, 0.25f, 1}, _near, _far, _side);
+		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{-size, (s.y), -size}, {size * 2, 2, size * 2}, _near, _far, _side);
 		if(_near < _closest.x)
 		{
 			p_scale = FACE_TOP;
@@ -138,7 +139,7 @@ bool MatrixCast::castRayScale(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direc
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{-0.5f, -0.5f, -(s.z + 0.25f)}, {1, 1, 0.25f}, _near, _far, _side);
+		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{-size, -size, -(s.z + 2)}, {size * 2, size * 2, 2}, _near, _far, _side);
 		if(_near < _closest.x)
 		{
 			p_scale = FACE_WEST;
@@ -146,7 +147,7 @@ bool MatrixCast::castRayScale(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direc
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{-0.5f, -0.5f, (s.z)}, {1, 1, 0.25f}, _near, _far, _side);
+		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{-size, -size, (s.z)}, {size * 2, size * 2, 2}, _near, _far, _side);
 		if(_near < _closest.x)
 		{
 			p_scale = FACE_EAST;

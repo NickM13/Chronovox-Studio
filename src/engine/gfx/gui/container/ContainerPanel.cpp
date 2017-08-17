@@ -25,7 +25,7 @@ Component* ContainerPanel::addComponent(Component* p_component, Sint8 p_alignmen
 	m_minScroll.y = min(m_minScroll.y, m_contentArea.y1);
 
 	m_maxScroll.x = max(m_maxScroll.x, m_contentArea.x2 - m_size.x);
-	m_maxScroll.y = max(m_maxScroll.y, m_contentArea.y2 - m_size.y + 4);
+	m_maxScroll.y = max(m_maxScroll.y, m_contentArea.y2 - m_size.y);
 
 	m_scroll = m_minScroll;
 
@@ -47,20 +47,12 @@ void ContainerPanel::calcSize(Vector2<Sint32> p_offset)
 		switch (_comp.m_alignment)
 		{
 		case PANEL_ALIGN_CENTER:
-			_component->setPosition(_component->getPosition() + Vector2<Sint32>(p_offset.x / 2, 0));
-			break;
-		case PANEL_ALIGN_RIGHT:
-			_component->setPosition(_component->getPosition() + Vector2<Sint32>(p_offset.x, 0));
-			break;
 		case PANEL_ALIGN_TOP:
-			_component->setPosition(_component->getPosition() + Vector2<Sint32>(p_offset.x / 2, 0));
-			break;
 		case PANEL_ALIGN_BOTTOM:
 			_component->setPosition(_component->getPosition() + Vector2<Sint32>(p_offset.x / 2, 0));
 			break;
+		case PANEL_ALIGN_RIGHT:
 		case PANEL_ALIGN_TOP_RIGHT:
-			_component->setPosition(_component->getPosition() + Vector2<Sint32>(p_offset.x, 0));
-			break;
 		case PANEL_ALIGN_BOTTOM_RIGHT:
 			_component->setPosition(_component->getPosition() + Vector2<Sint32>(p_offset.x, 0));
 			break;
@@ -121,12 +113,12 @@ void ContainerPanel::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_
 	m_moveToFront = (m_lHeld != 0);
 
 	// Scroll window
-	if((p_interactFlags & EVENT_KEYPRESS) &&
+	if((p_interactFlags & EVENT_MOUSESCROLL) &&
 		p_mousePos.x - m_pos.x >= 0 && p_mousePos.x - m_pos.x <= m_size.x + 10 &&
 		p_mousePos.y - m_pos.y >= 0 && p_mousePos.y - m_pos.y <= m_size.y)
 	{
-		m_scroll.y -= MouseStates::m_mouseScroll * 8;
-		p_interactFlags -= EVENT_KEYPRESS;
+		m_scroll.y -= GMouse::m_mouseScroll * 8;
+		p_interactFlags -= EVENT_MOUSESCROLL;
 	}
 	if(m_rHeld != 0)
 	{
@@ -159,34 +151,34 @@ void ContainerPanel::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_
 		if(p_mousePos.x - m_pos.x >= 0 && p_mousePos.x - m_pos.x <= m_size.x && 
 			p_mousePos.y - m_pos.y >= 0 && p_mousePos.y - m_pos.y <= m_size.y)
 		{
-			if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+			if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 				m_lHeld = 2;
-			else if(!(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_DOWN))
+			else if(!(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN))
 			{
 				m_lHeld = 0;
 				if(m_pos.x < 0)
 					m_pos.x = 0;
-				else if(m_pos.x > Sint32(Globals::m_screenSize.x - m_size.x))
-					m_pos.x = Sint32(Globals::m_screenSize.x - m_size.x);
+				else if(m_pos.x > Sint32(GScreen::m_screenSize.x - m_size.x))
+					m_pos.x = Sint32(GScreen::m_screenSize.x - m_size.x);
 				if(m_pos.y > 0)
 					m_pos.y = 0;
-				else if(m_pos.y < -Sint32(Globals::m_screenSize.y - m_size.y) + 24)
-					m_pos.y = -Sint32(Globals::m_screenSize.y - m_size.y) + 24;
+				else if(m_pos.y < -Sint32(GScreen::m_screenSize.y - m_size.y) + 24)
+					m_pos.y = -Sint32(GScreen::m_screenSize.y - m_size.y) + 24;
 			}
 		}
 		else
 		{
-			if(!(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_DOWN))
+			if(!(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN))
 			{
 				m_lHeld = 0;
 				if(m_pos.x < 0)
 					m_pos.x = 0;
-				else if(m_pos.x > Sint32(Globals::m_screenSize.x - m_size.x))
-					m_pos.x = Sint32(Globals::m_screenSize.x - m_size.x);
+				else if(m_pos.x > Sint32(GScreen::m_screenSize.x - m_size.x))
+					m_pos.x = Sint32(GScreen::m_screenSize.x - m_size.x);
 				if(m_pos.y > 0)
 					m_pos.y = 0;
-				else if(m_pos.y < -Sint32(Globals::m_screenSize.x - m_size.x) + 24)
-					m_pos.y = -Sint32(Globals::m_screenSize.x - m_size.x) + 24;
+				else if(m_pos.y < -Sint32(GScreen::m_screenSize.x - m_size.x) + 24)
+					m_pos.y = -Sint32(GScreen::m_screenSize.x - m_size.x) + 24;
 			}
 		}
 	}
@@ -196,9 +188,9 @@ void ContainerPanel::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_
 	{
 		if(m_scrollY)
 		{
-			if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+			if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 				m_rHeld = 2;
-			else if(!(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_DOWN))
+			else if(!(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN))
 				m_rHeld = 0;
 		}
 		if((p_interactFlags & EVENT_MOUSEOVER))
@@ -206,7 +198,7 @@ void ContainerPanel::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_
 	}
 	else
 	{
-		if(!(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_DOWN))
+		if(!(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN))
 			m_rHeld = 0;
 		else
 			if(m_rHeld && (p_interactFlags & EVENT_MOUSEOVER))
@@ -228,7 +220,7 @@ void ContainerPanel::render()
 			Component::render();
 		if(m_title != "")
 		{
-			m_colorTheme.m_back.useColor();
+			m_colorTheme.m_border.useColor();
 			glBegin(GL_QUADS);
 			{
 				glVertex2f(GLfloat(m_pos.x), GLfloat(m_pos.y));
@@ -257,7 +249,7 @@ void ContainerPanel::render()
 			glTranslatef(GLfloat(m_pos.x), GLfloat(m_pos.y), 0);
 			if(m_scrollX)
 			{
-				m_colorTheme.m_back.useColor();
+				m_colorTheme.m_border.useColor();
 				glBegin(GL_QUADS);
 				{
 					glVertex2f(0, GLfloat(m_size.y));
@@ -266,11 +258,11 @@ void ContainerPanel::render()
 					glVertex2f(GLfloat(m_size.x), GLfloat(m_size.y));
 				}
 				glEnd();
-				m_colorTheme.m_fore.useColor();
+				m_colorTheme.m_primary.useColor();
 			}
 			if(m_scrollY)
 			{
-				m_colorTheme.m_back.useColor();
+				m_colorTheme.m_border.useColor();
 				glBegin(GL_QUADS);
 				{
 					glVertex2f(GLfloat(m_size.x), 0);
@@ -279,7 +271,7 @@ void ContainerPanel::render()
 					glVertex2f(GLfloat(m_size.x), GLfloat(m_size.y));
 				}
 				glEnd();
-				m_colorTheme.m_fore.useColor();
+				m_colorTheme.m_primary.useColor();
 				glBegin(GL_QUADS);
 				{
 					//((m_size.y / GLfloat(_scrollDist.y + m_size.y)) * m_size.y) - 1

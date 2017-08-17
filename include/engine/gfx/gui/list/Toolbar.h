@@ -36,7 +36,7 @@ private:
 			return m_func;
 		}
 
-		void callFunction()
+		void callPressFunction()
 		{
 			m_func();
 		}

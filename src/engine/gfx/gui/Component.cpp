@@ -1,13 +1,17 @@
 #include "engine\gfx\gui\Component.h"
 #include "engine\utils\variable\manager\TextureManager.h"
 
+std::vector<Component::ColorTheme> Component::m_colorThemes = {
+	//			BORDER					PRIMARY					SELECT					HOVER					TEXT					TEXT INFO
+	ColorTheme(Color(0x626262),		Color(0x515151),		Color(0x818181),		Color(0x818181),		Color(0xF0F0F0),		Color(0x0F0F0F)),	// 0: Primary
+	ColorTheme(Color(0x444444),		Color(0x606060),		Color(0x888888),		Color(0x818181),		Color(0xF0F0F0),		Color(0x0F0F0F)),	// 2: Menubar
+	ColorTheme(Color(0x444444),		Color(0x727272),		Color(0xBCBCBC),		Color(0x818181),		Color(0xF0F0F0),		Color(0xF0F0F0)),	// 3: Info
+	ColorTheme(Color(0x303030),		Color(0x515151),		Color(0x303030),		Color(0x818181),		Color(0xF0F0F0),		Color(0xF0F0F0))	// 4: Action
+};// 0x007ACC - light blue
+
 Component::Component()
 {
-	//											BACK							FORE							ACTIVE						TEXT						TEXT INFO
-	m_colorThemes.push_back({	Color(0x888888),		Color(0x515151),		Color(0x455A64),		Color(0xF0F0F0),		Color(0x0F0F0F)});			// 0: Primary
-	m_colorThemes.push_back({	Color(0x444444),		Color(0x606060),		Color(0x888888),		Color(0xF0F0F0),		Color(0x0F0F0F)});			// 1: Toolbar
-	m_colorThemes.push_back({	Color(0x444444),		Color(0x727272),		Color(0xFFFFFF),			Color(0xF0F0F0),		Color(0xF0F0F0)});			// 2: Info
-	m_colorThemes.push_back({	Color(0x303030),		Color(0x727272),		Color(0xBCBFC1),		Color(0xF0F0F0),		Color(0xF0F0F0)});			// 3: Action
+
 }
 Component::Component(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint8 p_colorTheme)
 {
@@ -79,9 +83,19 @@ Uint16 Component::getItemCount()
 {
 	return 0;
 }
-Component* Component::setFunction(function p_func)
+Component* Component::setPressFunction(function p_func)
 {
-	m_function = p_func;
+	m_pressFunction = p_func;
+	return this;
+}
+Component* Component::setHoldFunction(function p_func)
+{
+	m_holdFunction = p_func;
+	return this;
+}
+Component* Component::setReleaseFunction(function p_func)
+{
+	m_releaseFunction = p_func;
 	return this;
 }
 void Component::setSelectedItem(Uint16 p_selectedItem)
@@ -119,13 +133,13 @@ void Component::setTooltip(std::string p_tooltip)
 }
 void Component::addTooltip()
 {
-	if(!MouseStates::m_mouseMoved || m_tooltipTime > 0.1f)
+	if(!GMouse::m_mouseMoved || m_tooltipTime > 0.1f)
 	{
 		m_tooltipCounted = true;
-		m_tooltipTime += Globals::m_deltaTime;
+		m_tooltipTime += GScreen::m_deltaTime;
 		if(m_tooltipTime > 0.5f)
 		{
-			Globals::m_tooltip = m_tooltip;
+			GScreen::m_tooltip = m_tooltip;
 		}
 	}
 	else
@@ -201,7 +215,7 @@ void Component::renderBack()
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glTranslatef(GLfloat(m_pos.x), GLfloat(m_pos.y), 0);
-		glColor3f(0, 0, 0);
+		m_colorTheme.m_border.useColor();
 		glBegin(GL_QUADS);
 		{
 			if(m_border & BORDER_TOP)
@@ -248,9 +262,11 @@ void Component::renderFill(bool p_setColor)
 		if(p_setColor)
 		{
 			if(isSelected())
-				m_colorTheme.m_active.useColor();
+				m_colorTheme.m_select.useColor();
+			else if(m_hovered)
+				m_colorTheme.m_hover.useColor();
 			else
-				m_colorTheme.m_fore.useColor();
+				m_colorTheme.m_primary.useColor();
 		}
 		if(m_texture != -1)
 			glBindTexture(GL_TEXTURE_2D, MTexture::getInstance().getUnit(m_texture).getId());

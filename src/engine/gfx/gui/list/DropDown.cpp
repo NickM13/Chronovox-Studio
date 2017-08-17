@@ -32,7 +32,7 @@ void CDropDown::setList(std::vector<std::string> p_items)
 		m_prevSelectedItem = m_selectedItem = 0;
 		m_itemList.clear();
 		m_itemList = p_items;
-		callFunction();
+		callPressFunction();
 	}
 }
 
@@ -67,21 +67,21 @@ void CDropDown::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouse
 				p_mousePos.y >= 0 && p_mousePos.y < m_size.y)
 			{
 				addTooltip();
-				if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+				if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 				{
 					m_selected = 1;
 					p_interactFlags -= EVENT_MOUSEOVER;
-					callFunction();
+					callPressFunction();
 				}
 			}
 		}
-		else if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+		else if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 		{
 			m_selected = 0;
 			if(p_mousePos.x >= 0 && p_mousePos.x < m_size.x && p_mousePos.y >= m_size.y && p_mousePos.y < m_size.y * Sint32(m_itemList.size() + 1))
 			{
 				m_selectedItem = p_mousePos.y / m_size.y - 1;
-				callFunction();
+				callPressFunction();
 				m_update = true;
 				p_interactFlags -= EVENT_MOUSEOVER;
 			}
@@ -114,13 +114,13 @@ void CDropDown::render()
 		{
 			glBegin(GL_QUADS);
 			{
-				m_colorTheme.m_back.useColor();
+				m_colorTheme.m_border.useColor();
 				glVertex2f(-1, -1);
 				glVertex2f(GLfloat(m_size.x + 1), -1);
 				glVertex2f(GLfloat(m_size.x + 1), GLfloat(m_size.y + 1));
 				glVertex2f(-1, GLfloat(m_size.y + 1));
 
-				m_colorTheme.m_fore.useColor();
+				m_colorTheme.m_primary.useColor();
 				glVertex2f(0, -0);
 				glVertex2f(GLfloat(m_size.x), -0);
 				glVertex2f(GLfloat(m_size.x), GLfloat(m_size.y));
@@ -132,13 +132,13 @@ void CDropDown::render()
 		{
 			glBegin(GL_QUADS);
 			{
-				m_colorTheme.m_back.useColor();
+				m_colorTheme.m_border.useColor();
 				glVertex2f(-1, -1);
 				glVertex2f(GLfloat(m_size.x + 1), -1);
 				glVertex2f(GLfloat(m_size.x + 1), GLfloat(m_size.y * (m_itemList.size() + 1) + 1));
 				glVertex2f(-1, GLfloat(m_size.y * (m_itemList.size() + 1) + 1));
 
-				m_colorTheme.m_fore.useColor();
+				m_colorTheme.m_primary.useColor();
 				glVertex2f(0, -0);
 				glVertex2f(GLfloat(m_size.x), -0);
 				glVertex2f(GLfloat(m_size.x), GLfloat(m_size.y * (m_itemList.size() + 1)));
@@ -150,7 +150,7 @@ void CDropDown::render()
 		{
 			if(m_hoverItem != -1)
 			{
-				m_colorTheme.m_active.useColor();
+				m_colorTheme.m_select.useColor();
 				glBegin(GL_QUADS);
 				{
 					glVertex2f(0, GLfloat(m_hoverItem + 1) * m_size.y);
@@ -162,7 +162,7 @@ void CDropDown::render()
 			}
 			if(m_hoverItem != m_selectedItem)
 			{
-				((m_colorTheme.m_active + m_colorTheme.m_fore) / 2).useColor();
+				((m_colorTheme.m_select + m_colorTheme.m_primary) / 2).useColor();
 				glBegin(GL_QUADS);
 				{
 					glVertex2f(0, GLfloat(m_selectedItem + 1) * m_size.y);
@@ -173,7 +173,7 @@ void CDropDown::render()
 				glEnd();
 			}
 		}
-		m_colorTheme.m_textInfo.useColor();
+		m_colorTheme.m_textLight.useColor();
 		Font::getInstance().setAlignment(ALIGN_CENTER);
 		Font::getInstance().print(m_title, m_size.x / 2, -(Font::getInstance().getHeight()));
 		m_colorTheme.m_text.useColor();

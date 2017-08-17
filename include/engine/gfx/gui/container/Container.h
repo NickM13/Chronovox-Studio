@@ -14,7 +14,7 @@
 #include "..\Component.h"
 #include "engine\gfx\font\Font.h"
 
-#include "engine\utils\Globals.h"
+#include "engine\utils\global\GScreen.h"
 #include <algorithm>
 
 

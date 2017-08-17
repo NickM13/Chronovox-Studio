@@ -1,7 +1,7 @@
 #pragma once
 
 #include "engine\gfx\font\Font.h"
-#include "engine\utils\Globals.h"
+#include "engine\utils\global\GScreen.h"
 #include "engine\utils\OpenGL.h"
 #include "engine\utils\variable\datatype\Rectangle.h"
 #include "engine\utils\variable\manager\TextureManager.h"
@@ -30,7 +30,7 @@ public:
 	Editor();
 	~Editor();
 
-	void resize();
+	void resize(bool p_maximizedByDrag);
 
 	void setEngineState(EngineState p_state);
 

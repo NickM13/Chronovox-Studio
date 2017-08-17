@@ -6,12 +6,12 @@ CToolbar::CToolbar(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32
 	m_compName = p_compName;
 	m_pos = p_pos;
 	m_size = p_size;
-	m_colorTheme = m_colorThemes[TOOLBAR];
-	m_panelMain = new Panel("", "", {0, 0}, p_size, TOOLBAR, BORDER_BOTTOM);
-	m_panelSub = new Panel("", "", {0, 0}, {0, 0}, TOOLBAR, BORDER_LEFT | BORDER_BOTTOM | BORDER_RIGHT);
+	m_colorTheme = m_colorThemes[MENUBAR];
+	m_panelMain = new Panel("", "", {0, 0}, p_size, MENUBAR, BORDER_BOTTOM);
+	m_panelSub = new Panel("", "", {0, 0}, {0, 0}, MENUBAR, BORDER_LEFT | BORDER_BOTTOM | BORDER_RIGHT);
 }
 
-//Directory splits with '/' or '\' 
+//Directory splits with '\' 
 Component* CToolbar::addButton(std::string p_dir, std::string p_buttonName, std::string p_desc, function p_func)
 {
 	Uint16 i = 0, j = 0;
@@ -20,14 +20,14 @@ Component* CToolbar::addButton(std::string p_dir, std::string p_buttonName, std:
 	{
 		while(i < p_dir.length())
 		{
-			if(p_dir[i] == '/' || p_dir[i] == '\\')
+			if(p_dir[i] == '\\')
 			{
 				_splitDir.push_back(p_dir.substr(j, i));
 				j = i + 1;
 			}
 			i++;
 		}
-		if(p_dir[p_dir.length() - 1] != '/' && p_dir[p_dir.length() - 1] != '\\')
+		if(p_dir[p_dir.length() - 1] != '\\')
 			_splitDir.push_back(p_dir.substr(j, i));
 	}
 
@@ -45,7 +45,7 @@ void CToolbar::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseS
 	Sint16 w = 0;
 	Sint32 _buttonWidth;
 	Sint32 _subWidth, _descWidth;
-	if((p_interactFlags & EVENT_MOUSEOVER) && p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+	if((p_interactFlags & EVENT_MOUSEOVER) && p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 	{
 		SubList* _subList = &m_buttonsMain;
 		std::vector<std::string> _splitDir;
@@ -53,14 +53,14 @@ void CToolbar::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseS
 		{
 			while(i < m_selected.length())
 			{
-				if(m_selected[i] == '/' || m_selected[i] == '\\')
+				if(m_selected[i] == '\\')
 				{
 					_splitDir.push_back(m_selected.substr(j, i));
 					j = i + 1;
 				}
 				i++;
 			}
-			if(m_selected[m_selected.length() - 1] != '/' && m_selected[m_selected.length() - 1] != '\\')
+			if(m_selected[m_selected.length() - 1] != '\\')
 				_splitDir.push_back(m_selected.substr(j, i));
 		}
 
@@ -72,7 +72,7 @@ void CToolbar::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseS
 		else if(_subList != 0 && _subList->getFunction() != 0)
 		{
 			m_currDir = "";
-			_subList->callFunction();
+			_subList->callPressFunction();
 			p_interactFlags -= EVENT_MOUSEOVER;
 		}
 		else
@@ -87,14 +87,14 @@ void CToolbar::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseS
 		{
 			while(i < m_currDir.length())
 			{
-				if(m_currDir[i] == '/' || m_currDir[i] == '\\')
+				if(m_currDir[i] == '\\')
 				{
 					_splitDir.push_back(m_currDir.substr(j, i));
 					j = i + 1;
 				}
 				i++;
 			}
-			if(m_currDir[m_currDir.length() - 1] != '/' && m_currDir[m_currDir.length() - 1] != '\\')
+			if(m_currDir[m_currDir.length() - 1] != '\\')
 				_splitDir.push_back(m_currDir.substr(j, i));
 		}
 
@@ -178,14 +178,14 @@ void CToolbar::render()
 		Uint16 i = 0, j = 0;
 		while(i < m_currDir.length())
 		{
-			if(m_currDir[i] == '/' || m_currDir[i] == '\\')
+			if(m_currDir[i] == '\\')
 			{
 				_splitDir.push_back(m_currDir.substr(j, i));
 				j = i + 1;
 			}
 			i++;
 		}
-		if(m_currDir[m_currDir.length() - 1] != '/' && m_currDir[m_currDir.length() - 1] != '\\')
+		if(m_currDir[m_currDir.length() - 1] != '\\')
 			_splitDir.push_back(m_currDir.substr(j, i));
 	}
 	else
@@ -196,14 +196,14 @@ void CToolbar::render()
 		Uint16 i = 0, j = 0;
 		while(i < m_selected.length())
 		{
-			if(m_selected[i] == '/' || m_selected[i] == '\\')
+			if(m_selected[i] == '\\')
 			{
 				_splitSelect.push_back(m_selected.substr(j, i));
 				j = i + 1;
 			}
 			i++;
 		}
-		if(m_selected[m_selected.length() - 1] != '/' && m_selected[m_selected.length() - 1] != '\\')
+		if(m_selected[m_selected.length() - 1] != '\\')
 			_splitSelect.push_back(m_selected.substr(j, i));
 	}
 	else

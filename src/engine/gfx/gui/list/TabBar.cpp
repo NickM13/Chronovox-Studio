@@ -70,13 +70,13 @@ void CTabBar::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseSt
 		m_selected = 0;
 
 	m_buttonLShift->input(p_interactFlags, p_keyStates, p_mouseStates, p_mousePos);
-	if(m_buttonLShift->isSelected() != 0 && (p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_DOWN))
+	if(m_buttonLShift->isSelected() != 0 && (p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN))
 		m_scroll -= 4;
 	if(m_scroll <= 0)
 		m_scroll = 0;
 
 	m_buttonRShift->input(p_interactFlags, p_keyStates, p_mouseStates, p_mousePos);
-	if(m_buttonRShift->isSelected() != 0 && (p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_DOWN) && m_scroll < m_maxScroll)
+	if(m_buttonRShift->isSelected() != 0 && (p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN) && m_scroll < m_maxScroll)
 		m_scroll += 4;
 	if(m_scroll >= m_maxScroll)
 		m_scroll = m_maxScroll;
@@ -92,7 +92,7 @@ void CTabBar::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseSt
 			_button->setPosition(Vector2<Sint32>(_offset, 0));
 			_button->setSize(Vector2<Sint32>(Font::getInstance().getMessageWidth(m_tabList[i]).x + 8, m_size.y));
 			_button->input(p_interactFlags, p_keyStates, p_mouseStates, p_mousePos);
-			if(m_selected != i && _button->isSelected() != 0 && p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+			if(m_selected != i && _button->isSelected() != 0 && p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 			{
 				m_selected = i;
 				if((m_updated & 1) == 0)
@@ -107,7 +107,7 @@ void CTabBar::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseSt
 		_button->setSize(Vector2<Sint32>(20, m_size.y));
 		_button->setHover(m_hovered == (m_tabList.size() + 1));
 		_button->input(p_interactFlags, p_keyStates, p_mouseStates, p_mousePos);
-		if(_button->isSelected() != 0 && p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+		if(_button->isSelected() != 0 && p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 		{
 			m_selected = Sint16(m_tabList.size());
 			addItem(std::string("Item ") + Util::numToString(m_tabList.size()));

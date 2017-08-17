@@ -12,7 +12,7 @@ public:
 		glPushMatrix();
 		{
 			color.useColor();
-			glScalef(Globals::m_screenSize.x / 2, Globals::m_screenSize.y / 2, 0);
+			glScalef(GScreen::m_screenSize.x / 2, GScreen::m_screenSize.y / 2, 0);
 			glBegin(GL_QUADS);
 			{
 				glVertex2f(-1, -1);

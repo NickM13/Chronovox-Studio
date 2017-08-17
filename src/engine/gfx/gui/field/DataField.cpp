@@ -7,10 +7,10 @@ void DataField::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouse
 		&& p_mousePos.y >= 0 && p_mousePos.y < m_size.y)
 	{
 		addTooltip();
-		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 			m_selected = 1;
 	}
-	else if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+	else if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 		m_selected = 0;
 
 	if((p_interactFlags & EVENT_MOUSEOVER) &&

@@ -19,8 +19,6 @@ private:
 	Texture m_buttonTex[2];
 	Sint8 m_texType;
 
-	bool m_hover;
-
 	Source m_soundClick;
 	Source m_soundHover;
 };

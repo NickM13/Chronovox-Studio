@@ -59,8 +59,8 @@ void SColorPanel::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mou
 	if((p_interactFlags & EVENT_MOUSEOVER) && p_mousePos.x >= 0 && p_mousePos.y >= 0 && p_mousePos.x < m_size.x && p_mousePos.y < m_size.y)
 	{
 		p_interactFlags -= EVENT_MOUSEOVER;
-		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_DOWN)
-			callFunction();
+		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN)
+			callPressFunction();
 	}
 }
 void SColorPanel::render()

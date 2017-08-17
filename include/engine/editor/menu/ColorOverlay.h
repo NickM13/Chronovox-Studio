@@ -26,10 +26,10 @@ public:
 		p_mousePos = p_mousePos - m_pos;
 		Vector2<GLfloat> _percent = Vector2<GLfloat>(p_mousePos) / Vector2<GLfloat>(m_size);
 		_percent = Vector2<GLfloat>(min(1, max(0, _percent.x)), min(1, max(0, _percent.y)));
-		if(!(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_DOWN))
+		if(!(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN))
 			held = false;
 		if((p_interactFlags & EVENT_MOUSEOVER) && p_mousePos.x >= 0 && p_mousePos.y >= 0 && p_mousePos.x <= m_size.x && p_mousePos.y <= m_size.y)
-			if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & MouseStates::MOUSE_PRESS)
+			if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 				held = true;
 
 		if(held)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine\utils\Globals.h"
+#include "engine\utils\global\GScreen.h"
 #include "engine\utils\OpenGL.h"
 #include "engine\utils\Singleton.h"
 #include "engine\utils\Utilities.h"
@@ -21,7 +21,6 @@ private:
 	time_t m_maxFps = 60;
 	DWORD m_sleepTime;
 
-
 	static void keyCallback(GLFWwindow*, int, int, int, int);
 	static void mousePressCallback(GLFWwindow*, int, int, int);
 	static void mouseMovedCallback(GLFWwindow*, double, double);
@@ -29,6 +28,8 @@ private:
 	static void windowResizeCallback(GLFWwindow*, int, int);
 	static void mouseEnterCallback(GLFWwindow*, int);
 	static void dropFileCallback(GLFWwindow*, int count, const char** paths);
+
+	static void maximize(bool p_maximizedByDrag);
 
 	static void init2d();
 	static void init3d();

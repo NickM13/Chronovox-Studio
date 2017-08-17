@@ -23,14 +23,14 @@ void CCounter::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseS
 {
 	m_buttonAdd->input(p_interactFlags, p_keyStates, p_mouseStates, p_mousePos);
 	m_buttonSubtract->input(p_interactFlags, p_keyStates, p_mouseStates, p_mousePos);
-	if(p_keyStates[GLFW_KEY_LEFT_SHIFT] & KeyStates::KEY_HOLD || p_keyStates[GLFW_KEY_RIGHT_SHIFT] & KeyStates::KEY_HOLD)
+	if(p_keyStates[GLFW_KEY_LEFT_SHIFT] & GKey::KEY_HOLD || p_keyStates[GLFW_KEY_RIGHT_SHIFT] & GKey::KEY_HOLD)
 	{
 		if(m_buttonAdd->isSelected() != 0)
 			*m_numValue++;
 		if(m_buttonSubtract->isSelected() != 0)
 			*m_numValue--;
 	}
-	else if(p_keyStates[GLFW_KEY_LEFT_CONTROL] & KeyStates::KEY_HOLD || p_keyStates[GLFW_KEY_RIGHT_CONTROL] & KeyStates::KEY_HOLD)
+	else if(p_keyStates[GLFW_KEY_LEFT_CONTROL] & GKey::KEY_HOLD || p_keyStates[GLFW_KEY_RIGHT_CONTROL] & GKey::KEY_HOLD)
 	{
 		if(m_buttonAdd->isSelected() != 0)
 			*m_numValue+=5;

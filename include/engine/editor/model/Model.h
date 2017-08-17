@@ -23,7 +23,7 @@
 #include "engine\utils\variable\datatype\Vector3.h"
 
 #include "engine\gfx\LTexture.h"
-#include "engine\gfx\mesh\SVoxel.h"
+#include "engine\gfx\mesh\object\TMesh.h"
 
 #include "format\NvmFormat.h"
 
@@ -47,11 +47,13 @@ public:
 	Model();
 	~Model();
 
-	void setDataString(std::string* p_dataString) { m_dataString = p_dataString; };
-	void setToolVar(Uint16* p_tool, Uint16* p_toolMeta) { m_tool = p_tool; m_toolMeta = p_toolMeta; };
-	void setTool(Tool p_tool) { *m_tool = p_tool; *m_toolMeta = 0; };
-	void setToolMeta(Uint16 meta = 0) { if(meta < 3 && *m_tool < EYEDROP) *m_toolMeta = meta; };
+	void setDataString(std::string* p_dataString) { m_dataString = p_dataString; }
+	void setToolVar(Uint16* p_tool, Uint16* p_toolMeta) { m_tool = p_tool; m_toolMeta = p_toolMeta; }
+	void setTool(Tool p_tool) { *m_tool = p_tool; *m_toolMeta = 0; }
+	void setToolMeta(Uint16 meta = 0) { if(meta < 3 && *m_tool < EYEDROP) *m_toolMeta = meta; }
 	void setColor(Sint32& p_r, Sint32& p_g, Sint32& p_b);
+	Sint16* getSelectedMatrix() { return &m_matrixEdit->getId(); }
+	std::vector<std::string> *getMatrixList() { return &m_matrixList; }
 
 	void toggleGrid();
 	void toggleOutline();
@@ -102,30 +104,38 @@ public:
 	void save(std::string p_fileName);
 	void load(std::string p_fileName);
 private:
-	std::string* m_dataString;
+	// Editting tool, tool mode
 	Uint16* m_tool, *m_toolMeta;
-	Sint32 *r, *g, *b;
 
+	// Shared variables color
+	Sint32 *r, *g, *b;
+	std::vector<std::string> m_matrixList;
+
+	// Visual guidelines
+	std::string* m_dataString; // Info bar at bottom of screen
 	bool m_grid;
 	bool m_outline;
 
 	Texture m_skyTexture;
 
+	// Matrices
 	std::vector<Matrix*> m_matrices;
-	Matrix* m_matrixCopy;
+	Matrix* m_matrixCopy; // Copy/paste matrix
 
+	// Camera variables
 	Vector3<GLfloat> m_camPos;
 	Vector3<GLfloat> m_camRot;
 	GLfloat m_zoom, m_tarZoom, m_zoomSpeed;
 
+	// Editting tool variables
+	Vector3<GLfloat> m_point, m_scalePos; // Point of selection, move/scale drag offsets
+	Vector3<Sint32> m_selectedVoxel; // Selected voxel coord
+	Vector3<Sint32> m_selectedVoxelOffset; // Voxel off of selected face
+	Voxel m_boxVoxel; // Voxel filling box area
+	Sint8 m_selectedSide; // Face selected
+	
+	Sint16 m_hoverMatrix;
 	Sint16 m_selectedMatrix;
-
-	Vector3<GLfloat> m_point, m_scalePos;
-	Vector3<Sint32> m_selectedVoxel;
-	Vector3<Sint32> m_selectedVoxelOffset;
-	Voxel m_boxVoxel;
-	Sint8 m_selectedSide;
-
 	Vector3<GLfloat> m_grabStart, m_grabCurrent;
 	GLfloat m_dragDifference;
 	Sint8 m_selectedScale;

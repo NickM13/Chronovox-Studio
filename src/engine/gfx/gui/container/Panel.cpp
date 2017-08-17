@@ -20,9 +20,21 @@ Panel::Panel(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos,
 void Panel::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos)
 {
 	if((p_interactFlags & EVENT_MOUSEOVER) &&
-		p_mousePos.x - m_pos.x >= 0 && p_mousePos.x - m_pos.x < m_size.x && 
+		p_mousePos.x - m_pos.x >= 0 && p_mousePos.x - m_pos.x < m_size.x &&
 		p_mousePos.y - m_pos.y >= 0 && p_mousePos.y - m_pos.y < m_size.y)
+	{
 		p_interactFlags -= EVENT_MOUSEOVER;
+		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
+		{
+			m_selected = 1;
+			callPressFunction();
+		}
+	}
+	if(!(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN) && m_selected == 1)
+	{
+		m_selected = 0;
+		callReleaseFunction();
+	}
 }
 void Panel::update(GLfloat p_updateTime)
 {
@@ -38,7 +50,7 @@ void Panel::render()
 			glPushMatrix();
 			{
 				glTranslatef(m_pos.x, m_pos.y, 0);
-				m_colorTheme.m_active.useColor();
+				m_colorTheme.m_select.useColor();
 				glBegin(GL_QUADS);
 				{
 					glVertex2f(0, 0);

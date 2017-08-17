@@ -5,7 +5,7 @@ CButtonRadio::CButtonRadio(std::string p_compName, std::string p_title, Vector2<
 	m_compName = p_compName;
 	m_title = p_title;
 	m_pos = p_pos;
-	m_colorTheme = m_colorThemes[1];
+	m_colorTheme = m_colorThemes[Theme::ACTION];
 	m_selectedButton = p_selectedButton;
 }
 
@@ -13,7 +13,7 @@ Component* CButtonRadio::addButton(CButtonToggle* p_button)
 {
 	m_buttonList.push_back(p_button);
 	m_buttonList[*m_selectedButton]->setState(1);
-	callFunction();
+	callPressFunction();
 	return p_button;
 }
 
@@ -28,7 +28,7 @@ void CButtonRadio::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mo
 			if(m_buttonList[i] != 0 && *m_buttonList[i]->getValue() != 0)
 			{
 				*m_selectedButton = i;
-				callFunction();
+				callPressFunction();
 				return;
 			}
 		}
@@ -40,7 +40,7 @@ void CButtonRadio::update(GLfloat p_deltaUpdate)
 	m_buttonList[*m_selectedButton]->setState(1);
 	if(m_prevSelectedButton != *m_selectedButton)
 	{
-		callFunction();
+		callPressFunction();
 		m_prevSelectedButton = *m_selectedButton;
 	}
 }
@@ -59,5 +59,5 @@ void CButtonRadio::setSelectedButton(Uint16 p_selectedButton)
 {
 	m_prevSelectedButton = *m_selectedButton;
 	*m_selectedButton = p_selectedButton;
-	callFunction();
+	callPressFunction();
 }

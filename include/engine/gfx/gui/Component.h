@@ -27,7 +27,7 @@ public:
 	enum Theme
 	{
 		PRIMARY = 0,
-		TOOLBAR = 1,
+		MENUBAR = 1,
 		INFO = 2,
 		ACTION = 3
 	};
@@ -40,27 +40,25 @@ public:
 	};
 
 protected:
-	function m_function = 0;
+	function m_pressFunction = 0, m_holdFunction = 0, m_releaseFunction = 0;
 	struct ColorTheme
 	{
-		Color m_back;
-		Color m_fore;
-		Color m_active;
-		Color m_text;
-		Color m_textInfo;
-		ColorTheme(Color p_back = {}, Color p_fore = {}, Color p_active = {}, Color p_text1 = {}, Color p_text2 = {})
+		Color m_border, m_primary, m_select, m_hover, m_text, m_textLight;
+		ColorTheme(Color p_border = {}, Color p_primary = {}, Color p_select = {}, Color p_hover = {}, Color p_text1 = {}, Color p_text2 = {})
 		{
-			m_back = p_back;
-			m_fore = p_fore;
-			m_active = p_active;
+			m_border = p_border;
+			m_primary = p_primary;
+			m_select = p_select;
+			m_hover = p_hover;
 			m_text = p_text1;
-			m_textInfo = p_text2;
+			m_textLight = p_text2;
 		}
 	};
 
 	std::string m_compName, m_title;
 	Vector2<Sint32> m_pos, m_size;
 	Sint8 m_selected;
+	bool m_hovered;
 	ColorTheme m_colorTheme;
 
 	Sint32 m_texture = -1;
@@ -71,7 +69,7 @@ protected:
 	Sint32* m_numValue = 0;
 
 	// Default color themes
-	std::vector<ColorTheme> m_colorThemes;
+	static std::vector<ColorTheme> m_colorThemes;
 	bool m_visible = true;
 	Sint8 m_moveToFront = 0;
 	Sint8 m_priority = 0;
@@ -99,8 +97,12 @@ public:
 	virtual void setItemTexture(Uint16 p_index, Texture p_texture); // For Lists
 	virtual void removeItem(Uint16 p_index);
 	virtual Uint16 getItemCount();
-	virtual Component* setFunction(function p_func);
-	Component* callFunction() { if(m_function != 0) m_function(); return this; };
+	virtual Component* setPressFunction(function p_func);
+	virtual Component* setHoldFunction(function p_func);
+	virtual Component* setReleaseFunction(function p_func);
+	Component* callPressFunction() { if(m_pressFunction != 0) m_pressFunction(); return this; };
+	Component* callHoldFunction() { if(m_holdFunction != 0) m_holdFunction(); return this; };
+	Component* callReleaseFunction() { if(m_releaseFunction != 0) m_releaseFunction(); return this; };
 	virtual void setSelectedItem(Uint16 p_selectedItem);
 	virtual void setSelectedButton(Uint16 p_selectedButton);
 	virtual Uint8 isUpdated();
@@ -113,6 +115,7 @@ public:
 	void resetTooltip();
 
 	virtual void setTitle(std::string p_title);
+	Component* setTheme(Theme p_theme) { m_colorTheme = m_colorThemes[p_theme]; return this; }
 	void setPosition(Vector2<Sint32> p_pos);
 	void setSize(Vector2<Sint32> p_size);
 	Vector2<Sint32> getPosition();
