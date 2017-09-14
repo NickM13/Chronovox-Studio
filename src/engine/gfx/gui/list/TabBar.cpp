@@ -56,7 +56,7 @@ void CTabBar::calcMaxScroll()
 {
 	m_maxScroll = -m_size.x + 24 * 2 + 20 + (m_tabList.size()) * 12;
 	for(Uint16 i = 0; i < m_tabList.size(); i++)
-		m_maxScroll += Font::getInstance().getMessageWidth(m_tabList[i]).x;
+		m_maxScroll += Font::getMessageWidth(m_tabList[i]).x;
 	m_maxScroll = max(0, m_maxScroll);
 }
 
@@ -90,7 +90,7 @@ void CTabBar::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseSt
 		{
 			_button->setTitle(m_tabList[i]);
 			_button->setPosition(Vector2<Sint32>(_offset, 0));
-			_button->setSize(Vector2<Sint32>(Font::getInstance().getMessageWidth(m_tabList[i]).x + 8, m_size.y));
+			_button->setSize(Vector2<Sint32>(Font::getMessageWidth(m_tabList[i]).x + 8, m_size.y));
 			_button->input(p_interactFlags, p_keyStates, p_mouseStates, p_mousePos);
 			if(m_selected != i && _button->isSelected() != 0 && p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 			{
@@ -131,7 +131,7 @@ void CTabBar::update(GLfloat p_deltaUpdate)
 
 void CTabBar::render()
 {
-	Font::getInstance().setAlignment(ALIGN_CENTER);
+	Font::setAlignment(ALIGN_CENTER);
 	glPushMatrix();
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -146,7 +146,7 @@ void CTabBar::render()
 			for(Sint32 i = 0; i < Sint32(m_tabList.size()); i++)
 			{
 				_button->setTitle(m_tabList[i]);
-				_button->setSize(Vector2<Sint32>(Font::getInstance().getMessageWidth(m_tabList[i]).x + 8, m_size.y));
+				_button->setSize(Vector2<Sint32>(Font::getMessageWidth(m_tabList[i]).x + 8, m_size.y));
 				_button->setState(m_selected == i);
 				_button->setHover(m_hovered == i);
 				_button->render();

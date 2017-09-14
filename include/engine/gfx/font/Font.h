@@ -17,24 +17,22 @@ enum Alignment
 	ALIGN_RIGHT = 2
 };
 
-class Font : public Singleton <Font>
+class Font
 {
 public:
-	void setAlignment(Alignment p_alignment);
+	static void setAlignment(Alignment p_alignment);
 
-	void loadFont(std::string p_fontName, std::string p_src, Uint32 p_fontSize);
-	void setFont(std::string p_fontName);
-	void clean();
+	static void loadFont(std::string p_fontName, std::string p_src, Uint32 p_fontSize);
+	static void setFont(std::string p_fontName);
+	static void clean();
 
-	Sint16 getHeight() {return m_font->m_height;};
-	Vector2<Sint32> getMessageWidth(std::string p_msg);
-	GLfloat getSpacingHeight() {return m_font->m_height * 1.8f;};	/*Value with height multiplied*/
-	GLfloat getSpacing() {return 1.8f;};							/*Value without height multiplied*/
+	static Sint16 getHeight() {return m_font->m_height;};
+	static Vector2<Sint32> getMessageWidth(std::string p_msg);
+	static GLfloat getSpacingHeight() {return m_font->m_height * 1.8f;};	/*Value with height multiplied*/
+	static GLfloat getSpacing() {return 1.8f;};							/*Value without height multiplied*/
 
-	void print(std::string p_msg, Sint32 p_x, Sint32 p_y);
+	static void print(std::string p_msg, Sint32 p_x, Sint32 p_y);
 private:
-	void init(std::string p_src, Uint32 p_fontSize);
-
 	struct FontType
 	{
 		std::string m_fontName;
@@ -45,8 +43,10 @@ private:
 
 		GLfloat m_spacing;
 	};
-	std::vector<FontType> m_fontList;
-	FontType* m_font;
+	static std::vector<FontType*> m_fontList;
+	static FontType* m_font;
 	
-	Alignment m_alignment;
+	static Alignment m_alignment;
+
+	static FontType* init(std::string p_src, Uint32 p_fontSize);
 };

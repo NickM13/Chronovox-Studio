@@ -7,7 +7,7 @@ TextField::TextField(std::string p_compName, std::string p_title, Vector2<Sint32
 	m_blankField = p_title;
 	m_title = "";
 	m_pos = p_pos;
-	m_size = Vector2<Sint32>(p_size.x, Sint32(p_size.y * Font::getInstance().getSpacingHeight()));
+	m_size = Vector2<Sint32>(p_size.x, Sint32(p_size.y * Font::getSpacingHeight()));
 	m_colorTheme = m_colorThemes[ACTION];
 
 	m_scrolling = false;
@@ -333,24 +333,24 @@ void TextField::render()
 		}
 		glEnd();
 		m_colorTheme.m_text.useColor();
-		Font::getInstance().setAlignment(ALIGN_LEFT);
+		Font::setAlignment(ALIGN_LEFT);
 		if(m_title != "" || m_text[0] != "" || m_text.size() > 1)
 		{
 			for(Uint16 i = 0; i < m_text.size(); i++)
-				Font::getInstance().print(m_text[i], 2, Sint32((i + 0.5f) * Font::getInstance().getSpacingHeight()));
+				Font::print(m_text[i], 2, Sint32((i + 0.5f) * Font::getSpacingHeight()));
 			if(m_selected != 0 && (fmod(glfwGetTime(), 0.5) < 0.25))
-				Font::getInstance().print("|", Sint32(Font::getInstance().getMessageWidth(m_text[m_cursorPos.y].substr(0, m_cursorPos.x)).x + 1), Sint32((m_cursorPos.y + 0.5f) * Font::getInstance().getSpacingHeight()));
+				Font::print("|", Sint32(Font::getMessageWidth(m_text[m_cursorPos.y].substr(0, m_cursorPos.x)).x + 1), Sint32((m_cursorPos.y + 0.5f) * Font::getSpacingHeight()));
 		}
 		else
 		{
 			if(m_selected != 0)
 			{
 				m_colorTheme.m_text.useColor();
-				Font::getInstance().print(((fmod(glfwGetTime(), 0.5) < 0.25) ? "|" : ""), 2, Sint32(0.5f * Font::getInstance().getSpacingHeight()));
+				Font::print(((fmod(glfwGetTime(), 0.5) < 0.25) ? "|" : ""), 2, Sint32(0.5f * Font::getSpacingHeight()));
 			}
 			m_colorTheme.m_text.useColor(1, 1, 1, 0.5f);
 			for(Uint16 i = 0; i < fmin((m_size.y), ceil(GLfloat(m_blankField.length()) / (m_size.x))); i++)
-				Font::getInstance().print(m_blankField.substr(i * (m_size.x), (m_size.x)) + ((m_selected && (i == (m_size.y) - 1) && fmod(glfwGetTime(), 0.5) < 0.25) ? "|" : ""), 2, Sint32((i + 0.5f) * Font::getInstance().getSpacingHeight()));
+				Font::print(m_blankField.substr(i * (m_size.x), (m_size.x)) + ((m_selected && (i == (m_size.y) - 1) && fmod(glfwGetTime(), 0.5) < 0.25) ? "|" : ""), 2, Sint32((i + 0.5f) * Font::getSpacingHeight()));
 		}
 	}
 	glPopMatrix();

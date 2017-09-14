@@ -14,17 +14,17 @@ CText::CText(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos,
 void CText::render()
 {
 	m_color.useColor();
-	Font::getInstance().setAlignment(m_align);
+	Font::setAlignment(m_align);
 	switch(m_align)
 	{
 	case ALIGN_LEFT:
-		Font::getInstance().print(m_title, m_pos.x, m_pos.y);
+		Font::print(m_title, m_pos.x, m_pos.y);
 		break;
 	case ALIGN_CENTER:
-		Font::getInstance().print(m_title, m_pos.x + m_size.x / 2, m_pos.y);
+		Font::print(m_title, m_pos.x + m_size.x / 2, m_pos.y);
 		break;
 	case ALIGN_RIGHT:
-		Font::getInstance().print(m_title, m_pos.x + m_size.x, m_pos.y);
+		Font::print(m_title, m_pos.x + m_size.x, m_pos.y);
 		break;
 	}
 }

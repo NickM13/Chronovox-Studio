@@ -172,8 +172,8 @@ void CTileSet::render()
 		glEnd();
 
 		m_colorTheme.m_text.useColor();
-		Font::getInstance().setAlignment(ALIGN_CENTER);
-		Font::getInstance().print(m_title, _size.x / 2, -12);
+		Font::setAlignment(ALIGN_CENTER);
+		Font::print(m_title, _size.x / 2, -12);
 
 		glColor3f(1, 1, 1);
 

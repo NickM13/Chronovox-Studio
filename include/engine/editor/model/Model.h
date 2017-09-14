@@ -52,8 +52,9 @@ public:
 	void setTool(Tool p_tool) { *m_tool = p_tool; *m_toolMeta = 0; }
 	void setToolMeta(Uint16 meta = 0) { if(meta < 3 && *m_tool < EYEDROP) *m_toolMeta = meta; }
 	void setColor(Sint32& p_r, Sint32& p_g, Sint32& p_b);
-	Sint16* getSelectedMatrix() { return &m_matrixEdit->getId(); }
+	std::vector<Sint8> *getMatrixStates() { return &m_matrixStates; }
 	std::vector<std::string> *getMatrixList() { return &m_matrixList; }
+	void updateLists();
 
 	void toggleGrid();
 	void toggleOutline();
@@ -110,6 +111,7 @@ private:
 	// Shared variables color
 	Sint32 *r, *g, *b;
 	std::vector<std::string> m_matrixList;
+	std::vector<Sint8> m_matrixStates;
 
 	// Visual guidelines
 	std::string* m_dataString; // Info bar at bottom of screen

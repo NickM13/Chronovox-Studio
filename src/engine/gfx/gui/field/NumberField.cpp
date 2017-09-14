@@ -6,7 +6,7 @@ NumberField::NumberField(std::string p_compName, std::string p_title, Vector2<Si
 	m_compName = p_compName;
 	m_title = p_title;
 	m_pos = p_pos;
-	m_size = Vector2<Sint32>(p_size.x, Sint32(p_size.y * Font::getInstance().getSpacingHeight()));
+	m_size = Vector2<Sint32>(p_size.x, Sint32(p_size.y * Font::getSpacingHeight()));
 	m_colorTheme = m_colorThemes[ACTION];
 
 	m_selected = 0;
@@ -115,13 +115,13 @@ void NumberField::render()
 		}
 		glEnd();
 		m_colorTheme.m_textLight.useColor();
-		Font::getInstance().setAlignment(ALIGN_RIGHT);
-		Font::getInstance().print(m_title, -2, Sint32(0.5f * Font::getInstance().getSpacingHeight()));
+		Font::setAlignment(ALIGN_RIGHT);
+		Font::print(m_title, -2, Sint32(0.5f * Font::getSpacingHeight()));
 		m_colorTheme.m_text.useColor();
-		Font::getInstance().setAlignment(ALIGN_LEFT);
-		Font::getInstance().print(Util::numToString(*m_numValue), 2, Sint32(0.5f * Font::getInstance().getSpacingHeight()));
+		Font::setAlignment(ALIGN_LEFT);
+		Font::print(Util::numToString(*m_numValue), 2, Sint32(0.5f * Font::getSpacingHeight()));
 		if(m_selected != 0 && (fmod(glfwGetTime(), 0.5) < 0.25))
-			Font::getInstance().print("|", Font::getInstance().getMessageWidth(Util::numToString(*m_numValue)).x, Sint32(0.5f * Font::getInstance().getSpacingHeight()));
+			Font::print("|", Font::getMessageWidth(Util::numToString(*m_numValue)).x, Sint32(0.5f * Font::getSpacingHeight()));
 	}
 	glPopMatrix();
 }

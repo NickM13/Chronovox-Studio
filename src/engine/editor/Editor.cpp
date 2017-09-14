@@ -14,7 +14,8 @@ Editor::Editor()
 	m_engineState = GAME;
 
 	LTexture::init();
-	Font::getInstance().loadFont("UI", "res\\segoeui.ttf", 10);
+	Font::loadFont("LeelawUI", "res\\font\\leelawui.ttf", 9);
+	Font::loadFont("SegoeUI", "res\\font\\segoeui.ttf", 9);
 	Sound::getInstance().init();
 
 	m_model = new Model();
@@ -25,14 +26,16 @@ Editor::Editor()
 Editor::~Editor()
 {
 	Sound::getInstance().close();
-	Font::getInstance().clean();
+	Font::clean();
 	delete m_model;
 }
 
 void Editor::resize(bool p_maximizedByDrag)
 {
-	GScreen::m_screenSize.print();
-	m_mainGui.findComponent("GUI_OVERLAY")->setSize(GScreen::m_screenSize);
+	m_mainGui.removeComponent("GUI_OVERLAY");
+	Overlay::clear();
+	Overlay::init(m_model);
+	m_mainGui.addComponent(Overlay::getContainer());
 
 	if(p_maximizedByDrag)
 		m_mainGui.findComponent("GUI_OVERLAY\\TITLE\\DRAGBAR")->setState(1);
@@ -64,7 +67,7 @@ void Editor::renderMouse()
 {
 	if(GScreen::m_tooltip != "")
 	{
-		Vector2<Sint32> _size = Font::getInstance().getMessageWidth(GScreen::m_tooltip);
+		Vector2<Sint32> _size = Font::getMessageWidth(GScreen::m_tooltip);
 		Vector2<Sint32> _pos;
 		_pos.x = min(GScreen::m_screenSize.x - _size.x - 4, max(4, m_mouseBuffer.x + 5));
 		_pos.y = m_mouseBuffer.y + 26;
@@ -105,8 +108,8 @@ void Editor::renderMouse()
 				glVertex2f(-5, _size.y + 5);
 			}
 			glEnd();
-			Font::getInstance().setAlignment(Alignment::ALIGN_LEFT);
-			Font::getInstance().print(GScreen::m_tooltip, 0, Font::getInstance().getHeight() / 2);
+			Font::setAlignment(Alignment::ALIGN_LEFT);
+			Font::print(GScreen::m_tooltip, 0, Font::getHeight() / 2);
 		}
 		glPopMatrix();
 		GScreen::m_tooltip = "";
@@ -209,7 +212,7 @@ void Editor::render2d()
 
 		break;
 	case GAME:
-		Font::getInstance().setAlignment(Alignment::ALIGN_LEFT);
+		Font::setAlignment(Alignment::ALIGN_LEFT);
 		m_mainGui.render();
 		renderMouse();
 		break;

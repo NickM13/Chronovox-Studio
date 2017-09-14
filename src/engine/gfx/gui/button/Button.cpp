@@ -9,7 +9,7 @@ CButton::CButton(std::string p_compName, std::string p_title, Vector2<Sint32> p_
 	m_size = p_size;
 	m_colorTheme = m_colorThemes[ACTION];
 	m_texture = -1;
-	m_showBorder = p_showBorder;
+	if(!p_showBorder) m_border = 0;
 	m_pressFunction = p_func;
 
 	m_soundClick.setSound(MBuffer::getInstance().getUnit("gui\\Click.wav"));
@@ -24,7 +24,7 @@ CButton::CButton(std::string p_compName, std::string p_title, Texture p_buttonTe
 	m_size = p_size;
 	m_colorTheme = m_colorThemes[ACTION];
 	m_texture = -1;
-	m_showBorder = p_showBorder;
+	if(!p_showBorder) m_border = 0;
 	m_pressFunction = p_func;
 
 	m_soundClick.setSound(MBuffer::getInstance().getUnit("gui\\Click.wav"));
@@ -92,9 +92,7 @@ void CButton::update(GLfloat p_deltaUpdate)
 }
 void CButton::render()
 {
-	glBindTexture(GL_TEXTURE_2D, 0);
-	if(m_showBorder)
-		Component::renderBack();
+	Component::renderBack();
 	if(m_selected)
 		m_colorTheme.m_select.useColor();
 	else
@@ -135,8 +133,8 @@ void CButton::render()
 
 
 		m_colorTheme.m_text.useColor();
-		Font::getInstance().setAlignment(ALIGN_CENTER);
-		Font::getInstance().print(m_title, 0, 0);
+		Font::setAlignment(ALIGN_CENTER);
+		Font::print(m_title, 0, 0);
 	}
 	glPopMatrix();
 }

@@ -17,10 +17,10 @@ private:
 
 	bool m_hover, m_dragging;
 
-	Sint16 *m_selectedItem;
+	std::vector<Sint8> *m_selectionStates;
 	std::vector<std::string> *m_itemList;
 public:
-	CList(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Uint16 p_itemHeight, Sint16 *p_selectedItem, std::vector<std::string> *p_itemList);
+	CList(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Uint16 p_itemHeight, std::vector<Sint8> *p_selectionStates, std::vector<std::string> *p_itemList);
 
 	Component* addItem(std::string p_itemName);
 	void removeItem(Uint16 p_index);

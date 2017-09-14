@@ -174,14 +174,14 @@ void CDropDown::render()
 			}
 		}
 		m_colorTheme.m_textLight.useColor();
-		Font::getInstance().setAlignment(ALIGN_CENTER);
-		Font::getInstance().print(m_title, m_size.x / 2, -(Font::getInstance().getHeight()));
+		Font::setAlignment(ALIGN_CENTER);
+		Font::print(m_title, m_size.x / 2, -(Font::getHeight()));
 		m_colorTheme.m_text.useColor();
-		Font::getInstance().setAlignment(ALIGN_LEFT);
+		Font::setAlignment(ALIGN_LEFT);
 		glTranslatef(GLfloat(m_size.y) / 2, GLfloat(m_size.y) / 2, 0);
 		if(m_itemList.size() > 0)
 		{
-			Font::getInstance().print(m_itemList[m_selectedItem], 0, 0);
+			Font::print(m_itemList[m_selectedItem], 0, 0);
 			if(m_selected != 0)
 			{
 				for(Uint16 i = 0; i < m_itemList.size(); i++)
@@ -190,7 +190,7 @@ void CDropDown::render()
 						m_colorTheme.m_text.useColor();
 					else
 						m_colorTheme.m_text.useColor(0.8f);
-					Font::getInstance().print(m_itemList[i], 0, (i + 1) * m_size.y);
+					Font::print(m_itemList[i], 0, (i + 1) * m_size.y);
 				}
 			}
 		}

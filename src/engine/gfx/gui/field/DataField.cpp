@@ -31,8 +31,8 @@ void DataField::render()
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glTranslatef(GLfloat(m_pos.x), GLfloat(m_pos.y), 0);
 		m_colorTheme.m_text.useColor();
-		Font::getInstance().setAlignment(ALIGN_LEFT);
-		Font::getInstance().print(*m_dataString, 0, Sint32(Font::getInstance().getHeight()));
+		Font::setAlignment(ALIGN_LEFT);
+		Font::print(*m_dataString, 0, Sint32(Font::getHeight()));
 	}
 	glPopMatrix();
 }

@@ -58,9 +58,9 @@ void CCounter::update(GLfloat p_deltaUpdate)
 void CCounter::render()
 {
 	glColor3f(1, 1, 1);
-	Font::getInstance().setAlignment(ALIGN_LEFT);
-	Font::getInstance().print(m_title, m_pos.x, m_pos.y);
-	Font::getInstance().print(Util::numToString(*m_numValue, 0), m_pos.x + m_title.length() * 16 + 48, m_pos.y);
+	Font::setAlignment(ALIGN_LEFT);
+	Font::print(m_title, m_pos.x, m_pos.y);
+	Font::print(Util::numToString(*m_numValue, 0), m_pos.x + m_title.length() * 16 + 48, m_pos.y);
 
 	m_buttonSubtract->render();
 	m_buttonAdd->render();

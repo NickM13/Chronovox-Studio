@@ -119,12 +119,12 @@ void CSlider::render()
 	glPopMatrix();
 
 	m_colorTheme.m_textLight.useColor();
-	Font::getInstance().setAlignment(ALIGN_CENTER);
-	Font::getInstance().print(m_title, Sint32(m_pos.x + m_length / 2), Sint32(m_pos.y - m_height));
+	Font::setAlignment(ALIGN_CENTER);
+	Font::print(m_title, Sint32(m_pos.x + m_length / 2), Sint32(m_pos.y - m_height));
 
 	m_colorTheme.m_text.useColor();
-	Font::getInstance().setAlignment(ALIGN_CENTER);
-	Font::getInstance().print(Util::numToString(*m_numValue), Sint32(m_pos.x + m_length / 2), Sint32(m_pos.y));
+	Font::setAlignment(ALIGN_CENTER);
+	Font::print(Util::numToString(*m_numValue), Sint32(m_pos.x + m_length / 2), Sint32(m_pos.y));
 }
 
 Sint32 CSlider::getMaxValue()

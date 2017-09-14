@@ -34,31 +34,31 @@ void Overlay::init(Model* p_model)
 	m_container->findComponent("TOOLBAR_MAIN")->addButton("", "View")->addButton("View", "Focus Matrix", "Space", []() { m_model->focus(); })->addButton("View", "Toggle Grid", "Ctrl+G", []() { m_model->toggleGrid(); })->addButton("View", "Toggle Outline", "Ctrl+H", []() { m_model->toggleOutline(); });
 	m_container->findComponent("TOOLBAR_MAIN")->addButton("", "Tools")->addButton("Tools", "Add Voxel", "B", []() { *toolbar = 0; })->addButton("Tools", "Remove Voxel", "E", []() { *toolbar = 1; })->addButton("Tools", "Replace Voxel", "R", []() { *toolbar = 2; })->addButton("Tools", "Eyedropper", "K", []() { *toolbar = 3; })->addButton("Tools", "Select Matrix", "S", []() { *toolbar = 4; })->addButton("Tools", "Move Matrix", "M", []() { *toolbar = 5; })->addButton("Tools", "Resize Matrix", "T", []() { *toolbar = 6; });
 
-	m_container->addComponent(new ContainerPanel("GUI_TOOLBAR_0", "", {36, 50}, {32, 88}, Component::Theme::PRIMARY, Component::Border::BORDER_ALL, false));
-	_toolbar = new CButtonRadio("TOOLBAR", "", {-12, 0}, {0, 0}, toolbarMeta);
+	m_container->addComponent(new ContainerPanel("GUI_TOOLBAR_0", "", {36, 50}, {32, 80}, Component::Theme::PRIMARY, Component::Border::BORDER_ALL, false));
+	_toolbar = new CButtonRadio("TOOLBAR", "", {-12, 4}, {24, 24}, {0, 24}, toolbarMeta);
 	m_container->findComponent("GUI_TOOLBAR_0")->addComponent(_toolbar, PANEL_ALIGN_TOP);
-	_toolbar->addButton(new CButtonToggle("ADDVOXEL", LTexture::getTexture("gui\\icon\\tool\\VoxelAdd.png"), {0, 4}, {24, 24}))->setTooltip("Single - 1");			//0
-	_toolbar->addButton(new CButtonToggle("BOXVOXEL", LTexture::getTexture("gui\\icon\\tool\\VoxelBox.png"), {0, 32}, {24, 24}))->setTooltip("Box - 2");			//1
-	_toolbar->addButton(new CButtonToggle("FILLVOXEL", LTexture::getTexture("gui\\icon\\tool\\VoxelFill.png"), {0, 60}, {24, 24}))->setTooltip("Fill - 3");			//2
+	_toolbar->addButton(LTexture::getTexture("gui\\icon\\tool\\VoxelAdd.png"))->setTooltip("Single - 1");		//0
+	_toolbar->addButton(LTexture::getTexture("gui\\icon\\tool\\VoxelBox.png"))->setTooltip("Box - 2");			//1
+	_toolbar->addButton(LTexture::getTexture("gui\\icon\\tool\\VoxelFill.png"))->setTooltip("Fill - 3");		//2
 
-	m_container->addComponent(new ContainerPanel("GUI_TOOLBAR_1", "", {36, 50}, {32, 88}, Component::Theme::PRIMARY, Component::Border::BORDER_ALL, false));
-	_toolbar = new CButtonRadio("TOOLBAR", "", {-12, 0}, {0, 0}, toolbarMeta);
+	m_container->addComponent(new ContainerPanel("GUI_TOOLBAR_1", "", {36, 50}, {32, 80}, Component::Theme::PRIMARY, Component::Border::BORDER_ALL, false));
+	_toolbar = new CButtonRadio("TOOLBAR", "", {-12, 4}, {24, 24}, {0, 24}, toolbarMeta);
 	m_container->findComponent("GUI_TOOLBAR_1")->addComponent(_toolbar, PANEL_ALIGN_TOP);
-	_toolbar->addButton(new CButtonToggle("DELVOXEL", LTexture::getTexture("gui\\icon\\tool\\VoxelDelete.png"), {0, 4}, {24, 24}))->setTooltip("Single - 1");		//0
-	_toolbar->addButton(new CButtonToggle("BOXVOXEL", LTexture::getTexture("gui\\icon\\tool\\VoxelBox.png"), {0, 32}, {24, 24}))->setTooltip("Box - 2");			//1
-	_toolbar->addButton(new CButtonToggle("FILLVOXEL", LTexture::getTexture("gui\\icon\\tool\\VoxelFill.png"), {0, 60}, {24, 24}))->setTooltip("Fill - 3");			//2
+	_toolbar->addButton(LTexture::getTexture("gui\\icon\\tool\\VoxelDelete.png"))->setTooltip("Single - 1");	//0
+	_toolbar->addButton(LTexture::getTexture("gui\\icon\\tool\\VoxelBox.png"))->setTooltip("Box - 2");			//1
+	_toolbar->addButton(LTexture::getTexture("gui\\icon\\tool\\VoxelFill.png"))->setTooltip("Fill - 3");		//2
 
-	m_container->addComponent(new ContainerPanel("GUI_TOOLBAR_2", "", {36, 84}, {32, 88}, Component::Theme::PRIMARY, Component::Border::BORDER_ALL, false));
-	_toolbar = new CButtonRadio("TOOLBAR", "", {-12, 0}, {0, 0}, toolbarMeta);
+	m_container->addComponent(new ContainerPanel("GUI_TOOLBAR_2", "", {36, 72}, {32, 80}, Component::Theme::PRIMARY, Component::Border::BORDER_ALL, false));
+	_toolbar = new CButtonRadio("TOOLBAR", "", {-12, 4}, {24, 24}, {0, 24}, toolbarMeta);
 	m_container->findComponent("GUI_TOOLBAR_2")->addComponent(_toolbar, PANEL_ALIGN_TOP);
-	_toolbar->addButton(new CButtonToggle("REPLACEVOXEL", LTexture::getTexture("gui\\icon\\tool\\VoxelReplace.png"), {0, 4}, {24, 24}))->setTooltip("Single - 1");	//0
-	_toolbar->addButton(new CButtonToggle("BOXVOXEL", LTexture::getTexture("gui\\icon\\tool\\VoxelBox.png"), {0, 32}, {24, 24}))->setTooltip("Box - 2");			//1
-	_toolbar->addButton(new CButtonToggle("FILLVOXEL", LTexture::getTexture("gui\\icon\\tool\\VoxelFill.png"), {0, 60}, {24, 24}))->setTooltip("Fill - 3");			//2
+	_toolbar->addButton(LTexture::getTexture("gui\\icon\\tool\\VoxelReplace.png"))->setTooltip("Single - 1");	//0
+	_toolbar->addButton(LTexture::getTexture("gui\\icon\\tool\\VoxelBox.png"))->setTooltip("Box - 2");			//1
+	_toolbar->addButton(LTexture::getTexture("gui\\icon\\tool\\VoxelFill.png"))->setTooltip("Fill - 3");		//2
 
 	m_container->addComponent(new ContainerPanel("GUI_TOOLBAR", "", {0, 0}, {32, GScreen::m_screenSize.y}, Component::Theme::PRIMARY, Component::Border::BORDER_RIGHT));
 
 	m_model->setToolVar(toolbar, toolbarMeta);
-	_toolbar = new CButtonRadio("TOOLBAR", "", {-12, 32}, {0, 0}, toolbar);
+	_toolbar = new CButtonRadio("TOOLBAR", "", {-12, 50}, {24, 24}, {0, 24}, toolbar);
 	m_container->findComponent("GUI_TOOLBAR")->addComponent(_toolbar, PANEL_ALIGN_TOP);
 	_toolbar->setPressFunction([]()
 	{
@@ -76,14 +76,14 @@ void Overlay::init(Model* p_model)
 		case 2: m_container->findComponent("GUI_TOOLBAR_2")->setVisible(true); break;
 		}
 	});
-	_toolbar->addButton(new CButtonToggle("ADDVOXEL", LTexture::getTexture("gui\\icon\\tool\\VoxelAdd.png"), {0, 20}, {24, 24}))->setTooltip("Add Voxel - B");			//0
-	_toolbar->addButton(new CButtonToggle("DELVOXEL", LTexture::getTexture("gui\\icon\\tool\\VoxelDelete.png"), {0, 48}, {24, 24}))->setTooltip("Erase Voxel - E");		//1
-	_toolbar->addButton(new CButtonToggle("REPLACEVOXEL", LTexture::getTexture("gui\\icon\\tool\\VoxelReplace.png"), {0, 76}, {24, 24}))->setTooltip("Replace Voxel - R");	//2
-	_toolbar->addButton(new CButtonToggle("EYEDROPVOXEL", LTexture::getTexture("gui\\icon\\tool\\VoxelEyedrop.png"), {0, 104}, {24, 24}))->setTooltip("Eyedropper - K");	//3
-	_toolbar->addButton(new CButtonToggle("SELECTMATRIX", LTexture::getTexture("gui\\icon\\tool\\MatrixSelect.png"), {0, 132}, {24, 24}))->setTooltip("Select Matrix - S");	//4
-	_toolbar->addButton(new CButtonToggle("MOVEMATRIX", LTexture::getTexture("gui\\icon\\tool\\MatrixMove.png"), {0, 160}, {24, 24}))->setTooltip("Move Matrix - M");		//5
-	_toolbar->addButton(new CButtonToggle("RESIZEMATRIX", LTexture::getTexture("gui\\icon\\tool\\MatrixResize.png"), {0, 188}, {24, 24}))->setTooltip("Resize Matrix - T");	//6
-																																								//_toolbar->addButton(new CButtonToggle("ANIMATEMATRIX", LTexture::getTexture("gui\\icon\\tool\\icon\\tool\\MatrixAnimate.png"), {0, 216}, {24, 24}));//7
+	_toolbar->addButton(LTexture::getTexture("gui\\icon\\tool\\VoxelAdd.png"))->setTooltip("Add Voxel - B");			//0
+	_toolbar->addButton(LTexture::getTexture("gui\\icon\\tool\\VoxelDelete.png"))->setTooltip("Erase Voxel - E");		//1
+	_toolbar->addButton(LTexture::getTexture("gui\\icon\\tool\\VoxelReplace.png"))->setTooltip("Replace Voxel - R");	//2
+	_toolbar->addButton(LTexture::getTexture("gui\\icon\\tool\\VoxelEyedrop.png"))->setTooltip("Eyedropper - K");	//3
+	_toolbar->addButton(LTexture::getTexture("gui\\icon\\tool\\MatrixSelect.png"))->setTooltip("Select Matrix - S");	//4
+	_toolbar->addButton(LTexture::getTexture("gui\\icon\\tool\\MatrixMove.png"))->setTooltip("Move Matrix - M");		//5
+	_toolbar->addButton(LTexture::getTexture("gui\\icon\\tool\\MatrixResize.png"))->setTooltip("Resize Matrix - T");	//6
+	//_toolbar->addButton(new CButtonToggle("ANIMATEMATRIX", LTexture::getTexture("gui\\icon\\tool\\icon\\tool\\MatrixAnimate.png"), {0, 216}, {24, 24}));//7
 
 
 
@@ -104,7 +104,7 @@ void Overlay::init(Model* p_model)
 
 
 	m_container->findComponent("GUI_DETAILS")->addComponent(new ContainerPanel("GUI_MATRICES", "", {0, 10}, {256, 256}, Component::Theme::PRIMARY, Component::Border::BORDER_TOP, true), PANEL_ALIGN_BOTTOM);
-	m_container->findComponent("GUI_DETAILS\\GUI_MATRICES")->addComponent(new CList("LIST_MATRICES", "", {0, 2}, {256, 192}, 24, m_model->getSelectedMatrix(), m_model->getMatrixList()), PANEL_ALIGN_BOTTOM);
+	m_container->findComponent("GUI_DETAILS\\GUI_MATRICES")->addComponent(new CList("LIST_MATRICES", "", {0, 2}, {256, 192}, 18, m_model->getMatrixStates(), m_model->getMatrixList()), PANEL_ALIGN_BOTTOM);
 
 
 

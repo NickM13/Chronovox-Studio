@@ -427,7 +427,7 @@ void Matrix::render(OutlineType p_highlight, GLfloat p_animTime)
 	{
 	case NONE: return;
 	case OUTLINE: glColor3f(0.6f, 0.6f, 0.6f); break;
-	case HOVERED: glColor3f(0.8f, 0.8f, 0.8f); break;
+	case HOVERED: Color(0xAADDFF).useColor();  break;
 	case SELECTED: glColor3f(1, 1, 1); break;
 	}
 

@@ -231,8 +231,8 @@ void ContainerPanel::render()
 			glEnd();
 
 			m_colorTheme.m_text.useColor();
-			Font::getInstance().setAlignment(ALIGN_CENTER);
-			Font::getInstance().print(m_title, m_pos.x + m_size.x / 2, m_pos.y + 8);
+			Font::setAlignment(ALIGN_CENTER);
+			Font::print(m_title, m_pos.x + m_size.x / 2, m_pos.y + 8);
 		}
 		MScissor::getInstance().push(Rect(GLfloat(m_pos.x + 1), GLfloat(m_pos.y), GLfloat(m_size.x - 2), GLfloat(m_size.y - 1)));
 		glPushMatrix();

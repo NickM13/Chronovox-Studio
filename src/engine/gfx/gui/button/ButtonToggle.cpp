@@ -126,8 +126,8 @@ void CButtonToggle::render()
 			glEnd();
 		}
 		m_colorTheme.m_text.useColor();
-		Font::getInstance().setAlignment(ALIGN_CENTER);
-		Font::getInstance().print(m_title, 0, 0);
+		Font::setAlignment(ALIGN_CENTER);
+		Font::print(m_title, 0, 0);
 	}
 	glPopMatrix();
 

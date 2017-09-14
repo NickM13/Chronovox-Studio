@@ -1,20 +1,25 @@
 #include "engine\gfx\gui\button\ButtonRadio.h"
 
-CButtonRadio::CButtonRadio(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Uint16* p_selectedButton)
+CButtonRadio::CButtonRadio(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_buttonSize, Vector2<Sint32> p_buttonStep, Uint16* p_selectedButton)
 {
 	m_compName = p_compName;
 	m_title = p_title;
 	m_pos = p_pos;
+	m_buttonSize = p_buttonSize;
+	m_buttonStep = p_buttonStep;
 	m_colorTheme = m_colorThemes[Theme::ACTION];
 	m_selectedButton = p_selectedButton;
 }
 
-Component* CButtonRadio::addButton(CButtonToggle* p_button)
+Component* CButtonRadio::addButton(Texture p_tex)
 {
-	m_buttonList.push_back(p_button);
-	m_buttonList[*m_selectedButton]->setState(1);
+	CButtonToggle *_button = new CButtonToggle("", p_tex, m_buttonStep * m_buttonList.size(), m_buttonSize);
+	_button->setBorder(0);
+	m_buttonList.push_back(_button);
+	if(m_buttonList.size() > *m_selectedButton)
+		m_buttonList[*m_selectedButton]->setState(1);
 	callPressFunction();
-	return p_button;
+	return _button;
 }
 
 void CButtonRadio::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos)

@@ -85,37 +85,36 @@ public:
 
 	virtual Component* addComponent(Component* p_comp, Sint8 p_alignment = 0);
 	virtual Component* findComponent(std::string p_compName);
-	virtual std::string getItem(Uint16 p_index);
-	virtual Texture getItemTexture(Uint16 p_index); // For Lists
-	virtual Uint16 getItemTexId(Uint16 p_index); // For Lists
+
 	virtual Component* addButton(std::string p_dir, std::string p_buttonName, std::string p_desc = "", function p_func = 0);
+	virtual std::string getItem(Uint16 p_index);
 	virtual Component* addItem(std::string p_item);
-	virtual Component* addItem(std::string p_item, Texture p_texture, Uint16 p_texId); // For Lists
-	virtual void setList(std::vector<std::string> p_items);
-	virtual void setItem(Uint16 p_index, std::string p_item);
-	virtual void setItemTexId(Uint16 p_index, Uint16 p_texId); // For Lists
-	virtual void setItemTexture(Uint16 p_index, Texture p_texture); // For Lists
-	virtual void removeItem(Uint16 p_index);
 	virtual Uint16 getItemCount();
-	virtual Component* setPressFunction(function p_func);
-	virtual Component* setHoldFunction(function p_func);
-	virtual Component* setReleaseFunction(function p_func);
+	virtual void setList(std::vector<std::string> p_items);
+	virtual bool hasList();
+
+	Component* setPressFunction(function p_func);
+	Component* setHoldFunction(function p_func);
+	Component* setReleaseFunction(function p_func);
 	Component* callPressFunction() { if(m_pressFunction != 0) m_pressFunction(); return this; };
 	Component* callHoldFunction() { if(m_holdFunction != 0) m_holdFunction(); return this; };
 	Component* callReleaseFunction() { if(m_releaseFunction != 0) m_releaseFunction(); return this; };
+
 	virtual void setSelectedItem(Uint16 p_selectedItem);
 	virtual void setSelectedButton(Uint16 p_selectedButton);
-	virtual Uint8 isUpdated();
 	virtual Sint16 getSelectedItem();
 	virtual Sint16 getPrevSelectedItem();
+
 	std::string getName();
 	virtual std::string getTitle();
+
 	void setTooltip(std::string p_tooltip);
 	void addTooltip();
 	void resetTooltip();
 
 	virtual void setTitle(std::string p_title);
 	Component* setTheme(Theme p_theme) { m_colorTheme = m_colorThemes[p_theme]; return this; }
+	Component* setBorder(Sint8 p_border) { m_border = p_border; return this; } // Use flags from enum Component::Border
 	void setPosition(Vector2<Sint32> p_pos);
 	void setSize(Vector2<Sint32> p_size);
 	Vector2<Sint32> getPosition();
@@ -126,19 +125,20 @@ public:
 	virtual Component* setVisible(bool p_visible);
 	bool isVisible();
 
+	virtual void render();
+	virtual Sint8 isSelected();
+	virtual void setValue(Sint32 p_value);
+	Sint32* getValue();
+
+	void setPriorityLayer(Sint8 p_priority);
+	Sint8 getPriorityLayer();
+
 	virtual void setState(Sint8 p_selected);
+	virtual Uint8 isUpdated();
 
 	virtual void input();
 	virtual void input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos);
 	virtual void update(GLfloat p_deltaUpdate);
 	void renderBack();
 	void renderFill(bool p_setColor = true);
-	virtual void render();
-	virtual Sint8 isSelected();
-	virtual void setValue(Sint32 p_value);
-	Sint32* getValue();
-	Sint8 getPriorityLayer();
-	void setPriorityLayer(Sint8 p_priority);
-	virtual bool hasList();
-	Color getColor();
 };

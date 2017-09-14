@@ -54,6 +54,16 @@ void Model::setColor(Sint32& p_r, Sint32& p_g, Sint32& p_b)
 	*g = 255;
 	*b = 0;
 }
+void Model::updateLists()
+{
+	m_matrixList.clear();
+	m_matrixStates.clear();
+	for(Uint16 i = 0; i < m_matrices.size(); i++)
+	{
+		m_matrixList.push_back(m_matrices[i]->getName());
+		m_matrixStates.push_back(0);
+	}
+}
 
 void Model::toggleGrid()
 {
@@ -118,6 +128,7 @@ void Model::removeMatrix()
 		for(Uint16 i = id; i < m_matrices.size(); i++)
 			m_matrices[i]->setId(m_matrices[i]->getId() - 1);
 	}
+	updateLists();
 }
 
 void Model::copyMatrix()
@@ -194,10 +205,12 @@ void Model::addMatrix(std::string p_name, Vector3<GLfloat> p_pos, Vector3<Sint16
 	if(m_tool) *m_tool = 1;
 	m_selectedMatrix = Sint16(m_matrices.size()) - 1;
 	m_matrixEdit->setMatrix(m_matrices[m_selectedMatrix], m_selectedMatrix);
+	updateLists();
 }
 void Model::renameMatrix(Uint16 id, std::string p_name)
 {
 	m_matrices[id]->setName(p_name);
+	updateLists();
 }
 
 Vector3<GLfloat> Model::getCamPosition()
@@ -234,11 +247,23 @@ void Model::input(Sint8 p_guiFlags)
 
 	GLfloat _near = (p_guiFlags & Component::EVENT_MOUSEOVER) ? 0 : 1, _far = 1;
 
-	MatrixCast::castRayMatrix(getCamPosition(), getCamMouseDirection() * 4096, m_matrices, m_selectedMatrix, _near, _far);
+	if(m_hoverMatrix != -1 && m_matrixStates[m_hoverMatrix] == 1) m_matrixStates[m_hoverMatrix] = 0;
+	MatrixCast::castRayMatrix(getCamPosition(), getCamMouseDirection() * 4096, m_matrices, m_hoverMatrix, _near, _far);
+	if(m_hoverMatrix != -1 && m_matrixStates[m_hoverMatrix] != 2) m_matrixStates[m_hoverMatrix] = 1;
+	m_selectedMatrix = m_hoverMatrix;
 	if(*m_tool <= SELECT && ((!(_mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN) && m_selectedMatrix != m_matrixEdit->getId()) || _mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_RELEASE))
 	{
-		if(m_selectedMatrix == -1)	m_matrixEdit->unloadMatrix();
-		else						m_matrixEdit->setMatrix(m_matrices[m_selectedMatrix], m_selectedMatrix);
+		if(m_selectedMatrix == -1)
+		{
+			if(m_matrixEdit->getId() == m_hoverMatrix) m_matrixStates[m_matrixEdit->getId()] = 1;
+			else m_matrixStates[m_matrixEdit->getId()] = 0;
+			m_matrixEdit->unloadMatrix();
+		}
+		else
+		{
+			m_matrixStates[m_selectedMatrix] = 2;
+			m_matrixEdit->setMatrix(m_matrices[m_selectedMatrix], m_selectedMatrix);
+		}
 	}
 
 	if(m_matrixEdit->getId() != -1)
@@ -348,9 +373,6 @@ void Model::input(Sint8 p_guiFlags)
 			break;
 		}
 	}
-	m_matrixList.clear();
-	for(Uint16 i = 0; i < m_matrices.size(); i++)
-		m_matrixList.push_back(m_matrices[i]->getName());
 }
 void Model::update(GLfloat p_deltaUpdate)
 {
@@ -384,8 +406,23 @@ void Model::render()
 		glDepthFunc(GL_LEQUAL);
 		for(Uint16 i = 0; i < m_matrices.size(); i++)
 		{
-			if(m_outline)		m_matrices[i]->render((m_matrixEdit->getId() == i ? SELECTED : (m_hoverMatrix == i ? HOVERED : OUTLINE)), 0);
-			else					m_matrices[i]->render(OutlineType::NONE, 0);
+			if(m_outline)
+			{
+				switch(m_matrixStates[i])
+				{
+				case 1:
+					m_matrices[i]->render(OutlineType::HOVERED, 0);
+					break;
+				case 2:
+					m_matrices[i]->render(OutlineType::SELECTED, 0);
+					break;
+				default:
+					m_matrices[i]->render(OutlineType::OUTLINE, 0);
+					break;
+				}
+			}
+			else
+				m_matrices[i]->render(OutlineType::NONE, 0);
 		}
 
 		renderSelected();
@@ -682,4 +719,5 @@ void Model::load(std::string p_fileName)
 {
 	if(NvmFormat::load(p_fileName, m_matrices))
 		m_matrixEdit->unloadMatrix(false);
+	updateLists();
 }

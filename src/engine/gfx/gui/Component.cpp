@@ -3,10 +3,10 @@
 
 std::vector<Component::ColorTheme> Component::m_colorThemes = {
 	//			BORDER					PRIMARY					SELECT					HOVER					TEXT					TEXT INFO
-	ColorTheme(Color(0x626262),		Color(0x515151),		Color(0x818181),		Color(0x818181),		Color(0xF0F0F0),		Color(0x0F0F0F)),	// 0: Primary
-	ColorTheme(Color(0x444444),		Color(0x606060),		Color(0x888888),		Color(0x818181),		Color(0xF0F0F0),		Color(0x0F0F0F)),	// 2: Menubar
+	ColorTheme(Color(0x101010),		Color(0x515151),		Color(0x818181),		Color(0x818181),		Color(0xF0F0F0),		Color(0x0F0F0F)),	// 0: Primary
+	ColorTheme(Color(0x101010),		Color(0x515151),		Color(0x363636),		Color(0x818181),		Color(0xF0F0F0),		Color(0x0F0F0F)),	// 2: Menubar
 	ColorTheme(Color(0x444444),		Color(0x727272),		Color(0xBCBCBC),		Color(0x818181),		Color(0xF0F0F0),		Color(0xF0F0F0)),	// 3: Info
-	ColorTheme(Color(0x303030),		Color(0x515151),		Color(0x303030),		Color(0x818181),		Color(0xF0F0F0),		Color(0xF0F0F0))	// 4: Action
+	ColorTheme(Color(0x101010),		Color(0x515151),		Color(0x303030),		Color(0x818181),		Color(0xF0F0F0),		Color(0xF0F0F0))	// 4: Action
 };// 0x007ACC - light blue
 
 Component::Component()
@@ -39,14 +39,6 @@ std::string Component::getItem(Uint16 p_index)
 {
 	return "";
 }
-Texture Component::getItemTexture(Uint16 p_index)
-{
-	return Texture();
-}
-Uint16 Component::getItemTexId(Uint16 p_index)
-{
-	return 0;
-}
 Component* Component::addButton(std::string p_dir, std::string p_buttonName, std::string p_desc, function p_func)
 {
 	return this;
@@ -55,27 +47,7 @@ Component* Component::addItem(std::string p_item)
 {
 	return this;
 }
-Component* Component::addItem(std::string p_item, Texture p_texture, Uint16 p_texId)
-{
-	return this;
-}
 void Component::setList(std::vector<std::string> p_items)
-{
-	
-}
-void Component::setItem(Uint16 p_index, std::string p_item)
-{
-
-}
-void Component::setItemTexId(Uint16 p_index, Uint16 p_texId)
-{
-
-}
-void Component::setItemTexture(Uint16 p_index, Texture p_texture)
-{
-	
-}
-void Component::removeItem(Uint16 p_index)
 {
 	
 }
@@ -228,10 +200,10 @@ void Component::renderBack()
 
 			if(m_border & BORDER_RIGHT)
 			{
-				glVertex2f(GLfloat(m_size.x), -1);
-				glVertex2f(GLfloat(m_size.x), GLfloat(m_size.y) + 1);
-				glVertex2f(GLfloat(m_size.x) + 1, GLfloat(m_size.y) + 1);
-				glVertex2f(GLfloat(m_size.x) + 1, -1);
+				glVertex2f(GLfloat(m_size.x), 0);
+				glVertex2f(GLfloat(m_size.x), GLfloat(m_size.y));
+				glVertex2f(GLfloat(m_size.x) + 1, GLfloat(m_size.y));
+				glVertex2f(GLfloat(m_size.x) + 1, 0);
 			}
 
 			if(m_border & BORDER_BOTTOM)
@@ -244,10 +216,10 @@ void Component::renderBack()
 
 			if(m_border & BORDER_LEFT)
 			{
-				glVertex2f(0, -1);
-				glVertex2f(0, GLfloat(m_size.y) + 1);
-				glVertex2f(-1, GLfloat(m_size.y) + 1);
-				glVertex2f(-1, -1);
+				glVertex2f(0, 0);
+				glVertex2f(0, GLfloat(m_size.y));
+				glVertex2f(-1, GLfloat(m_size.y));
+				glVertex2f(-1, 0);
 			}
 		}
 		glEnd();
@@ -535,9 +507,4 @@ void Component::setPriorityLayer(Sint8 p_priority)
 bool Component::hasList()
 {
 	return false;
-}
-
-Color Component::getColor()
-{
-	return Color();
 }

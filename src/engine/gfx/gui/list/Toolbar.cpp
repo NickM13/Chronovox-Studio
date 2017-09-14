@@ -8,7 +8,7 @@ CToolbar::CToolbar(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32
 	m_size = p_size;
 	m_colorTheme = m_colorThemes[MENUBAR];
 	m_panelMain = new Panel("", "", {0, 0}, p_size, MENUBAR, BORDER_BOTTOM);
-	m_panelSub = new Panel("", "", {0, 0}, {0, 0}, MENUBAR, BORDER_LEFT | BORDER_BOTTOM | BORDER_RIGHT);
+	m_panelSub = new Panel("", "", {0, 0}, {0, 0}, MENUBAR, 0);
 }
 
 //Directory splits with '\' 
@@ -101,7 +101,7 @@ void CToolbar::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseS
 		w = 0;
 		for(i = 0; i < m_buttonsMain.m_buttons.size(); i++)
 		{
-			_buttonWidth = Font::getInstance().getMessageWidth(m_buttonsMain.m_buttons[i].m_name).x;
+			_buttonWidth = Font::getMessageWidth(m_buttonsMain.m_buttons[i].m_name).x;
 			if(m_currDir != "" && _splitDir[0] == m_buttonsMain.m_buttons[i].m_name)
 			{
 				std::vector<std::string> _path;
@@ -115,14 +115,14 @@ void CToolbar::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseS
 						_subWidth = _buttonWidth;
 						_descWidth = 0;
 						for(Uint16 k = 0; k < _subList->m_buttons.size(); k++)
-							_subWidth = max(_subWidth, Font::getInstance().getMessageWidth(_subList->m_buttons[k].m_name).x);
+							_subWidth = max(_subWidth, Font::getMessageWidth(_subList->m_buttons[k].m_name).x);
 						for(Uint16 k = 0; k < _subList->m_buttons.size(); k++)
-							_descWidth = max(_descWidth, Font::getInstance().getMessageWidth(_subList->m_buttons[k].m_desc).x);
-						_subWidth += _descWidth;
+							_descWidth = max(_descWidth, Font::getMessageWidth(_subList->m_buttons[k].m_desc).x);
+						_subWidth += _descWidth + 32;
 						for(Uint16 g = 0; g < _subList->m_buttons.size(); g++)
 						{
-							if(p_mousePos.x - w >= 0 && p_mousePos.x - w < _subWidth + 16 &&
-								p_mousePos.y - m_size.y >= g * Font::getInstance().getSpacingHeight() && p_mousePos.y - m_size.y < (g + 1) * Font::getInstance().getSpacingHeight())
+							if(p_mousePos.x - w >= 0 && p_mousePos.x - w < _subWidth &&
+								p_mousePos.y - m_size.y >= g * Font::getSpacingHeight() && p_mousePos.y - m_size.y < (g + 1) * Font::getSpacingHeight())
 							{
 								m_selected = "";
 								for(Uint16 h = 0; h < _path.size(); h++)
@@ -150,7 +150,7 @@ void CToolbar::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseS
 		w = 0;
 		for(i = 0; i < m_buttonsMain.m_buttons.size(); i++)
 		{
-			_buttonWidth = Font::getInstance().getMessageWidth(m_buttonsMain.m_buttons[i].m_name).x;
+			_buttonWidth = Font::getMessageWidth(m_buttonsMain.m_buttons[i].m_name).x;
 			if(p_mousePos.x - w >= 0 && p_mousePos.x - w < Sint32(_buttonWidth + 16) &&
 				p_mousePos.y >= 0 && p_mousePos.y < m_size.y)
 			{
@@ -217,29 +217,42 @@ void CToolbar::render()
 		{
 			std::string _buttonName;
 			Sint32 _buttonWidth;
-			Font::getInstance().setAlignment(ALIGN_LEFT);
+			Font::setAlignment(ALIGN_LEFT);
 			for(Uint16 i = 0; i < m_buttonsMain.m_buttons.size(); i++)
 			{
 				_buttonName = m_buttonsMain.m_buttons[i].m_name;
-				_buttonWidth = Font::getInstance().getMessageWidth(_buttonName).x;
-				if(_splitDir[0] == m_buttonsMain.m_buttons[i].m_name || m_selected == m_buttonsMain.m_buttons[i].m_name)
+				_buttonWidth = Font::getMessageWidth(_buttonName).x + 16;
+				if(_splitDir[0] == m_buttonsMain.m_buttons[i].m_name)
 				{
-					glBindTexture(GL_TEXTURE_2D, 0);
-					glColor4f(0, 0, 0, 0.25f);
+					m_colorTheme.m_select.useColor();
 					glBegin(GL_QUADS);
 					{
 						glVertex2f(0, 0);
-						glVertex2f(GLfloat(_buttonWidth + 16), 0);
-						glVertex2f(GLfloat(_buttonWidth + 16), GLfloat(m_size.y));
+						glVertex2f(GLfloat(_buttonWidth), 0);
+						glVertex2f(GLfloat(_buttonWidth), GLfloat(m_size.y));
+						glVertex2f(0, GLfloat(m_size.y));
+					}
+					glEnd();
+				}
+				else if(m_selected == m_buttonsMain.m_buttons[i].m_name)
+				{
+					m_colorTheme.m_hover.useColor();
+					glBegin(GL_QUADS);
+					{
+						glVertex2f(0, 0);
+						glVertex2f(GLfloat(_buttonWidth), 0);
+						glVertex2f(GLfloat(_buttonWidth), GLfloat(m_size.y));
 						glVertex2f(0, GLfloat(m_size.y));
 					}
 					glEnd();
 				}
 				m_colorTheme.m_text.useColor();
-				Font::getInstance().print(m_buttonsMain.m_buttons[i].m_name, 4, (m_size.y) / 2);
+				Font::setAlignment(Alignment::ALIGN_CENTER);
+				Font::print(m_buttonsMain.m_buttons[i].m_name, _buttonWidth / 2, (m_size.y) / 2);
 
 				if(_splitDir[0] == m_buttonsMain.m_buttons[i].m_name)
 				{
+					Font::setAlignment(Alignment::ALIGN_LEFT);
 					SubList* _subList = &m_buttonsMain;
 					std::string _subName;
 					Sint32 _subWidth, _descWidth;
@@ -250,15 +263,16 @@ void CToolbar::render()
 						_subWidth = _buttonWidth;
 						_descWidth = 0;
 						for(Uint16 k = 0; k < _subList->m_buttons.size(); k++)
-							_subWidth = max(_subWidth, Font::getInstance().getMessageWidth(_subList->m_buttons[k].m_name).x);
+							_subWidth = max(_subWidth, Font::getMessageWidth(_subList->m_buttons[k].m_name).x);
 						for(Uint16 k = 0; k < _subList->m_buttons.size(); k++)
-							_descWidth = max(_descWidth, Font::getInstance().getMessageWidth(_subList->m_buttons[k].m_desc).x);
+							_descWidth = max(_descWidth, Font::getMessageWidth(_subList->m_buttons[k].m_desc).x);
 						if(_subList->m_buttons.size() > 0)
 						{
 							glPushMatrix();
 							{
 								glTranslatef(GLfloat(j * 92), GLfloat(m_size.y), 0);
-								m_panelSub->setSize(Vector2<Sint32>(Sint32(_subWidth + _descWidth + 32), Sint32((_subList->m_buttons.size()) * Font::getInstance().getSpacingHeight())));
+								m_panelSub->setState(1);
+								m_panelSub->setSize(Vector2<Sint32>(Sint32(_subWidth + _descWidth + 32), Sint32((_subList->m_buttons.size()) * Font::getSpacingHeight())));
 								m_panelSub->render();
 
 								m_colorTheme.m_text.useColor();
@@ -266,27 +280,26 @@ void CToolbar::render()
 								{
 									if((Uint16(_splitDir.size()) > j + 1 && _splitDir[j + 1] == _subList->m_buttons[k].m_name) || (Uint16(_splitSelect.size()) > j + 1 && _splitSelect[j + 1] == _subList->m_buttons[k].m_name))
 									{
-										glBindTexture(GL_TEXTURE_2D, 0);
-										glColor4f(0, 0, 0, 0.2f);
+										m_colorTheme.m_hover.useColor();
 										glBegin(GL_QUADS);
 										{
-											glVertex2f(0, GLfloat(k * Font::getInstance().getSpacingHeight()));
-											glVertex2f(GLfloat(_subWidth + _descWidth + 32), GLfloat(k * Font::getInstance().getSpacingHeight()));
-											glVertex2f(GLfloat(_subWidth + _descWidth + 32), GLfloat((k + 1) * Font::getInstance().getSpacingHeight()));
-											glVertex2f(0, GLfloat((k + 1) * Font::getInstance().getSpacingHeight()));
+											glVertex2f(0, GLfloat(k * Font::getSpacingHeight()));
+											glVertex2f(GLfloat(_subWidth + _descWidth + 32), GLfloat(k * Font::getSpacingHeight()));
+											glVertex2f(GLfloat(_subWidth + _descWidth + 32), GLfloat((k + 1) * Font::getSpacingHeight()));
+											glVertex2f(0, GLfloat((k + 1) * Font::getSpacingHeight()));
 										}
 										glEnd();
 										m_colorTheme.m_text.useColor();
 									}
-									Font::getInstance().print(_subList->m_buttons[k].m_name, 8, Sint32((k + 0.5f) * Font::getInstance().getSpacingHeight() - 1));
-									Font::getInstance().print(_subList->m_buttons[k].m_desc, 24 + _subWidth, Sint32((k + 0.5f) * Font::getInstance().getSpacingHeight() - 1));
+									Font::print(_subList->m_buttons[k].m_name, 8, Sint32((k + 0.5f) * Font::getSpacingHeight()));
+									Font::print(_subList->m_buttons[k].m_desc, 24 + _subWidth, Sint32((k + 0.5f) * Font::getSpacingHeight()));
 								}
 							}
 							glPopMatrix();
 						}
 					}
 				}
-				glTranslatef(GLfloat(_buttonWidth + 16), 0, 0);
+				glTranslatef(GLfloat(_buttonWidth), 0, 0);
 			}
 		}
 		glPopMatrix();

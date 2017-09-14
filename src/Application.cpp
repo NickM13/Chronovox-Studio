@@ -131,8 +131,6 @@ void Application::windowResizeCallback(GLFWwindow* p_window, int p_x, int p_y)
 	glViewport(0, 0, m_screenSize.x, m_screenSize.y);
 
 	init2d();
-
-	m_editor->resize(false);
 }
 
 void Application::mouseEnterCallback(GLFWwindow* p_window, int p_action) {}
@@ -148,19 +146,24 @@ void Application::maximize(bool p_maximizedByDrag)
 
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
+	/*
 	if(GScreen::m_maximized)
 		glfwMaximizeWindow(m_mainWindow);
 	else
 		glfwRestoreWindow(m_mainWindow);
-	/*
+	*/
+
 	if(GScreen::m_maximized)
 	{
+		HMONITOR hMon = MonitorFromPoint({0, 0}, MONITOR_DEFAULTTOPRIMARY);
+		MONITORINFO info;
+		info.cbSize = sizeof(MONITORINFO);
+		GetMonitorInfo(hMon, &info);
+
 		GScreen::m_smallScreen = m_screenSize;
-		glfwSetWindowMonitor(m_mainWindow, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, mode->refreshRate);
+		glfwSetWindowMonitor(m_mainWindow, 0, info.rcWork.left, info.rcWork.top, info.rcWork.right - info.rcWork.left, info.rcWork.bottom - info.rcWork.top, mode->refreshRate);
 
-		GScreen::m_screenSize = m_screenSize = Vector2<Uint16>(Uint16(mode->width), Uint16(mode->height));
-
-		glfwSetWindowPos(m_mainWindow, 0, 0);
+		GScreen::m_screenSize = m_screenSize = Vector2<Uint16>(Uint16(info.rcWork.right - info.rcWork.left), Uint16(info.rcWork.bottom - info.rcWork.top));
 	}
 	else
 	{
@@ -168,7 +171,8 @@ void Application::maximize(bool p_maximizedByDrag)
 
 		glfwSetWindowMonitor(m_mainWindow, 0, (mode->width - m_screenSize.x) / 2, (mode->height - m_screenSize.y) / 2, m_screenSize.x, m_screenSize.y, mode->refreshRate);
 	}
-	*/
+
+	m_editor->resize(true);
 }
 
 void Application::init2d()

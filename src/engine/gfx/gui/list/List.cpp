@@ -1,14 +1,14 @@
 #include "engine\gfx\gui\list\List.h"
 
-CList::CList(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Uint16 p_itemHeight, Sint16 *p_selectedItem, std::vector<std::string> *p_itemList)
+CList::CList(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Uint16 p_itemHeight, std::vector<Sint8> *p_selectionStates, std::vector<std::string> *p_itemList)
 {
 	m_compName = p_compName;
 	m_title = p_title;
 	m_pos = p_pos;
 	m_size = p_size - Vector2<Sint32>(0, 1);
 	m_itemHeight = p_itemHeight;
-	m_colorTheme = m_colorThemes[Theme::PRIMARY];
-	m_selectedItem = p_selectedItem;
+	m_colorTheme = m_colorThemes[Theme::ACTION];
+	m_selectionStates = p_selectionStates;
 	m_itemList = p_itemList;
 
 	m_scroll = 0;
@@ -19,7 +19,6 @@ Component* CList::addItem(std::string p_itemName)
 {
 	m_itemList->push_back(p_itemName);
 	m_maxScroll = Sint16((m_itemList->size() - m_maxVisible) * m_itemHeight);
-	*m_selectedItem = Sint8(m_itemList->size());
 	return this;
 }
 void CList::removeItem(Uint16 p_index)
@@ -27,7 +26,6 @@ void CList::removeItem(Uint16 p_index)
 	if(p_index < m_itemList->size())
 	{
 		m_itemList->erase(m_itemList->begin() + p_index);
-		if(*m_selectedItem > Sint8(m_itemList->size())) *m_selectedItem--;
 		m_maxScroll = Sint16((m_itemList->size() - m_maxVisible) * m_itemHeight);
 	}
 }
@@ -63,10 +61,7 @@ void CList::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStat
 		{
 			if(Sint32((p_mousePos.y + (GLfloat(m_scroll) / m_itemHeight) * m_itemHeight) / m_itemHeight) <= Sint32(m_itemList->size()))
 			{
-				if(Uint16((p_mousePos.y + (GLfloat(m_scroll) / m_itemHeight) * m_itemHeight) / m_itemHeight) != *m_selectedItem)
-				{
-					*m_selectedItem = Uint16((p_mousePos.y + (GLfloat(m_scroll) / m_itemHeight) * m_itemHeight) / m_itemHeight);
-				}
+				m_selectionStates->at(Uint16((p_mousePos.y + (GLfloat(m_scroll) / m_itemHeight) * m_itemHeight) / m_itemHeight)) = 2;
 			}
 
 			m_dragging = false;
@@ -115,8 +110,8 @@ void CList::render()
 		glPushMatrix();
 		{
 			m_colorTheme.m_text.useColor();
-			Font::getInstance().setAlignment(ALIGN_CENTER);
-			Font::getInstance().print(m_title, m_size.x / 2, -12);
+			Font::setAlignment(ALIGN_CENTER);
+			Font::print(m_title, m_size.x / 2, -12);
 
 			MScissor::getInstance().push(Rect(0, 0, GLfloat(m_size.x), GLfloat(m_size.y)));
 
@@ -128,19 +123,27 @@ void CList::render()
 			{
 				for(Uint16 y = 0; y < m_maxVisible; y++)
 				{
-					if(m_scroll / m_itemHeight + y >= m_itemList->size()) continue;
+					if(m_scroll / m_itemHeight + y >= Uint16(m_itemList->size())) continue;
 
-					if(m_scroll / m_itemHeight + y == *m_selectedItem)
-						m_colorTheme.m_select.useColor(1);
-					else
-						m_colorTheme.m_border.useColor(1);
+					switch(m_selectionStates->at(m_scroll / m_itemHeight + y))
+					{
+					case 1:
+						m_colorTheme.m_hover.useColor();
+						break;
+					case 2:
+						m_colorTheme.m_select.useColor();
+						break;
+					default:
+						m_colorTheme.m_primary.useColor();
+						break;
+					}
 
 					glVertex2f(0, GLfloat(y * m_itemHeight));
 					glVertex2f(GLfloat(m_size.x), GLfloat(y * m_itemHeight));
 					glVertex2f(GLfloat(m_size.x), GLfloat((y + 1) * m_itemHeight));
 					glVertex2f(0, GLfloat((y + 1) * m_itemHeight));
 
-					glColor3f(0, 0, 0);
+					m_colorTheme.m_border.useColor();
 					glVertex2f(GLfloat(m_size.x), GLfloat((y + 1) * m_itemHeight) - 1);
 					glVertex2f(0, GLfloat((y + 1) * m_itemHeight) - 1);
 					glVertex2f(0, GLfloat((y + 1) * m_itemHeight));
@@ -150,20 +153,21 @@ void CList::render()
 			glEnd();
 
 			m_colorTheme.m_text.useColor();
-			Font::getInstance().setAlignment(ALIGN_LEFT);
+			Font::setAlignment(ALIGN_LEFT);
 			for(Uint16 i = 0; i < m_maxVisible; i++)
 			{
 				if(i + round(m_scroll / m_itemHeight) < m_itemList->size())
 				{
 					if(Sint32(m_itemList->at(i + m_scroll / m_itemHeight).length()) > m_size.x / 16 - 2)
-						Font::getInstance().print(m_itemList->at(i + m_scroll / m_itemHeight).substr(0, m_size.x / 16 - 5) + "...", 2, Sint32((i + 0.5f) * m_itemHeight));
+						Font::print(m_itemList->at(i + m_scroll / m_itemHeight).substr(0, m_size.x / 16 - 5) + "...", 8, Sint32((i + 0.5f) * m_itemHeight));
 					else
-						Font::getInstance().print(m_itemList->at(i + m_scroll / m_itemHeight), 2, Sint32((i + 0.5f) * m_itemHeight));
+						Font::print(m_itemList->at(i + m_scroll / m_itemHeight), 8, Sint32((i + 0.5f) * m_itemHeight));
 				}
 			}
 		}
 		glPopMatrix();
 
+		/* I dont know what this does D:
 		if(m_selectedItem)
 			m_colorTheme.m_select.useColor();
 		else
@@ -185,6 +189,7 @@ void CList::render()
 			}
 			glEnd();
 		}
+		*/
 		MScissor::getInstance().pop();
 	}
 	glPopMatrix();
