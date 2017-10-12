@@ -47,12 +47,13 @@ Uint32 MScissor::push(Rect& p_area, bool p_override)
 
 Rect& MScissor::pop()
 {
-	m_unitList.pop_back();
-	if(!m_unitList.empty())
-	{
-		Rect _rect = m_unitList[m_unitList.size() - 1];
-		glScissor(GLint(_rect.x), GLint(_rect.y), GLsizei(_rect.w), GLsizei(_rect.h));
-		return _rect;
+	if(!m_unitList.empty()) {
+		m_unitList.pop_back();
+		if(!m_unitList.empty()) {
+			Rect _rect = m_unitList[m_unitList.size() - 1];
+			glScissor(GLint(_rect.x), GLint(_rect.y), GLsizei(_rect.w), GLsizei(_rect.h));
+			return _rect;
+		}
 	}
 	glDisable(GL_SCISSOR_TEST);
 	return Rect();

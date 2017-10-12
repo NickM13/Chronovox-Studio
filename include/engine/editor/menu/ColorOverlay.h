@@ -6,6 +6,7 @@ class ColorOverlay : public Component
 {
 public:
 	ColorOverlay(Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint32* p_r, Sint32* p_g, Sint32* p_b, Sint32* p_hue, Sint32* p_sat, Sint32* p_val)
+		: Component("OVERLAY_COLOR", "", p_pos, p_size, 0)
 	{
 		m_pos = p_pos;
 		m_size = p_size;

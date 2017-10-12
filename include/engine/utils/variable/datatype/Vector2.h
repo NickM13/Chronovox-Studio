@@ -48,7 +48,7 @@ struct Vector2
 	{ return Vector2<T>(fmod(x, v.x), fmod(y, v.y)); }
 
 	bool operator==(Vector2 v) const
-	{ return bool(x == v.x && y == v.y && z == v.z); }
+	{ return bool(x == v.x && y == v.y); }
 
 	Vector2<T> abs(GLfloat p_denominator = 1)
 	{ return Vector2<T>(fabsf(GLfloat(x) / p_denominator), fabsf(GLfloat(y) / p_denominator)); }

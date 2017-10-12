@@ -10,6 +10,7 @@
 #include "tool\MatrixCast.h"
 #include "tool\MatrixMove.h"
 #include "tool\MatrixResize.h"
+#include "tool\Select.h"
 
 #include "..\command\DeleteCommand.h"
 #include "..\command\DrawCommand.h"
@@ -25,7 +26,7 @@
 #include "engine\gfx\LTexture.h"
 #include "engine\gfx\mesh\object\TMesh.h"
 
-#include "format\NvmFormat.h"
+#include "format\Format.h"
 
 #include <vector>
 #include <iostream>
@@ -45,6 +46,7 @@ class Model
 {
 public:
 	Model();
+	void init();
 	~Model();
 
 	void setDataString(std::string* p_dataString) { m_dataString = p_dataString; }
@@ -52,8 +54,6 @@ public:
 	void setTool(Tool p_tool) { *m_tool = p_tool; *m_toolMeta = 0; }
 	void setToolMeta(Uint16 meta = 0) { if(meta < 3 && *m_tool < EYEDROP) *m_toolMeta = meta; }
 	void setColor(Sint32& p_r, Sint32& p_g, Sint32& p_b);
-	std::vector<Sint8> *getMatrixStates() { return &m_matrixStates; }
-	std::vector<std::string> *getMatrixList() { return &m_matrixList; }
 	void updateLists();
 
 	void toggleGrid();
@@ -67,7 +67,6 @@ public:
 
 	void undo();
 	void redo();
-	void removeMatrix();
 
 	void copyMatrix();
 	void pasteMatrix();
@@ -81,37 +80,46 @@ public:
 	void flipMatrix(Sint8 p_axesFlags);
 	void addMatrix(std::string p_name, Vector3<GLfloat> p_pos, Vector3<Sint16> p_size);
 	void renameMatrix(Uint16 id, std::string p_name);
+	void removeMatrix();
+	void deleteSelectedMatrices();
+	void selectMatrix(Sint16 id);
 
+	Vector3<GLfloat> getPos() { return m_pos; }
+	Vector3<GLfloat> getSize() { return m_size; }
 	Vector3<GLfloat> getCamPosition();
 	Vector3<GLfloat> getCamDirection();
-	// Note: For some reason this only works with fov=70
-	Vector3<GLfloat> getCamMouseDirection();
+	Vector3<GLfloat> getCamMouseDirection(); // Note: For some reason this only works with fov=70
+	GLfloat castRay(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direction); // Cast ray, return exact distance from closest voxel - used in Shader
 
 	void input(Sint8 p_guiFlags);
 	void update(GLfloat p_deltaUpdate);
 	void render();
-	void renderSelected();
-	void renderGrid();
-	void renderFocus();
 	void renderSkyBox();
 
 	std::vector<std::string> getMatrixNames();
 	Matrix* getMatrix(Sint16 id);
-
+	
+	bool exitSave();
+	void autosave();
+	bool autoload();
 	void save();
 	void open();
 	void newModel();
 
 	void save(std::string p_fileName);
-	void load(std::string p_fileName);
+	bool load(std::string p_fileName);
 private:
+	void renderSelected();
+	void renderGrid();
+	void renderFocus();
+
+	std::string m_modelName;
+
 	// Editting tool, tool mode
 	Uint16* m_tool, *m_toolMeta;
 
 	// Shared variables color
 	Sint32 *r, *g, *b;
-	std::vector<std::string> m_matrixList;
-	std::vector<Sint8> m_matrixStates;
 
 	// Visual guidelines
 	std::string* m_dataString; // Info bar at bottom of screen
@@ -123,6 +131,7 @@ private:
 	// Matrices
 	std::vector<Matrix*> m_matrices;
 	Matrix* m_matrixCopy; // Copy/paste matrix
+	CList* m_nameList;
 
 	// Camera variables
 	Vector3<GLfloat> m_camPos;
@@ -135,13 +144,13 @@ private:
 	Vector3<Sint32> m_selectedVoxelOffset; // Voxel off of selected face
 	Voxel m_boxVoxel; // Voxel filling box area
 	Sint8 m_selectedSide; // Face selected
-	
+
+	Vector3<GLfloat> m_pos;
+	Vector3<GLfloat> m_size;
 	Sint16 m_hoverMatrix;
-	Sint16 m_selectedMatrix;
 	Vector3<GLfloat> m_grabStart, m_grabCurrent;
 	GLfloat m_dragDifference;
 	Sint8 m_selectedScale;
-	Matrix* m_dragMatrix;
 	enum DragType
 	{
 		NONE = 0,

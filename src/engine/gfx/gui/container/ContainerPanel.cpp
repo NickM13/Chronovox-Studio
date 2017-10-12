@@ -1,11 +1,9 @@
 #include "engine\gfx\gui\container\ContainerPanel.h"
 
 ContainerPanel::ContainerPanel(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Theme p_colorTheme, Sint8 p_borderFlags, bool p_visible)
+	: Container(p_compName, p_pos, p_size, p_visible)
 {
-	m_compName = p_compName;
 	m_title = p_title;
-	m_pos = p_pos;
-	m_size = p_size;
 	m_colorTheme = m_colorThemes[p_colorTheme];
 	m_border = p_borderFlags;
 	m_visible = p_visible;
@@ -15,11 +13,12 @@ ContainerPanel::ContainerPanel(std::string p_compName, std::string p_title, Vect
 
 	m_draggable = false; //currently disabled
 	m_scrollX = m_scrollY = false;
+	m_panel = new Panel(p_compName.append("_PANEL"), p_title, p_pos, p_size, p_colorTheme, p_borderFlags);
 }
 
-Component* ContainerPanel::addComponent(Component* p_component, Sint8 p_alignment)
+Component* ContainerPanel::addComponent(Component* p_component, Anchor p_posAnchor, Anchor p_sizeAnchor)
 {
-	Component* _comp = Container::addComponent(p_component, p_alignment);
+	Component* _comp = Container::addComponent(p_component, p_posAnchor, p_sizeAnchor);
 
 	m_minScroll.x = min(m_minScroll.x, m_contentArea.x1);
 	m_minScroll.y = min(m_minScroll.y, m_contentArea.y1);
@@ -35,25 +34,32 @@ Component* ContainerPanel::addComponent(Component* p_component, Sint8 p_alignmen
 	return _comp;
 }
 
+ContainerPanel::~ContainerPanel() {
+	delete m_panel;
+	for(std::pair<std::string, Comp> c : m_componentMap) {
+		delete c.second.m_component;
+	}
+	m_componentMap.clear();
+}
+
 void ContainerPanel::calcSize(Vector2<Sint32> p_offset)
 {
 	if(p_offset.getLength() == 0)
 		m_minScroll = m_maxScroll = Vector2<Sint32>();
 	m_contentArea = Vector4<Sint32>();
-	for (Uint16 i = 0; i < m_componentList.size(); i++)
-	{
-		Comp _comp = m_componentList[i];
-		Component* _component = m_componentList[i].m_component;
-		switch (_comp.m_alignment)
+	for (std::pair<std::string, Comp> comp : m_componentMap) {
+		Comp _comp = comp.second;
+		Component* _component = _comp.m_component;
+		switch (_comp.m_posAnchor)
 		{
-		case PANEL_ALIGN_CENTER:
-		case PANEL_ALIGN_TOP:
-		case PANEL_ALIGN_BOTTOM:
+		case CENTER:
+		case TOP:
+		case BOTTOM:
 			_component->setPosition(_component->getPosition() + Vector2<Sint32>(p_offset.x / 2, 0));
 			break;
-		case PANEL_ALIGN_RIGHT:
-		case PANEL_ALIGN_TOP_RIGHT:
-		case PANEL_ALIGN_BOTTOM_RIGHT:
+		case RIGHT:
+		case TOP_RIGHT:
+		case BOTTOM_RIGHT:
 			_component->setPosition(_component->getPosition() + Vector2<Sint32>(p_offset.x, 0));
 			break;
 		default:
@@ -71,6 +77,11 @@ void ContainerPanel::calcSize(Vector2<Sint32> p_offset)
 
 	if((m_minScroll.y != m_maxScroll.y) != m_scrollY)
 		setScrollY(!m_scrollY);
+}
+void ContainerPanel::resize() {
+	Container::resize();
+	m_panel->setPosition(m_pos);
+	m_panel->setSize(m_size);
 }
 //TODO: Set whether scroll bar across bottom exists
 void ContainerPanel::setScrollX(bool p_state)
@@ -115,13 +126,11 @@ void ContainerPanel::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_
 	// Scroll window
 	if((p_interactFlags & EVENT_MOUSESCROLL) &&
 		p_mousePos.x - m_pos.x >= 0 && p_mousePos.x - m_pos.x <= m_size.x + 10 &&
-		p_mousePos.y - m_pos.y >= 0 && p_mousePos.y - m_pos.y <= m_size.y)
-	{
+		p_mousePos.y - m_pos.y >= 0 && p_mousePos.y - m_pos.y <= m_size.y) {
 		m_scroll.y -= GMouse::m_mouseScroll * 8;
 		p_interactFlags -= EVENT_MOUSESCROLL;
 	}
-	if(m_rHeld != 0)
-	{
+	if(m_rHeld != 0) {
 		if(m_minScroll.x != 0 || m_maxScroll.x != 0)
 			m_scroll.x += p_mousePos.x - m_mousePos.x;
 		if(m_minScroll.y != 0 || m_maxScroll.y != 0)
@@ -144,17 +153,14 @@ void ContainerPanel::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_
 		p_interactFlags -= EVENT_MOUSEOVER;
 
 	// Drag window -- disabled
-	if(((p_interactFlags & EVENT_MOUSEOVER) || m_lHeld) && m_draggable)
-	{
+	if(((p_interactFlags & EVENT_MOUSEOVER) || m_lHeld) && m_draggable) {
 		if(m_lHeld != 0)
 			m_pos = m_pos + (p_mousePos - m_mousePos);
 		if(p_mousePos.x - m_pos.x >= 0 && p_mousePos.x - m_pos.x <= m_size.x && 
-			p_mousePos.y - m_pos.y >= 0 && p_mousePos.y - m_pos.y <= m_size.y)
-		{
+			p_mousePos.y - m_pos.y >= 0 && p_mousePos.y - m_pos.y <= m_size.y) {
 			if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 				m_lHeld = 2;
-			else if(!(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN))
-			{
+			else if(!(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN)) {
 				m_lHeld = 0;
 				if(m_pos.x < 0)
 					m_pos.x = 0;
@@ -166,10 +172,8 @@ void ContainerPanel::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_
 					m_pos.y = -Sint32(GScreen::m_screenSize.y - m_size.y) + 24;
 			}
 		}
-		else
-		{
-			if(!(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN))
-			{
+		else {
+			if(!(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN)) {
 				m_lHeld = 0;
 				if(m_pos.x < 0)
 					m_pos.x = 0;
@@ -184,10 +188,8 @@ void ContainerPanel::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_
 	}
 	if(m_scrollY && 
 		p_mousePos.x - m_pos.x >= m_size.x && p_mousePos.x - m_pos.x <= m_size.x + 10 && 
-		p_mousePos.y - m_pos.y >= 0 && p_mousePos.y - m_pos.y <= m_size.y)
-	{
-		if(m_scrollY)
-		{
+		p_mousePos.y - m_pos.y >= 0 && p_mousePos.y - m_pos.y <= m_size.y) {
+		if(m_scrollY) {
 			if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
 				m_rHeld = 2;
 			else if(!(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN))
@@ -196,8 +198,7 @@ void ContainerPanel::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_
 		if((p_interactFlags & EVENT_MOUSEOVER))
 			p_interactFlags -= EVENT_MOUSEOVER;
 	}
-	else
-	{
+	else {
 		if(!(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN))
 			m_rHeld = 0;
 		else
@@ -206,34 +207,12 @@ void ContainerPanel::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_
 	}
 	m_mousePos = p_mousePos;
 }
-void ContainerPanel::update(GLfloat p_updateTime)
-{
+void ContainerPanel::update(GLfloat p_updateTime) {
 	Container::update(p_updateTime);
 }
-void ContainerPanel::render()
-{
-	if(m_visible)
-	{
-		if(m_texture != -1)
-			Component::renderFill();
-		else
-			Component::render();
-		if(m_title != "")
-		{
-			m_colorTheme.m_border.useColor();
-			glBegin(GL_QUADS);
-			{
-				glVertex2f(GLfloat(m_pos.x), GLfloat(m_pos.y));
-				glVertex2f(GLfloat(m_pos.x + m_size.x), GLfloat(m_pos.y));
-				glVertex2f(GLfloat(m_pos.x + m_size.x), GLfloat(m_pos.y) + 1);
-				glVertex2f(GLfloat(m_pos.x), GLfloat(m_pos.y) + 1);
-			}
-			glEnd();
-
-			m_colorTheme.m_text.useColor();
-			Font::setAlignment(ALIGN_CENTER);
-			Font::print(m_title, m_pos.x + m_size.x / 2, m_pos.y + 8);
-		}
+void ContainerPanel::render() {
+	if(m_visible) {
+		m_panel->render();
 		MScissor::getInstance().push(Rect(GLfloat(m_pos.x + 1), GLfloat(m_pos.y), GLfloat(m_size.x - 2), GLfloat(m_size.y - 1)));
 		glPushMatrix();
 		{
@@ -260,8 +239,7 @@ void ContainerPanel::render()
 				glEnd();
 				m_colorTheme.m_primary.useColor();
 			}
-			if(m_scrollY)
-			{
+			if(m_scrollY) {
 				m_colorTheme.m_border.useColor();
 				glBegin(GL_QUADS);
 				{

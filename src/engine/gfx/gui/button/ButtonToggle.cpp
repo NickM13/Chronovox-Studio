@@ -1,14 +1,9 @@
 #include "engine\gfx\gui\button\ButtonToggle.h"
 
 CButtonToggle::CButtonToggle(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint8 p_state, function p_func)
+	: Component(p_compName, p_title, p_pos, p_size, ACTION)
 {
-	m_compName = p_compName;
-	m_title = p_title;
-	m_pos = p_pos;
-	m_size = p_size;
-	m_colorTheme = m_colorThemes[Theme::ACTION];
 	m_selected = p_state;
-
 	m_texType = 0;
 	m_pressFunction = p_func;
 
@@ -18,14 +13,9 @@ CButtonToggle::CButtonToggle(std::string p_compName, std::string p_title, Vector
 	m_numValue = new Sint32(0);
 }
 CButtonToggle::CButtonToggle(std::string p_compName, Texture p_buttonTex, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint8 p_state, function p_func)
+	: Component(p_compName, "", p_pos, p_size, ACTION)
 {
-	m_compName = p_compName;
-	m_title = "";
-	m_pos = p_pos;
-	m_size = p_size;
-	m_colorTheme = m_colorThemes[Theme::ACTION];
 	m_selected = p_state;
-
 	m_pressFunction = p_func;
 
 	m_soundClick.setSound(MBuffer::getInstance().getUnit("gui\\Click.wav"));
@@ -37,14 +27,9 @@ CButtonToggle::CButtonToggle(std::string p_compName, Texture p_buttonTex, Vector
 	m_numValue = new Sint32(0);
 }
 CButtonToggle::CButtonToggle(std::string p_compName, Texture p_activeTex, Texture p_inactiveTex, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint8 p_state, function p_func)
+	: Component(p_compName, "", p_pos, p_size, ACTION)
 {
-	m_compName = p_compName;
-	m_title = "";
-	m_pos = p_pos;
-	m_size = p_size;
-	m_colorTheme = m_colorThemes[Theme::ACTION];
 	m_selected = p_state;
-
 	m_pressFunction = p_func;
 
 	m_soundClick.setSound(MBuffer::getInstance().getUnit("gui\\Click.wav"));

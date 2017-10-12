@@ -1,11 +1,9 @@
 #include "engine\gfx\gui\icon\Icon.h"
 
 CIcon::CIcon(std::string p_compName, Texture p_icon, Vector2<Sint32> p_pos, Vector2<Sint32> p_size)
+	: Component(p_compName, "", p_pos, p_size, 0)
 {
-	m_compName = p_compName;
 	m_texture = p_icon.getId();
-	m_pos = p_pos;
-	m_size = p_size;
 }
 
 void CIcon::render()

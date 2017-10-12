@@ -118,56 +118,13 @@ public:
 class FileExt
 {
 public:
-	static void writeInt(std::ofstream& p_fileStream, Sint32 p_uint)
-	{
-		p_fileStream << Uint8((p_uint & 0xFF000000) >> 24);
-		p_fileStream << Uint8((p_uint & 0xFF0000) >> 16);
-		p_fileStream << Uint8((p_uint & 0xFF00) >> 8);
-		p_fileStream << Uint8((p_uint & 0xFF));
-	}
-	static void writeShort(std::ofstream& p_fileStream, Sint16 p_ushort)
-	{
-		p_fileStream << Uint8((p_ushort & 0xFF00) >> 8);
-		p_fileStream << Uint8((p_ushort & 0xFF));
-	}
-	static void writeChar(std::ofstream& p_fileStream, Uint8 p_uchar)
-	{
-		p_fileStream << p_uchar;
-	}
-	static void writeString(std::ofstream& p_fileStream, std::string p_string)
-	{
-		writeChar(p_fileStream, (Uint8)p_string.length());
-		for(Uint16 i = 0; i < p_string.length(); i++)
-			p_fileStream << p_string[i];
-	}
+	static void writeInt(std::ofstream& p_fileStream, Sint32 p_uint);
+	static void writeShort(std::ofstream& p_fileStream, Sint16 p_ushort);
+	static void writeChar(std::ofstream& p_fileStream, Uint8 p_uchar);
+	static void writeString(std::ofstream& p_fileStream, std::string p_string);
 
-	static Sint32 readInt(char* p_fileStream, Uint32& p_index)
-	{
-		Sint32 _value = 0;
-		_value += readChar(p_fileStream, p_index) << 24;
-		_value += readChar(p_fileStream, p_index) << 16;
-		_value += readChar(p_fileStream, p_index) << 8;
-		_value += readChar(p_fileStream, p_index);
-		return _value;
-	}
-	static Sint16 readShort(char* p_fileStream, Uint32& p_index)
-	{
-		Sint16 _value = 0;
-		_value += readChar(p_fileStream, p_index) << 8;
-		_value += readChar(p_fileStream, p_index);
-		return _value;
-	}
-	static Uint8 readChar(char* p_fileStream, Uint32& p_index)
-	{
-		p_index = p_index + 1;
-		return Uint8(p_fileStream[p_index - 1]);
-	}
-	static std::string readString(char* p_fileStream, Uint32& p_index)
-	{
-		std::string str = "";
-		Uint8 size = readChar(p_fileStream, p_index);
-		for(Uint8 i = 0; i < size; i++)
-			str += ((char)readChar(p_fileStream, p_index));
-		return str;
-	}
+	static Sint32 readInt(char* p_fileStream, Uint32& p_index);
+	static Sint16 readShort(char* p_fileStream, Uint32& p_index);
+	static Uint8 readChar(char* p_fileStream, Uint32& p_index);
+	static std::string readString(char* p_fileStream, Uint32& p_index);
 };

@@ -2,18 +2,14 @@
 
 
 CSlider::CSlider(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Sint32 p_length, Sint32 p_maxValue, Sint32& p_numValue)
+	: Component(p_compName, p_title, p_pos, {}, ACTION)
 {
-	m_compName = p_compName;
-	m_title = p_title;
-	m_pos = p_pos;
 	m_length = p_length;
 	m_maxValue = p_maxValue;
 	m_numValue = &p_numValue;
-	m_size = {p_length, m_height};
-	m_colorTheme = m_colorThemes[ACTION];
-
 	m_height = 16;
 	m_width = 4;
+	m_size = {p_length, m_height};
 };
 
 void CSlider::setMaxValue(Sint16 p_value)

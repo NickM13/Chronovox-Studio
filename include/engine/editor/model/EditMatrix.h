@@ -116,6 +116,13 @@ public:
 			}
 		}
 	}
+	void clearCommands()
+	{
+		for(Command* cmd : m_recentCommands)
+			delete cmd;
+		m_recentCommands.clear();
+		m_commandIndex = 0;
+	}
 
 	void reset(bool p_saveChanges = true)
 	{

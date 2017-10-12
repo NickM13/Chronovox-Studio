@@ -2,11 +2,8 @@
 
 
 CText::CText(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Alignment p_align, Color p_fontColor)
+	: Component(p_compName, p_title, p_pos, p_size, 0)
 {
-	m_compName = p_compName;
-	m_title = p_title;
-	m_pos = p_pos;
-	m_size = p_size;
 	m_align = p_align;
 	m_color = p_fontColor;
 }

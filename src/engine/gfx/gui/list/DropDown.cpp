@@ -2,13 +2,8 @@
 #include "engine\gfx\font\Font.h"
 
 CDropDown::CDropDown(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint8 p_colorTheme)
+	: Component(p_compName, p_title, p_pos, p_size, p_colorTheme)
 {
-	m_compName = p_compName;
-	m_title = p_title;
-	m_pos = p_pos;
-	m_size = p_size;
-	m_colorTheme = m_colorThemes[ACTION];
-
 	m_prevSelectedItem = m_selectedItem = 0;
 	m_hoverItem = -1;
 }
@@ -173,7 +168,7 @@ void CDropDown::render()
 				glEnd();
 			}
 		}
-		m_colorTheme.m_textLight.useColor();
+		m_colorTheme.m_text.useColor();
 		Font::setAlignment(ALIGN_CENTER);
 		Font::print(m_title, m_size.x / 2, -(Font::getHeight()));
 		m_colorTheme.m_text.useColor();

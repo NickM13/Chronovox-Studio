@@ -2,17 +2,13 @@
 
 
 FileField::FileField(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint8 p_colorTheme, bool p_limitField)
+	: Component(p_compName, "", p_pos, {}, p_colorTheme)
 {
-	m_compName = p_compName;
 	m_blankField = p_title;
-	m_title = "";
-	m_pos = p_pos;
 	m_size = Vector2<Sint32>(p_size.x, Sint32(p_size.y * Font::getSpacingHeight()));
-	m_colorTheme = m_colorThemes[p_colorTheme];
 
 	m_scrolling = false;
-	m_scroll = {};
-	m_cursorPos = {};
+	m_scroll = m_cursorPos = {};
 
 	m_selected = 0;
 

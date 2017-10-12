@@ -2,32 +2,27 @@
 
 bool MatrixCast::castRayMatrix(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direction, std::vector<Matrix*> p_matrices, Sint16 &p_selectedMatrix, GLfloat &p_near, GLfloat &p_far)
 {
-	GLfloat _mNear, _mFar, _vNear, _vFar, _cNear = 1, _cFar = 0;
+	GLfloat _c = 0.00001f;
+	GLfloat _mNear, _mFar, _vNear, _vFar, _cNear = 1 - _c, _cFar = 0;
 	GLfloat _near, _far;
 	GLfloat _iNear = p_near, _iFar = p_far;
 	Sint8 _side = 0;
 	Sint32 _cMatrix = -1;
 	Vector3<Sint32> m_selectedVoxel, m_selectedVoxelOffset;
 
-	for(Uint16 i = 0; i < p_matrices.size(); i++)
-	{
-		
+	for(Uint16 i = 0; i < p_matrices.size(); i++) {
 		_mNear = _iNear;
 		_mFar = _iFar;
 		Math::castRay3d(p_start, p_direction, p_matrices[i]->getPos(), p_matrices[i]->getSize(), _mNear, _mFar, _side);
-		if(_mNear < _cNear)
-		{
+		if(_mNear < _cNear) {
 			_vNear = _mNear, _vFar = _mFar;
 			castRayVoxel(p_start, p_direction, p_matrices[i], _vNear, _vFar, m_selectedVoxel, _side, m_selectedVoxelOffset);
-			if(_vFar == 1)
-				_near = 0.999f;
-			else
-				_near = _mNear + ((_mNear - _mFar) * _vNear);
+			if(_vFar == 1) _near = 1.f - _c;
+			else _near = _mNear + ((_mFar - _mNear) * _vNear);
 			_far = _mFar;
-			if(_near < _cNear)
-			{
+			if(_near < _cNear + _c) {
 				_cMatrix = i;
-				_cNear = _near;
+				_cNear = _near + _c;
 				_cFar = _far;
 				p_near = _mNear + ((_mNear - _mFar) * _vNear);
 				p_far = _cFar;
@@ -73,7 +68,7 @@ bool MatrixCast::castRayVoxel(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direc
 			}
 		}
 		p_selectedVoxel = _floor;
-		_near = _cFar + 0.0001f;
+		_near = _cFar + 0.00001f;
 		_cNear = 0, _cFar = 1;
 		Math::castRay3d(p_start, p_direction, (p_start + p_direction * (_near)).floor(), {1, 1, 1}, _cNear, _cFar, p_side);
 		_floor = (p_start + p_direction * _near).floor();

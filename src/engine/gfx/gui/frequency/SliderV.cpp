@@ -1,18 +1,13 @@
 #include "engine\gfx\gui\frequency\SliderV.h"
 
-
 CSliderV::CSliderV(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Sint32 p_length, Sint32 p_maxValue, Sint32& p_numValue)
+	: Component(p_compName, p_title, p_pos, {}, ACTION)
 {
-	m_compName = p_compName;
-	m_title = p_title;
-	m_pos = p_pos;
 	m_length = p_length;
 	m_maxValue = p_maxValue;
 	m_numValue = &p_numValue;
-	m_colorTheme = m_colorThemes[ACTION];
-
 	m_height = 4;
-	m_width = 12;
+	m_width = 8;
 	m_size = {m_width, m_length};
 };
 

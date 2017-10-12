@@ -1,80 +1,64 @@
 #pragma once
 
-#define PANEL_ALIGN_NONE				0
-#define PANEL_ALIGN_CENTER				1
-#define PANEL_ALIGN_LEFT				2
-#define PANEL_ALIGN_RIGHT				3
-#define PANEL_ALIGN_TOP					4
-#define PANEL_ALIGN_BOTTOM				5
-#define PANEL_ALIGN_TOP_LEFT			6
-#define PANEL_ALIGN_TOP_RIGHT			7
-#define PANEL_ALIGN_BOTTOM_LEFT			8
-#define PANEL_ALIGN_BOTTOM_RIGHT		9
-
 #include "..\Component.h"
 #include "engine\gfx\font\Font.h"
 
 #include "engine\utils\global\GScreen.h"
 #include <algorithm>
-
+#include <map>
+#include <thread>
 
 class Container : public Component
 {
 protected:
-	struct Comp
-	{
-		Sint8 m_alignment;
+	struct Comp {
+		Anchor m_posAnchor;
+		Anchor m_sizeAnchor;
 		Component* m_component;
-		Comp(Sint8 p_align, Component* p_comp) : m_alignment(p_align), m_component(p_comp)
-		{};
+		Comp() { m_component = 0; }
+		Comp(Anchor p_posAnchor, Anchor p_sizeAnchor, Component* p_comp) : m_posAnchor(p_posAnchor), m_sizeAnchor(p_sizeAnchor), m_component(p_comp) {};
 	};
-	std::vector<Comp> m_componentList;
+	std::map<std::string, Comp> m_componentMap;
+	std::vector<std::string> m_componentOrder;
+	std::map<std::string, Component*> m_pauseScreens;
 	Vector4<Sint32> m_contentArea;
-
-	std::vector<Component*> m_pauseScreens;
-	Sint16 m_currentPause = -1;
+	std::string m_currentPause = "";
+	void sortInComponent(Comp comp);
 public:
 	Container() {};
 	Container(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, bool p_visible);
-	~Container();
+	virtual ~Container();
 
-	virtual Component* addComponent(Component* p_component, Sint8 p_alignment = PANEL_ALIGN_NONE);
+	virtual Component* addComponent(Component* p_component, Anchor p_posAnchor = NOANCHOR, Anchor p_sizeAnchor = NOANCHOR);
 	Component* findComponent(std::string p_compName);
 	void removeComponent(std::string p_compName);
 
 	Component* setVisible(bool p_visible);
 
+	void resize();
 	Vector2<Sint32> getRealPosition();
 	Vector2<Sint32> getRealSize();
 
-	Component* addPauseScreen(Component* p_comp, Sint8 p_alignment = PANEL_ALIGN_NONE)
-	{
-		m_pauseScreens.push_back(addComponent(p_comp, p_alignment));
+	Component* addPauseScreen(Component* p_comp, Anchor p_posAnchor = NOANCHOR, Anchor p_sizeAnchor = NOANCHOR) {
+		m_pauseScreens.insert({p_comp->getName(), addComponent(p_comp, p_posAnchor, p_sizeAnchor)});
 		return p_comp;
 	}
 	Component* setPauseScreen(std::string p_compName)
 	{
-		if(m_currentPause != -1)
+		if(m_currentPause != "")
 			m_pauseScreens[m_currentPause]->setVisible(false);
-		if(p_compName != "")
-		{
-			for(Uint16 i = 0; i < m_pauseScreens.size(); i++)
-			{
-				if(m_pauseScreens[i]->getName() == p_compName)
-				{
-					m_currentPause = i;
-					m_pauseScreens[i]->setVisible(true);
-					return m_pauseScreens[i];
-				}
+		if(p_compName != "") {
+			Component *c = m_pauseScreens[p_compName];
+			if(c) {
+				m_currentPause = p_compName;
+				c->setVisible(true);
+				return c;
 			}
 		}
-		m_currentPause = -1;
+		m_currentPause = "";
 		return 0;
 	}
-	bool isPaused()
-	{
-		return m_currentPause != -1;
-	}
+	bool isPaused() { return m_currentPause != ""; }
 
 	void updateSize();
 

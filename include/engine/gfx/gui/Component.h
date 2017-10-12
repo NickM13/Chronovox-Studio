@@ -4,19 +4,31 @@
 #include "engine\utils\Utilities.h"
 #include "engine\utils\variable\manager\ScissorManager.h"
 
-typedef void(*function)();
+enum Anchor {
+	NOANCHOR = 0,
+	CENTER = 1,
+	LEFT = 2,
+	RIGHT = 3,
+	TOP = 4,
+	BOTTOM = 5,
+	TOP_LEFT = 6,
+	TOP_RIGHT = 7,
+	BOTTOM_LEFT = 8,
+	BOTTOM_RIGHT = 9
+};
+
 class Component
 {
+protected:
+	typedef void(*function)();
 public:
-	enum EventFlag
-	{
+	enum EventFlag {
 		EVENT_MOUSEOVER = 1,
 		EVENT_KEYPRESS = 2,
 		EVENT_MOUSESCROLL = 4,
 		EVENT_ALL = 7
 	};
-	enum Border
-	{
+	enum Border {
 		BORDER_NONE = 0,
 		BORDER_TOP = 1,
 		BORDER_RIGHT = 2,
@@ -24,15 +36,14 @@ public:
 		BORDER_LEFT = 8,
 		BORDER_ALL = 15
 	};
-	enum Theme
-	{
+	enum Theme {
 		PRIMARY = 0,
 		MENUBAR = 1,
 		INFO = 2,
-		ACTION = 3
+		ACTION = 3,
+		ACTION_LIGHT = 4
 	};
-	enum TextureStyle
-	{
+	enum TextureStyle {
 		NOTEX = -1,
 		STRETCH = 0,
 		WRAP = 1,
@@ -56,7 +67,7 @@ protected:
 	};
 
 	std::string m_compName, m_title;
-	Vector2<Sint32> m_pos, m_size;
+	Vector2<Sint32> m_posInit, m_pos, m_sizeInit, m_size;
 	Sint8 m_selected;
 	bool m_hovered;
 	ColorTheme m_colorTheme;
@@ -81,13 +92,12 @@ protected:
 public:
 	Component();
 	Component(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint8 p_colorTheme = 0);
-	~Component();
+	virtual ~Component();
 
-	virtual Component* addComponent(Component* p_comp, Sint8 p_alignment = 0);
+	virtual Component* addComponent(Component* p_comp, Anchor p_posAnchor = Anchor::NOANCHOR, Anchor p_sizeAnchor = Anchor::NOANCHOR);
 	virtual Component* findComponent(std::string p_compName);
 
 	virtual Component* addButton(std::string p_dir, std::string p_buttonName, std::string p_desc = "", function p_func = 0);
-	virtual std::string getItem(Uint16 p_index);
 	virtual Component* addItem(std::string p_item);
 	virtual Uint16 getItemCount();
 	virtual void setList(std::vector<std::string> p_items);
@@ -115,8 +125,11 @@ public:
 	virtual void setTitle(std::string p_title);
 	Component* setTheme(Theme p_theme) { m_colorTheme = m_colorThemes[p_theme]; return this; }
 	Component* setBorder(Sint8 p_border) { m_border = p_border; return this; } // Use flags from enum Component::Border
-	void setPosition(Vector2<Sint32> p_pos);
-	void setSize(Vector2<Sint32> p_size);
+	virtual void resize();
+	virtual void setPosition(Vector2<Sint32> p_pos);
+	virtual void setSize(Vector2<Sint32> p_size);
+	Vector2<Sint32> getInitialPosition();
+	Vector2<Sint32> getInitialSize();
 	Vector2<Sint32> getPosition();
 	Vector2<Sint32> getSize();
 	virtual Vector2<Sint32> getRealPosition();
@@ -125,12 +138,15 @@ public:
 	virtual Component* setVisible(bool p_visible);
 	bool isVisible();
 
+	void renderBack();
+	void renderFill(bool p_setColor = true);
+	void renderBorder();
 	virtual void render();
 	virtual Sint8 isSelected();
 	virtual void setValue(Sint32 p_value);
 	Sint32* getValue();
 
-	void setPriorityLayer(Sint8 p_priority);
+	Component* setPriorityLayer(Sint8 p_priority);
 	Sint8 getPriorityLayer();
 
 	virtual void setState(Sint8 p_selected);
@@ -139,6 +155,4 @@ public:
 	virtual void input();
 	virtual void input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos);
 	virtual void update(GLfloat p_deltaUpdate);
-	void renderBack();
-	void renderFill(bool p_setColor = true);
 };

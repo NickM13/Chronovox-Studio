@@ -1,20 +1,16 @@
 #include "engine\editor\model\format\NvmFormat.h"
+// .nvm = Nick's Voxel Model
 
 bool NvmFormat::save(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 {
-	// .nvm = Nick's Voxel Model
-
 	if(p_fileName.substr(p_fileName.length() - 4, 4) != ".nvm")
 		p_fileName.append(".nvm");
-
-	std::cout << "Saving to: " << p_fileName << std::endl;
 	std::ofstream _file;
-
 	_file.open(std::string(p_fileName), std::ios::binary);
 	{
 		if(!_file.good())
 		{
-			std::cout << "Error saving file." << std::endl;
+			std::cerr << "Error saving file." << std::endl;
 			return false;
 		}
 		// Header
@@ -76,28 +72,16 @@ bool NvmFormat::save(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 	return true;
 }
 
-Sint32 strToBNum(std::string str)
-{
-	Sint32 num = 0;
-	for(Sint8 i = 0; i < Sint8(str.length()); i++)
-	{
-		num += str[i] << ((str.length() - 1 - i) * 8);
-	}
-	return num;
-}
 bool NvmFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 {
-	std::cout << "Loading model: " << p_fileName << std::endl;
 	std::ifstream _file;
-
 	Uint32 _length, _index;
 	char* _data;
-
 	_file.open(std::string(p_fileName).c_str(), std::ios::binary);
 	{
 		if(!_file.good())
 		{
-			std::cout << "Error: File \"" << p_fileName << "\" not found." << std::endl;
+			std::cerr << "Error: File \"" << p_fileName << "\" not found." << std::endl;
 			_file.close();
 			return false;
 		}
@@ -111,18 +95,10 @@ bool NvmFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 		_file.read(_data, _length);
 
 		Sint32 nvm, version, blank, matrixCount;
-
 		nvm = FileExt::readInt(_data, _index);
-		if(nvm != strToBNum(".NVM"))
-		{
-			std::cout << "Error: File type not supported." << std::endl;
-			return false;
-		}
 		version = FileExt::readInt(_data, _index);
 		blank = FileExt::readInt(_data, _index);
 		matrixCount = FileExt::readInt(_data, _index);
-
-		p_matrixList.clear();
 
 		Matrix* m;
 		std::string name;

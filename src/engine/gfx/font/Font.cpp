@@ -101,33 +101,26 @@ void Font::setFont(std::string p_fontName)
 Font::FontType* Font::init(std::string p_src, Uint32 p_fontSize)
 {
 	FontType* _font = new FontType();
-
 	_font->m_textures = new GLuint[255];
 	_font->m_charWidth = new GLuint[255];
-
 	_font->m_height = p_fontSize;
-
 	FT_Library library;
-	if(FT_Init_FreeType(&library))
-		throw std::runtime_error("FT_Init_FreeType failed");
-	
+	if(FT_Init_FreeType(&library)) {
+		std::cerr << "FT_Init_FreeType failed" << std::endl;
+		return 0;
+	}
 	FT_Face face;
-
-	if(FT_New_Face(library, p_src.c_str(), 0, &face))
-		throw std::runtime_error("FT_New_Face failed (there is probably a problem with your font file)");
-
+	if(FT_New_Face(library, p_src.c_str(), 0, &face)) {
+		std::cerr << "FT_New_Face failed (there is probably a problem with your font file)" << std::endl;
+		return 0;
+	}
 	FT_Set_Char_Size(face, p_fontSize << 6, p_fontSize << 6, 96, 96);
-
 	_font->m_listBase = glGenLists(255);
 	glGenTextures(255, _font->m_textures);
-
 	for(Uint8 i = 0; i < 255; i++)
 		_font->m_charWidth[i] = make_dList(face, i, _font->m_listBase, _font->m_textures);
-
 	FT_Done_Face(face);
-
 	FT_Done_FreeType(library);
-
 	return _font;
 }
 

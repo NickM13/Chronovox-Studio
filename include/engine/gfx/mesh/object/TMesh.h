@@ -35,7 +35,6 @@ public:
 	}
 	static void render(std::string p_objectName, Vector3<GLfloat> p_pos, Vector3<GLfloat> p_size, Vector3<GLfloat> p_rotation, Color p_color)
 	{
-		return;
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glColor3f(1, 1, 1);
 

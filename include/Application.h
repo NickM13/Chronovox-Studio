@@ -10,7 +10,7 @@
 class Application : public Singleton<Application>
 {
 public:
-	bool init();
+	bool init(char *p_filePath = 0);
 	void run();
 	void close();
 private:
@@ -30,6 +30,7 @@ private:
 	static void dropFileCallback(GLFWwindow*, int count, const char** paths);
 
 	static void maximize(bool p_maximizedByDrag);
+	static void resize();
 
 	static void init2d();
 	static void init3d();

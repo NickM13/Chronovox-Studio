@@ -12,27 +12,22 @@
 #include "model\Model.h"
 
 #include <vector>
+#include <thread>
 
 class Editor
 {
 public:
-	enum EngineState
-	{
-		MENU = 0,
-		GAME = 1
+	enum EngineState {
+		STARTING = 0,
+		RUNNING = 1,
+		CLOSING = 2
 	} m_engineState;
 
-	enum PauseState
-	{
-		NONE = 0
-	} pauseState;
-
 	Editor();
+	bool attemptClose();
 	~Editor();
 
-	void resize(bool p_maximizedByDrag);
-
-	void setEngineState(EngineState p_state);
+	void resize();
 
 	void dropFile(const char* path);
 
@@ -42,13 +37,12 @@ public:
 	void update();
 	void render3d();
 	void render2d();
+	static Model* getModel() { return m_model; }
 private:
 	static Model* m_model;
-
 	GLfloat m_lastUpdate, m_deltaUpdate;
 	Vector2<Sint32> m_mouseBuffer;
-
 	Sint32 r, g, b;
-
-	Container m_mainGui;
+	Container* m_mainGui;
+	std::thread *m_autosaveThread;
 };

@@ -10,6 +10,7 @@ class CButtonRadio : public Component
 {
 public:
 	CButtonRadio(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_buttonSize, Vector2<Sint32> p_buttonStep, Uint16* p_selectedButton);
+	~CButtonRadio();
 
 	Component* addButton(Texture p_tex);
 
@@ -28,4 +29,7 @@ private:
 	Uint16* m_selectedButton, m_prevSelectedButton;
 
 	std::vector<CButtonToggle*> m_buttonList;
+
+	Source m_soundClick;
+	Source m_soundHover;
 };

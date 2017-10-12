@@ -26,6 +26,10 @@ public:
 	static bool m_draggingWindow;
 	static Vector2<Sint32> m_dragStart;
 	static Vector2<Sint32> m_dragDistance;
+	static Vector2<Sint32> m_initWindowSize;
+	static Vector2<Sint32> m_resizeMousePos;
+	static bool m_resizing;
+	static bool m_finishedResize;
 
 	static enum WindowCommand
 	{
@@ -41,6 +45,10 @@ public:
 	static void startWindowDrag();
 	static bool isDraggingWindow();
 	static void endWindowDrag();
+
+	static void startResizing();
+	static bool finishedResize() { return m_finishedResize; }
+	static void stopResizing();
 
 	static void updateWindow();
 };

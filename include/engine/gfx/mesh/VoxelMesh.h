@@ -19,11 +19,11 @@ public:
 	void createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Sint16> p_dimensions);
 
 	// TODO: Returns a buffer for vertex array.  Only useful for static objects like models.
-	//void createMeshBuffer();
+	//void createStaticMesh();
 
 	void renderMesh();
 
 private:
-	std::vector<Vector3<GLfloat>> m_vertices;
-	std::vector<Color> m_colors;
+	std::vector<Vector3<GLfloat>> m_vertices[6];
+	std::vector<Color> m_colors[6];
 };

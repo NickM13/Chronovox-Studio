@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Container.h"
+#include "Panel.h"
 
 // ContainerPanel is a [draggable] Container with scroll bars
 class ContainerPanel : public Container
@@ -13,11 +14,14 @@ private:
 	Vector2<Sint32> m_maxScroll;
 	bool m_draggable;
 	bool m_scrollX, m_scrollY;
+	Panel* m_panel;
 public:
 	ContainerPanel() {};
 	ContainerPanel(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Theme p_colorTheme, Sint8 p_borderFlags, bool p_visible = true);
+	~ContainerPanel();
 
-	Component* addComponent(Component* p_component, Sint8 p_alignment = PANEL_ALIGN_NONE);
+	Component* addComponent(Component* p_component, Anchor p_posAnchor = NOANCHOR, Anchor p_sizeAnchor = NOANCHOR);
+	void resize();
 
 	void calcSize(Vector2<Sint32> p_offset = {});
 	//Set whether scroll bar across bottom exists

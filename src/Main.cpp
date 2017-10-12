@@ -2,9 +2,12 @@
 
 #include "engine\sfx\Sound.h"
 
-int main(int argc, wchar_t* argv[])
+int main(int argc, char* argv[])
 {
-	if(Application::getInstance().init())
+	bool _success;
+	if(argc > 1) _success = Application::getInstance().init(argv[1]);
+	else _success = Application::getInstance().init();
+	if(_success)
 	{
 		Application::getInstance().run();
 		Application::getInstance().close();

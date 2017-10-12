@@ -1,20 +1,13 @@
 #include "engine\gfx\gui\list\Tileset.h"
 
 CTileSet::CTileSet(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Uint16 p_tileSize, Texture p_tileSheet, Sint8 p_colorTheme)
+	: Component(p_compName, p_title, p_pos, p_size, p_colorTheme)
 {
-	m_compName = p_compName;
-	m_title = p_title;
-	m_pos = p_pos;
-	m_size = p_size;
 	m_tileSize = p_tileSize;
 	m_tileSheet = p_tileSheet;
-	m_colorTheme = m_colorThemes[p_colorTheme];
-
 	m_transparentTex = LTexture::getTexture("gui\\Transparent.png");
 	m_selectTex = LTexture::getTexture("gui\\TileSelect.png");
-
 	m_tileCount = m_tileSheet.getSize() / m_tileSize;
-
 	m_priority = -1;
 }
 void CTileSet::setTileSheet(Texture p_tileSheet)

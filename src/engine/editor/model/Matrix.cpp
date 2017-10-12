@@ -12,16 +12,13 @@ Matrix::Matrix(std::string p_name, Sint16 p_id, Vector3<GLfloat> p_pos, Vector3<
 
 	m_voxelData = new Uint16**[m_size.x + 2];
 	m_faceData = new Sint8**[m_size.x + 2];
-	for(Uint16 x = 0; x < m_size.x + 2; x++)
-	{
+	for(Uint16 x = 0; x < m_size.x + 2; x++) {
 		m_voxelData[x] = new Uint16*[m_size.y + 2];
 		m_faceData[x] = new Sint8*[m_size.y + 2];
-		for(Uint16 y = 0; y < m_size.y + 2; y++)
-		{
+		for(Uint16 y = 0; y < m_size.y + 2; y++) {
 			m_voxelData[x][y] = new Uint16[m_size.z + 2];
 			m_faceData[x][y] = new Sint8[m_size.z + 2];
-			for(Uint16 z = 0; z < m_size.z + 2; z++)
-			{
+			for(Uint16 z = 0; z < m_size.z + 2; z++) {
 				m_voxelData[x][y][z] = noVoxel;
 				m_faceData[x][y][z] = FACE_ALL;
 			}
@@ -42,16 +39,13 @@ Matrix::Matrix(Matrix& m)
 
 	m_voxelData = new Uint16**[m_size.x + 2];
 	m_faceData = new Sint8**[m_size.x + 2];
-	for(Uint16 x = 0; x < m_size.x + 2; x++)
-	{
+	for(Uint16 x = 0; x < m_size.x + 2; x++) {
 		m_voxelData[x] = new Uint16*[m_size.y + 2];
 		m_faceData[x] = new Sint8*[m_size.y + 2];
-		for(Uint16 y = 0; y < m_size.y + 2; y++)
-		{
+		for(Uint16 y = 0; y < m_size.y + 2; y++) {
 			m_voxelData[x][y] = new Uint16[m_size.z + 2];
 			m_faceData[x][y] = new Sint8[m_size.z + 2];
-			for(Uint16 z = 0; z < m_size.z + 2; z++)
-			{
+			for(Uint16 z = 0; z < m_size.z + 2; z++) {
 				m_voxelData[x][y][z] = noVoxel;
 				m_faceData[x][y][z] = FACE_ALL;
 			}
@@ -413,8 +407,7 @@ void Matrix::render(OutlineType p_highlight, GLfloat p_animTime)
 		glTranslatef(m_pos.x, m_pos.y, m_pos.z);
 		KeyFrame _k;
 		GLfloat _keyTime;
-		for(Uint16 i = 0; i < m_keyFrames.size(); i++)
-		{
+		for(Uint16 i = 0; i < m_keyFrames.size(); i++) {
 			_k = m_keyFrames[i];
 			_keyTime = min(1, max(0, (p_animTime - (_k.m_startTime / 1000.f))) / (_k.m_length / 1000.f));
 		}
@@ -423,8 +416,7 @@ void Matrix::render(OutlineType p_highlight, GLfloat p_animTime)
 	}
 	glPopMatrix();
 
-	switch(p_highlight)
-	{
+	switch(p_highlight) {
 	case NONE: return;
 	case OUTLINE: glColor3f(0.6f, 0.6f, 0.6f); break;
 	case HOVERED: Color(0xAADDFF).useColor();  break;

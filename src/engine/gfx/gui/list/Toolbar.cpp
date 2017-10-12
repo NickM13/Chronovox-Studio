@@ -1,12 +1,8 @@
 #include "engine\gfx\gui\list\Toolbar.h"
 
-
 CToolbar::CToolbar(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32> p_size)
+	: Component(p_compName, "", p_pos, p_size, MENUBAR)
 {
-	m_compName = p_compName;
-	m_pos = p_pos;
-	m_size = p_size;
-	m_colorTheme = m_colorThemes[MENUBAR];
 	m_panelMain = new Panel("", "", {0, 0}, p_size, MENUBAR, BORDER_BOTTOM);
 	m_panelSub = new Panel("", "", {0, 0}, {0, 0}, MENUBAR, 0);
 }
@@ -36,6 +32,10 @@ Component* CToolbar::addButton(std::string p_dir, std::string p_buttonName, std:
 		_subList = _subList->find(_splitDir[i]);
 	_subList->addButton(p_buttonName, p_desc, p_func);
 	return this;
+}
+void CToolbar::setSize(Vector2<Sint32> p_pos) {
+	Component::setSize(p_pos);
+	m_panelMain->setSize(p_pos);
 }
 
 void CToolbar::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos)

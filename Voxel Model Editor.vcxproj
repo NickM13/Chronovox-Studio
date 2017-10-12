@@ -73,7 +73,7 @@
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)log\$(Configuration)\</IntDir>
     <IncludePath>$(ProjectDir)lib\devil\include;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)\include;$(IncludePath)</IncludePath>
-    <ReferencePath> $(ProjectDir)res;$(ReferencePath)</ReferencePath>
+    <ReferencePath>$(ProjectDir)res;$(ReferencePath)</ReferencePath>
     <LibraryPath>$(ProjectDir)lib\devil\lib;$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\OpenAL\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -108,6 +108,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -132,6 +133,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\engine\editor\model\format\Format.cpp" />
+    <ClCompile Include="src\engine\editor\model\format\QbclFormat.cpp" />
+    <ClCompile Include="src\engine\editor\model\format\QbFormat.cpp" />
+    <ClCompile Include="src\engine\editor\model\format\VoxFormat.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\Select.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\engine\editor\Editor.cpp" />
     <ClCompile Include="src\engine\editor\menu\Overlay.cpp" />
@@ -170,6 +176,7 @@
     <ClCompile Include="include\engine\gfx\mesh\object\MCube.h" />
     <ClCompile Include="src\engine\gfx\mesh\object\TMesh.cpp" />
     <ClCompile Include="src\engine\gfx\mesh\VoxelMesh.cpp" />
+    <ClCompile Include="src\engine\gfx\shader\Shader.cpp" />
     <ClCompile Include="src\engine\sfx\Sound.cpp" />
     <ClCompile Include="src\engine\utils\global\event\GKey.cpp" />
     <ClCompile Include="src\engine\utils\global\event\GMouse.cpp" />
@@ -193,8 +200,13 @@
     <ClInclude Include="include\engine\editor\menu\AnimationOverlay.h" />
     <ClInclude Include="include\engine\editor\menu\ColorOverlay.h" />
     <ClInclude Include="include\engine\editor\menu\Overlay.h" />
+    <ClInclude Include="include\engine\editor\menu\ResizeMatrix.h" />
     <ClInclude Include="include\engine\editor\model\EditMatrix.h" />
+    <ClInclude Include="include\engine\editor\model\format\Format.h" />
     <ClInclude Include="include\engine\editor\model\format\NvmFormat.h" />
+    <ClInclude Include="include\engine\editor\model\format\QbclFormat.h" />
+    <ClInclude Include="include\engine\editor\model\format\QbFormat.h" />
+    <ClInclude Include="include\engine\editor\model\format\VoxFormat.h" />
     <ClInclude Include="include\engine\editor\model\Matrix.h" />
     <ClInclude Include="include\engine\editor\model\Model.h" />
     <ClInclude Include="include\engine\editor\model\tool\Box.h" />
@@ -202,6 +214,8 @@
     <ClInclude Include="include\engine\editor\model\tool\MatrixCast.h" />
     <ClInclude Include="include\engine\editor\model\tool\MatrixMove.h" />
     <ClInclude Include="include\engine\editor\model\tool\MatrixResize.h" />
+    <ClInclude Include="include\engine\editor\model\tool\Select.h" />
+    <ClInclude Include="include\engine\editor\model\tool\Tool.h" />
     <ClInclude Include="include\engine\gfx\font\Font.h" />
     <ClInclude Include="include\engine\gfx\gui\button\Button.h" />
     <ClInclude Include="include\engine\gfx\gui\button\ButtonRadio.h" />
@@ -232,6 +246,7 @@
     <ClInclude Include="include\engine\gfx\mesh\object\TMesh.h" />
     <ClInclude Include="include\engine\gfx\mesh\object\TMeshObject.h" />
     <ClInclude Include="include\engine\gfx\mesh\VoxelMesh.h" />
+    <ClInclude Include="include\engine\gfx\shader\Shader.h" />
     <ClInclude Include="include\engine\sfx\LOpenAL.h" />
     <ClInclude Include="include\engine\sfx\Sound.h" />
     <ClInclude Include="include\engine\utils\global\event\GKey.h" />
