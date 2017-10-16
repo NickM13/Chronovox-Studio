@@ -236,9 +236,6 @@
     <ClInclude Include="include\engine\utils\variable\manager\VoxelManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\engine\utils\Globals.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\engine\utils\OpenGL.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -251,7 +251,6 @@
     <ClInclude Include="include\engine\sfx\Sound.h" />
     <ClInclude Include="include\engine\utils\global\event\GKey.h" />
     <ClInclude Include="include\engine\utils\global\event\GMouse.h" />
-    <ClInclude Include="include\engine\utils\Globals.h" />
     <ClInclude Include="include\engine\utils\global\GScreen.h" />
     <ClInclude Include="include\engine\utils\OpenGL.h" />
     <ClInclude Include="include\engine\utils\Singleton.h" />

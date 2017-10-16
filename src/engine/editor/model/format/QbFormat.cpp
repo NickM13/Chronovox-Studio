@@ -80,7 +80,6 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 			else {
 				z = 0;
 				while(z < size.z) {
-					z++;
 					matrixIndex = 0;
 					while(true) {
 						data = FileExt::readInt(_data, _index);
@@ -90,7 +89,24 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 						else if(data == CODEFLAG) {
 							count = FileExt::readInt(_data, _index);
 							data = FileExt::readInt(_data, _index);
-							voxel = Voxel(a, MColor::getInstance().getUnitID(Color(r, g, b)));
+							if(data == 0) {
+								voxel = Voxel(0, 0);
+							}
+							else {
+								if(colorFormat == 0) {
+									a = (data & 0xFF000000) >> 24;
+									b = (data & 0x00FF0000) >> 16;
+									g = (data & 0x0000FF00) >> 8;
+									r = (data & 0x000000FF);
+								}
+								else {
+									r = (data & 0xFF000000) >> 24;
+									g = (data & 0x00FF0000) >> 16;
+									b = (data & 0x0000FF00) >> 8;
+									a = (data & 0x000000FF);
+								}
+								voxel = Voxel(1, MColor::getInstance().getUnitID(Color(r / 255.f, g / 255.f, b / 255.f)));
+							}
 							for(Uint32 j = 0; j < count; j++) {
 								x = matrixIndex % size.x;
 								y = matrixIndex / size.x;
@@ -99,11 +115,29 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 							}
 						}
 						else {
-							x = matrixIndex % size.x;
-							y = matrixIndex / size.x;
-							m->setVoxel(Vector3<Sint32>(x, y, z), Voxel(a, MColor::getInstance().getUnitID(Color(r, g, b))));
+							if(data == 0) {
+								voxel = Voxel(0, 0);
+							}
+							else {
+								if(colorFormat == 0) {
+									a = (data & 0xFF000000) >> 24;
+									b = (data & 0x00FF0000) >> 16;
+									g = (data & 0x0000FF00) >> 8;
+									r = (data & 0x000000FF);
+								}
+								else {
+									r = (data & 0xFF000000) >> 24;
+									g = (data & 0x00FF0000) >> 16;
+									b = (data & 0x0000FF00) >> 8;
+									a = (data & 0x000000FF);
+								}
+								voxel = Voxel(1, MColor::getInstance().getUnitID(Color(r / 255.f, g / 255.f, b / 255.f)));
+							}
+							m->setVoxel(Vector3<Sint32>(matrixIndex % size.x, matrixIndex / size.x, z), voxel);
+							matrixIndex++;
 						}
 					}
+					z++;
 				}
 			}
 			p_matrixList.push_back(m);

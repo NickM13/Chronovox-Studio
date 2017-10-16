@@ -17,33 +17,23 @@ const Uint8 Math::m_permutation[256] = {151, 160, 137, 91, 90, 15,												//
 
 Uint8* Math::p = new Uint8[512];
 
-void Math::initPerlin(Uint32 p_seed)
-{
+void Math::initPerlin(Uint32 p_seed) {
 	srand(p_seed);
 	for(Uint16 i = 0; i < 512; i++)
 		p[i] = m_permutation[i%256];
 }
-
 GLfloat repeat = 0;
-
-static GLfloat fade(GLfloat t)
-{
+static GLfloat fade(GLfloat t) {
 	return (6 * pow(t, 5) - 15 * pow(t, 4) + 10 * pow(t, 3));
 }
-
-Sint16 inc(Sint16 num)
-{
+Sint16 inc(Sint16 num) {
 	num++;
 	if(repeat > 0)
 		num = Sint16(fmod(num, repeat));
-
 	return num;
 }
-
-GLfloat grad(Sint16 hash, GLfloat x, GLfloat y, GLfloat z)
-{
-	switch(hash & 0xF)
-	{
+GLfloat grad(Sint16 hash, GLfloat x, GLfloat y, GLfloat z) {
+	switch(hash & 0xF) {
 	case 0x0: return  x + y;
 	case 0x1: return -x + y;
 	case 0x2: return  x - y;
@@ -63,34 +53,26 @@ GLfloat grad(Sint16 hash, GLfloat x, GLfloat y, GLfloat z)
 	default: return 0;
 	}
 }
-
-GLfloat lerp(GLfloat a, GLfloat b, GLfloat x)
-{
+GLfloat lerp(GLfloat a, GLfloat b, GLfloat x) {
 	return a + x * (b - a);
 }
-
-GLfloat Math::perlin(GLfloat x, GLfloat y, GLfloat z)
-{
-	if(repeat > 0)
-	{
+GLfloat Math::perlin(GLfloat x, GLfloat y, GLfloat z) {
+	if(repeat > 0) {
 		x = fmod(x, repeat);
 		y = fmod(y, repeat);
 		z = fmod(z, repeat);
 	}
-
 	Sint16 xi = Sint16(x) & 255;
 	Sint16 yi = Sint16(y) & 255;
 	Sint16 zi = Sint16(z) & 255;
-
 	GLfloat xf = x - Sint16(x);
 	GLfloat yf = y - Sint16(y);
 	GLfloat zf = z - Sint16(z);
-
 	GLfloat u = fade(xf);
 	GLfloat v = fade(yf);
 	GLfloat w = fade(zf);
-
 	Sint16 aaa, aba, aab, abb, baa, bba, bab, bbb;
+	GLfloat x1, x2, y1, y2;
 	aaa = p[p[p[xi] +		yi] +		zi];
 	aba = p[p[p[xi] +		inc(yi)] +	zi];
 	aab = p[p[p[xi] +		yi] +		inc(zi)];
@@ -99,30 +81,23 @@ GLfloat Math::perlin(GLfloat x, GLfloat y, GLfloat z)
 	bba = p[p[p[inc(xi)] +	inc(yi)] +	zi];
 	bab = p[p[p[inc(xi)] +	yi] +		inc(zi)];
 	bbb = p[p[p[inc(xi)] +	inc(yi)] +	inc(zi)];
-
-	GLfloat x1, x2, y1, y2;
 	x1 = lerp(grad(aaa, xf, yf, zf),		grad(baa, xf - 1, yf, zf), u);
 	x2 = lerp(grad(aba, xf, yf - 1, zf),	grad(bba, xf - 1, yf - 1, zf), u);
 	y1 = lerp(x1, x2, v);
 	x1 = lerp(grad(aab, xf, yf, zf - 1),	grad(bab, xf - 1, yf, zf - 1), u);
 	x1 = lerp(grad(abb, xf, yf - 1, zf - 1),grad(bbb, xf - 1, yf - 1, zf - 1), u);
 	y2 = lerp(x1, x2, v);
-
 	return (lerp(y1, y2, w) + 1) / 2;
 }
 
-GLfloat Math::perlinNoise(GLfloat x, GLfloat y, GLfloat z, Sint16 p_octaves, GLfloat p_persistence)
-{
+GLfloat Math::perlinNoise(GLfloat x, GLfloat y, GLfloat z, Sint16 p_octaves, GLfloat p_persistence) {
 	GLfloat _total = 0;
 	GLfloat _frequency = 1;
 	GLfloat _amplitude = 1;
 	GLfloat _maxValue = 0;
-	for(Sint16 i = 0; i < p_octaves; i++)
-	{
+	for(Sint16 i = 0; i < p_octaves; i++) {
 		_total += perlin(x * _frequency, y * _frequency, z * _frequency) * _amplitude;
-
 		_maxValue += _amplitude;
-
 		_amplitude *= p_persistence;
 		_frequency *= 2;
 	}

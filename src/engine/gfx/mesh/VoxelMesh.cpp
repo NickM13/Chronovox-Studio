@@ -524,6 +524,16 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 			}
 		}
 	}
+	for(x = 0; x < p_dimensions.x + 2; x++) {
+		for(y = 0; y < p_dimensions.y + 2; y++) {
+			delete[] _voxels[x][y];
+			delete[] _faces[x][y];
+		}
+		delete[] _voxels[x];
+		delete[] _faces[x];
+	}
+	delete[] _voxels;
+	delete[] _faces;
 }
 
 void VoxelMesh::renderMesh() {

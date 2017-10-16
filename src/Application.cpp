@@ -237,7 +237,7 @@ void Application::update()
 	m_editor->update();
 
 	GLfloat _curr = glfwGetTime();
-	for(Uint16 i = 0; i < 64; i++)
+	for(Uint16 i = 0; i < 32; i++)
 	{
 		if(GMouse::m_mouseStates[i] & GMouse::MOUSE_PRESS)
 			GMouse::m_mouseStates[i] -= GMouse::MOUSE_PRESS;
@@ -252,9 +252,6 @@ void Application::update()
 	if(GScreen::m_windowCommand == GScreen::RESIZE) maximize(false);
 	if(GScreen::m_windowCommand == GScreen::CLOSE) glfwSetWindowShouldClose(m_mainWindow, true);
 	GScreen::m_windowCommand = GScreen::NONE;
-
-	//For appending model name
-	//glfwSetWindowTitle(m_mainWindow, std::string("Voxel Engine Indev 0.1").c_str());
 }
 
 void Application::render()

@@ -6,8 +6,7 @@
 class GKey
 {
 public:
-	enum Event
-	{
+	enum Event {
 		KEY_PRESS = 1,
 		KEY_HOLD = 2,
 		KEY_RELEASE = 4
@@ -15,8 +14,7 @@ public:
 
 	static Sint8 m_keyStates[1024];
 	static Sint8 m_specStates[256];
-	struct keyPress
-	{
+	struct keyPress {
 		Sint32 m_keyCode;
 		Sint32 m_scanCode;
 		Sint32 m_action;
@@ -24,4 +22,3 @@ public:
 	};
 	static std::vector<keyPress> m_keyEvents;
 };
-
