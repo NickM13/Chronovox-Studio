@@ -1,22 +1,19 @@
 #include "engine\gfx\gui\container\ColorPanel.h"
 
 ColorPanel::ColorPanel(Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint32& p_r, Sint32& p_g, Sint32& p_b, Texture p_texture)
-	: Component("", "", p_pos, p_size, 0)
-{
+	: Component("", "", p_pos, p_size, Theme::PRIMARY) {
 	r = &p_r;
 	g = &p_g;
 	b = &p_b;
 	m_texture = p_texture;
 }
 
-void ColorPanel::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos)
-{
-	p_mousePos = p_mousePos - m_pos;
-	if((p_interactFlags & EVENT_MOUSEOVER) && p_mousePos.x >= 0 && p_mousePos.y >= 0 && p_mousePos.x < m_size.x && p_mousePos.y < m_size.y)
-		p_interactFlags -= EVENT_MOUSEOVER;
+void ColorPanel::input(Sint8& p_interactFlags) {
+	Vector2<Sint32> _mousePos = GMouse::getMousePos() - m_pos;
+	if((p_interactFlags & (Sint8)EventFlag::MOUSEOVER) && _mousePos.x >= 0 && _mousePos.y >= 0 && _mousePos.x < m_size.x && _mousePos.y < m_size.y)
+		p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
 }
-void ColorPanel::render()
-{
+void ColorPanel::render() {
 	glPushMatrix();
 	{
 		glBindTexture(GL_TEXTURE_2D, m_texture.getId());
@@ -36,34 +33,29 @@ void ColorPanel::render()
 }
 
 
-SColorPanel::SColorPanel(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Color color, Texture p_texture)
-{
+SColorPanel::SColorPanel(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Color color, Texture p_texture) {
 	m_compName = p_compName;
 	m_pos = p_pos;
 	m_size = p_size;
 	m_color = color;
 	m_texture = p_texture;
 }
-SColorPanel::SColorPanel(Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Color color, Texture p_texture)
-{
+SColorPanel::SColorPanel(Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Color color, Texture p_texture) {
 	m_pos = p_pos;
 	m_size = p_size;
 	m_color = color;
 	m_texture = p_texture;
 }
 
-void SColorPanel::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos)
-{
-	p_mousePos = p_mousePos - m_pos;
-	if((p_interactFlags & EVENT_MOUSEOVER) && p_mousePos.x >= 0 && p_mousePos.y >= 0 && p_mousePos.x < m_size.x && p_mousePos.y < m_size.y)
-	{
-		p_interactFlags -= EVENT_MOUSEOVER;
-		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN)
+void SColorPanel::input(Sint8& p_interactFlags) {
+	Vector2<Sint32> _mousePos = GMouse::getMousePos() - m_pos;
+	if((p_interactFlags & (Sint8)EventFlag::MOUSEOVER) && _mousePos.x >= 0 && _mousePos.y >= 0 && _mousePos.x < m_size.x && _mousePos.y < m_size.y) {
+		p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
+		if(GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT))
 			callPressFunction();
 	}
 }
-void SColorPanel::render()
-{
+void SColorPanel::render() {
 	glPushMatrix();
 	{
 		glBindTexture(GL_TEXTURE_2D, m_texture.getId());
@@ -82,7 +74,6 @@ void SColorPanel::render()
 	glPopMatrix();
 }
 
-Color SColorPanel::getColor()
-{
+Color SColorPanel::getColor() {
 	return m_color;
 }

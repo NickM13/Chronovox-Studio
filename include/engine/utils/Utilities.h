@@ -11,7 +11,7 @@
 #include "engine\utils\global\event\GKey.h"
 #include "engine\utils\global\event\GMouse.h"
 #include "engine\utils\global\GScreen.h"
-#include "engine\utils\OpenGL.h"
+#include "engine\utils\LOpenGL.h"
 #include <sstream>
 #include <stdlib.h>
 #include <iostream>
@@ -64,33 +64,36 @@ private:
 	static Uint8* p;
 };
 
-class Util
-{
+class Util {
 public:
-	template<class T>
-	static std::string numToString(T n, Uint16 p_decimalPlaces = 0) {
+	static std::string numToStringInt(Sint32 n) {
 		try {
-			return std::string(std::to_string(n)).substr(0, std::string(std::to_string(n)).find('.', 0) + p_decimalPlaces + (p_decimalPlaces > 0 ? 1 : 0));
+			return std::to_string(n);
 		}
 		catch(...) {
 			std::cout << "Warning: Arg passed to Util::numToString( T n ) was not a number." << std::endl;;
 		}
 		return "0";
 	}
-
-	template<class T>
-	static std::string stringToNum(T s) {
-		std::string save = "";
-		std::ostringstream convert;
-		convert.str(std::string());
+	static std::string numToStringFloat(GLfloat n) {
 		try {
-			convert << s;
-			save = convert.str();
-			return save;
+			std::stringstream ss;
+			ss << n;
+			return ss.str();
 		}
-		catch(std::exception e) {
-			return std::string("Incorrect Variable Type!");
+		catch(...) {
+			std::cout << "Warning: Arg passed to Util::numToString( T n ) was not a number." << std::endl;;
 		}
+		return "0";
+	}
+	static std::string numToStringFloat(GLfloat n, Uint16 p_decimalPlaces) {
+		try {
+			return std::to_string(n).substr(0, std::string(std::to_string(n)).find('.', 0) + p_decimalPlaces + (p_decimalPlaces > 0 ? 1 : 0));
+		}
+		catch(...) {
+			std::cout << "Warning: Arg passed to Util::numToString( T n ) was not a number." << std::endl;;
+		}
+		return "0";
 	}
 
 	static std::string subchar(char* chararray, Uint32 start, Uint32 end) {
@@ -100,7 +103,6 @@ public:
 		}
 		return subbed;
 	}
-
 };
 
 class FileExt

@@ -2,7 +2,7 @@
 
 
 TextField::TextField(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint8 p_colorTheme, bool p_limitField)
-	: Component(p_compName, "", p_pos, p_size, ACTION)
+	: Component(p_compName, "", p_pos, p_size, Theme::ACTION)
 {
 	m_blankField = p_title;
 	m_size = Vector2<Sint32>(p_size.x, Sint32(p_size.y));
@@ -64,29 +64,29 @@ std::string TextField::getTitle()
 	return m_title;
 }
 
-void TextField::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos)
+void TextField::input(Sint8& p_interactFlags)
 {
-	p_mousePos = p_mousePos - m_pos;
+	Vector2<Sint32> _mousePos = GMouse::getMousePos() - m_pos;
 	GLfloat _boxHeight = m_size.y * Font::getSpacingHeight();
-	if((p_interactFlags & EVENT_MOUSEOVER) && p_mousePos.x >= 0 && p_mousePos.x < m_size.x
-		&& p_mousePos.y >= 0 && p_mousePos.y < _boxHeight)
+	if((p_interactFlags & (Sint8)EventFlag::MOUSEOVER) && _mousePos.x >= 0 && _mousePos.x < m_size.x
+		&& _mousePos.y >= 0 && _mousePos.y < _boxHeight)
 	{
-		p_interactFlags -= EVENT_MOUSEOVER;
+		p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
 		addTooltip();
-		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
+		if(GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
 			m_selected = 1;
 	}
-	else if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
+	else if(GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
 		m_selected = 0;
-	if((p_interactFlags & EVENT_KEYPRESS) && m_selected != 0)
+	if((p_interactFlags & (Sint8)EventFlag::KEYPRESS) && m_selected != 0)
 	{
-		p_interactFlags -= EVENT_KEYPRESS;
-		std::vector<GKey::keyPress> _keyEvents = GKey::m_keyEvents;
+		p_interactFlags -= (Sint8)EventFlag::KEYPRESS;
+		std::vector<GKey::KeyEvent> _keyEvents = GKey::getKeyEvents();
 		for(Uint16 i = 0; i < _keyEvents.size(); i++)
 		{
-			if(_keyEvents[i].m_action != 0)
+			if(_keyEvents[i].action != 0)
 			{
-				if(_keyEvents[i].m_keyCode == GLFW_KEY_ENTER)
+				if(_keyEvents[i].keyCode == GLFW_KEY_ENTER)
 				{
 					if(m_cursorPos.y < m_limitSize.y - 1)
 					{
@@ -98,19 +98,19 @@ void TextField::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouse
 					else
 					{
 						m_selected = 0;
-						callPressFunction();
+						callReleaseFunction();
 					}
 				}
-				else if(_keyEvents[i].m_keyCode == GLFW_KEY_TAB)
+				else if(_keyEvents[i].keyCode == GLFW_KEY_TAB)
 				{
 					m_selected = 0;
-					callPressFunction();
+					callReleaseFunction();
 				}
-				else if(_keyEvents[i].m_keyCode == GLFW_KEY_ESCAPE)
+				else if(_keyEvents[i].keyCode == GLFW_KEY_ESCAPE)
 				{
 					m_selected = 0;
 				}
-				else if(_keyEvents[i].m_keyCode == GLFW_KEY_BACKSPACE)
+				else if(_keyEvents[i].keyCode == GLFW_KEY_BACKSPACE)
 				{
 					if(m_cursorPos.x > 0 || m_cursorPos.y > 0)
 					{
@@ -128,7 +128,7 @@ void TextField::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouse
 						}
 					}
 				}
-				else if(_keyEvents[i].m_keyCode == GLFW_KEY_DELETE)
+				else if(_keyEvents[i].keyCode == GLFW_KEY_DELETE)
 				{
 					if(m_cursorPos.x < Sint32(m_text[m_text.size() - 1].length()) || m_cursorPos.y < Sint32(m_text.size()) - 1)
 					{
@@ -143,60 +143,60 @@ void TextField::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouse
 				}
 				else if((m_cursorPos.x < m_size.x && m_cursorPos.y < _boxHeight) || m_scrolling)
 				{
-					if(_keyEvents[i].m_keyCode >= 65 && _keyEvents[i].m_keyCode <= 90)
+					if(_keyEvents[i].keyCode >= 65 && _keyEvents[i].keyCode <= 90)
 					{
-						if((_keyEvents[i].m_mods & 1) == 0)
-							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, char(_keyEvents[i].m_keyCode + 32));
+						if((_keyEvents[i].mods & 1) == 0)
+							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, char(_keyEvents[i].keyCode + 32));
 						else
-							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, char(_keyEvents[i].m_keyCode));
+							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, char(_keyEvents[i].keyCode));
 						m_cursorPos.x++;
 					}
-					else if(_keyEvents[i].m_keyCode == GLFW_KEY_SPACE)
+					else if(_keyEvents[i].keyCode == GLFW_KEY_SPACE)
 					{
-						m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, char(_keyEvents[i].m_keyCode));
+						m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, char(_keyEvents[i].keyCode));
 						m_cursorPos.x++;
 					}
-					else if(_keyEvents[i].m_keyCode == GLFW_KEY_APOSTROPHE)
+					else if(_keyEvents[i].keyCode == GLFW_KEY_APOSTROPHE)
 					{
-						if((_keyEvents[i].m_mods & 1) == 0)
-							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, char(_keyEvents[i].m_keyCode));
+						if((_keyEvents[i].mods & 1) == 0)
+							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, char(_keyEvents[i].keyCode));
 						else
 							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, '\"');
 						m_cursorPos.x++;
 					}
-					else if(_keyEvents[i].m_keyCode == GLFW_KEY_COMMA)
+					else if(_keyEvents[i].keyCode == GLFW_KEY_COMMA)
 					{
-						if((_keyEvents[i].m_mods & 1) == 0)
-							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, char(_keyEvents[i].m_keyCode));
+						if((_keyEvents[i].mods & 1) == 0)
+							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, char(_keyEvents[i].keyCode));
 						else
 							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, '<');
 						m_cursorPos.x++;
 					}
-					else if(_keyEvents[i].m_keyCode == GLFW_KEY_PERIOD)
+					else if(_keyEvents[i].keyCode == GLFW_KEY_PERIOD)
 					{
-						if((_keyEvents[i].m_mods & 1) == 0)
-							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, char(_keyEvents[i].m_keyCode));
+						if((_keyEvents[i].mods & 1) == 0)
+							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, char(_keyEvents[i].keyCode));
 						else
 							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, '>');
 						m_cursorPos.x++;
 					}
-					else if(_keyEvents[i].m_keyCode == GLFW_KEY_SLASH)
+					else if(_keyEvents[i].keyCode == GLFW_KEY_SLASH)
 					{
-						if((_keyEvents[i].m_mods & 1) == 0)
-							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, char(_keyEvents[i].m_keyCode));
+						if((_keyEvents[i].mods & 1) == 0)
+							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, char(_keyEvents[i].keyCode));
 						else
 							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, '?');
 						m_cursorPos.x++;
 					}
-					else if(_keyEvents[i].m_keyCode >= GLFW_KEY_0 && _keyEvents[i].m_keyCode <= GLFW_KEY_9)
+					else if(_keyEvents[i].keyCode >= GLFW_KEY_0 && _keyEvents[i].keyCode <= GLFW_KEY_9)
 					{
-						if((_keyEvents[i].m_mods & 1) == 0)
+						if((_keyEvents[i].mods & 1) == 0)
 						{
-							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, char(_keyEvents[i].m_keyCode));
+							m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, char(_keyEvents[i].keyCode));
 						}
 						else
 						{
-							switch(_keyEvents[i].m_keyCode)
+							switch(_keyEvents[i].keyCode)
 							{
 							case GLFW_KEY_1:
 								m_text[m_cursorPos.y].insert(m_text[m_cursorPos.y].begin() + m_cursorPos.x, '!');
@@ -236,7 +236,7 @@ void TextField::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouse
 					}
 					else// if(m_scrolling)
 					{
-						if(_keyEvents[i].m_keyCode == GLFW_KEY_UP)
+						if(_keyEvents[i].keyCode == GLFW_KEY_UP)
 						{
 							if(m_cursorPos.y > 0)
 							{
@@ -247,7 +247,7 @@ void TextField::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouse
 							else if(m_cursorPos.x > 0)
 								m_cursorPos.x = 0;
 						}
-						if(_keyEvents[i].m_keyCode == GLFW_KEY_RIGHT)
+						if(_keyEvents[i].keyCode == GLFW_KEY_RIGHT)
 						{
 							if(m_cursorPos.x < Sint32(m_text[m_cursorPos.y].length()))
 								m_cursorPos.x += 1;
@@ -259,7 +259,7 @@ void TextField::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouse
 									m_cursorPos.x = Sint32(m_text[m_cursorPos.y].length());
 							}
 						}
-						if(_keyEvents[i].m_keyCode == GLFW_KEY_DOWN)
+						if(_keyEvents[i].keyCode == GLFW_KEY_DOWN)
 						{
 							if(m_cursorPos.y < Sint32(m_text.size()) - 1)
 							{
@@ -270,7 +270,7 @@ void TextField::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouse
 							else if(m_cursorPos.x < Sint32(m_text[m_cursorPos.y].length()))
 								m_cursorPos.x = Sint32(m_text[m_cursorPos.y].length());
 						}
-						if(_keyEvents[i].m_keyCode == GLFW_KEY_LEFT)
+						if(_keyEvents[i].keyCode == GLFW_KEY_LEFT)
 						{
 							if(m_cursorPos.x > 0)
 								m_cursorPos.x -= 1;
@@ -293,10 +293,10 @@ void TextField::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouse
 		}
 	}
 
-	if((p_interactFlags & EVENT_MOUSEOVER) &&
-		p_mousePos.x >= 0 && p_mousePos.x < m_size.x
-		&& p_mousePos.y >= 0 && p_mousePos.y < _boxHeight)
-		p_interactFlags -= EVENT_MOUSEOVER;
+	if((p_interactFlags & (Sint8)EventFlag::MOUSEOVER) &&
+		_mousePos.x >= 0 && _mousePos.x < m_size.x
+		&& _mousePos.y >= 0 && _mousePos.y < _boxHeight)
+		p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
 }
 
 void TextField::update(GLfloat p_deltaUpdate)

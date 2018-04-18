@@ -7,7 +7,7 @@
 class CIcon : public Component
 {
 public:
-	CIcon(std::string p_compName, Texture p_icon, Vector2<Sint32> p_pos, Vector2<Sint32> p_size);
+	CIcon(std::string p_compName, Texture* p_icon, Vector2<Sint32> p_pos, Vector2<Sint32> p_size);
 
 	void render();
 };

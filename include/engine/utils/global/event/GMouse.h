@@ -1,27 +1,46 @@
 #pragma once
 #include "engine\utils\variable\datatype\Macros.h"
 #include "engine\utils\variable\datatype\Vector2.h"
+#include "engine\utils\LOpenGL.h"
+#include <vector>
 
 // Global class for Mouse events
-class GMouse
-{
+class GMouse {
 public:
-	enum Event {
-		MOUSE_DOWN = 1,			// Mouse held down
-		MOUSE_PRESS = 2,		// Mouse just pressed
+	struct MouseEvent {
+		Sint32 button, state, mods;
+	};
+private:
+	struct MouseCommand {
+		Sint32 state, mods;
+		GLfloat delay;
+	};
+	enum MouseState {
+		MOUSE_PRESS = 1,		// Mouse just pressed
+		MOUSE_DOWN = 2,			// Mouse held down
 		MOUSE_RELEASE = 4,		// Mouse just released
 		MOUSE_DOUBLECLICK = 8
 	};
-
-	static Vector2<Sint32> m_mousePos;
-	static Vector2<Sint32> m_guiMousePos;
-	static Sint8 m_mouseStates[32];
-	static float m_mouseDelay[32];
+	static Vector2<Sint32> m_mousePos, m_dMousePos, m_bMousePos;
+	static MouseCommand m_mouseCommands[32];
 	static Sint8 m_mouseScroll;
 	static bool m_mouseMoved;
+	static std::vector<MouseEvent> m_mouseEvents;
+public:
+	static void mousePressCallback(GLFWwindow* p_window, Sint32 p_button, Sint32 p_state, Sint32 p_mods);
+	static void mouseMovedCallback(GLFWwindow* p_window, GLdouble x, GLdouble y);
+	static void mouseScrollCallback(GLFWwindow* p_window, GLdouble x, GLdouble y);
 
-	static void addMouseEvent(Sint8 p_mouse, Event p_event) {
-		if(!(m_mouseStates[p_mouse] & p_event))
-			 m_mouseStates[p_mouse] += p_event;
-	}
+	static Vector2<Sint32> getMousePos();
+	static Vector2<Sint32> getDeltaMousePos();
+	static bool mouseMoved();
+	static Sint8 getMouseScroll();
+
+	static bool mousePressed(Sint32 p_mouse, Sint32 p_mods = -1);
+	static bool mouseDoubleClicked(Sint32 p_mouse, Sint32 p_mods = -1);
+	static bool mouseDown(Sint32 p_mouse, Sint32 p_mods = -1);
+	static bool mouseReleased(Sint32 p_mouse);
+
+	static void reset();
+	static void update(GLfloat p_deltaTime);
 };

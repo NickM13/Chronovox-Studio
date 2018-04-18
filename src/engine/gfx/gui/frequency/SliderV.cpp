@@ -1,74 +1,64 @@
 #include "engine\gfx\gui\frequency\SliderV.h"
 
-CSliderV::CSliderV(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Sint32 p_length, Sint32 p_maxValue, Sint32& p_numValue)
-	: Component(p_compName, p_title, p_pos, {}, ACTION)
-{
+CSliderV::CSliderV(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Sint32 p_length, Sint32 p_maxValue)
+	: Component(p_compName, p_title, p_pos, {}, Theme::ACTION) {
 	m_length = p_length;
 	m_maxValue = p_maxValue;
-	m_numValue = &p_numValue;
+	m_numValue = 0;
 	m_height = 4;
 	m_width = 8;
 	m_size = {m_width, m_length};
 };
 
-void CSliderV::setMaxValue(Sint16 p_value)
-{
+void CSliderV::setMaxValue(Sint16 p_value) {
 	m_maxValue = p_value;
-	if(*m_numValue > m_maxValue)
-		*m_numValue = m_maxValue;
+	if(m_numValue > m_maxValue)
+		m_numValue = m_maxValue;
 }
 
-void CSliderV::setValue(Sint32 p_value)
-{
-	if(*m_numValue != p_value)
-	{
+void CSliderV::setValue(Sint32 p_value) {
+	if(m_numValue != p_value) {
 		if(p_value < 0)
-			*m_numValue = 0;
+			m_numValue = 0;
 		else if(p_value > m_maxValue)
-			*m_numValue = m_maxValue;
+			m_numValue = m_maxValue;
 		else
-			*m_numValue = p_value;
+			m_numValue = p_value;
 		callPressFunction();
 	}
 }
 
-void CSliderV::addValue(Sint16 p_value)
-{
-	*m_numValue += p_value;
+void CSliderV::addValue(Sint16 p_value) {
+	m_numValue += p_value;
 }
 
-void CSliderV::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos)
-{
-	if((p_interactFlags & EVENT_MOUSEOVER) || m_held)
-	{
-		if((p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS) && 
-			p_mousePos.x >= m_pos.x - m_width / 2 && p_mousePos.x < m_pos.x + m_width / 2 &&
-			p_mousePos.y >= m_pos.y - m_height && p_mousePos.y < m_pos.y + m_length + m_height)
+void CSliderV::input(Sint8& p_interactFlags) {
+	Vector2<Sint32> _mousePos = GMouse::getMousePos();
+	if((p_interactFlags & (Sint8)EventFlag::MOUSEOVER) || m_held) {
+		if(GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT) && 
+			_mousePos.x >= m_pos.x - m_width / 2 && _mousePos.x < m_pos.x + m_width / 2 &&
+			_mousePos.y >= m_pos.y - m_height && _mousePos.y < m_pos.y + m_length + m_height)
 			m_held = true;
 
-		if((p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN) && m_held)
-		{
-			m_slideValue = m_pos.y - p_mousePos.y + m_length;
+		if(GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT) && m_held) {
+			m_slideValue = m_pos.y - _mousePos.y + m_length;
 			setValue(Sint32(round((m_slideValue / GLfloat(m_length)) * (m_maxValue))));
 		}
-		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_RELEASE)
+		if(GMouse::mouseReleased(GLFW_MOUSE_BUTTON_LEFT))
 			m_held = false;
 
-		if((p_interactFlags & EVENT_MOUSEOVER) && (m_held || (p_mousePos.x >= m_pos.x - m_width / 2 && p_mousePos.x < m_pos.x + m_width / 2 &&
-			p_mousePos.y >= m_pos.y - m_height && p_mousePos.y < m_pos.y + m_length + m_height)))
-		{
+		if((p_interactFlags & (Sint8)EventFlag::MOUSEOVER) && (m_held || (_mousePos.x >= m_pos.x - m_width / 2 && _mousePos.x < m_pos.x + m_width / 2 &&
+			_mousePos.y >= m_pos.y - m_height && _mousePos.y < m_pos.y + m_length + m_height))) {
 			addTooltip();
-			p_interactFlags -= EVENT_MOUSEOVER;
+			p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
 		}
 	}
 }
-void CSliderV::update(Vector2<Sint32> p_pos)
-{
+void CSliderV::update(Vector2<Sint32> p_pos) {
 
 }
-void CSliderV::render()
-{
-	m_slideValue = Sint32((*m_numValue / GLfloat(m_maxValue)) * m_length);
+void CSliderV::render() {
+	m_slideValue = Sint32((m_numValue / GLfloat(m_maxValue)) * m_length);
 	glPushMatrix();
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);

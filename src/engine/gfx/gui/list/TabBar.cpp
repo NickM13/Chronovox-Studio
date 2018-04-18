@@ -1,7 +1,7 @@
 #include "engine\gfx\gui\list\TabBar.h"
 #include "engine\utils\Utilities.h"
 
-CTabBar::CTabBar(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint8 p_colorTheme)
+CTabBar::CTabBar(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Theme p_colorTheme)
 	: Component(p_compName, "", p_pos, p_size, p_colorTheme)
 {
 	m_scroll = 0;
@@ -55,28 +55,28 @@ void CTabBar::calcMaxScroll()
 	m_maxScroll = max(0, m_maxScroll);
 }
 
-void CTabBar::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos)
+void CTabBar::input(Sint8& p_interactFlags)
 {
-	p_mousePos = p_mousePos - m_pos;
+	Vector2<Sint32> _mousePos = GMouse::getMousePos() - m_pos;
 
 	m_updated = 0;
 	m_hovered = -1;
 	if(m_selected == m_tabList.size() + 1)
 		m_selected = 0;
 
-	m_buttonLShift->input(p_interactFlags, p_keyStates, p_mouseStates, p_mousePos);
-	if(m_buttonLShift->isSelected() != 0 && (p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN))
+	m_buttonLShift->input(p_interactFlags);
+	if(m_buttonLShift->isSelected() != 0 && (GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)))
 		m_scroll -= 4;
 	if(m_scroll <= 0)
 		m_scroll = 0;
 
-	m_buttonRShift->input(p_interactFlags, p_keyStates, p_mouseStates, p_mousePos);
-	if(m_buttonRShift->isSelected() != 0 && (p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN) && m_scroll < m_maxScroll)
+	m_buttonRShift->input(p_interactFlags);
+	if(m_buttonRShift->isSelected() != 0 && (GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)) && m_scroll < m_maxScroll)
 		m_scroll += 4;
 	if(m_scroll >= m_maxScroll)
 		m_scroll = m_maxScroll;
 
-	if(p_mousePos.x >= 0 && p_mousePos.y >= 0 && p_mousePos.x <= m_size.x && p_mousePos.y <= m_size.y)
+	if(_mousePos.x >= 0 && _mousePos.y >= 0 && _mousePos.x <= m_size.x && _mousePos.y <= m_size.y)
 	{
 		CButton* _button = new CButton("", "", {}, {}, CButton::RenderStyle::ALL);
 
@@ -86,8 +86,8 @@ void CTabBar::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseSt
 			_button->setTitle(m_tabList[i]);
 			_button->setPosition(Vector2<Sint32>(_offset, 0));
 			_button->setSize(Vector2<Sint32>(Font::getMessageWidth(m_tabList[i]).x + 8, m_size.y));
-			_button->input(p_interactFlags, p_keyStates, p_mouseStates, p_mousePos);
-			if(m_selected != i && _button->isSelected() != 0 && p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
+			_button->input(p_interactFlags);
+			if(m_selected != i && _button->isSelected() != 0 && GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
 			{
 				m_selected = i;
 				if((m_updated & 1) == 0)
@@ -101,11 +101,11 @@ void CTabBar::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseSt
 		_button->setPosition(Vector2<Sint32>(_offset, 0));
 		_button->setSize(Vector2<Sint32>(20, m_size.y));
 		_button->setHover(m_hovered == (m_tabList.size() + 1));
-		_button->input(p_interactFlags, p_keyStates, p_mouseStates, p_mousePos);
-		if(_button->isSelected() != 0 && p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
+		_button->input(p_interactFlags);
+		if(_button->isSelected() != 0 && GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
 		{
 			m_selected = Sint16(m_tabList.size());
-			addItem(std::string("Item ") + Util::numToString(m_tabList.size()));
+			addItem(std::string("Item ") + Util::numToStringInt(m_tabList.size()));
 			if((m_updated & 1) == 0)
 				m_updated += 1;
 			if((m_updated & 2) == 0)

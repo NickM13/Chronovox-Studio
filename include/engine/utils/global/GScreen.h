@@ -2,18 +2,17 @@
 
 #include "engine\utils\variable\datatype\Macros.h"
 #include "engine\utils\variable\datatype\Vector2.h"
-#include "engine\utils\OpenGL.h"
+#include "engine\utils\variable\datatype\Vector3.h"
+#include "engine\utils\LOpenGL.h"
 #include <vector>
 #include <string>
 #include <iostream>
 
-class GScreen
-{
+class GScreen {
 public:
-	static std::string m_tooltip;
-	static float m_fps;
-	static float m_fov;
-	static float m_deltaTime;
+	static GLfloat m_fps;
+	static GLfloat m_fov;
+	static GLfloat m_deltaTime;
 	static Sint8 m_exitting;
 	static bool m_developer;
 

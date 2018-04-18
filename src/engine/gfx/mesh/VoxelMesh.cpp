@@ -1,8 +1,20 @@
 #include "engine\gfx\mesh\VoxelMesh.h"
 
-#include "engine\utils\variable\manager\VoxelManager.h"
+VoxelMesh::VoxelMesh() {
+	m_colors = new std::vector<Color>[6];
+	m_vertices = new std::vector<Vector3<GLfloat>>[6];
+}
 
-Vector4<GLfloat> getAO(Vector3<Uint16> p_pos, Voxel*** p_voxels, Uint8 p_side) {
+VoxelMesh::~VoxelMesh() {
+	for(Sint8 i = 0; i < 6; i++) {
+		m_colors[i].clear();
+		m_vertices[i].clear();
+	}
+	delete[] m_colors;
+	delete[] m_vertices;
+}
+
+Vector4<GLfloat> VoxelMesh::getAO(Vector3<Uint16> p_pos, Voxel*** p_voxels, Uint8 p_side) {
 	GLfloat intensity = 8;
 	GLfloat idk = 8;
 	GLfloat ao00, ao10, ao11, ao01;

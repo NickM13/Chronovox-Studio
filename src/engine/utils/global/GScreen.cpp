@@ -1,7 +1,6 @@
 #include "engine\utils\global\GScreen.h"
 #include "engine\utils\global\event\GMouse.h"
 
-std::string GScreen::m_tooltip = "";
 float GScreen::m_fps = 0;
 float GScreen::m_fov = 0;
 float GScreen::m_deltaTime = 0;
@@ -39,7 +38,7 @@ void GScreen::initWindow(GLFWwindow *p_window)
 void GScreen::startWindowDrag()
 {
 	m_draggingWindow = true;
-	m_dragStart = GMouse::m_guiMousePos;
+	m_dragStart = GMouse::getMousePos();
 
 }
 bool GScreen::isDraggingWindow()
@@ -57,7 +56,7 @@ void GScreen::endWindowDrag()
 
 void GScreen::startResizing() {
 	m_initWindowSize = m_screenSize;
-	m_resizeMousePos = GMouse::m_guiMousePos;
+	m_resizeMousePos = GMouse::getMousePos();
 	m_resizing = true;
 }
 void GScreen::stopResizing() {
@@ -67,18 +66,18 @@ void GScreen::stopResizing() {
 void GScreen::updateWindow()
 {
 	if(isDraggingWindow() && !isMaximized()) {
-		m_dragDistance = m_dragStart - GMouse::m_guiMousePos;
+		m_dragDistance = m_dragStart - GMouse::getMousePos();
 		m_windowPos = m_windowPos - m_dragDistance;
 		glfwSetWindowPos(m_window, m_windowPos.x, m_windowPos.y);
-		m_dragStart = GMouse::m_guiMousePos + m_dragDistance;
+		m_dragStart = GMouse::getMousePos() + m_dragDistance;
 	}
 	if(m_finishedResize) {
 		m_finishedResize = false;
 	}
 	if(m_resizing) {
 		Vector2<Sint32> _size = m_screenSize;
-		m_screenSize.x = max(800, (m_initWindowSize.x - (m_resizeMousePos.x - GMouse::m_guiMousePos.x)));
-		m_screenSize.y = max(700, (m_initWindowSize.y - (m_resizeMousePos.y - GMouse::m_guiMousePos.y)));
+		m_screenSize.x = max(800, (m_initWindowSize.x - (m_resizeMousePos.x - GMouse::getMousePos().x)));
+		m_screenSize.y = max(700, (m_initWindowSize.y - (m_resizeMousePos.y - GMouse::getMousePos().y)));
 		if(!(_size == m_screenSize))
 			m_finishedResize = true;
 	}

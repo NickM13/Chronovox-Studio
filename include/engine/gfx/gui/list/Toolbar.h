@@ -72,7 +72,7 @@ public:
 	Component* addButton(std::string p_dir, std::string p_buttonName, std::string p_desc = "", function p_func = 0);
 	void setSize(Vector2<Sint32> p_pos);
 
-	void input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos);
+	void input(Sint8& p_interactFlags);
 	void update(GLfloat p_deltaUpdate);
 	void render();
 };

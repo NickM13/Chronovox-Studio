@@ -106,7 +106,7 @@ class Sound : public Singleton<Sound>
 {
 public:
 	bool init();
-	void close();
+	void terminate();
 
 	void setListenPosition(Vector3<GLfloat>);
 	void setListenVelocity(Vector3<GLfloat>);

@@ -98,8 +98,11 @@ void Font::setFont(std::string p_fontName)
 		if(m_fontList[i]->m_fontName == p_fontName)
 			m_font = m_fontList[i];
 }
-Font::FontType* Font::init(std::string p_src, Uint32 p_fontSize)
-{
+Font::FontType* Font::init(std::string p_src, Uint32 p_fontSize) {
+	char result[MAX_PATH];
+	std::string path = std::string(result, GetModuleFileName(NULL, result, MAX_PATH));
+	path = path.substr(0, path.find_last_of('\\') + 1);
+	p_src = path + p_src;
 	FontType* _font = new FontType();
 	_font->m_textures = new GLuint[255];
 	_font->m_charWidth = new GLuint[255];
@@ -111,7 +114,7 @@ Font::FontType* Font::init(std::string p_src, Uint32 p_fontSize)
 	}
 	FT_Face face;
 	if(FT_New_Face(library, p_src.c_str(), 0, &face)) {
-		std::cerr << "FT_New_Face failed (there is probably a problem with your font file)" << std::endl;
+		std::cerr << "FT_New_Face failed (there is probably a problem with your font file) " << p_src << std::endl;
 		return 0;
 	}
 	FT_Set_Char_Size(face, p_fontSize << 6, p_fontSize << 6, 96, 96);
@@ -152,6 +155,21 @@ Vector2<Sint32> Font::getMessageWidth(std::string p_msg)
 	}
 	_rMaxVal = max(_rVal, _rMaxVal);
 	return Vector2<Sint32>(_rMaxVal, _y);
+}
+
+std::string Font::getMessageSubstr(std::string p_msg, Sint32 p_width) {
+	Sint32 _y = getHeight();
+	Sint32 _rVal = 0;
+	std::vector<Sint32> _msgLengths;
+	for(Sint32 i = 0; i < Sint32(p_msg.length()); i++) {
+		_rVal += m_font->m_charWidth[p_msg[i]];
+		_msgLengths.push_back(m_font->m_charWidth[p_msg[i]]);
+		if(_rVal > p_width) {
+
+			return p_msg.substr(0, i - 2) + "...";
+		}
+	}
+	return p_msg;
 }
 
 inline void pushScreenCoordinateMaterix()

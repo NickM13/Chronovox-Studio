@@ -72,7 +72,7 @@ bool Sound::init()
 	return true;
 }
 
-void Sound::close()
+void Sound::terminate()
 {
 	m_context = alcGetCurrentContext();
 	m_device = alcGetContextsDevice(m_context);

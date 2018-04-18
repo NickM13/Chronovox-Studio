@@ -1,86 +1,104 @@
 #pragma once
 
-#include "..\LTexture.h"
+#include "engine\gfx\texture\MTexture.h"
 #include "engine\utils\Utilities.h"
 #include "engine\utils\variable\manager\ScissorManager.h"
+#include "global\GGui.h"
+#include <functional>
 
-enum Anchor {
-	NOANCHOR = 0,
-	CENTER = 1,
-	LEFT = 2,
-	RIGHT = 3,
-	TOP = 4,
-	BOTTOM = 5,
-	TOP_LEFT = 6,
-	TOP_RIGHT = 7,
-	BOTTOM_LEFT = 8,
-	BOTTOM_RIGHT = 9
-};
+/*
+		1	2	4
+	____________________
+   |					|
+8  |	9	10	12		|
+16 |	17	18	20		|
+32 |	33	34	36		|
+   |____________________|
+*/
 
-class Component
-{
+class Component {
 protected:
-	typedef void(*function)();
+	typedef std::function<void()> function;
+	enum class BAnchor {
+		LEFT = 1,
+		CENTER = 2,
+		RIGHT = 4,
+		TOP = 8,
+		MIDDLE = 16,
+		BOTTOM = 32
+	};
 public:
-	enum EventFlag {
-		EVENT_MOUSEOVER = 1,
-		EVENT_KEYPRESS = 2,
-		EVENT_MOUSESCROLL = 4,
-		EVENT_ALL = 7
+	enum class Anchor {
+		NONE = 0,
+		TOP_LEFT = 9,
+		TOP_CENTER = 10,
+		TOP_RIGHT = 12,
+		MIDDLE_LEFT = 17,
+		MIDDLE_CENTER = 18,
+		MIDDLE_RIGHT = 20,
+		BOTTOM_LEFT = 33,
+		BOTTOM_CENTER = 34,
+		BOTTOM_RIGHT = 36
 	};
-	enum Border {
-		BORDER_NONE = 0,
-		BORDER_TOP = 1,
-		BORDER_RIGHT = 2,
-		BORDER_BOTTOM = 4,
-		BORDER_LEFT = 8,
-		BORDER_ALL = 15
+	enum class EventFlag {
+		MOUSEOVER = 1,
+		KEYPRESS = 2,
+		MOUSESCROLL = 4,
+		ALL = 7
 	};
-	enum Theme {
-		PRIMARY = 0,
-		MENUBAR = 1,
-		INFO = 2,
-		ACTION = 3,
-		ACTION_LIGHT = 4
+	enum class BorderFlag {
+		NONE = 0,
+		TOP = 1,
+		RIGHT = 2,
+		BOTTOM = 4,
+		LEFT = 8,
+		ALL = 15
 	};
-	enum TextureStyle {
-		NOTEX = -1,
-		STRETCH = 0,
-		WRAP = 1,
-		SCALE = 2
+	enum class Theme {
+		PRIMARY,
+		MENUBAR,
+		INFO,
+		ACTION,
+		ACTION_LIGHT
+	};
+	enum class TextureStyle {
+		NONE,
+		STRETCH,
+		WRAP,
+		SCALE,
+		CENTERED
 	};
 
 protected:
 	function m_pressFunction = 0, m_holdFunction = 0, m_releaseFunction = 0;
-	struct ColorTheme
-	{
-		Color m_border, m_primary, m_select, m_hover, m_text, m_textLight;
-		ColorTheme(Color p_border = {}, Color p_primary = {}, Color p_select = {}, Color p_hover = {}, Color p_text1 = {}, Color p_text2 = {})
-		{
+	struct ColorTheme {
+		Color m_border, m_primary, m_select, m_hover, m_text, m_textLight, m_borderHighlight;
+		ColorTheme(Color p_border = {}, Color p_primary = {}, Color p_select = {}, Color p_hover = {}, Color p_text1 = {}, Color p_text2 = {}, Color p_borderHighlight = {}) {
 			m_border = p_border;
 			m_primary = p_primary;
 			m_select = p_select;
 			m_hover = p_hover;
 			m_text = p_text1;
 			m_textLight = p_text2;
+			m_borderHighlight = p_borderHighlight;
 		}
 	};
 
 	std::string m_compName, m_title;
 	Vector2<Sint32> m_posInit, m_pos, m_sizeInit, m_size;
-	Sint8 m_selected;
-	bool m_hovered;
+	Sint8 m_selected = 0;
+	bool m_hovered = false;
 	ColorTheme m_colorTheme;
 
-	Sint32 m_texture = -1;
+	Texture* m_texture;
 	TextureStyle m_textureStyle = TextureStyle::STRETCH;
 
-	Sint8 m_border = Border::BORDER_ALL;
+	Sint8 m_border = (Sint8)BorderFlag::ALL;
 
-	Sint32* m_numValue = 0;
+	GLfloat m_numValue = 0;
 
 	// Default color themes
-	static std::vector<ColorTheme> m_colorThemes;
+	static std::map<Theme, ColorTheme> m_colorThemes;
 	bool m_visible = true;
 	Sint8 m_moveToFront = 0;
 	Sint8 m_priority = 0;
@@ -91,10 +109,10 @@ protected:
 	Vector2<Sint32> m_tooltipMouse;
 public:
 	Component();
-	Component(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint8 p_colorTheme = 0);
+	Component(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Theme p_colorTheme = Theme::PRIMARY);
 	virtual ~Component();
 
-	virtual Component* addComponent(Component* p_comp, Anchor p_posAnchor = Anchor::NOANCHOR, Anchor p_sizeAnchor = Anchor::NOANCHOR);
+	virtual Component* addComponent(Component* p_comp, Anchor p_posAnchor = Anchor::NONE, Anchor p_sizeAnchor = Anchor::NONE);
 	virtual Component* findComponent(std::string p_compName);
 
 	virtual Component* addButton(std::string p_dir, std::string p_buttonName, std::string p_desc = "", function p_func = 0);
@@ -106,9 +124,9 @@ public:
 	Component* setPressFunction(function p_func);
 	Component* setHoldFunction(function p_func);
 	Component* setReleaseFunction(function p_func);
-	Component* callPressFunction() { if(m_pressFunction != 0) m_pressFunction(); return this; };
-	Component* callHoldFunction() { if(m_holdFunction != 0) m_holdFunction(); return this; };
-	Component* callReleaseFunction() { if(m_releaseFunction != 0) m_releaseFunction(); return this; };
+	Component* callPressFunction();
+	Component* callHoldFunction();
+	Component* callReleaseFunction();
 
 	virtual void setSelectedItem(Uint16 p_selectedItem);
 	virtual void setSelectedButton(Uint16 p_selectedButton);
@@ -124,7 +142,7 @@ public:
 
 	virtual void setTitle(std::string p_title);
 	Component* setTheme(Theme p_theme) { m_colorTheme = m_colorThemes[p_theme]; return this; }
-	Component* setBorder(Sint8 p_border) { m_border = p_border; return this; } // Use flags from enum Component::Border
+	Component* setBorderFlag(Sint8 p_border) { m_border = p_border; return this; } // Use flags from enum Component::BorderFlag
 	virtual void resize();
 	virtual void setPosition(Vector2<Sint32> p_pos);
 	virtual void setSize(Vector2<Sint32> p_size);
@@ -134,6 +152,7 @@ public:
 	Vector2<Sint32> getSize();
 	virtual Vector2<Sint32> getRealPosition();
 	virtual Vector2<Sint32> getRealSize();
+	virtual Component* setPauseScreen(std::string p_screen);
 
 	virtual Component* setVisible(bool p_visible);
 	bool isVisible();
@@ -143,8 +162,8 @@ public:
 	void renderBorder();
 	virtual void render();
 	virtual Sint8 isSelected();
-	virtual void setValue(Sint32 p_value);
-	Sint32* getValue();
+	virtual void setValue(GLfloat p_value);
+	GLfloat getValue();
 
 	Component* setPriorityLayer(Sint8 p_priority);
 	Sint8 getPriorityLayer();
@@ -153,6 +172,6 @@ public:
 	virtual Uint8 isUpdated();
 
 	virtual void input();
-	virtual void input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos);
+	virtual void input(Sint8& p_interactFlags);
 	virtual void update(GLfloat p_deltaUpdate);
 };

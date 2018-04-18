@@ -3,51 +3,87 @@
 #include "engine\utils\Utilities.h"
 #include "engine\utils\variable\manager\ColorManager.h"
 #include "engine\gfx\gui\Component.h"
-#include "engine\editor\menu\Overlay.h"
+#include "engine\editor\menu\EditorOverlay.h"
+#include "engine\editor\model\menu\ModelOverlay.h"
 
 #include <direct.h>
 #include <shlobj.h>
-
 #include <iostream>
 
-Model::Model() {
+Model::Model()
+	: TEMode() {
 	m_matrixEdit = new EditMatrix();
-	m_skyTexture = LTexture::getTexture("Daylight Sky.png");
-	TMesh::init();
-	r = g = b = 0;
-}
-void Model::init() {
-	m_camPos = {0, 6, 0};
-	m_dragging = NONE;
-	m_matrixCopy = 0;
-	m_hoverMatrix = -1;
-	m_zoom = 32;
-	m_tarZoom = 0;
-	m_zoomSpeed = 10.f;
-	m_grid = true;
-	m_outline = true;
-	m_nameList = (CList*)Overlay::getContainer()->findComponent("GUI_DETAILS\\GUI_MATRICES\\LIST_MATRICES");
-	if(!autoload())
-		newModel();
+	MMesh::init();
+	MTool::init();
 }
 Model::~Model() {
-	for(Matrix *m : m_matrices) if(m) delete m;
+	for(Matrix *m : m_matrices)
+		delete m;
 	m_matrices.clear();
 	delete m_matrixEdit;
-	TMesh::clear();
+	MMesh::terminate();
+	MTool::terminate();
+}
+void Model::init() {
+	m_matrixCopy = 0;
+	m_hoverMatrix = -1;
+	m_grid = true;
+	m_outline = true;
+	m_nameList = (CList*)ModelOverlay::getContainer()->findComponent("GUI_DETAILS\\GUI_MATRICES\\LIST_MATRICES");
+	m_colorOverlay = (ColorOverlay*)ModelOverlay::getContainer()->findComponent("GUI_DETAILS\\GUI_COLOR\\OVERLAY_COLOR");
+	m_colorOverlay->setColorRGB(0, 255, 128);
+	m_voxelColor = &m_colorOverlay->getColor();
+	if(!autoload()) newModel();
+	Tool::init(m_matrixEdit, &m_subTool);
+	VoxelTool::init(&m_selectedVoxel, &m_selectedVoxelOffset, &m_selectedSide, m_voxelColor);
+	MatrixTool::init(&m_matrices, &m_scalePos, &m_selectedScale);
 }
 
-void Model::setColor(Sint32& p_r, Sint32& p_g, Sint32& p_b) {
-	r = &p_r;
-	g = &p_g;
-	b = &p_b;
-
-	*r = 0;
-	*g = 255;
-	*b = 0;
+void Model::setDataString(std::string* p_dataString) {
+	m_dataString = p_dataString;
 }
-void Model::updateLists() {
-
+void Model::setTool(Sint32 p_tool) {
+	setSubTool(0);
+	m_tool = p_tool;
+	ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR")->setSelectedItem(p_tool);
+	Tool* tool = MTool::getTool(m_tool);
+}
+void Model::setTool(std::string p_toolName) {
+	setSubTool(0);
+	MTool::getTool(m_tool)->disable();
+	for(Sint32 i = 0; i < (Sint32)MTool::getToolList().size(); i++)
+		if(MTool::getToolList()[i]->getName() == p_toolName) {
+			m_tool = i;
+			break;
+		}
+	ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR")->setSelectedItem(m_tool);
+	MTool::getTool(m_tool)->enable();
+}
+void Model::setSubTool(Sint32 p_subTool) {
+	if(p_subTool < 0) return;
+	Tool* tool = MTool::getTool(m_tool);
+	if(tool->hasSubmenu()) {
+		bool success = false;
+		switch(tool->getType()) {
+		case Tool::ToolType::VOXEL:
+			success = (p_subTool < static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR_VOXEL\\TOOLBAR"))->getButtonCount());
+			ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR_VOXEL\\TOOLBAR")->setSelectedItem(p_subTool);
+			break;
+		case Tool::ToolType::MATRIX:
+			success = (p_subTool < static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR_MATRIX\\TOOLBAR"))->getButtonCount());
+			ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR_MATRIX\\TOOLBAR")->setSelectedItem(p_subTool);
+			break;
+		default: break;
+		}
+		if(success) m_subTool = p_subTool;
+	}
+	else m_subTool = 0;
+}
+void Model::updateTool() {
+	m_tool = ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR")->getSelectedItem();
+	if(MTool::getTool(m_tool)->getType() == Tool::ToolType::VOXEL)
+		m_subTool = ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR_VOXEL\\TOOLBAR")->getSelectedItem();
+	if(MTool::getTool(m_tool)->getType() == Tool::ToolType::MATRIX) hoverMatrix(-1);
 }
 
 void Model::toggleGrid() {
@@ -57,32 +93,11 @@ void Model::toggleOutline() {
 	m_outline = !m_outline;
 }
 
-void Model::zoom(GLfloat p_scroll) {
-	m_tarZoom += p_scroll;
-	if(m_zoom - m_tarZoom < 1)
-		m_tarZoom = m_zoom - 1;
-	else if(m_zoom - m_tarZoom > 256)
-		m_tarZoom = m_zoom - 256;
-}
-void Model::turn(Vector2<Sint32> p_mouseMove) {
-	m_camRot = m_camRot + Vector3<GLfloat>(GLfloat(p_mouseMove.y), GLfloat(p_mouseMove.x), 0) * 0.5f;
-
-	if(m_camRot.x < -90) m_camRot.x = -90;
-	if(m_camRot.x > 90) m_camRot.x = 90;
-
-	m_camRot.y = fmodf(m_camRot.y, 360);
-}
-void Model::pan(Vector2<Sint32> p_mouseMove) {
-	Vector3<GLfloat> _norm = Math::computeDirection(m_camRot + Vector3<GLfloat>(90, 0, 0)) * Vector3<GLfloat>{1, -1, 1};
-
-	GLfloat _sensitivity = m_zoom * 0.0015f + 0.0035f;
-	m_camPos.x -= p_mouseMove.x * _sensitivity * Math::cosd(m_camRot.y);
-	m_camPos.z -= p_mouseMove.x * _sensitivity * Math::sind(m_camRot.y);
-	m_camPos = m_camPos + _norm * p_mouseMove.y * _sensitivity;
-}
-
 void Model::focus() {
-	m_camPos = m_matrixEdit->getPos() + Vector3<GLfloat>(m_matrixEdit->getSize()) / 2.f;
+	if(MTool::getTool(m_tool)->getType() == Tool::ToolType::VOXEL)
+		Camera::setPosition(m_matrixEdit->getPos() + Vector3<GLfloat>(m_selectedVoxel) + Vector3<GLfloat>(0.5f, 0.5f, 0.5f));
+	else if(MTool::getTool(m_tool)->getType() == Tool::ToolType::MATRIX)
+		Camera::setPosition(getSelectedMatricesCenter());
 }
 
 void Model::undo() {
@@ -99,10 +114,22 @@ void Model::copyMatrix() {
 }
 void Model::pasteMatrix() {
 	if(m_matrixCopy) {
-		m_matrixCopy->setPosition(m_camPos - (m_matrixCopy->getSize() / 2));
-		m_matrices.push_back(new Matrix(*m_matrixCopy));
-		NewCommand* _cmd = new NewCommand(m_matrixCopy, m_matrices, Uint16(m_matrices.size()) - 1, m_nameList);
+		m_matrixEdit->setCommandListOpen(false);
+		addMatrix(m_matrixCopy->getName() + " - Copy", Camera::getPosition() - (m_matrixCopy->getSize() / 2), m_matrixCopy->getSize());
+		Matrix* _matrix = getMatrix(Sint16(getMatrixNames().size()) - 1);
+		_matrix->setPosition(Camera::getPosition() - (m_matrixCopy->getSize() / 2));
+		MNewCommand* _cmd = new MNewCommand(_matrix, m_matrices, Uint16(m_matrices.size()) - 1, m_nameList);
 		m_matrixEdit->addCommand(_cmd);
+		for(Uint16 x = 0; x < m_matrixCopy->getSize().x; x++) {
+			for(Uint16 y = 0; y < m_matrixCopy->getSize().y; y++) {
+				for(Uint16 z = 0; z < m_matrixCopy->getSize().z; z++) {
+					_matrix->setVoxel({x, y, z}, m_matrixCopy->getVoxel({x, y, z}));
+				}
+			}
+		}
+		m_matrixEdit->reset();
+		m_matrixEdit->setCommandListOpen(true);
+		m_matrixEdit->addCommand(new MNewCommand(m_matrices[m_matrices.size() - 1], m_matrices, Uint16(m_matrices.size()) - 1, m_nameList));
 	}
 }
 
@@ -119,13 +146,13 @@ Uint16 Model::getVoxelId(Uint16 p_matrix, Vector3<Sint32> p_pos) {
 void Model::resize(Uint16 p_matrixId, Vector3<Sint32> p_offset, Vector3<Sint32> p_size) {
 	if(p_size.x <= p_offset.x || p_size.x <= p_offset.x || p_size.x <= p_offset.x) return;
 	Sint32 id = m_matrixEdit->getId();
-	m_matrixEdit->unloadMatrix();
+	m_matrixEdit->clearMatrix();
 	Matrix* prev = new Matrix(*m_matrices[p_matrixId]);
 	m_matrices[p_matrixId]->setSize(p_size);
 	m_matrices[p_matrixId]->shiftVoxels(p_offset * -1);
 	m_matrices[p_matrixId]->setSize(p_size - p_offset);
 	m_matrices[p_matrixId]->addPosition(p_offset);
-	ResizeCommand* _cmd = new ResizeCommand(m_matrices[p_matrixId], prev);
+	MResizeCommand* _cmd = new MResizeCommand(m_matrices[p_matrixId], prev);
 	m_matrixEdit->addCommand(_cmd);
 
 	if(id != -1)
@@ -138,8 +165,16 @@ void Model::shiftMatrix(Vector3<Sint32> p_direction) {
 }
 void Model::flipMatrix(Sint8 p_axesFlags) {
 	if(m_matrixEdit->getId() != -1) {
-		m_matrices[m_matrixEdit->getId()]->flip(p_axesFlags);
+		m_matrices[m_matrixEdit->getId()]->flip(p_axesFlags, {});
 		m_matrixEdit->setMatrix(m_matrices[m_matrixEdit->getId()], m_matrixEdit->getId());
+	}
+}
+void Model::rotateMatrix(Sint8 p_axesFlags) {
+	Vector3<GLfloat> center = getSelectedMatricesCenter();
+	for(Matrix* m : getSelectedMatrices()) {
+		m_matrixEdit->setMatrix(m, m->getId());
+		m->rotate(p_axesFlags, center);
+		m_matrixEdit->clearMatrix();
 	}
 }
 void Model::addMatrix(std::string p_name, Vector3<GLfloat> p_pos, Vector3<Sint16> p_size) {
@@ -151,335 +186,228 @@ void Model::addMatrix(std::string p_name, Vector3<GLfloat> p_pos, Vector3<Sint16
 		for(Matrix *m : m_matrices) {
 			if(m->getName() == _name) {
 				validName = false;
-				_name = p_name + Util::numToString(i);
+				_name = p_name + Util::numToStringInt(i);
 				i++;
 				break;
 			}
 		}
 	} while(!validName);
 	Sint16 id = Sint16(m_matrices.size());
-	m_matrices.push_back(new Matrix(_name, id, (Vector3<GLfloat>(p_size.x, 0, p_size.z) / -2), p_size));
-	NewCommand* _cmd = new NewCommand(m_matrices[m_matrices.size() - 1], m_matrices, Uint16(m_matrices.size()) - 1, m_nameList);
+	m_matrices.push_back(new Matrix(id, _name, "", p_pos, p_size));
+	MNewCommand* _cmd = new MNewCommand(m_matrices[m_matrices.size() - 1], m_matrices, Uint16(m_matrices.size()) - 1, m_nameList);
 	m_matrixEdit->addCommand(_cmd);
 	m_hoverMatrix = Sint16(m_matrices.size()) - 1;
 	m_matrixEdit->setMatrix(m_matrices[m_hoverMatrix], m_hoverMatrix);
-	//updateLists();
 	Vector3<GLfloat> _pos = m_pos = {1000, 1000, 1000};
 	m_size = {-1000, -1000, -1000};
 	for(Matrix *m : m_matrices) {
 		_pos = Vector3<GLfloat>(min(m_pos.x, m->getPos().x), min(m_pos.y, m->getPos().y), min(m_pos.z, m->getPos().z));
-		m_size = Vector3<GLfloat>(	max(m_pos.x + m_size.x, m->getPos().x + m->getSize().x) - _pos.x, 
-									max(m_pos.y + m_size.y, m->getPos().y + m->getSize().y) - _pos.y, 
-									max(m_pos.z + m_size.z, m->getPos().z + m->getSize().z) - _pos.z);
+		m_size = Vector3<GLfloat>(max(m_pos.x + m_size.x, m->getPos().x + m->getSize().x) - _pos.x,
+			max(m_pos.y + m_size.y, m->getPos().y + m->getSize().y) - _pos.y,
+			max(m_pos.z + m_size.z, m->getPos().z + m->getSize().z) - _pos.z);
 		m_pos = _pos;
 	}
-	m_nameList->addItem(_name);
+	updateMatrixList();
 }
 void Model::renameMatrix(Uint16 id, std::string p_name) {
 	m_matrices[id]->setName(p_name);
 	m_nameList->getItem(id).name = p_name;
-}
-void Model::removeMatrix() {
-	if(*m_tool >= SELECT && m_matrixEdit->getId() != -1) {
-		m_nameList->removeItem(m_matrixEdit->getId());
-
-		DeleteCommand* _cmd = new DeleteCommand(m_matrices[m_matrixEdit->getId()], m_matrices, m_matrixEdit->getId(), m_nameList);
-		m_matrixEdit->addCommand(_cmd);
-
-		Sint32 id = m_matrixEdit->getId();
-		m_matrixEdit->unloadMatrix();
-		m_matrices.erase(m_matrices.begin() + id);
-	}
+	updateMatrixList();
 }
 void Model::deleteSelectedMatrices() {
-	DeleteCommand* _cmd;
-	m_matrixEdit->unloadMatrix();
+	std::vector<MDeleteCommand*> _cmd;
+	m_matrixEdit->clearMatrix();
 	for(Sint16 i = m_nameList->getItemCount() - 1; i >= 0; i--) {
 		if(m_nameList->getItem(i).state == 2) {
-			_cmd = new DeleteCommand(m_matrices[i], m_matrices, i, m_nameList);
-			m_matrixEdit->addCommand(_cmd);
+			_cmd.push_back(new MDeleteCommand(m_matrices[i], m_matrices, i, m_nameList));
 			m_nameList->removeItem(i);
 			m_matrices.erase(m_matrices.begin() + i);
 		}
+	}
+	m_matrixEdit->addCommand(new CommandCombo<MDeleteCommand*>(_cmd));
+	updateMatrixList();
+}
+void Model::moveMatrix(bool p_up) {
+	// Reversed because it is rendered opposite
+	if(!p_up) {
+		for(Sint32 i = m_nameList->getItemCount() - 2; i >= 0; i--) {
+			if(m_nameList->getItem(i).state != 2) continue;
+			m_matrices.insert(m_matrices.begin() + i + 2, m_matrices.at(i));
+			m_matrices.erase(m_matrices.begin() + i);
+			m_nameList->insertItem(i + 2, m_nameList->getItem(i).name);
+			m_nameList->getItem(i + 2).state = 2;
+			m_nameList->removeItem(i);
+		}
+	}
+	else {
+		for(Sint32 i = 1; i < m_nameList->getItemCount(); i++) {
+			if(m_nameList->getItem(i).state != 2) continue;
+			m_matrices.insert(m_matrices.begin() + i - 1, m_matrices.at(i));
+			m_matrices.erase(m_matrices.begin() + i + 1);
+			m_nameList->insertItem(i - 1, m_nameList->getItem(i).name);
+			m_nameList->getItem(i - 1).state = 2;
+			m_nameList->removeItem(i + 1);
+		}
+	}
+	Sint32 id = 0;
+	for(Matrix* m : m_matrices) {
+		m->setId(id);
+		id++;
+	}
+}
+void Model::hoverMatrix(Sint16 id) {
+	if(id == -1) {
+		if(m_matrixEdit->getId() != -1 && m_nameList->getItem(m_matrixEdit->getId()).state != 2) {
+			m_nameList->getItem(m_matrixEdit->getId()).state = 0;
+			if(id == -1) m_matrixEdit->clearMatrix();
+		}
+	}
+	else {
+		if(m_matrixEdit->getId() != -1 && m_nameList->getItem(m_matrixEdit->getId()).state != 2)
+			m_nameList->getItem(m_matrixEdit->getId()).state = 0;
+		if(m_nameList->getItem(id).state != 2)
+			m_nameList->getItem(id).state = 1;
+		m_matrixEdit->setMatrix(m_matrices[id], id);
 	}
 }
 void Model::selectMatrix(Sint16 id) {
 	if(id == -1) {
 		if(m_matrixEdit->getId() != -1) {
-			if(m_nameList->getItem(m_matrixEdit->getId()).state != 0)
-				m_nameList->getItem(m_matrixEdit->getId()).state = 0;
-			m_matrixEdit->unloadMatrix();
+			if(m_nameList->getItem(m_matrixEdit->getId()).state == 2)
+				m_nameList->selectItem(m_matrixEdit->getId());
+			m_matrixEdit->clearMatrix();
 		}
 	}
 	else {
-		if(m_matrixEdit->getId() != -1 && m_nameList->getItem(m_matrixEdit->getId()).state != 0)
-			m_nameList->getItem(m_matrixEdit->getId()).state = 0;
-		if(m_nameList->getItem(id).state != 2)
-			m_nameList->getItem(id).state = 2;
-		m_matrixEdit->setMatrix(m_matrices[id], id);
+		m_nameList->selectItem(id);
+		if(m_nameList->getItem(id).state == 2)
+			m_matrixEdit->setMatrix(m_matrices[id], id);
+		else
+			m_matrixEdit->clearMatrix();
 	}
 }
 
-Vector3<GLfloat> Model::getCamPosition() {
-	Vector3<GLfloat> _zoomOffset = Math::computeDirection(m_camRot);
-	return (m_camPos + _zoomOffset * -m_zoom);
-}
-Vector3<GLfloat> Model::getCamDirection() {
-	return Math::computeDirection(m_camRot);
-}
-Vector3<GLfloat> Model::getCamMouseDirection() {
-	Vector2<GLfloat> _mousePos = GMouse::m_mousePos;
-	GLfloat _screenRatio = GLfloat(GScreen::m_screenSize.x) / GScreen::m_screenSize.y;
-	GLfloat _fovx = GScreen::m_fov * _screenRatio;
-	GLfloat _fovy = GScreen::m_fov;
-	Vector2<GLfloat> _mousePercent = Vector2<GLfloat>(_mousePos) / GScreen::m_screenSize * 2 - 1; // Ranges from -1 to 1
-	Vector3<GLfloat> camDir = {
-		(_mousePercent.x * _fovx * -Math::cosd(m_camRot.y)) + ((100 * Math::cosd(m_camRot.x) + (_mousePercent.y * _fovy * -Math::sind(m_camRot.x))) * -Math::sind(m_camRot.y)),
-		(_mousePercent.y * _fovy * Math::cosd(m_camRot.x)) + (100 * Math::sind(m_camRot.x)),
-		(_mousePercent.x * _fovx * -Math::sind(m_camRot.y)) + ((100 * -Math::cosd(m_camRot.x) + (_mousePercent.y * _fovy * Math::sind(m_camRot.x))) * -Math::cosd(m_camRot.y))
-	};
-	camDir = camDir.getNormal() * -1;
-	return camDir;
+void Model::updateMatrixList() {
+	m_nameList->clear();
+	Sint32 id = 0;
+	for(Matrix* m : m_matrices) {
+		m->setId(id);
+		m_nameList->addItem(m->getName());
+		id++;
+	}
 }
 
-void Model::input(Sint8 p_guiFlags) {
-	GLfloat _near = (p_guiFlags & Component::EVENT_MOUSEOVER) ? 0 : 1, _far = 1;
-	Sint8 _mbutton[64];
-	if(!(p_guiFlags & Component::EVENT_MOUSEOVER)) for(Uint16 i = 0; i < 64; i++) _mbutton[i] = 0;
-	else for(Uint16 i = 0; i < 64; i++) _mbutton[i] = GMouse::m_mouseStates[i];
-	MatrixCast::castRayMatrix(getCamPosition(), getCamMouseDirection() * 4096, m_matrices, m_hoverMatrix, _near, _far);
-	if(*m_tool < SELECT && ((!(_mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN) && m_hoverMatrix != m_matrixEdit->getId()) || _mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_RELEASE)) {
-		selectMatrix(m_hoverMatrix);
-	}
-
-	if(m_matrixEdit->getId() != -1) {
-		if(*m_tool < SELECT)
-			MatrixCast::castRayVoxel(getCamPosition(), getCamMouseDirection() * 4096, m_matrixEdit->getInitMatrix(), _near, _far, m_selectedVoxel, m_selectedSide, m_selectedVoxelOffset);
-		else if(*m_tool > SELECT)
-			MatrixCast::castRayScale(getCamPosition(), getCamMouseDirection() * 4096, m_matrixEdit->getMatrix(), _near, _far, m_scalePos, m_selectedScale);
-	}
-
-	if((_mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_RELEASE) || !(_mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN)) {
-		MatrixMove::end();
-		Box::end();
-		MatrixResize::end();
-	}
-
-	MatrixMove::update(getCamPosition(), getCamMouseDirection());
-	if(m_hoverMatrix != -1) {
-		switch(*m_tool) {
-		case ADD: Box::update(m_selectedVoxelOffset); break;
-		case ERASE: case REPLACE: Box::update(m_selectedVoxel); break;
+void Model::inputEditor(Sint8 p_guiFlags) {
+	bool mouseOnGui = !(p_guiFlags & (Sint8)Component::EventFlag::MOUSEOVER);
+	GLfloat _near = mouseOnGui ? 1 : 0, _far = 1;
+	if(MTool::getTool(m_tool)->getType() == Tool::ToolType::VOXEL
+		&& GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)
+		&& m_matrixEdit->getId() != -1)
+		ModelMath::castRayMatrix(Camera::getPosition(), Camera::getMouseDirection() * 4096, m_matrixEdit->getInitMatrix(), _near, _far);
+	else
+		ModelMath::castRayMatrices(Camera::getPosition(), Camera::getMouseDirection() * 4096, m_matrices, m_hoverMatrix, _near, _far);
+	
+	if(!mouseOnGui) {
+		switch(MTool::getTool(m_tool)->getType()) {
+		case Tool::ToolType::VOXEL:
+			if((!GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT) && m_hoverMatrix != m_matrixEdit->getId()) || GMouse::mouseReleased(GLFW_MOUSE_BUTTON_LEFT))
+				hoverMatrix(m_hoverMatrix);
+			break;
+		case Tool::ToolType::MATRIX:
+			if(GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
+				if(m_matrixEdit->getId() == -1 || m_selectedScale == 0)
+					selectMatrix(m_hoverMatrix);
+			break;
 		default: break;
 		}
 	}
-	MatrixResize::update(getCamPosition(), getCamDirection(), getCamMouseDirection());
 
-	if((_mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN) && *m_tool >= SELECT || (m_hoverMatrix != -1 && m_hoverMatrix == m_matrixEdit->getId()))
-	{
-		Color color;
-		switch(*m_tool) {
-		case ADD:
-			switch(*m_toolMeta) {
-			case 0: if(_mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN) m_matrices[m_hoverMatrix]->setVoxel(m_selectedVoxelOffset, Voxel(1, MColor::getInstance().getUnitID(Color(*r / 255.f, *g / 255.f, *b / 255.f)))); break;
-			case 1: if(_mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS) Box::start(m_matrices[m_hoverMatrix], m_selectedVoxelOffset, Voxel(1, MColor::getInstance().getUnitID(Color(*r / 255.f, *g / 255.f, *b / 255.f))), false); break;
-			case 2: if(_mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS) Fill::append(m_matrices[m_hoverMatrix], m_selectedVoxelOffset, m_selectedSide, Voxel(1, MColor::getInstance().getUnitID(Color(*r / 255.f, *g / 255.f, *b / 255.f)))); break;
-			default: break;
-			}
+	if(!mouseOnGui && m_matrixEdit->getId() != -1 && !GMouse::mouseDown(GLFW_MOUSE_BUTTON_RIGHT)) {
+		switch(MTool::getTool(m_tool)->getType()) {
+		case Tool::ToolType::VOXEL:
+			ModelMath::castRayVoxel(Camera::getPosition(), Camera::getMouseDirection() * 4096, m_matrixEdit->getInitMatrix(), _near, _far, m_selectedVoxel, m_selectedSide, m_selectedVoxelOffset);
+			static_cast<VoxelTool*>(MTool::getTool(m_tool))->input();
 			break;
-		case ERASE:
-			switch(*m_toolMeta) {
-			case 0: if(_mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN) m_matrices[m_hoverMatrix]->setVoxel(m_selectedVoxel, Voxel(0, MColor::getInstance().getUnitID(Color()))); break;
-			case 1: if(_mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS) Box::start(m_matrices[m_hoverMatrix], m_selectedVoxel, Voxel(0, MColor::getInstance().getUnitID(Color())), false); break;
-			case 2: if(_mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS) Fill::insert(m_matrices[m_hoverMatrix], m_selectedVoxel, m_selectedSide, Voxel(0, MColor::getInstance().getUnitID(Color()))); break;
-			default: break;
-			}
-			break;
-		case REPLACE:
-			switch(*m_toolMeta) {
-			case 0: if(_mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN) m_matrices[m_hoverMatrix]->setVoxel(m_selectedVoxel, Voxel(1, MColor::getInstance().getUnitID(Color(*r / 255.f, *g / 255.f, *b / 255.f)))); break;
-			case 1: if(_mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS) Box::start(m_matrices[m_hoverMatrix], m_selectedVoxel, Voxel(1, MColor::getInstance().getUnitID(Color(*r / 255.f, *g / 255.f, *b / 255.f))), true); break;
-			case 2: if(_mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS) Fill::insert(m_matrices[m_hoverMatrix], m_selectedVoxel, m_selectedSide, Voxel(1, MColor::getInstance().getUnitID(Color(*r / 255.f, *g / 255.f, *b / 255.f)))); break;
-			default: break;
-			}
-			break;
-		case EYEDROP:
-			if(_mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_DOWN) {
-				color = MColor::getInstance().getUnit(m_matrices[m_hoverMatrix]->getVoxel(m_selectedVoxel).color);
-				*r = color.r * 255;
-				*g = color.g * 255;
-				*b = color.b * 255;
-			}
-			break;
-		case SELECT:
-			selectMatrix(m_hoverMatrix);
-			break;
-		case MOVE:
-			if(_mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS) {
-				if(m_matrixEdit->getId() != -1 && m_selectedScale != 0)
-					MatrixMove::start(m_matrixEdit, m_scalePos, m_selectedScale);
-				else {
-					selectMatrix(m_hoverMatrix);
-				}
-			}
-			break;
-		case RESIZE:
-			if(_mbutton[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS) {
-				if(m_matrixEdit->getId() != -1 && m_selectedScale != 0)
-					MatrixResize::start(m_matrixEdit, m_scalePos, m_selectedScale);
-				else {
-					selectMatrix(m_hoverMatrix);
-				}
-			}
-			break;
-		default:
-
+		case Tool::ToolType::MATRIX:
+			ModelMath::castRayScale(Camera::getPosition(), Camera::getMouseDirection() * 4096, m_matrixEdit->getMatrix(), _near, _far, m_scalePos, m_selectedScale);
+			static_cast<MatrixTool*>(MTool::getTool(m_tool))->input();
 			break;
 		}
 	}
+	else {
+		m_selectedVoxel = m_selectedVoxelOffset = {-1, -1, -1};
+	}
+
+	if(!EditorOverlay::getContainer()->isPaused() && (p_guiFlags & (Sint8)Component::EventFlag::KEYPRESS)) {
+		if(GKey::keyPressed(GLFW_KEY_Z, GLFW_MOD_CONTROL)) undo();
+		if(GKey::keyPressed(GLFW_KEY_C, GLFW_MOD_CONTROL)) copyMatrix();
+		if(GKey::keyPressed(GLFW_KEY_V, GLFW_MOD_CONTROL)) pasteMatrix();
+		if(GKey::keyPressed(GLFW_KEY_Y, GLFW_MOD_CONTROL)) redo();
+		if(GKey::keyPressed(GLFW_KEY_S, GLFW_MOD_CONTROL)) save();
+		if(GKey::keyPressed(GLFW_KEY_O, GLFW_MOD_CONTROL)) open();
+		if(GKey::keyPressed(GLFW_KEY_G, GLFW_MOD_CONTROL)) toggleGrid();
+		if(GKey::keyPressed(GLFW_KEY_H, GLFW_MOD_CONTROL)) toggleOutline();
+		if(GKey::keyPressed(GLFW_KEY_N, GLFW_MOD_CONTROL)) EditorOverlay::getContainer()->findComponent("GUI_MODEL")->setPauseScreen("NEWMATRIX");
+		if(GKey::keyPressed(GLFW_KEY_F2) && getSelectedMatrix()) EditorOverlay::getContainer()->findComponent("GUI_MODEL")->setPauseScreen("PROPERTIES");
+		if(GKey::keyPressed(GLFW_KEY_DELETE)) deleteSelectedMatrices();
+		if(GKey::keyPressed(GLFW_KEY_SPACE)) focus();
+		if(GKey::keyPressed(GLFW_KEY_T)) setTool("VTAdd");
+		if(GKey::keyPressed(GLFW_KEY_E)) setTool("VTErase");
+		if(GKey::keyPressed(GLFW_KEY_R)) setTool("VTReplace");
+		if(GKey::keyPressed(GLFW_KEY_K)) setTool("VTEyedrop");
+		if(GKey::keyPressed(GLFW_KEY_M)) setTool("MTSelect");
+		if(GKey::keyPressed(GLFW_KEY_1)) setSubTool(0);
+		if(GKey::keyPressed(GLFW_KEY_2)) setSubTool(1);
+		if(GKey::keyPressed(GLFW_KEY_3)) setSubTool(2);
+	}
 }
-void Model::update(GLfloat p_deltaUpdate) {
-	GLfloat _zoom = m_tarZoom * m_zoomSpeed * p_deltaUpdate;
-	m_zoom -= _zoom;
-	m_tarZoom -= _zoom;
-	if(m_matrixEdit->getId() != -1) {
-		Matrix* m = m_matrices[m_matrixEdit->getId()];
-		*m_dataString = std::string(Util::numToString(m_matrixEdit->getMatrix()->getId()) + ": " + m->getName() + ", {" + Util::numToString(m->getPos().x, 1) + ", " + Util::numToString(m->getPos().y, 1) + ", " + Util::numToString(m->getPos().z, 1) + "} : {" + Util::numToString(m->getSize().x) + ", " + Util::numToString(m->getSize().y) + ", " + Util::numToString(m->getSize().z) + "}");
+void Model::updateEditor(GLfloat p_deltaUpdate) {
+	switch(MTool::getTool(m_tool)->getType()) {
+	case Tool::ToolType::VOXEL:
+		static_cast<VoxelTool*>(MTool::getTool(m_tool))->update();
+		break;
+	case Tool::ToolType::MATRIX:
+		static_cast<MatrixTool*>(MTool::getTool(m_tool))->update();
+		break;
+	default: break;
+	}
+	
+	Matrix* m = 0;
+	if(getSelectedMatrix()) m = getSelectedMatrix();
+	else if(m_matrixEdit->getId() != -1) m = m_matrixEdit->getMatrix();
+	if(m) {
+		*m_dataString = std::string(Util::numToStringInt(m->getId()) + 
+			": " + m->getName() + 
+			", {" + Util::numToStringFloat(m->getPos().x + m->getSize().x / 2.f, 1) +
+			", " + Util::numToStringFloat(m->getPos().y + m->getSize().y / 2.f, 1) +
+			", " + Util::numToStringFloat(m->getPos().z + m->getSize().z / 2.f, 1) +
+			"} : {" + Util::numToStringInt(m->getSize().x) +
+			", " + Util::numToStringInt(m->getSize().y) +
+			", " + Util::numToStringInt(m->getSize().z) + "}");
 	}
 	else
 		*m_dataString = "";
 }
-void Model::render() {
-	glPushMatrix();
-	{
-		glBindTexture(GL_TEXTURE_2D, 0);
+void Model::renderEditor() {
+	if(m_grid) renderGrid();
 
-		glTranslatef(0, 0, -m_zoom);
-		glRotatef(m_camRot.x, 1, 0, 0);
-		glRotatef(m_camRot.y, 0, 1, 0);
-		glRotatef(m_camRot.z, 0, 0, 1);
-		renderFocus();
-		glTranslatef(-m_camPos.x, -m_camPos.y, -m_camPos.z);
-		if(m_grid) renderGrid();
+	for(Matrix* m : m_matrices) m->renderMatrix();
 
-		glDepthFunc(GL_LEQUAL);
-		for(Uint16 i = 0; i < m_matrices.size(); i++) {
-			if(m_outline) {
-				switch(m_nameList->getItem(i).state) {
-				case 0: m_matrices[i]->render(OutlineType::OUTLINE, 0); break;
-				case 1: m_matrices[i]->render(OutlineType::HOVERED, 0); break;
-				case 2: m_matrices[i]->render(OutlineType::SELECTED, 0); break;
-				}
-			}
-			else
-				m_matrices[i]->render(OutlineType::NONE, 0);
-		}
-
-		renderSelected();
+	for(Uint16 i = 0; i < m_matrices.size(); i++) {
+		if(m_outline)
+			m_matrices[i]->renderOutline(static_cast<OutlineType>(m_nameList->getItem(i).state + 1));
+		else
+			m_matrices[i]->renderOutline(OutlineType::NONE);
 	}
-	glPopMatrix();
-}
-void Model::renderSelected() {
-	if(*m_tool < SELECT && m_matrixEdit->getId() != -1) {
-		glPushMatrix();
-		{
-			glBindTexture(GL_TEXTURE_2D, 0);
-			Vector3<GLfloat> _mPos = m_matrixEdit->getPos();
-			Vector3<GLfloat> _offset = _mPos + m_selectedVoxel + 0.5f;
-			GLfloat _scale = 0.5025f;
 
-			if(Box::running()) {
-				glTranslatef(_mPos.x, _mPos.y, _mPos.z);
-				Box::render();
-			}
-			else {
-				glTranslatef(_offset.x, _offset.y, _offset.z);
-				glScalef(_scale, _scale, _scale);
-				glColor4f(1, 1, 1, 0.5f);
-				glBegin(GL_QUADS);
-				{
-					switch(m_selectedSide)
-					{
-					case FACE_NORTH:
-						glVertex3f(1, 1, -1);
-						glVertex3f(1, 1, 1);
-						glVertex3f(1, -1, 1);
-						glVertex3f(1, -1, -1);
-						break;
-					case FACE_SOUTH:
-						glVertex3f(-1, 1, -1);
-						glVertex3f(-1, -1, -1);
-						glVertex3f(-1, -1, 1);
-						glVertex3f(-1, 1, 1);
-						break;
-					case FACE_EAST:
-						glVertex3f(-1, 1, 1);
-						glVertex3f(-1, -1, 1);
-						glVertex3f(1, -1, 1);
-						glVertex3f(1, 1, 1);
-						break;
-					case FACE_WEST:
-						glVertex3f(-1, 1, -1);
-						glVertex3f(1, 1, -1);
-						glVertex3f(1, -1, -1);
-						glVertex3f(-1, -1, -1);
-						break;
-					case FACE_TOP:
-						glVertex3f(-1, 1, 1);
-						glVertex3f(1, 1, 1);
-						glVertex3f(1, 1, -1);
-						glVertex3f(-1, 1, -1);
-						break;
-					case FACE_BOTTOM:
-						glVertex3f(1, -1, -1);
-						glVertex3f(1, -1, 1);
-						glVertex3f(-1, -1, 1);
-						glVertex3f(-1, -1, -1);
-						break;
-					default:
-						break;
-					}
-				}
-				glEnd();
-			}
-		}
-		glPopMatrix();
-	}
-	else if(*m_tool == MOVE && m_matrixEdit->getId() != -1) {
-		Vector3<GLfloat> s = Vector3<GLfloat>(m_matrices[m_matrixEdit->getId()]->getSize()) / 2.f;
-		Vector3<GLfloat> _offset = m_matrices[m_matrixEdit->getId()]->getPos() + s;
-		glPushMatrix();
-		{
-			glTranslatef(_offset.x, _offset.y, _offset.z);
-
-			TMesh::render("Arrow", {-s.x, 0, 0}, {0.1f, 2, 0.1f}, {0, 0, 90}, (m_selectedScale == FACE_SOUTH ? Color(1, 0.25f, 0.25f) : Color(0.75f, 0, 0)));
-			TMesh::render("Arrow", {s.x, 0, 0}, {0.1f, 2, 0.1f}, {0, 0, -90}, (m_selectedScale == FACE_NORTH ? Color(1, 0.25f, 0.25f) : Color(0.75f, 0, 0)));
-
-			TMesh::render("Arrow", {0, -s.y, 0}, {0.1f, 2, 0.1f}, {180, 0, 0}, (m_selectedScale == FACE_BOTTOM ? Color(0.25f, 1, 0.25f) : Color(0, 0.75f, 0)));
-			TMesh::render("Arrow", {0, s.y, 0}, {0.1f, 2, 0.1f}, {0, 0, 0}, (m_selectedScale == FACE_TOP ? Color(0.25f, 1, 0.25f) : Color(0, 0.75f, 0)));
-
-			TMesh::render("Arrow", {0, 0, -s.z}, {0.1f, 2, 0.1f}, {-90, 0, 0}, (m_selectedScale == FACE_WEST ? Color(0.25f, 0.25f, 1) : Color(0, 0, 0.75f)));
-			TMesh::render("Arrow", {0, 0, s.z}, {0.1f, 2, 0.1f}, {90, 0, 0}, (m_selectedScale == FACE_EAST ? Color(0.25f, 0.25f, 1) : Color(0, 0, 0.75f)));
-		}
-		glPopMatrix();
-	}
-	else if(*m_tool == RESIZE && m_matrixEdit->getId() != -1) {
-		Vector3<GLfloat> s = Vector3<GLfloat>(m_matrices[m_matrixEdit->getId()]->getSize()) / 2.f;
-		Vector3<GLfloat> _offset = m_matrices[m_matrixEdit->getId()]->getPos() + s;
-		glPushMatrix();
-		{
-			glTranslatef(_offset.x, _offset.y, _offset.z);
-
-			TMesh::render("Scale", {-s.x, 0, 0}, {0.1f, 2, 0.1f}, {0, 0, 90}, (m_selectedScale == FACE_SOUTH ? Color(1, 0.25f, 0.25f) : Color(0.75f, 0, 0)));
-			TMesh::render("Scale", {s.x, 0, 0}, {0.1f, 2, 0.1f}, {0, 0, -90}, (m_selectedScale == FACE_NORTH ? Color(1, 0.25f, 0.25f) : Color(0.75f, 0, 0)));
-
-			TMesh::render("Scale", {0, -s.y, 0}, {0.1f, 2, 0.1f}, {180, 0, 0}, (m_selectedScale == FACE_BOTTOM ? Color(0.25f, 1, 0.25f) : Color(0, 0.75f, 0)));
-			TMesh::render("Scale", {0, s.y, 0}, {0.1f, 2, 0.1f}, {0, 0, 0}, (m_selectedScale == FACE_TOP ? Color(0.25f, 1, 0.25f) : Color(0, 0.75f, 0)));
-
-			TMesh::render("Scale", {0, 0, -s.z}, {0.1f, 2, 0.1f}, {-90, 0, 0}, (m_selectedScale == FACE_WEST ? Color(0.25f, 0.25f, 1) : Color(0, 0, 0.75f)));
-			TMesh::render("Scale", {0, 0, s.z}, {0.1f, 2, 0.1f}, {90, 0, 0}, (m_selectedScale == FACE_EAST ? Color(0.25f, 0.25f, 1) : Color(0, 0, 0.75f)));
-		}
-		glPopMatrix();
+	switch(MTool::getTool(m_tool)->getType()) {
+	case Tool::ToolType::VOXEL:
+		static_cast<VoxelTool*>(MTool::getTool(m_tool))->render();
+		break;
+	case Tool::ToolType::MATRIX:
+		static_cast<MatrixTool*>(MTool::getTool(m_tool))->render();
+		break;
+	default: break;
 	}
 }
 void Model::renderGrid() {
@@ -520,82 +448,58 @@ void Model::renderGrid() {
 	}
 	glPopMatrix();
 }
-void Model::renderFocus() {
-	glPushMatrix();
-	{
-		GLfloat _scale = m_zoom / 256.f;
-		glScalef(_scale, _scale, _scale);
-		TMesh::render("Cube", {-1, -1, -1}, {2, 2, 2}, {}, {1, 0, 0, 1});
-	}
-	glPopMatrix();
-}
-void Model::renderSkyBox() {
-	glPushMatrix();
-	{
-		glRotatef(m_camRot.x, 1, 0, 0);
-		glRotatef(m_camRot.y, 0, 1, 0);
-		glRotatef(m_camRot.z, 0, 0, 1);
-
-		glBindTexture(GL_TEXTURE_2D, m_skyTexture.getId());
-		glColor3f(1, 1, 1);
-		glScalef(1024, 1024, 1024);
-
-		Vector2<GLfloat> _c = Vector2<GLfloat>(4.f, 4.f) / m_skyTexture.getSize();
-		GLfloat _t1 = 1.f / 3;
-		GLfloat _t2 = 2.f / 3;
-		glBegin(GL_QUADS);
-		{
-			glTexCoord2f(0.25f - _c.x, _t2 - _c.y); glVertex3f(-1, 1, -1);
-			glTexCoord2f(0 + _c.x, _t2 - _c.y); glVertex3f(-1, 1, 1);
-			glTexCoord2f(0 + _c.x, _t1 + _c.y); glVertex3f(-1, -1, 1);
-			glTexCoord2f(0.25f - _c.x, _t1 + _c.y); glVertex3f(-1, -1, -1);
-
-			glTexCoord2f(0.25f + _c.x, _t2 - _c.y); glVertex3f(-1, 1, -1);
-			glTexCoord2f(0.25f + _c.x, _t1 + _c.y); glVertex3f(-1, -1, -1);
-			glTexCoord2f(0.5f - _c.x, _t1 + _c.y); glVertex3f(1, -1, -1);
-			glTexCoord2f(0.5f - _c.x, _t2 - _c.y); glVertex3f(1, 1, -1);
-
-			glTexCoord2f(0.5f + _c.x, _t2 - _c.y); glVertex3f(1, 1, -1);
-			glTexCoord2f(0.5f + _c.x, _t1 + _c.y); glVertex3f(1, -1, -1);
-			glTexCoord2f(0.75f - _c.x, _t1 + _c.y); glVertex3f(1, -1, 1);
-			glTexCoord2f(0.75f - _c.x, _t2 - _c.y); glVertex3f(1, 1, 1);
-
-			glTexCoord2f(1 - _c.x, _t2 - _c.y); glVertex3f(-1, 1, 1);
-			glTexCoord2f(0.75f + _c.x, _t2 - _c.y); glVertex3f(1, 1, 1);
-			glTexCoord2f(0.75f + _c.x, _t1 + _c.y); glVertex3f(1, -1, 1);
-			glTexCoord2f(1 - _c.x, _t1 + _c.y); glVertex3f(-1, -1, 1);
-
-			glTexCoord2f(0.25f + _c.x, 1 - _c.y); glVertex3f(-1, 1, 1);
-			glTexCoord2f(0.25f + _c.x, _t2 + _c.y); glVertex3f(-1, 1, -1);
-			glTexCoord2f(0.5f - _c.x, _t2 + _c.y); glVertex3f(1, 1, -1);
-			glTexCoord2f(0.5f - _c.x, 1 - _c.y); glVertex3f(1, 1, 1);
-
-			glTexCoord2f(0.25f + _c.x, 0 + _c.y); glVertex3f(-1, -1, 1);
-			glTexCoord2f(0.5f - _c.x, 0 + _c.y); glVertex3f(1, -1, 1);
-			glTexCoord2f(0.5f - _c.x, _t1 - _c.y); glVertex3f(1, -1, -1);
-			glTexCoord2f(0.25f + _c.x, _t1 - _c.y); glVertex3f(-1, -1, -1);
-		}
-		glEnd();
-	}
-	glPopMatrix();
-}
 
 std::vector<std::string> Model::getMatrixNames() {
 	std::vector<std::string> names;
 	for(Uint16 i = 0; i < m_matrices.size(); i++)
-		names.push_back("(" + Util::numToString(i) + ") " + m_matrices[i]->getName());
+		names.push_back("(" + Util::numToStringInt(i) + ") " + m_matrices[i]->getName());
 	return names;
 }
 Matrix* Model::getMatrix(Sint16 id) {
-	if(id == -1) return 0;
+	if(id < 0 || id >= Sint16(m_matrices.size())) return 0;
 	return m_matrices[id];
+}
+Matrix* Model::getMatrix(std::string p_name) {
+	for(Matrix* m : m_matrices) {
+		if(m->getName() == p_name) return m;
+	}
+	return 0;
+}
+Matrix* Model::getSelectedMatrix() {
+	if(m_nameList->getSelectedItem() != -1)
+		return getMatrix(m_nameList->getSelectedItem());
+	return 0;
+}
+std::vector<Matrix*> Model::getSelectedMatrices() {
+	std::vector<Matrix*> selected;
+	for(auto li : m_nameList->getItemList())
+		if(li.state == 2)
+			selected.push_back(getMatrix(li.name));
+	return selected;
+}
+Vector3<GLfloat> Model::getSelectedMatricesCenter() {
+	GLfloat bn = 1e8;
+	Vector3<GLfloat> minBound = {bn, bn, bn}, maxBound = {-bn, -bn, -bn};
+	Vector3<GLfloat> center;
+	for(Matrix* m : getSelectedMatrices()) {
+		minBound.x = min(m->getPos().x, minBound.x);
+		minBound.y = min(m->getPos().y, minBound.y);
+		minBound.z = min(m->getPos().z, minBound.z);
+		maxBound.x = max(m->getPos().x + m->getSize().x, maxBound.x);
+		maxBound.y = max(m->getPos().y + m->getSize().y, maxBound.y);
+		maxBound.z = max(m->getPos().z + m->getSize().z, maxBound.z);
+	}
+	center.x = minBound.x + (maxBound.x - minBound.x) / 2;
+	center.y = minBound.y + (maxBound.y - minBound.y) / 2;
+	center.z = minBound.z + (maxBound.z - minBound.z) / 2;
+	return center;
 }
 
 bool Model::exitSave() {
 	char documents[MAX_PATH];
 	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
 
-	strcat_s(documents, "\\VoxelModels");
+	strcat_s(documents, "\\Voxel Models");
 	_mkdir(documents);
 
 	char filename[MAX_PATH];
@@ -610,6 +514,7 @@ bool Model::exitSave() {
 	if(res == S_OK) ofn.lpstrInitialDir = documents;
 	ofn.nMaxFile = MAX_PATH;
 	ofn.lpstrTitle = "Save As";
+	
 	if(!GetSaveFileName(&ofn)) return false;
 	save(filename);
 	return true;
@@ -617,20 +522,20 @@ bool Model::exitSave() {
 void Model::autosave() {
 	char documents[MAX_PATH];
 	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
-	strcat_s(documents, "\\VoxelModels\\autosave.nvm");
+	strcat_s(documents, "\\Voxel Models\\autosave.nvm");
 	NvmFormat::save(documents, m_matrices);
 }
 bool Model::autoload() {
 	char documents[MAX_PATH];
 	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
-	strcat_s(documents, "\\VoxelModels\\autosave.nvm");
+	strcat_s(documents, "\\Voxel Models\\autosave.nvm");
 	return load(documents);
 }
 void Model::save() {
 	char documents[MAX_PATH];
 	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
 
-	strcat_s(documents, "\\VoxelModels");
+	strcat_s(documents, "\\Voxel Models");
 	_mkdir(documents);
 
 	char filename[MAX_PATH];
@@ -653,7 +558,7 @@ void Model::open() {
 	char documents[MAX_PATH];
 	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
 	
-	strcat_s(documents, "\\VoxelModels");
+	strcat_s(documents, "\\Voxel Models");
 	_mkdir(documents);
 
 	char filename[MAX_PATH];
@@ -679,11 +584,10 @@ void Model::newModel() {
 			delete m;
 		m_matrices.clear();
 		m_matrixEdit->clearCommands();
-		m_matrixEdit->unloadMatrix(false);
+		m_matrixEdit->clearMatrix(false);
 		m_nameList->clear();
 	}
 	addMatrix("Matrix", {-5, 0, -5}, {10, 10, 10});
-	m_nameList->addItem("Matrix");
 }
 void Model::save(std::string p_fileName) {
 	Format::save(p_fileName, m_matrices);
@@ -692,14 +596,34 @@ bool Model::load(std::string p_fileName) {
 	Format::FormatType _formatType = Format::valid(p_fileName);
 	if(_formatType != Format::FormatType::NONE) {
 		m_matrixEdit->clearCommands();
-		m_matrixEdit->unloadMatrix(false);
+		m_matrixEdit->clearMatrix(false);
 		m_nameList->clear();
 		m_matrices.clear();
 		Format::load(p_fileName, m_matrices, _formatType);
-		for(Matrix* matrix : m_matrices) {
-			m_nameList->addItem(matrix->getName());
-		}
+		updateMatrixList();
 		return true;
 	}
 	return false;
+}
+
+void Model::fileNew() {
+	
+}
+void Model::fileOpen() {
+	open();
+}
+void Model::fileSave() {
+	save();
+}
+void Model::fileExit() {
+	
+}
+
+void Model::editUndo() {
+	undo();
+	updateMatrixList();
+}
+void Model::editRedo() {
+	redo();
+	updateMatrixList();
 }

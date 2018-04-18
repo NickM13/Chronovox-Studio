@@ -11,7 +11,7 @@ private:
 	Uint16 m_itemHeight;
 	Uint16 m_maxVisible; // Max items visible, more efficient rendering but not necessarily needed?
 	Sint16 m_scroll, m_maxScroll;
-	Sint16 m_hoveredItem, m_selectedItem;
+	Sint16 m_hoveredItem, m_selectedItem, m_selectedItemCtrl;
 	Vector2<Uint16> m_mouseBuffer;
 	bool m_hover, m_dragging;
 	struct ListItem {
@@ -31,7 +31,11 @@ public:
 	std::vector<ListItem> getItemList() { return m_itemList; }
 	void clear();
 
-	void input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos);
+	void selectItem(Sint16 id);
+	void setSelectedItem(Sint16 id) { m_selectedItem = id; }
+	Sint16 getSelectedItem() { return m_selectedItem; }
+
+	void input(Sint8& p_interactFlags);
 	void update(GLfloat p_deltaUpdate);
 	void render();
 };

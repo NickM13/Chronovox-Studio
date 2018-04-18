@@ -12,8 +12,10 @@ private:
 	bool m_update;
 
 	std::vector<std::string> m_itemList;
+
+	Texture* m_arrow;
 public:
-	CDropDown(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint8 p_colorTheme = 0);
+	CDropDown(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Sint32 p_width, Theme p_colorTheme = Theme::PRIMARY);
 
 	void setList(std::vector<std::string> p_items);
 	std::string getItem(Uint16 p_index);
@@ -21,7 +23,7 @@ public:
 	
 	void setSelectedItem(Uint16 p_selectedItem);
 
-	void input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos);
+	void input(Sint8& p_interactFlags);
 	void update(GLfloat p_deltaUpdate);
 	void render();
 

@@ -17,10 +17,10 @@ private:
 	Panel* m_panel;
 public:
 	ContainerPanel() {};
-	ContainerPanel(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Theme p_colorTheme, Sint8 p_borderFlags, bool p_visible = true);
+	ContainerPanel(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Theme p_colorTheme, Sint8 p_borderFlags);
 	~ContainerPanel();
 
-	Component* addComponent(Component* p_component, Anchor p_posAnchor = NOANCHOR, Anchor p_sizeAnchor = NOANCHOR);
+	Component* addComponent(Component* p_component, Anchor p_posAnchor = Anchor::NONE, Anchor p_sizeAnchor = Anchor::NONE);
 	void resize();
 
 	void calcSize(Vector2<Sint32> p_offset = {});
@@ -29,7 +29,7 @@ public:
 	//Set whether scroll bar across right exists
 	void setScrollY(bool p_state);
 
-	void input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos);
+	void input(Sint8& p_interactFlags);
 	void update(GLfloat p_updateTime);
 	void render();
 };

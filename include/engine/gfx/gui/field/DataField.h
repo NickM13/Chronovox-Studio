@@ -9,7 +9,7 @@ public:
 		: Component(p_compName, "", p_pos, p_size, p_colorTheme)
 	{ m_dataString = p_dataString; }
 
-	void input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos);
+	void input(Sint8& p_interactFlags);
 	void update(GLfloat p_deltaUpdate);
 	void render();
 private:

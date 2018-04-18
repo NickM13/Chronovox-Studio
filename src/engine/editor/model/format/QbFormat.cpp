@@ -53,7 +53,7 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 			pos.x = FileExt::readInt(_data, _index);
 			pos.y = FileExt::readInt(_data, _index);
 			pos.z = FileExt::readInt(_data, _index);
-			m = new Matrix(name, i, pos, size);
+			m = new Matrix(i, name, "", pos, size);
 			if(!compressed) {
 				for(z = 0; z < size.z; z++) {
 					for(y = 0; y < size.y; y++) {

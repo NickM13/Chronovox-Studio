@@ -1,22 +1,22 @@
 #include "engine\gfx\gui\field\DataField.h"
 
-void DataField::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos)
+void DataField::input(Sint8& p_interactFlags)
 {
-	p_mousePos = p_mousePos - m_pos;
-	if((p_interactFlags & EVENT_MOUSEOVER) && p_mousePos.x >= 0 && p_mousePos.x < m_size.x
-		&& p_mousePos.y >= 0 && p_mousePos.y < m_size.y)
+	Vector2<Sint32> _mousePos = GMouse::getMousePos() - m_pos;
+	if((p_interactFlags & (Sint8)EventFlag::MOUSEOVER) && _mousePos.x >= 0 && _mousePos.x < m_size.x
+		&& _mousePos.y >= 0 && _mousePos.y < m_size.y)
 	{
 		addTooltip();
-		if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
+		if(GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
 			m_selected = 1;
 	}
-	else if(p_mouseStates[GLFW_MOUSE_BUTTON_LEFT] & GMouse::MOUSE_PRESS)
+	else if(GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
 		m_selected = 0;
 
-	if((p_interactFlags & EVENT_MOUSEOVER) &&
-		p_mousePos.x >= 0 && p_mousePos.x < m_size.x
-		&& p_mousePos.y >= 0 && p_mousePos.y < m_size.y)
-		p_interactFlags -= EVENT_MOUSEOVER;
+	if((p_interactFlags & (Sint8)EventFlag::MOUSEOVER) &&
+		_mousePos.x >= 0 && _mousePos.x < m_size.x
+		&& _mousePos.y >= 0 && _mousePos.y < m_size.y)
+		p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
 }
 
 void DataField::update(GLfloat p_deltaUpdate)

@@ -1,0 +1,390 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseDeploy|Win32">
+      <Configuration>ReleaseDeploy</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseDeploy|x64">
+      <Configuration>ReleaseDeploy</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}</ProjectGuid>
+    <RootNamespace>VoxelModelEditor</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
+    <ProjectName>VoxelModelEditor</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDeploy|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDeploy|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDeploy|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDeploy|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)log\$(Configuration)\</IntDir>
+    <IncludePath>$(ProjectDir)lib\devil\include;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
+    <ReferencePath>$(ProjectDir)res;$(ReferencePath)</ReferencePath>
+    <LibraryPath>$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\devil\lib\Debug;$(ProjectDir)lib\OpenAL\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)log\$(Configuration)\</IntDir>
+    <IncludePath>$(ProjectDir)lib\devil\include;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
+    <ReferencePath> $(ProjectDir)res;$(ReferencePath)</ReferencePath>
+    <LibraryPath>$(ProjectDir)lib\devil\lib\Release;$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\OpenAL\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDeploy|Win32'">
+    <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)log\$(Configuration)\</IntDir>
+    <IncludePath>$(ProjectDir)lib\devil\include;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
+    <ReferencePath> $(ProjectDir)res;$(ReferencePath)</ReferencePath>
+    <LibraryPath>$(ProjectDir)lib\devil\lib\Release;$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\OpenAL\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;OpenAL32.lib;DevIL.lib;ILU.lib;ILUT.lib;alut.lib;freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;DevIL.lib;ILU.lib;ILUT.lib;OpenAL32.lib;alut.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDeploy|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;DevIL.lib;ILU.lib;ILUT.lib;OpenAL32.lib;alut.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDeploy|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\engine\editor\animation\Animation.cpp" />
+    <ClCompile Include="src\engine\editor\animation\keyframe\Keyframe.cpp" />
+    <ClCompile Include="src\engine\editor\animation\menu\AnimationOverlay.cpp" />
+    <ClCompile Include="src\engine\editor\animation\menu\KeyframeTimeline.cpp" />
+    <ClCompile Include="src\engine\editor\camera\Camera.cpp" />
+    <ClCompile Include="src\engine\editor\model\EditMatrix.cpp" />
+    <ClCompile Include="src\engine\editor\model\format\Format.cpp" />
+    <ClCompile Include="src\engine\editor\model\format\QbclFormat.cpp" />
+    <ClCompile Include="src\engine\editor\model\format\QbFormat.cpp" />
+    <ClCompile Include="src\engine\editor\model\format\VoxFormat.cpp" />
+    <ClCompile Include="src\engine\editor\model\menu\ColorOverlay.cpp" />
+    <ClCompile Include="src\engine\editor\model\menu\ModelOverlay.cpp" />
+    <ClCompile Include="src\engine\editor\model\menu\PropertiesDialog.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\matrix\MatrixTool.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\matrix\MTSelect.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\MTool.cpp" />
+    <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\engine\editor\Editor.cpp" />
+    <ClCompile Include="src\engine\editor\menu\EditorOverlay.cpp" />
+    <ClCompile Include="src\engine\editor\model\format\NvmFormat.cpp" />
+    <ClCompile Include="src\engine\editor\model\Matrix.cpp" />
+    <ClCompile Include="src\engine\editor\model\Model.cpp" />
+    <ClCompile Include="src\engine\editor\model\math\ModelMath.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\Tool.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\VoxelTool.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\VTAdd.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\VTErase.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\VTEyedrop.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\VTReplace.cpp" />
+    <ClCompile Include="src\engine\editor\TEMode.cpp" />
+    <ClCompile Include="src\engine\gfx\font\Font.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\button\Button.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\button\ButtonRadio.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\button\ButtonToggle.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\container\ColorPanel.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\container\Container.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\container\ContainerPanel.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\dialog\Dialog.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\field\DataField.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\field\FileField.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\frequency\Counter.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\frequency\SliderV.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\global\GGui.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\icon\Icon.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\list\DropDown.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\list\List.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\field\NumberField.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\container\Panel.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\frequency\Slider.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\list\TabBar.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\field\Text.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\field\TextField.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\list\Tileset.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\list\Toolbar.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\Component.cpp" />
+    <ClCompile Include="include\engine\gfx\mesh\object\MCube.h" />
+    <ClCompile Include="src\engine\gfx\mesh\MMesh.cpp" />
+    <ClCompile Include="src\engine\gfx\mesh\VoxelMesh.cpp" />
+    <ClCompile Include="src\engine\gfx\shader\Shader.cpp" />
+    <ClCompile Include="src\engine\sfx\Sound.cpp" />
+    <ClCompile Include="src\engine\utils\directory\LDirectory.cpp" />
+    <ClCompile Include="src\engine\utils\global\event\GKey.cpp" />
+    <ClCompile Include="src\engine\utils\global\event\GMouse.cpp" />
+    <ClCompile Include="src\engine\utils\global\GScreen.cpp" />
+    <ClCompile Include="src\engine\utils\Utilities.cpp" />
+    <ClCompile Include="src\engine\utils\variable\manager\ColorManager.cpp" />
+    <ClCompile Include="src\engine\utils\variable\manager\Manager.cpp" />
+    <ClCompile Include="src\engine\utils\variable\manager\ScissorManager.cpp" />
+    <ClCompile Include="src\engine\gfx\texture\MTexture.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Application.h" />
+    <ClInclude Include="include\engine\editor\animation\Animation.h" />
+    <ClInclude Include="include\engine\editor\animation\command\KDeleteCommand.h" />
+    <ClInclude Include="include\engine\editor\animation\keyframe\Keyframe.h" />
+    <ClInclude Include="include\engine\editor\animation\menu\AnimationOverlay.h" />
+    <ClInclude Include="include\engine\editor\animation\menu\KeyframeTimeline.h" />
+    <ClInclude Include="include\engine\editor\camera\Camera.h" />
+    <ClInclude Include="include\engine\editor\command\Command.h" />
+    <ClInclude Include="include\engine\editor\command\CommandCombo.h" />
+    <ClInclude Include="include\engine\editor\command\LCommand.h" />
+    <ClInclude Include="include\engine\editor\model\command\MDeleteCommand.h" />
+    <ClInclude Include="include\engine\editor\model\command\MDrawCommand.h" />
+    <ClInclude Include="include\engine\editor\model\command\MMoveCommand.h" />
+    <ClInclude Include="include\engine\editor\model\command\MNewCommand.h" />
+    <ClInclude Include="include\engine\editor\model\command\MPasteCommand.h" />
+    <ClInclude Include="include\engine\editor\model\command\MResizeCommand.h" />
+    <ClInclude Include="include\engine\editor\Editor.h" />
+    <ClInclude Include="include\engine\editor\model\menu\ColorOverlay.h" />
+    <ClInclude Include="include\engine\editor\menu\EditorOverlay.h" />
+    <ClInclude Include="include\engine\editor\model\menu\ModelOverlay.h" />
+    <ClInclude Include="include\engine\editor\model\menu\PropertiesDialog.h" />
+    <ClInclude Include="include\engine\editor\model\EditMatrix.h" />
+    <ClInclude Include="include\engine\editor\model\format\Format.h" />
+    <ClInclude Include="include\engine\editor\model\format\NvmFormat.h" />
+    <ClInclude Include="include\engine\editor\model\format\QbclFormat.h" />
+    <ClInclude Include="include\engine\editor\model\format\QbFormat.h" />
+    <ClInclude Include="include\engine\editor\model\format\VoxFormat.h" />
+    <ClInclude Include="include\engine\editor\model\Matrix.h" />
+    <ClInclude Include="include\engine\editor\model\Model.h" />
+    <ClInclude Include="include\engine\editor\model\tool\LTool.h" />
+    <ClInclude Include="include\engine\editor\model\math\ModelMath.h" />
+    <ClInclude Include="include\engine\editor\model\tool\matrix\MatrixTool.h" />
+    <ClInclude Include="include\engine\editor\model\tool\matrix\MTSelect.h" />
+    <ClInclude Include="include\engine\editor\model\tool\MTool.h" />
+    <ClInclude Include="include\engine\editor\model\tool\Tool.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\VoxelTool.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\VTAdd.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\VTErase.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\VTEyedrop.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\VTReplace.h" />
+    <ClInclude Include="include\engine\editor\TEMode.h" />
+    <ClInclude Include="include\engine\gfx\font\Font.h" />
+    <ClInclude Include="include\engine\gfx\gui\button\Button.h" />
+    <ClInclude Include="include\engine\gfx\gui\button\ButtonRadio.h" />
+    <ClInclude Include="include\engine\gfx\gui\button\ButtonToggle.h" />
+    <ClInclude Include="include\engine\gfx\gui\container\BackPanel.h" />
+    <ClInclude Include="include\engine\gfx\gui\container\ColorPanel.h" />
+    <ClInclude Include="include\engine\gfx\gui\container\Container.h" />
+    <ClInclude Include="include\engine\gfx\gui\container\ContainerPanel.h" />
+    <ClInclude Include="include\engine\gfx\gui\dialog\Dialog.h" />
+    <ClInclude Include="include\engine\gfx\gui\field\DataField.h" />
+    <ClInclude Include="include\engine\gfx\gui\field\FileField.h" />
+    <ClInclude Include="include\engine\gfx\gui\frequency\Counter.h" />
+    <ClInclude Include="include\engine\gfx\gui\global\GGui.h" />
+    <ClInclude Include="include\engine\gfx\gui\icon\Icon.h" />
+    <ClInclude Include="include\engine\gfx\gui\list\DropDown.h" />
+    <ClInclude Include="include\engine\gfx\gui\list\List.h" />
+    <ClInclude Include="include\engine\gfx\gui\field\NumberField.h" />
+    <ClInclude Include="include\engine\gfx\gui\container\Panel.h" />
+    <ClInclude Include="include\engine\gfx\gui\frequency\Slider.h" />
+    <ClInclude Include="include\engine\gfx\gui\list\TabBar.h" />
+    <ClInclude Include="include\engine\gfx\gui\field\Text.h" />
+    <ClInclude Include="include\engine\gfx\gui\field\TextField.h" />
+    <ClInclude Include="include\engine\gfx\gui\list\Tileset.h" />
+    <ClInclude Include="include\engine\gfx\gui\list\Toolbar.h" />
+    <ClInclude Include="include\engine\gfx\gui\Component.h" />
+    <ClInclude Include="include\engine\gfx\LGui.h" />
+    <ClInclude Include="include\engine\gfx\mesh\object\MArrow.h" />
+    <ClInclude Include="include\engine\gfx\mesh\object\MPlane.h" />
+    <ClInclude Include="include\engine\gfx\mesh\object\MScale.h" />
+    <ClInclude Include="include\engine\gfx\mesh\MMesh.h" />
+    <ClInclude Include="include\engine\gfx\mesh\object\MSCube.h" />
+    <ClInclude Include="include\engine\gfx\mesh\object\TMeshObject.h" />
+    <ClInclude Include="include\engine\gfx\mesh\VoxelMesh.h" />
+    <ClInclude Include="include\engine\gfx\shader\Shader.h" />
+    <ClInclude Include="include\engine\sfx\LOpenAL.h" />
+    <ClInclude Include="include\engine\sfx\Sound.h" />
+    <ClInclude Include="include\engine\utils\directory\LDirectory.h" />
+    <ClInclude Include="include\engine\utils\global\event\GKey.h" />
+    <ClInclude Include="include\engine\utils\global\event\GMouse.h" />
+    <ClInclude Include="include\engine\utils\global\GScreen.h" />
+    <ClInclude Include="include\engine\utils\LOpenGL.h" />
+    <ClInclude Include="include\engine\utils\Singleton.h" />
+    <ClInclude Include="include\engine\utils\Utilities.h" />
+    <ClInclude Include="include\engine\utils\variable\datatype\Color.h" />
+    <ClInclude Include="include\engine\utils\variable\datatype\Macros.h" />
+    <ClInclude Include="include\engine\utils\variable\datatype\Rectangle.h" />
+    <ClInclude Include="include\engine\gfx\texture\Texture.h" />
+    <ClInclude Include="include\engine\utils\variable\datatype\Vector2.h" />
+    <ClInclude Include="include\engine\utils\variable\datatype\Vector3.h" />
+    <ClInclude Include="include\engine\utils\variable\datatype\Vector4.h" />
+    <ClInclude Include="include\engine\utils\variable\datatype\Voxel.h" />
+    <ClInclude Include="include\engine\utils\variable\manager\ColorManager.h" />
+    <ClInclude Include="include\engine\utils\variable\manager\Manager.h" />
+    <ClInclude Include="include\engine\utils\variable\manager\ScissorManager.h" />
+    <ClInclude Include="include\engine\gfx\texture\MTexture.h" />
+    <ClInclude Include="include\engine\utils\variable\manager\VoxelManager.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="include\engine\gfx\gui\frequency\SliderV.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="VoxelModelEditor.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\texture\gui\Icon.ico" />
+    <Image Include="res\texture\gui\icon6.ico" />
+    <Image Include="res\texture\gui\IconExtraLarge.ico" />
+    <Image Include="res\texture\gui\IconExtraSmall.ico" />
+    <Image Include="res\texture\gui\IconLarge.ico" />
+    <Image Include="res\texture\gui\IconLarge.png" />
+    <Image Include="res\texture\gui\IconSmall.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

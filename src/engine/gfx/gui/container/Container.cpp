@@ -1,14 +1,15 @@
 #include "engine\gfx\gui\container\Container.h"
+#include "engine\gfx\gui\dialog\Dialog.h"
+#include "engine\gfx\gui\container\ColorPanel.h"
 
 Container::Container(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, bool p_visible)
-	: Component(p_compName, "", p_pos, p_size, 0)
-{
+	: Component(p_compName, "", p_pos, p_size, Theme::PRIMARY) {
 	m_visible = p_visible;
 	m_contentArea = Vector4<Sint32>();
+	addComponent(new SColorPanel("PAUSE_BACKGROUND", {0, 0}, p_size, Color(0, 0, 0, 0.5f)), Anchor::NONE, Anchor::BOTTOM_RIGHT)->setPriorityLayer(99)->setVisible(false);
 }
 
-void Container::sortInComponent(Comp p_comp)
-{
+void Container::sortInComponent(Comp p_comp) {
 	Component* _component = p_comp.m_component;
 	for(Uint16 i = 0; i < m_componentOrder.size(); i++)
 		if(_component->getPriorityLayer() < m_componentMap[m_componentOrder[i]].m_component->getPriorityLayer()) {
@@ -18,72 +19,41 @@ void Container::sortInComponent(Comp p_comp)
 	m_componentOrder.push_back(_component->getName());
 }
 
-Component* Container::addComponent(Component* p_component, Anchor p_posAnchor, Anchor p_sizeAnchor)
-{
-	switch(p_posAnchor) {
-	case NOANCHOR:
-		p_component->setPosition(p_component->getPosition());
-		break;
-	case CENTER:
-		p_component->setPosition(p_component->getPosition() + Vector2<Sint32>(Sint32(m_size.x - p_component->getSize().x) / 2, Sint32(m_size.y - p_component->getSize().y) / 2));
-		break;
-	case LEFT:
-		p_component->setPosition(p_component->getPosition() + Vector2<Sint32>(0, Sint32(m_size.y - p_component->getSize().y) / 2));
-		break;
-	case RIGHT:
-		p_component->setPosition(p_component->getPosition() + Vector2<Sint32>(Sint32(m_size.x - p_component->getSize().x), Sint32(m_size.y - p_component->getSize().y) / 2) + Vector2<Sint32>(Sint32(p_component->getPosition().x * -2), 0));
-		break;
-	case TOP:
-		p_component->setPosition(p_component->getPosition() + Vector2<Sint32>(Sint32(m_size.x - p_component->getSize().x) / 2, 0));
-		break;
-	case BOTTOM:
-		p_component->setPosition(p_component->getPosition() + Vector2<Sint32>(Sint32(m_size.x - p_component->getSize().x) / 2, Sint32(m_size.y - p_component->getSize().y)) + Vector2<Sint32>(0, Sint32(p_component->getPosition().y * -2)));
-		break;
-	case TOP_LEFT:
-		p_component->setPosition(p_component->getPosition());
-		break;
-	case TOP_RIGHT:
-		p_component->setPosition(p_component->getPosition() + Vector2<Sint32>(Sint32(m_size.x - p_component->getSize().x), 0) + Vector2<Sint32>(Sint32(p_component->getPosition().x * -2), 0));
-		break;
-	case BOTTOM_LEFT:
-		p_component->setPosition(p_component->getPosition() + Vector2<Sint32>(0, Sint32(m_size.y - p_component->getSize().y)) + Vector2<Sint32>(0, Sint32(p_component->getPosition().y * -2)));
-		break;
-	case BOTTOM_RIGHT:
-		p_component->setPosition(p_component->getPosition() + Vector2<Sint32>(Sint32(m_size.x - p_component->getSize().x), Sint32(m_size.y - p_component->getSize().y)) + Vector2<Sint32>(Sint32(p_component->getPosition().x * -2), Sint32(p_component->getPosition().y * -2)));
-		break;
-	}
-	switch(p_sizeAnchor) {
-	case NOANCHOR:
-		p_component->setSize(p_component->getSize());
-		break;
-	case CENTER:
-		p_component->setSize(Vector2<Sint32>((m_size.x - p_component->getPosition().x) / 2 + p_component->getSize().x, (m_size.y - p_component->getPosition().y) / 2 + p_component->getSize().y));
-		break;
-	case LEFT:
-		p_component->setSize(Vector2<Sint32>(p_component->getSize().x, (m_size.y - p_component->getPosition().y) / 2 + p_component->getSize().y));
-		break;
-	case RIGHT:
-		p_component->setSize(Vector2<Sint32>(m_size.x - p_component->getPosition().x + p_component->getSize().x, (m_size.y - p_component->getPosition().y) / 2 + p_component->getSize().y));
-		break;
-	case TOP:
-		p_component->setSize(Vector2<Sint32>((m_size.x - p_component->getPosition().x) / 2 + p_component->getSize().x, p_component->getSize().y));
-		break;
-	case BOTTOM:
-		p_component->setSize(Vector2<Sint32>((m_size.x - p_component->getPosition().x) / 2 + p_component->getSize().x, m_size.y - p_component->getPosition().y + p_component->getSize().y));
-		break;
-	case TOP_LEFT:
-		p_component->setSize(p_component->getSize());
-		break;
-	case TOP_RIGHT:
-		p_component->setSize(Vector2<Sint32>(m_size.x + p_component->getPosition().x + p_component->getSize().x, p_component->getSize().y));
-		break;
-	case BOTTOM_LEFT:
-		p_component->setSize(Vector2<Sint32>(p_component->getSize().x, m_size.y - p_component->getPosition().y + p_component->getSize().y));
-		break;
-	case BOTTOM_RIGHT:
-		p_component->setSize(Vector2<Sint32>(m_size.x - p_component->getPosition().x + p_component->getSize().x, m_size.y - p_component->getPosition().y + p_component->getSize().y));
-		break;
-	}
+void Container::anchorComponent(Component* p_component, Anchor p_posAnchor, Anchor p_sizeAnchor) {
+	Vector2<Sint32> pos, size;
+	if((Sint8)p_posAnchor & (Sint8)BAnchor::RIGHT)
+		pos.x = p_component->getInitialPosition().x + (m_size.x - p_component->getInitialSize().x);
+	else if((Sint8)p_posAnchor & (Sint8)BAnchor::CENTER)
+		pos.x = p_component->getInitialPosition().x + (m_size.x - p_component->getInitialSize().x) / 2;
+	else // Anchor::LEFT and default
+		pos.x = p_component->getInitialPosition().x;
+	if((Sint8)p_posAnchor & (Sint8)BAnchor::BOTTOM)
+		pos.y = p_component->getInitialPosition().y + (m_size.y - p_component->getInitialSize().y);
+	else if((Sint8)p_posAnchor & (Sint8)BAnchor::MIDDLE)
+		pos.y = p_component->getInitialPosition().y + (m_size.y - p_component->getInitialSize().y) / 2;
+	else // Anchor::TOP and default
+		pos.y = p_component->getInitialPosition().y;
+	p_component->setPosition(pos);
+
+	if((Sint8)p_sizeAnchor & (Sint8)BAnchor::RIGHT)
+		size.x = m_size.x - p_component->getPosition().x + p_component->getInitialSize().x;
+	else if((Sint8)p_sizeAnchor & (Sint8)BAnchor::CENTER)
+		size.x = m_size.x / 2 - p_component->getPosition().x + p_component->getInitialSize().x;
+	else // Anchor::LEFT and default
+		size.x = p_component->getInitialSize().x;
+	if((Sint8)p_sizeAnchor & (Sint8)BAnchor::BOTTOM)
+		size.y = m_size.y - p_component->getPosition().y + p_component->getInitialSize().y;
+	else if((Sint8)p_sizeAnchor & (Sint8)BAnchor::MIDDLE)
+		size.y = m_size.y / 2 - p_component->getPosition().y + p_component->getInitialSize().y;
+	else // Anchor::TOP and default
+		size.y = p_component->getInitialSize().y;
+	p_component->setSize(size);
+	p_component->setPosition(p_component->getPosition() + getPosition());
+	p_component->resize();
+}
+
+Component* Container::addComponent(Component* p_component, Anchor p_posAnchor, Anchor p_sizeAnchor) {
+	anchorComponent(p_component, p_posAnchor, p_sizeAnchor);
 	if(m_componentMap.empty())
 		m_contentArea = Vector4<Sint32>(p_component->getRealPosition().x, p_component->getRealPosition().y, p_component->getRealPosition().x + p_component->getSize().x, p_component->getRealPosition().y + p_component->getSize().y);
 	else if(p_component->isVisible())
@@ -93,16 +63,13 @@ Component* Container::addComponent(Component* p_component, Anchor p_posAnchor, A
 	sortInComponent(c);
 	return p_component;
 }
-Container::~Container()
-{
-	for(std::pair<std::string, Comp> c : m_componentMap) {
+Container::~Container() {
+	for(std::pair<std::string, Comp> c : m_componentMap)
 		delete c.second.m_component;
-	}
 	m_componentMap.clear();
 }
 
-Container::Component* Container::findComponent(std::string p_compName)
-{
+Container::Component* Container::findComponent(std::string p_compName) {
 	Uint16 _loc = (Uint16)p_compName.find('\\');
 	std::string _compName = p_compName.substr(0, _loc);
 	Comp _comp = m_componentMap[_compName];
@@ -111,8 +78,7 @@ Container::Component* Container::findComponent(std::string p_compName)
 	else
 		return _comp.m_component;
 }
-void Container::removeComponent(std::string p_compName)
-{
+void Container::removeComponent(std::string p_compName) {
 	Comp _comp = m_componentMap[p_compName];
 	if(_comp.m_component) {
 		delete _comp.m_component;
@@ -125,8 +91,7 @@ void Container::removeComponent(std::string p_compName)
 	}
 }
 
-Component* Container::setVisible(bool p_visible)
-{
+Component* Container::setVisible(bool p_visible) {
 	m_visible = p_visible;
 	if(!m_visible)
 		for(std::pair<std::string, Comp> comp : m_componentMap)
@@ -139,83 +104,41 @@ void Container::resize() {
 	for(std::pair<std::string, Comp> c : m_componentMap) {
 		Comp comp = c.second;
 		Component* component = comp.m_component;
-		switch(comp.m_posAnchor)
-		{
-		case NOANCHOR:
-			component->setPosition(component->getInitialPosition());
-			break;
-		case CENTER:
-			component->setPosition(component->getInitialPosition() + Vector2<Sint32>(Sint32(m_size.x - component->getInitialSize().x) / 2, Sint32(m_size.y - component->getInitialSize().y) / 2));
-			break;
-		case LEFT:
-			component->setPosition(component->getInitialPosition() + Vector2<Sint32>(0, Sint32(m_size.y - component->getInitialSize().y) / 2));
-			break;
-		case RIGHT:
-			component->setPosition(component->getInitialPosition() + Vector2<Sint32>(Sint32(m_size.x - component->getInitialSize().x), Sint32(m_size.y - component->getInitialSize().y) / 2) + Vector2<Sint32>(Sint32(component->getInitialPosition().x * -2), 0));
-			break;
-		case TOP:
-			component->setPosition(component->getInitialPosition() + Vector2<Sint32>(Sint32(m_size.x - component->getInitialSize().x) / 2, 0));
-			break;
-		case BOTTOM:
-			component->setPosition(component->getInitialPosition() + Vector2<Sint32>(Sint32(m_size.x - component->getInitialSize().x) / 2, Sint32(m_size.y - component->getInitialSize().y)) + Vector2<Sint32>(0, Sint32(component->getInitialPosition().y * -2)));
-			break;
-		case TOP_LEFT:
-			component->setPosition(component->getInitialPosition());
-			break;
-		case TOP_RIGHT:
-			component->setPosition(component->getInitialPosition() + Vector2<Sint32>(Sint32(m_size.x - component->getInitialSize().x), 0) + Vector2<Sint32>(Sint32(component->getInitialPosition().x * -2), 0));
-			break;
-		case BOTTOM_LEFT:
-			component->setPosition(component->getInitialPosition() + Vector2<Sint32>(0, Sint32(m_size.y - component->getInitialSize().y)) + Vector2<Sint32>(0, Sint32(component->getInitialPosition().y * -2)));
-			break;
-		case BOTTOM_RIGHT:
-			component->setPosition(component->getInitialPosition() + Vector2<Sint32>(Sint32(m_size.x - component->getInitialSize().x), Sint32(m_size.y - component->getInitialSize().y)) + Vector2<Sint32>(Sint32(component->getInitialPosition().x * -2), Sint32(component->getInitialPosition().y * -2)));
-			break;
-		}
-		switch(comp.m_sizeAnchor) {
-		case NOANCHOR:
-			component->setSize(component->getInitialSize());
-			break;
-		case CENTER:
-			component->setSize(Vector2<Sint32>((m_size.x - component->getPosition().x) / 2 + component->getInitialSize().x, (m_size.y - component->getPosition().y) / 2 + component->getInitialSize().y));
-			break;
-		case LEFT:
-			component->setSize(Vector2<Sint32>(component->getInitialSize().x, (m_size.y - component->getPosition().y) / 2 + component->getInitialSize().y));
-			break;
-		case RIGHT:
-			component->setSize(Vector2<Sint32>(m_size.x - component->getPosition().x + component->getInitialSize().x, (m_size.y - component->getPosition().y) / 2 + component->getInitialSize().y));
-			break;
-		case TOP:
-			component->setSize(Vector2<Sint32>((m_size.x - component->getPosition().x) / 2 + component->getInitialSize().x, component->getInitialSize().y));
-			break;
-		case BOTTOM:
-			component->setSize(Vector2<Sint32>((m_size.x - component->getPosition().x) / 2 + component->getInitialSize().x, m_size.y - component->getPosition().y + component->getInitialSize().y));
-			break;
-		case TOP_LEFT:
-			component->setSize(component->getInitialSize());
-			break;
-		case TOP_RIGHT:
-			component->setSize(Vector2<Sint32>(m_size.x - component->getPosition().x + component->getInitialSize().x, component->getInitialSize().y));
-			break;
-		case BOTTOM_LEFT:
-			component->setSize(Vector2<Sint32>(component->getInitialSize().x, m_size.y - component->getPosition().y + component->getInitialSize().y));
-			break;
-		case BOTTOM_RIGHT:
-			component->setSize(Vector2<Sint32>(m_size.x - component->getPosition().x + component->getInitialSize().x, m_size.y - component->getPosition().y + component->getInitialSize().y));
-			break;
-		}
+		anchorComponent(component, comp.m_posAnchor, comp.m_sizeAnchor);
 		if(m_componentMap.empty())
 			m_contentArea = Vector4<Sint32>(component->getRealPosition().x, component->getRealPosition().y, component->getRealPosition().x + component->getSize().x, component->getRealPosition().y + component->getSize().y);
 		else if(component->isVisible())
 			m_contentArea = Vector4<Sint32>(min(component->getRealPosition().x, m_contentArea.x1), min(component->getRealPosition().y, m_contentArea.y1), max(component->getRealPosition().x + component->getRealSize().x, m_contentArea.x2), max(component->getRealPosition().y + component->getRealSize().y, m_contentArea.y2));
-		component->resize();
+		
 	}
 }
 Vector2<Sint32> Container::getRealPosition() { return Vector2<Sint32>(m_contentArea.x1, m_pos.y + m_contentArea.y1); }
 Vector2<Sint32> Container::getRealSize() { return Vector2<Sint32>(m_contentArea.x2 - m_contentArea.x1, m_contentArea.y2 - m_contentArea.y1); }
 
-void Container::updateSize()
-{
+Component* Container::addPauseScreen(Component* p_comp, Anchor p_posAnchor, Anchor p_sizeAnchor) {
+	m_pauseScreens.insert({p_comp->getName(), addComponent(p_comp, p_posAnchor, p_sizeAnchor)});
+	return p_comp;
+}
+Component* Container::setPauseScreen(std::string p_compName) {
+	if(m_currentPause != "")
+		m_pauseScreens[m_currentPause]->setVisible(false);
+	SColorPanel* p = (SColorPanel*)findComponent("PAUSE_BACKGROUND");
+	if(p_compName != "") {
+		Component *c = m_pauseScreens[p_compName];
+		if(c) {
+			m_currentPause = p_compName;
+			c->setVisible(true);
+			c->callPressFunction();
+			p->setVisible(true);
+			return c;
+		}
+	}
+	p->setVisible(false);
+	m_currentPause = "";
+	return 0;
+}
+
+void Container::updateSize() {
 	m_contentArea = Vector4<Sint32>();
 	for(std::pair<std::string, Comp> comp : m_componentMap) {
 		if(comp.second.m_component->isVisible())
@@ -223,28 +146,26 @@ void Container::updateSize()
 	}
 }
 
-void Container::input()
-{
+void Container::input() {
 	Sint8 interactFlags = 0;
-	Sint8* keyStates = GKey::m_keyStates;
-	Sint8* mouseStates = GMouse::m_mouseStates;
-	Vector2<Sint32> mousePos = GMouse::m_guiMousePos;
-	input(interactFlags, keyStates, mouseStates, mousePos);
+	input(interactFlags);
 }
-void Container::input(Sint8& p_interactFlags, Sint8* p_keyStates, Sint8* p_mouseStates, Vector2<Sint32> p_mousePos)
-{
+void Container::input(Sint8& p_interactFlags) {
 	if(m_visible) {
-		Vector2<Sint32> _mousePos = p_mousePos - m_pos;;
+		Vector2<Sint32> _mousePos = _mousePos - m_pos;;
 		Component *_comp;
 		for(Sint32 i = m_componentOrder.size() - 1; i >= 0; i--) {
 			_comp = m_componentMap[m_componentOrder[i]].m_component;
 			if(_comp->isVisible())
-				_comp->input(p_interactFlags, p_keyStates, p_mouseStates, _mousePos);
+				_comp->input(p_interactFlags);
 		}
 	}
+	if(m_currentPause != "" &&
+		!m_pauseScreens[m_currentPause]->isVisible()) {
+		setPauseScreen("");
+	}
 }
-void Container::update(GLfloat p_updateTime)
-{
+void Container::update(GLfloat p_updateTime) {
 	if(m_visible) {
 		Component *_comp;
 		for(Sint32 i = 0; i < (Sint32) m_componentOrder.size(); i++) {
@@ -256,15 +177,13 @@ void Container::update(GLfloat p_updateTime)
 		}
 	}
 }
-void Container::render()
-{
+void Container::render() {
 	if(m_visible) {
 		Component *_comp;
 		for(Sint32 i = 0; i < (Sint32) m_componentOrder.size(); i++) {
 			_comp = m_componentMap[m_componentOrder[i]].m_component;
 			if(_comp->isVisible()) {
 				glPushMatrix();
-					glTranslatef(getPosition().x, getPosition().y, 0);
 					_comp->render();
 				glPopMatrix();
 			}

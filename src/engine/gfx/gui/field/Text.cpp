@@ -2,14 +2,12 @@
 
 
 CText::CText(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Alignment p_align, Color p_fontColor)
-	: Component(p_compName, p_title, p_pos, p_size, 0)
-{
+	: Component(p_compName, p_title, p_pos, p_size, Theme::PRIMARY) {
 	m_align = p_align;
 	m_color = p_fontColor;
 }
 
-void CText::render()
-{
+void CText::render() {
 	m_color.useColor();
 	Font::setAlignment(m_align);
 	switch(m_align)

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "..\LTexture.h"
+#include "engine\gfx\texture\MTexture.h"
+
 #include "engine\utils\Utilities.h"
 #include "engine\utils\Singleton.h"
 
@@ -17,21 +18,7 @@ enum Alignment
 	ALIGN_RIGHT = 2
 };
 
-class Font
-{
-public:
-	static void setAlignment(Alignment p_alignment);
-
-	static void loadFont(std::string p_fontName, std::string p_src, Uint32 p_fontSize);
-	static void setFont(std::string p_fontName);
-	static void clean();
-
-	static Sint16 getHeight() {return m_font->m_height;};
-	static Vector2<Sint32> getMessageWidth(std::string p_msg);
-	static GLfloat getSpacingHeight() {return m_font->m_height * 1.8f;};	/*Value with height multiplied*/
-	static GLfloat getSpacing() {return 1.8f;};							/*Value without height multiplied*/
-
-	static void print(std::string p_msg, Sint32 p_x, Sint32 p_y);
+class Font {
 private:
 	struct FontType
 	{
@@ -45,8 +32,22 @@ private:
 	};
 	static std::vector<FontType*> m_fontList;
 	static FontType* m_font;
-	
+
 	static Alignment m_alignment;
 
 	static FontType* init(std::string p_src, Uint32 p_fontSize);
+public:
+	static void setAlignment(Alignment p_alignment);
+
+	static void loadFont(std::string p_fontName, std::string p_src, Uint32 p_fontSize);
+	static void setFont(std::string p_fontName);
+	static void clean();
+
+	static Sint16 getHeight() {return m_font->m_height;};
+	static Vector2<Sint32> getMessageWidth(std::string p_msg);
+	static std::string getMessageSubstr(std::string p_msg, Sint32 p_width);
+	static GLfloat getSpacingHeight() {return m_font->m_height * 1.8f;};	/*Value with height multiplied*/
+	static GLfloat getSpacing() {return 1.8f;};							/*Value without height multiplied*/
+
+	static void print(std::string p_msg, Sint32 p_x, Sint32 p_y);
 };

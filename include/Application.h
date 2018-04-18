@@ -1,7 +1,7 @@
 #pragma once
 
 #include "engine\utils\global\GScreen.h"
-#include "engine\utils\OpenGL.h"
+#include "engine\utils\LOpenGL.h"
 #include "engine\utils\Singleton.h"
 #include "engine\utils\Utilities.h"
 
@@ -12,7 +12,7 @@ class Application : public Singleton<Application>
 public:
 	bool init(char *p_filePath = 0);
 	void run();
-	void close();
+	void terminate();
 private:
 	static Editor* m_editor;
 	static GLFWwindow * m_mainWindow;
@@ -21,10 +21,6 @@ private:
 	time_t m_maxFps = 60;
 	DWORD m_sleepTime;
 
-	static void keyCallback(GLFWwindow*, int, int, int, int);
-	static void mousePressCallback(GLFWwindow*, int, int, int);
-	static void mouseMovedCallback(GLFWwindow*, double, double);
-	static void mouseScrollCallback(GLFWwindow*, double, double);
 	static void windowResizeCallback(GLFWwindow*, int, int);
 	static void mouseEnterCallback(GLFWwindow*, int);
 	static void dropFileCallback(GLFWwindow*, int count, const char** paths);

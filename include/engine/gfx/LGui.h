@@ -9,6 +9,7 @@
 #include "gui\container\Container.h"
 #include "gui\container\ContainerPanel.h"
 #include "gui\container\Panel.h"
+#include "gui\dialog\Dialog.h"
 #include "gui\field\DataField.h"
 #include "gui\field\FileField.h"
 #include "gui\field\NumberField.h"
@@ -23,3 +24,4 @@
 #include "gui\list\TabBar.h"
 #include "gui\list\Tileset.h"
 #include "gui\list\Toolbar.h"
+#include "gui\global\GGui.h"

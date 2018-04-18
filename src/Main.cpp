@@ -5,12 +5,13 @@
 int main(int argc, char* argv[])
 {
 	bool _success;
-	if(argc > 1) _success = Application::getInstance().init(argv[1]);
-	else _success = Application::getInstance().init();
+	//if(argc > 1) _success = Application::getInstance().init(argv[1]);
+	//else
+		_success = Application::getInstance().init();
 	if(_success)
 	{
 		Application::getInstance().run();
-		Application::getInstance().close();
+		Application::getInstance().terminate();
 		return 0;
 	}
 	return -1;
@@ -21,7 +22,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLin
 	if(Application::getInstance().init())
 	{
 		Application::getInstance().run();
-		Application::getInstance().close();
+		Application::getInstance().terminate();
 		return 0;
 	}
 	return -1;

@@ -16,7 +16,7 @@ public:
 
 	bool checkPoint(float p_x, float p_y)
 	{
-		return(p_x >= x && p_x <= w
-			&& p_y >= y && p_y <= h);
+		return(p_x >= x && p_x <= x + w
+			&& p_y >= y && p_y <= y + h);
 	}
 };
