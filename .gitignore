@@ -1,4 +1,7 @@
 # Visual Studio 2017 cache/options directory
+*
+!*/
+!*.dll
 /.vs/
 /bin/
 /log/
