@@ -29,7 +29,4 @@ private:
 	Uint16 m_selectedButton, m_prevSelectedButton;
 
 	std::vector<CButtonToggle*> m_buttonList;
-
-	Source m_soundClick;
-	Source m_soundHover;
 };

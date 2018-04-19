@@ -178,7 +178,7 @@ void CTileSet::render()
 
 		MScissor::getInstance().push(Rect(0, 0, GLfloat(_size.x), GLfloat(_size.y)), m_selected != 0);
 
-		glBindTexture(GL_TEXTURE_2D, m_transparentTex->getId());
+		m_transparentTex->bind();
 		glBegin(GL_QUADS);
 		{
 			glTexCoord2f(0, 0);
@@ -198,7 +198,7 @@ void CTileSet::render()
 		{
 			glTranslatef(-GLfloat(m_scroll.x), -GLfloat(m_scroll.y), 0);
 
-			glBindTexture(GL_TEXTURE_2D, m_tileSheet->getId());
+			m_tileSheet->bind();
 			glBegin(GL_QUADS);
 			{
 				glTexCoord2f(0, 0);
@@ -215,7 +215,7 @@ void CTileSet::render()
 		glPopMatrix();
 
 		glTranslatef(-GLfloat(m_scroll.x % m_tileSize), -GLfloat(m_scroll.y % m_tileSize), 0);
-		glBindTexture(GL_TEXTURE_2D, m_selectTex->getId());
+		m_selectTex->bind();
 		if(m_selectedTile.x >= floor(m_scroll.x / m_tileSize) && m_selectedTile.x <= ceil(m_scroll.x / m_tileSize) + ceil(GLfloat(_size.x) / m_tileSize)
 			&& m_selectedTile.y >= floor(m_scroll.y / m_tileSize) && m_selectedTile.y <= ceil(m_scroll.y / m_tileSize) + ceil(GLfloat(_size.y) / m_tileSize))
 		{
@@ -274,22 +274,18 @@ void CTileSet::render()
 	glPopMatrix();
 }
 
-void CTileSet::setSelectedTile(Uint16 p_index)
-{
-	if(m_tileSheet->getId() > 0 && m_tileCount.x > 0)
-	{
+void CTileSet::setSelectedTile(Uint16 p_index) {
+	if(m_tileSheet->getGlId() > 0 && m_tileCount.x > 0) {
 		m_selectedTile.x = p_index % m_tileCount.x;
 		m_selectedTile.y = Sint16(floor(GLfloat(p_index) / m_tileCount.x));
 	}
 	else
 		m_selectedTile = {};
 }
-Uint16 CTileSet::getSelectedTile()
-{
+Uint16 CTileSet::getSelectedTile() {
 	return Uint16(m_selectedTile.x + m_selectedTile.y * m_tileCount.x);
 }
 
-Sint8 CTileSet::isSelected()
-{
+Sint8 CTileSet::isSelected() {
 	return m_selected;
 }

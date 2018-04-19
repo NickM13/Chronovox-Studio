@@ -20,14 +20,16 @@ void MTexture::loadTexture(std::string p_texturePath) {
 		m_textures.insert({p_texturePath, new Texture()});
 	}
 	else {
-		m_textures.insert({p_texturePath, new Texture(p_texturePath, ilutGLBindTexImage(), Vector2<Sint32>(Sint32(ilGetInteger(IL_IMAGE_WIDTH)), Sint32(ilGetInteger(IL_IMAGE_HEIGHT))))});
+		m_textures.insert({p_texturePath, new Texture(p_texturePath, imgId, ilutGLBindTexImage(), Vector2<Sint32>(Sint32(ilGetInteger(IL_IMAGE_WIDTH)), Sint32(ilGetInteger(IL_IMAGE_HEIGHT))))});
 	}
 }
 
 void MTexture::init() {
 	ilInit();
 	iluInit();
-	ilutInit();
+	ilutRenderer(ILUT_OPENGL);
+	//ilutRenderer(ILUT_ALLEGRO);
+	//ilutRenderer(ILUT_WIN32); // For DirectX and Windows GDI
 	m_textures.insert({"NULL", new Texture()});
 	size_t rootLen = std::string(LDirectory::getProjectPath() + "res\\texture\\").length();
 	for(std::string path : LDirectory::getFilesInDirectory(LDirectory::getProjectPath() + "res\\texture\\", ".png")) {
@@ -37,7 +39,7 @@ void MTexture::init() {
 
 void MTexture::terminate() {
 	for(std::pair<std::string, Texture*> t : m_textures) {
-		ilDeleteImage(t.second->getId());
+		ilDeleteImage(t.second->getIlId());
 		delete t.second;
 	}
 	m_textures.clear();
@@ -51,9 +53,9 @@ Texture* MTexture::getTexture(std::string p_texturePath) {
 	return m_textures.at(p_texturePath);
 }
 
-Texture* MTexture::getTextureById(Sint32 p_texId) {
+Texture* MTexture::getTextureById(GLuint p_texId) {
 	for(std::pair<std::string, Texture*> t : m_textures)
-		if(t.second->getId() == p_texId)
+		if(t.second->getGlId() == p_texId)
 			return m_textures.at(t.first);
 	std::cout << "Texture id not found: " << p_texId << std::endl;
 	return m_textures.at("NULL");

@@ -67,6 +67,7 @@ private:
 public:
 	CToolbar() {};
 	CToolbar(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32> p_size);
+	~CToolbar();
 
 	//Directory splits with /'s or \\'s 
 	Component* addButton(std::string p_dir, std::string p_buttonName, std::string p_desc = "", function p_func = 0);

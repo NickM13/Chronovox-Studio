@@ -29,20 +29,19 @@ Editor::Editor() {
 	GGui::init(GScreen::m_window);
 	m_animation = new Animation();
 	m_model = new Model();
-	m_mainGui = new Container();
 	m_mainGui = EditorOverlay::init(this);
 	m_mainGui->addComponent(ModelOverlay::init(m_model), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)->setVisible(false);
 	m_mainGui->addComponent(AnimationOverlay::init(m_animation), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)->setVisible(false);
 	m_animation->init(m_model);
 	m_model->init();
-	m_autosaveThread = new std::thread([this]() {
+	m_autosaveThread = new std::thread([&]() {
 		GLfloat lastSave = glfwGetTime();
 		while(m_editorState != EditorState::CLOSING) {
 			if(glfwGetTime() - lastSave > 2) {
 				getModel()->autosave();
 				lastSave = glfwGetTime();
 			}
-			Sleep(100);
+			Sleep(1000);
 		}
 		getModel()->autosave();
 	});
@@ -57,6 +56,7 @@ Editor::~Editor() {
 	Sound::getInstance().terminate();
 	Font::clean();
 	EditorOverlay::terminate();
+	GGui::terminate();
 	delete m_model;
 }
 bool Editor::attemptClose() {

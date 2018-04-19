@@ -27,6 +27,7 @@ Format::FormatType Format::valid(std::string p_fileName) {
 	_data = new char[_length];
 	_file.read(_data, _length);
 	typeInt = FileExt::readInt(_data, _index);
+	delete[] _data;
 	_file.close();
 
 	std::string typeStr = p_fileName.substr(p_fileName.find_last_of('.'));

@@ -61,7 +61,7 @@ private:
 	static GLfloat perlin(GLfloat x, GLfloat y, GLfloat z);
 
 	static const Uint8 m_permutation[256];
-	static Uint8* p;
+	static Uint8 p[512];
 };
 
 class Util {

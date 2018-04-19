@@ -52,6 +52,7 @@ Buffer::Buffer(std::string p_fileName)
 	if(p_fileName != "")
 	{
 		m_bufferId = alutCreateBufferFromFile(("res\\sound\\" + p_fileName).c_str());
+		
 	}
 }
 

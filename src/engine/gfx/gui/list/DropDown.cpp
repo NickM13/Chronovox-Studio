@@ -104,7 +104,7 @@ void CDropDown::render() {
 				glVertex2f(0, GLfloat(m_size.y));
 			}
 			glEnd();
-			glBindTexture(GL_TEXTURE_2D, m_arrow->getId());
+			m_arrow->bind();
 			glColor3f(1, 1, 1);
 			glBegin(GL_QUADS);
 			{

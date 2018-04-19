@@ -19,11 +19,11 @@ void NumberField::input(Sint8& p_interactFlags) {
 	Vector2<Sint32> _mousePos = GMouse::getMousePos() - m_pos;
 	if((p_interactFlags & (Sint8)EventFlag::MOUSEOVER) && _mousePos.x >= 0 && _mousePos.x < m_size.x
 		&& _mousePos.y >= 0 && _mousePos.y < m_size.y) {
-		GGui::setMouseType(GGui::MouseType::IBEAM);
 		addTooltip();
 		p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
 		if(GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
 			m_selected = 1;
+		GGui::setCursorType(GGui::CursorType::IBEAM);
 	}
 	else if(GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
 		m_selected = 0;

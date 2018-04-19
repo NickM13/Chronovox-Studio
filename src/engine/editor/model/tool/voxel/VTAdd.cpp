@@ -17,6 +17,7 @@ void VTAdd::updateSingle() {
 	 
 }
 void VTAdd::renderSingle() {
+	if(*m_selectedVoxelOffset == Vector3<Sint32>(-1, -1, -1)) return;
 	glPushMatrix();
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -34,12 +35,14 @@ void VTAdd::inputBox() {
 		m_boxStart = *m_selectedVoxelOffset;
 		m_boxing = m_editMatrix->getMatrix()->containsPoint(m_boxStart);
 	}
-	if(m_boxing && GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)) {
-		box(*m_selectedVoxelOffset, Voxel(1, MColor::getInstance().getUnitID(*m_color)));
-	}
-	if(m_boxing && GMouse::mouseReleased(GLFW_MOUSE_BUTTON_LEFT)) {
-		m_editMatrix->saveChanges();
-		m_boxing = false;
+	if(m_boxing) {
+		if(GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)) {
+			box(*m_selectedVoxelOffset, Voxel(1, MColor::getInstance().getUnitID(*m_color)));
+		}
+		if(!GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)) {
+			m_editMatrix->saveChanges();
+			m_boxing = false;
+		}
 	}
 }
 void VTAdd::updateBox() {

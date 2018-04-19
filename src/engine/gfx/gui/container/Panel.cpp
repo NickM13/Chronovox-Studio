@@ -52,14 +52,14 @@ void Panel::render() {
 					m_colorTheme.m_border.useColor();
 					glVertex2f(-1, -1);
 					glVertex2f((GLfloat)m_size.x + 1, -1);
-					glVertex2f((GLfloat)m_size.x + 1, 25);
-					glVertex2f(-1, 25);
+					glVertex2f((GLfloat)m_size.x + 1, 24);
+					glVertex2f(-1, 24);
 
 					m_colorTheme.m_primary.useColor();
 					glVertex2f(0, 0);
 					glVertex2f((GLfloat)m_size.x, 0);
-					glVertex2f((GLfloat)m_size.x, 24);
-					glVertex2f(0, 24);
+					glVertex2f((GLfloat)m_size.x, 23);
+					glVertex2f(0, 23);
 				}
 				glEnd();
 

@@ -5,8 +5,13 @@ CList::CList(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos,
 	p_size = p_size - Vector2<Sint32>(0, 1);
 	m_itemHeight = p_itemHeight;
 	m_scroll = m_maxScroll = 0;
-	m_maxVisible = ceil(GLfloat(m_size.y) / p_itemHeight);
+	m_maxVisible = (GLfloat)m_size.y / m_itemHeight;
 	m_selectedItem = m_hoveredItem = m_selectedItemCtrl = -1;
+}
+
+void CList::resize() {
+	m_maxVisible = (GLfloat)m_size.y / m_itemHeight;
+	m_maxScroll = max(0, Sint16((m_itemList.size() - m_maxVisible) * m_itemHeight));
 }
 
 Component* CList::addItem(std::string p_itemName) {

@@ -8,17 +8,11 @@ CButtonToggle::CButtonToggle(std::string p_compName, std::string p_title, Vector
 
 	m_buttonTex[0] = 0;
 	m_buttonTex[1] = 0;
-
-	m_soundClick.setSound(MBuffer::getInstance().getUnit("gui\\Click.wav"));
-	m_soundHover.setSound(MBuffer::getInstance().getUnit("gui\\Hover.wav"));
 }
 CButtonToggle::CButtonToggle(std::string p_compName, Texture* p_buttonTex, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint8 p_state, function p_func)
 	: Component(p_compName, "", p_pos, p_size, Theme::ACTION) {
 	m_selected = p_state;
 	m_pressFunction = p_func;
-
-	m_soundClick.setSound(MBuffer::getInstance().getUnit("gui\\Click.wav"));
-	m_soundHover.setSound(MBuffer::getInstance().getUnit("gui\\Hover.wav"));
 
 	m_buttonTex[0] = p_buttonTex;
 	m_buttonTex[1] = 0;
@@ -28,9 +22,6 @@ CButtonToggle::CButtonToggle(std::string p_compName, Texture* p_activeTex, Textu
 	: Component(p_compName, "", p_pos, p_size, Theme::ACTION) {
 	m_selected = p_state;
 	m_pressFunction = p_func;
-
-	m_soundClick.setSound(MBuffer::getInstance().getUnit("gui\\Click.wav"));
-	m_soundHover.setSound(MBuffer::getInstance().getUnit("gui\\Hover.wav"));
 
 	m_buttonTex[0] = p_activeTex;
 	m_buttonTex[1] = p_inactiveTex;
@@ -45,14 +36,12 @@ void CButtonToggle::input(Sint8& p_interactFlags) {
 		_mousePos.y >= 0 && _mousePos.y <= m_size.y) {
 		addTooltip();
 		if(!m_hovered) {
-			m_soundHover.play2d();
 			m_hovered = true;
 		}
 		if(GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
 			m_numValue = 1;
 			m_selected = !m_selected;
 			if(m_pressFunction != 0) {
-				m_soundClick.play2d();
 				m_pressFunction();
 			}
 		}
@@ -76,9 +65,9 @@ void CButtonToggle::render() {
 		if(m_texType != 0) {
 				glColor3f(1, 1, 1);
 			if(m_selected != 0 || m_texType == 1)
-				glBindTexture(GL_TEXTURE_2D, m_buttonTex[0]->getId());
+				m_buttonTex[0]->bind();
 			else
-				glBindTexture(GL_TEXTURE_2D, m_buttonTex[1]->getId());
+				m_buttonTex[1]->bind();
 			glBegin(GL_QUADS);
 			{
 				glTexCoord2f(0, 1);

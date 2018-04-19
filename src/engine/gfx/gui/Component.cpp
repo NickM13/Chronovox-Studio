@@ -2,14 +2,7 @@
 #include "engine\gfx\texture\MTexture.h"
 #include "engine\gfx\gui\global\GGui.h"
 
-std::map<Component::Theme, Component::ColorTheme> Component::m_colorThemes = {
-	//	ID								Border		Primary		Select		Hover		Text		Text Info	Border Highlight
-	{Theme::PRIMARY,		ColorTheme(	0x101010,	0x414141,	0x818181,	0x818181,	0xF0F0F0,	0x0F0F0F,	0x007ACC)},
-	{Theme::MENUBAR,		ColorTheme(	0x101010,	0x414141,	0x262626,	0x616161,	0xF0F0F0,	0x0F0F0F,	0x007ACC)},
-	{Theme::INFO,			ColorTheme(	0x444444,	0x727272,	0xBCBCBC,	0x818181,	0xF0F0F0,	0xF0F0F0,	0x007ACC)},
-	{Theme::ACTION,			ColorTheme(	0x101010,	0x414141,	0x303030,	0x707070,	0xF0F0F0,	0xF0F0F0,	0x007ACC)},
-	{Theme::ACTION_LIGHT,	ColorTheme(	0x101010,	0xFFFFFF,	0xBBBBBB,	0xDDDDDD,	0x0F0F0F,	0x0F0F0F,	0x007ACC)}
-};// 0x007ACC - light blue
+std::map<Component::Theme, Component::ColorTheme> Component::m_colorThemes;
 
 Component::Component() {
 	m_colorTheme = m_colorThemes[Theme::PRIMARY];
@@ -24,6 +17,20 @@ Component::Component(std::string p_compName, std::string p_title, Vector2<Sint32
 }
 Component::~Component() {
 
+}
+
+void Component::init() {
+	m_colorThemes = {
+		//	ID								Border		Primary		Select		Hover		Text		Text Info	Border Highlight
+		{Theme::PRIMARY,		ColorTheme(	0x101010,	0x414141,	0x818181,	0x818181,	0xF0F0F0,	0x0F0F0F,	0x007ACC)},
+		{Theme::MENUBAR,		ColorTheme(	0x101010,	0x414141,	0x262626,	0x616161,	0xF0F0F0,	0x0F0F0F,	0x007ACC)},
+		{Theme::INFO,			ColorTheme(	0x444444,	0x727272,	0xBCBCBC,	0x818181,	0xF0F0F0,	0xF0F0F0,	0x007ACC)},
+		{Theme::ACTION,			ColorTheme(	0x101010,	0x414141,	0x303030,	0x707070,	0xF0F0F0,	0xF0F0F0,	0x007ACC)},
+		{Theme::ACTION_LIGHT,	ColorTheme(	0x101010,	0xFFFFFF,	0xBBBBBB,	0xDDDDDD,	0x0F0F0F,	0x0F0F0F,	0x007ACC)}
+	};// 0x007ACC - light blue
+}
+void Component::terminate() {
+	m_colorThemes.clear();
 }
 
 Component* Component::addComponent(Component* p_comp, Anchor p_posAnchor, Anchor p_sizeAnchor)						{ return this; }
@@ -166,7 +173,7 @@ void Component::renderFill(bool p_setColor) {
 		glEnd();
 		if(m_texture) {
 			glColor3f(1, 1, 1);
-			glBindTexture(GL_TEXTURE_2D, m_texture->getId());
+			m_texture->bind();
 			Vector2<Sint32> _texSize = m_texture->getSize();
 			GLfloat _height, _heightF, _width, _widthF;
 			glBegin(GL_QUADS);

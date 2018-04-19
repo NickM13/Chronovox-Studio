@@ -1,23 +1,34 @@
 #pragma once
 #include "engine\utils\variable\datatype\Vector2.h"
 #include "engine\utils\variable\datatype\Macros.h"
+#include "engine\utils\LOpenGL.h"
 
 #include <string>
 
 class Texture {
 private:
-	Sint32 m_texId;
+	GLuint m_ilTexId, m_glTexId;
 	std::string m_name;
 	Vector2<Sint32> m_size;
 
 public:
-	Texture(std::string p_name = "", Sint32 p_texId = -1, Vector2<Sint32> p_size = {}) {
-		m_texId = p_texId;
+	Texture(std::string p_name = "", GLuint p_ilTexId = 0, GLuint p_glTexId = 0, Vector2<Sint32> p_size = {}) {
+		m_ilTexId = p_ilTexId;
+		m_glTexId = p_glTexId;
 		m_name = p_name;
 		m_size = p_size;
 	}
-	Sint32 getId() const {
-		return m_texId;
+	~Texture() {
+		glDeleteTextures(1, &m_glTexId);
+	}
+	void bind() {
+		glBindTexture(GL_TEXTURE_2D, m_glTexId);
+	}
+	GLuint getIlId() const {
+		return m_ilTexId;
+	}
+	GLuint getGlId() const {
+		return m_glTexId;
 	}
 	std::string getName() const {
 		return m_name;
@@ -29,6 +40,6 @@ public:
 		return (m_name == p_tex.m_name);
 	}
 	bool operator<(const Texture p_tex) const {
-		return (m_texId < p_tex.getId());
+		return (m_glTexId < p_tex.getGlId());
 	}
 };

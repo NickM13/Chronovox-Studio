@@ -5,17 +5,18 @@ CToolbar::CToolbar(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32
 	m_panelMain = new Panel("", "", {0, 0}, p_size, Theme::MENUBAR, (Sint8)BorderFlag::BOTTOM);
 	m_panelSub = new Panel("", "", {0, 0}, {0, 0}, Theme::MENUBAR, 0);
 }
+CToolbar::~CToolbar() {
+	delete m_panelMain;
+	delete m_panelSub;
+}
 
 //Directory splits with '\' 
 Component* CToolbar::addButton(std::string p_dir, std::string p_buttonName, std::string p_desc, function p_func) {
 	Uint16 i = 0, j = 0;
 	std::vector<std::string> _splitDir;
-	if(p_dir != "")
-	{
-		while(i < p_dir.length())
-		{
-			if(p_dir[i] == '\\')
-			{
+	if(p_dir != "") {
+		while(i < p_dir.length()) {
+			if(p_dir[i] == '\\') {
 				_splitDir.push_back(p_dir.substr(j, i));
 				j = i + 1;
 			}

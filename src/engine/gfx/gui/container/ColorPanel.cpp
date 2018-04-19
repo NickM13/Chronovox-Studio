@@ -16,7 +16,7 @@ void ColorPanel::input(Sint8& p_interactFlags) {
 void ColorPanel::render() {
 	glPushMatrix();
 	{
-		glBindTexture(GL_TEXTURE_2D, m_texture.getId());
+		m_texture.bind();
 
 		glColor3f(*r / 255.f, *g / 255.f, *b / 255.f);
 		glTranslatef(GLfloat(m_pos.x), GLfloat(m_pos.y), 0);
@@ -58,7 +58,7 @@ void SColorPanel::input(Sint8& p_interactFlags) {
 void SColorPanel::render() {
 	glPushMatrix();
 	{
-		glBindTexture(GL_TEXTURE_2D, m_texture.getId());
+		m_texture.bind();
 
 		m_color.useColor();
 		glTranslatef(GLfloat(m_pos.x), GLfloat(m_pos.y), 0);

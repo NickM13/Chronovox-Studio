@@ -526,7 +526,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Voxel Model Editor.rc">
+    <ResourceCompile Include="VoxelModelEditor.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

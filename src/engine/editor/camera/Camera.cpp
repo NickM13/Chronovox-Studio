@@ -101,7 +101,7 @@ void Camera::renderSkybox() {
 		glRotatef(m_rotation.y, 0, 1, 0);
 		glRotatef(m_rotation.z, 0, 0, 1);
 
-		glBindTexture(GL_TEXTURE_2D, m_skyTexture->getId());
+		m_skyTexture->bind();
 		glColor3f(1, 1, 1);
 		glScalef(1024, 1024, 1024);
 

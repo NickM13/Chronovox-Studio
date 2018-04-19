@@ -48,7 +48,6 @@ bool Application::init(char *p_filePath) {
 }
 
 void Application::terminate() {
-	glfwDestroyWindow(m_mainWindow);
 	glfwTerminate();
 	delete m_editor;
 }

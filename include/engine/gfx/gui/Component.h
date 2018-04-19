@@ -112,6 +112,9 @@ public:
 	Component(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Theme p_colorTheme = Theme::PRIMARY);
 	virtual ~Component();
 
+	static void init();
+	static void terminate();
+
 	virtual Component* addComponent(Component* p_comp, Anchor p_posAnchor = Anchor::NONE, Anchor p_sizeAnchor = Anchor::NONE);
 	virtual Component* findComponent(std::string p_compName);
 

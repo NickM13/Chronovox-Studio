@@ -12,5 +12,5 @@ public:
 	static void init();
 	static void terminate();
 	static Texture* getTexture(std::string p_texturePath);
-	static Texture* getTextureById(Sint32 p_texId);
+	static Texture* getTextureById(GLuint p_texId);
 };

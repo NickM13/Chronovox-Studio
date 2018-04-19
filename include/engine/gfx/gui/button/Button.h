@@ -31,7 +31,4 @@ protected:
 	RenderStyle m_renderStyle;
 
 	bool m_stuck;
-
-	Source m_soundClick;
-	Source m_soundHover;
 };

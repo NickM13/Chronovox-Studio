@@ -11,6 +11,8 @@ void MTool::init() {
 }
 
 void MTool::terminate() {
+	for(Tool* tool : m_tools)
+		delete tool;
 	m_tools.clear();
 }
 

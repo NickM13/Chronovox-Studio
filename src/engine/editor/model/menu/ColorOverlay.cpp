@@ -112,7 +112,7 @@ void ColorOverlay::render() {
 		}
 		glEnd();
 
-		glBindTexture(GL_TEXTURE_2D, m_background1->getId());
+		m_background1->bind();
 		glColor4f(1, 1, 1, (sat / 100.f));
 		glBegin(GL_QUADS);
 		{
@@ -123,7 +123,7 @@ void ColorOverlay::render() {
 		}
 		glEnd();
 
-		glBindTexture(GL_TEXTURE_2D, m_background2->getId());
+		m_background2->bind();
 		glColor4f(1, 1, 1, 1.f - (sat / 100.f));
 		glBegin(GL_QUADS);
 		{
@@ -147,7 +147,7 @@ void ColorOverlay::render() {
 		}
 		glEnd();
 
-		glBindTexture(GL_TEXTURE_2D, m_selectTex->getId());
+		m_selectTex->bind();
 		glColor3f(1, 1, 1);
 		glBegin(GL_QUADS);
 		{

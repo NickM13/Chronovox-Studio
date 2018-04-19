@@ -11,6 +11,7 @@ public:
 	Manager() {};
 	Manager(const Manager&) {};
 	Manager operator=(const Manager&) {};
+	~Manager() { m_unitList.clear(); }
 
 	// Create unit, no matter if it exists or not
 	Uint32 addUnit(T& p_unit) {

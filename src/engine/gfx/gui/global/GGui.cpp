@@ -1,15 +1,28 @@
 #include "engine\gfx\gui\global\GGui.h"
 #include "engine\utils\global\event\GMouse.h"
+#include "engine\gfx\gui\Component.h"
 
 GLFWwindow* GGui::m_mainWindow = 0;
-GLFWcursor* GGui::m_cursor = 0;
+GGui::CursorType GGui::m_cursorType = GGui::CursorType::ARROW;
+std::map<GGui::CursorType, GLFWcursor*> GGui::m_cursors;
 std::string GGui::m_tooltip = "";
 Vector2<Sint32> GGui::m_tooltipPos = {};
 GLfloat GGui::m_tooltipLife = 0;
-GGui::MouseType GGui::m_mouseType = GGui::MouseType::ARROW;
 
 void GGui::init(GLFWwindow* p_mainWindow) {
 	m_mainWindow = p_mainWindow;
+	m_cursors.emplace(CursorType::ARROW,		glfwCreateStandardCursor(static_cast<int>(CursorType::ARROW)));
+	m_cursors.emplace(CursorType::IBEAM,		glfwCreateStandardCursor(static_cast<int>(CursorType::IBEAM)));
+	m_cursors.emplace(CursorType::CROSSHAIR,	glfwCreateStandardCursor(static_cast<int>(CursorType::CROSSHAIR)));
+	m_cursors.emplace(CursorType::HAND,			glfwCreateStandardCursor(static_cast<int>(CursorType::HAND)));
+	m_cursors.emplace(CursorType::HRESIZE,		glfwCreateStandardCursor(static_cast<int>(CursorType::HRESIZE)));
+	m_cursors.emplace(CursorType::VRESIZE,		glfwCreateStandardCursor(static_cast<int>(CursorType::VRESIZE)));
+
+	Component::init();
+}
+void GGui::terminate() {
+	m_cursors.clear();
+	Component::terminate();
 }
 
 void GGui::setTooltip(std::string p_tooltip, Vector2<Sint32> p_pos) {
@@ -27,16 +40,14 @@ std::string GGui::getTooltip() {
 Vector2<Sint32> GGui::getTooltipPos() {
 	return m_tooltipPos;
 }
-GGui::MouseType GGui::getMouseType() {
-	return m_mouseType;
+GGui::CursorType GGui::getCursorType() {
+	return m_cursorType;
 }
-void GGui::setMouseType(MouseType p_mouseType) {
-	m_mouseType = p_mouseType;
+void GGui::setCursorType(CursorType p_cursorType) {
+	m_cursorType = p_cursorType;
 }
 
 void GGui::update() {
-	if(m_cursor) glfwDestroyCursor(m_cursor);
-	m_cursor = glfwCreateStandardCursor(static_cast<int>(m_mouseType));
-	glfwSetCursor(m_mainWindow, m_cursor);
-	m_mouseType = MouseType::ARROW;
+	glfwSetCursor(m_mainWindow, m_cursors.at(m_cursorType));
+	m_cursorType = CursorType::ARROW;
 }

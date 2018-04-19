@@ -53,17 +53,16 @@ Container* EditorOverlay::init(Editor* p_editor) {
 	*/
 
 	m_container->addComponent((new ContainerPanel("PANEL_INFOBAR", "", {0, -20}, {0, 0}, Component::Theme::INFO, (Sint8)Component::BorderFlag::TOP))
-		->setPriorityLayer(-4), Component::Anchor::BOTTOM_LEFT, Component::Anchor::BOTTOM_RIGHT);
+		->setPriorityLayer(4), Component::Anchor::BOTTOM_LEFT, Component::Anchor::BOTTOM_RIGHT);
 
 	std::string* _matrixData = new std::string("");
 	m_editor->getModel()->setDataString(_matrixData);
-	m_container->findComponent("PANEL_INFOBAR")->addComponent(new DataField("DATA_MATRIX", _matrixData, {40, 0}, {200, 20}, Component::Theme::INFO), Component::Anchor::MIDDLE_LEFT);
+	m_container->findComponent("PANEL_INFOBAR")->addComponent(new DataField("DATA_MATRIX", _matrixData, {0, 0}, {0, 20}, Component::Theme::INFO), Component::Anchor::MIDDLE_LEFT);
 
 	m_container->addComponent((new CButton("BUTTON_RESIZE_WINDOW_DRAG", "", MTexture::getTexture("gui\\icon\\tool\\ResizeWindow.png"), {0, 0}, {15, 15}, CButton::RenderStyle::EMPTY))
-		->setPriorityLayer(10), Component::Anchor::BOTTOM_RIGHT)->setPressFunction([]() {
-		GScreen::startResizing();
-	})->setReleaseFunction([]() {
-		GScreen::stopResizing();
-	});
+		, Component::Anchor::BOTTOM_RIGHT)
+		->setPriorityLayer(120)
+		->setPressFunction([]() { GScreen::startResizing(); })
+		->setReleaseFunction([]() { GScreen::stopResizing(); });
 	return m_container;
 }

@@ -78,6 +78,7 @@ GLuint make_dList(FT_Face face, Uint8 ch, GLuint list_base, GLuint* tex_base)
 		glTranslatef(GLfloat(face->glyph->advance.x >> 6), 0, 0);
 	}
 	glEndList();
+	FT_Done_Glyph(glyph);
 	return (face->glyph->advance.x >> 6);
 }
 
@@ -134,6 +135,8 @@ void Font::clean()
 		glDeleteLists(m_fontList[i]->m_listBase, 255);
 		glDeleteTextures(255, m_fontList[i]->m_textures);
 		delete[] m_fontList[i]->m_textures;
+		delete[] m_fontList[i]->m_charWidth;
+		delete m_fontList[i];
 	}
 	m_fontList.clear();
 }

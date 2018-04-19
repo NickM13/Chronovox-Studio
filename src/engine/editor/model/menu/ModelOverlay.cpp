@@ -29,7 +29,7 @@ Container* ModelOverlay::init(Model* p_model) {
 		addButton("File", "Save", "Ctrl+S", []() { m_model->fileSave(); })->
 		addButton("File", "Exit", "Alt+F4", []() { m_model->fileExit(); });
 	m_container->findComponent("TOOLBAR_MAIN")->addButton("", "Edit")->
-		addButton("Edit", "Animation Mode", "", []() { Editor::setEditorMode(Editor::EditorMode::ANIMATION); })->
+		//addButton("Edit", "Animation Mode", "", []() { Editor::setEditorMode(Editor::EditorMode::ANIMATION); })->
 		addButton("Edit", "Undo", "Ctrl+Z", []() { m_model->editUndo(); })->
 		addButton("Edit", "Redo", "Ctrl+Y", []() { m_model->editRedo(); });
 	m_container->findComponent("TOOLBAR_MAIN")->addButton("", "Model")->
@@ -46,7 +46,7 @@ Container* ModelOverlay::init(Model* p_model) {
 		addButton("View", "Toggle Grid", "Ctrl+G", []() { m_model->toggleGrid(); })->
 		addButton("View", "Toggle Outline", "Ctrl+H", []() { m_model->toggleOutline(); });
 	m_container->findComponent("TOOLBAR_MAIN")->addButton("", "Help")->
-		addButton("Help", "About", "", []() { ModelOverlay::getContainer()->setPauseScreen("DIALOG_ABOUT"); });
+		addButton("Help", "About Voxel Model Editor", "", []() { ModelOverlay::getContainer()->setPauseScreen("DIALOG_ABOUT"); });
 
 	CButtonRadio* _toolbar;
 	m_container->addComponent(new ContainerPanel("GUI_TOOLBAR_VOXEL", "", {32, 0}, {32, -20},
@@ -70,7 +70,7 @@ Container* ModelOverlay::init(Model* p_model) {
 	_toolbar->addButton(MTexture::getTexture("gui\\icon\\tool\\MatrixMove.png"))->setTooltip("Move Matrix - 2");
 	_toolbar->addButton(MTexture::getTexture("gui\\icon\\tool\\MatrixResize.png"))->setTooltip("Resize Matrix - 3");
 
-	m_container->addComponent(new ContainerPanel("GUI_TOOLBAR", "", {0, 0}, {32, 0}, 
+	m_container->addComponent(new ContainerPanel("GUI_TOOLBAR", "", {0, 0}, {32, -20}, 
 		Component::Theme::PRIMARY, (Sint8)Component::BorderFlag::RIGHT), Component::Anchor::NONE, Component::Anchor::BOTTOM_LEFT);
 
 	_toolbar = new CButtonRadio("TOOLBAR", "", {-12, 50}, {24, 24}, {0, 24});
@@ -96,7 +96,7 @@ Container* ModelOverlay::init(Model* p_model) {
 		_toolbar->addButton(tool->getIcon())->setTooltip(tool->getDescription());
 	}
 
-	m_container->addComponent(new ContainerPanel("GUI_DETAILS", "", {-256, 0}, {0, 0}, 
+	m_container->addComponent(new ContainerPanel("GUI_DETAILS", "", {-256, 0}, {0, -20}, 
 		Component::Theme::PRIMARY, (Sint8)Component::BorderFlag::LEFT), Component::Anchor::TOP_RIGHT, Component::Anchor::BOTTOM_RIGHT);
 
 	m_container->findComponent("GUI_DETAILS")->addComponent(new ContainerPanel("GUI_COLOR", "Color Palette", {0, 71}, {256, 200}, 
@@ -140,27 +140,27 @@ Container* ModelOverlay::init(Model* p_model) {
 	m_container->findComponent("GUI_DETAILS")->addComponent(new ContainerPanel("GUI_MATRICES", "Matrices", 
 		{0, 0}, {256, 256}, Component::Theme::PRIMARY, (Sint8)Component::BorderFlag::TOP), Component::Anchor::BOTTOM_CENTER);
 	m_container->findComponent("GUI_DETAILS\\GUI_MATRICES")->addComponent(new CButton("BUTTON_NEW_MATRIX", "", 
-		MTexture::getTexture("gui\\icon\\tool\\Add.png"), {8, 8}, {24, 24}, CButton::RenderStyle::ALL, []() {
+		MTexture::getTexture("gui\\icon\\tool\\Add.png"), {0, 0}, {32, 32}, CButton::RenderStyle::FILL, []() {
 		m_container->setPauseScreen("DIALOG_NEWMATRIX");
 	}), Component::Anchor::NONE)->setTooltip("New Matrix");
 	m_container->findComponent("GUI_DETAILS\\GUI_MATRICES")->addComponent(new CButton("BUTTON_DELETE_MATRIX", "", 
-		MTexture::getTexture("gui\\icon\\tool\\Delete.png"), {40, 8}, {24, 24}, CButton::RenderStyle::ALL, []() {
+		MTexture::getTexture("gui\\icon\\tool\\Delete.png"), {32, 0}, {32, 32}, CButton::RenderStyle::FILL, []() {
 		m_model->deleteSelectedMatrices();
 	}), Component::Anchor::NONE)->setTooltip("Delete Matrices");
 	m_container->findComponent("GUI_DETAILS\\GUI_MATRICES")->addComponent(new CButton("BUTTON_PROPERTIES", "", 
-		MTexture::getTexture("gui\\icon\\tool\\Properties.png"), {0, 8}, {24, 24}, CButton::RenderStyle::ALL, []() {
+		MTexture::getTexture("gui\\icon\\tool\\Properties.png"), {0, 0}, {32, 32}, CButton::RenderStyle::FILL, []() {
 		m_container->setPauseScreen("DIALOG_PROPERTIES");
 	}), Component::Anchor::TOP_CENTER)->setTooltip("Edit Properties");
 	m_container->findComponent("GUI_DETAILS\\GUI_MATRICES")->addComponent(new CButton("BUTTON_MOVE_UP_MATRIX", "", 
-		MTexture::getTexture("gui\\icon\\tool\\ArrowUp.png"), {-40, 8}, {24, 24}, CButton::RenderStyle::ALL, []() {
+		MTexture::getTexture("gui\\icon\\tool\\ArrowUp.png"), {-32, 0}, {32, 32}, CButton::RenderStyle::FILL, []() {
 		m_model->moveMatrix(true);
 	}), Component::Anchor::TOP_RIGHT)->setTooltip("Move Up");
 	m_container->findComponent("GUI_DETAILS\\GUI_MATRICES")->addComponent(new CButton("BUTTON_MOVE_DOWN_MATRIX", "", 
-		MTexture::getTexture("gui\\icon\\tool\\ArrowDown.png"), {-8, 8}, {24, 24}, CButton::RenderStyle::ALL, []() {
+		MTexture::getTexture("gui\\icon\\tool\\ArrowDown.png"), {0, 0}, {32, 32}, CButton::RenderStyle::FILL, []() {
 		m_model->moveMatrix(false);
 	}), Component::Anchor::TOP_RIGHT)->setTooltip("Move Down");
 	m_container->findComponent("GUI_DETAILS\\GUI_MATRICES")->addComponent(new CList("LIST_MATRICES", "", 
-		{0, 40}, {242, 192}, 24), Component::Anchor::TOP_CENTER);
+		{0, 32}, {}, 24), Component::Anchor::TOP_LEFT, Component::Anchor::BOTTOM_RIGHT);
 	
 	m_container->addPauseScreen(new Dialog("DIALOG_NEWMATRIX", "New Matrix", {}, {300, 200}), Component::Anchor::MIDDLE_CENTER)
 		->setPressFunction([]() {})
@@ -231,9 +231,13 @@ Container* ModelOverlay::init(Model* p_model) {
 		->setReleaseFunction([]() { m_container->findComponent("DIALOG_PROPERTIES\\DEPTH")->setState(1); });
 	m_container->findComponent("DIALOG_PROPERTIES")->addComponent(new NumberField("DEPTH", "z: ", {58, 128}, {30, 1}, {1, 64}, NumberField::NumType::INT), Component::Anchor::TOP_CENTER);
 
-	m_container->addPauseScreen(new Dialog("DIALOG_ABOUT", "Version", {}, {300, 200}), Component::Anchor::MIDDLE_CENTER)
+	m_container->addPauseScreen(new Dialog("DIALOG_ABOUT", "About Voxel Model Editor", {}, {300, 200}), Component::Anchor::MIDDLE_CENTER)
 		->setPressFunction([]() {})
 		->setReleaseFunction([]() {});
+	m_container->findComponent("DIALOG_ABOUT")->addComponent(new CText("TEXT_1", "Voxel Model Editor", {-120, 26}, {0, 0}, Alignment::ALIGN_LEFT, Color(1, 1, 1)), Component::Anchor::TOP_CENTER);
+	m_container->findComponent("DIALOG_ABOUT")->addComponent(new CText("TEXT_2", "Version 1.0.0.0", {-120, 46}, {0, 0}, Alignment::ALIGN_LEFT, Color(1, 1, 1)), Component::Anchor::TOP_CENTER);
+	m_container->findComponent("DIALOG_ABOUT")->addComponent(new CText("TEXT_3", "@ Nick's Voxels 2017", {-120, 66}, {0, 0}, Alignment::ALIGN_LEFT, Color(1, 1, 1)), Component::Anchor::TOP_CENTER);
+	m_container->findComponent("DIALOG_ABOUT")->addComponent(new CText("TEXT_4", "All Rights Reserved", {-120, 86}, {0, 0}, Alignment::ALIGN_LEFT, Color(1, 1, 1)), Component::Anchor::TOP_CENTER);
 
 	return m_container;
 }
