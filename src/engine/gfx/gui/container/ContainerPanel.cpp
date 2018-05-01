@@ -18,11 +18,11 @@ ContainerPanel::ContainerPanel(std::string p_compName, std::string p_title, Vect
 Component* ContainerPanel::addComponent(Component* p_component, Anchor p_posAnchor, Anchor p_sizeAnchor) {
 	Component* _comp = Container::addComponent(p_component, p_posAnchor, p_sizeAnchor);
 
-	m_minScroll.x = min(m_minScroll.x, m_contentArea.x1);
-	m_minScroll.y = min(m_minScroll.y, m_contentArea.y1);
+	m_minScroll.x = std::fminf(m_minScroll.x, m_contentArea.x1);
+	m_minScroll.y = std::fminf(m_minScroll.y, m_contentArea.y1);
 
-	m_maxScroll.x = max(m_maxScroll.x, m_contentArea.x2 - m_size.x);
-	m_maxScroll.y = max(m_maxScroll.y, m_contentArea.y2 - m_size.y);
+	m_maxScroll.x = std::fmaxf(m_maxScroll.x, m_contentArea.x2 - m_size.x);
+	m_maxScroll.y = std::fmaxf(m_maxScroll.y, m_contentArea.y2 - m_size.y);
 
 	m_scroll = m_minScroll;
 
@@ -55,18 +55,18 @@ void ContainerPanel::calcSize(Vector2<Sint32> p_offset) {
 		if(_component->isVisible()) {
 			cpos1 = _component->getRealPosition() - m_pos;
 			cpos2 = _component->getRealPosition() + _component->getRealSize() - m_pos;
-			m_contentArea = Vector4<Sint32>(min(cpos1.x, m_contentArea.x1),
-											min(cpos1.y, m_contentArea.y1),
-											max(cpos2.x, m_contentArea.x2),
-											max(cpos2.y, m_contentArea.y2));
+			m_contentArea = Vector4<Sint32>(std::fminf(cpos1.x, m_contentArea.x1),
+											std::fminf(cpos1.y, m_contentArea.y1),
+											std::fmaxf(cpos2.x, m_contentArea.x2),
+											std::fmaxf(cpos2.y, m_contentArea.y2));
 		}
 	}
 
-	m_minScroll.x = min(m_minScroll.x, m_contentArea.x1);
-	m_minScroll.y = min(m_minScroll.y, m_contentArea.y1);
+	m_minScroll.x = std::fminf(m_minScroll.x, m_contentArea.x1);
+	m_minScroll.y = std::fminf(m_minScroll.y, m_contentArea.y1);
 
-	m_maxScroll.x = max(m_maxScroll.x, m_contentArea.x2 - m_size.x);
-	m_maxScroll.y = max(m_maxScroll.y, m_contentArea.y2 - m_size.y);
+	m_maxScroll.x = std::fmaxf(m_maxScroll.x, m_contentArea.x2 - m_size.x);
+	m_maxScroll.y = std::fmaxf(m_maxScroll.y, m_contentArea.y2 - m_size.y);
 
 	if((m_minScroll.y != m_maxScroll.y) != m_scrollY)
 		setScrollY(!m_scrollY);

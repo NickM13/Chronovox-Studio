@@ -1,6 +1,7 @@
 #include "engine\utils\global\GScreen.h"
 #include "engine\utils\global\event\GMouse.h"
 
+std::string GScreen::m_windowTitle = "";
 float GScreen::m_fps = 0;
 float GScreen::m_fov = 0;
 float GScreen::m_deltaTime = 0;
@@ -11,6 +12,7 @@ GLFWwindow *GScreen::m_window = 0;
 Vector2<Sint32> GScreen::m_monitorSize = {};
 Vector2<Sint32> GScreen::m_windowPos = {};
 bool GScreen::m_maximized = false;
+bool GScreen::m_iconified = false;
 Vector2<Sint32> GScreen::m_screenSize = {};
 Vector2<Sint32> GScreen::m_smallScreen = {};
 bool GScreen::m_draggingWindow = false;
@@ -33,6 +35,10 @@ void GScreen::initWindow(GLFWwindow *p_window)
 
 	glfwGetWindowSize(m_window, x, y);
 	m_smallScreen = m_screenSize = Vector2<Sint32>(*x, *y);
+}
+
+void GScreen::windowIconifyCallback(GLFWwindow* p_window, int iconified) {
+	m_iconified = (iconified != 0);
 }
 
 void GScreen::startWindowDrag()
@@ -76,8 +82,8 @@ void GScreen::updateWindow()
 	}
 	if(m_resizing) {
 		Vector2<Sint32> _size = m_screenSize;
-		m_screenSize.x = max(800, (m_initWindowSize.x - (m_resizeMousePos.x - GMouse::getMousePos().x)));
-		m_screenSize.y = max(700, (m_initWindowSize.y - (m_resizeMousePos.y - GMouse::getMousePos().y)));
+		m_screenSize.x = (Sint32)std::fmaxf(800, (m_initWindowSize.x - (m_resizeMousePos.x - GMouse::getMousePos().x)));
+		m_screenSize.y = (Sint32)std::fmaxf(700, (m_initWindowSize.y - (m_resizeMousePos.y - GMouse::getMousePos().y)));
 		if(!(_size == m_screenSize))
 			m_finishedResize = true;
 	}

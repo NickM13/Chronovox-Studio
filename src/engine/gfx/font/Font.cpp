@@ -150,13 +150,13 @@ Vector2<Sint32> Font::getMessageWidth(std::string p_msg)
 		if(p_msg[i] == '\n')
 		{
 			_y += getSpacingHeight();
-			_rMaxVal = max(_rVal, _rMaxVal);
+			_rMaxVal = std::fmaxf(_rVal, _rMaxVal);
 			_rVal = 0;
 		}
 		else
 			_rVal += m_font->m_charWidth[p_msg[i]];
 	}
-	_rMaxVal = max(_rVal, _rMaxVal);
+	_rMaxVal = std::fmaxf(_rVal, _rMaxVal);
 	return Vector2<Sint32>(_rMaxVal, _y);
 }
 

@@ -10,6 +10,7 @@
 
 class GScreen {
 public:
+	static std::string m_windowTitle;
 	static GLfloat m_fps;
 	static GLfloat m_fov;
 	static GLfloat m_deltaTime;
@@ -20,6 +21,7 @@ public:
 	static Vector2<Sint32> m_monitorSize;
 	static Vector2<Sint32> m_windowPos;
 	static bool m_maximized;
+	static bool m_iconified;
 	static Vector2<Sint32> m_screenSize;
 	static Vector2<Sint32> m_smallScreen;
 	static bool m_draggingWindow;
@@ -39,6 +41,8 @@ public:
 	} m_windowCommand;
 
 	static void initWindow(GLFWwindow *p_window);
+
+	static void windowIconifyCallback(GLFWwindow* window, int iconified);
 
 	static bool isMaximized() { return m_maximized; }
 	static void startWindowDrag();

@@ -5,7 +5,7 @@ class MTSelect : public MatrixTool {
 private:
 	struct MoveMatrix {
 		Matrix* matrix;
-		Vector3<GLfloat> pos;
+		glm::vec3 pos;
 	};
 	std::vector<MoveMatrix> m_moveMatrices;
 

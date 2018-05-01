@@ -6,7 +6,7 @@
 struct MMoveCommand : public Command
 {
 public:
-	MMoveCommand(Matrix* m, Vector3<GLfloat> p_from, Vector3<GLfloat> p_to) {
+	MMoveCommand(Matrix* m, glm::vec3 p_from, glm::vec3 p_to) {
 		m_commandType = "MoveCommand";
 		m_matrix = m;
 		from = p_from;
@@ -22,5 +22,5 @@ public:
 private:
 	Matrix* m_matrix;
 
-	Vector3<GLfloat> from, to;
+	glm::vec3 from, to;
 };

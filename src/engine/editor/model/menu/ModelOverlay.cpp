@@ -15,7 +15,7 @@ Container* ModelOverlay::init(Model* p_model) {
 	titleBar->addComponent(new Panel("DRAGBAR", "", {0, 0}, {0, 28}, Component::Theme::PRIMARY, (Sint8)Component::BorderFlag::NONE), Component::Anchor::NONE, Component::Anchor::TOP_RIGHT)
 		->setPressFunction([]() { GScreen::startWindowDrag(); })->setReleaseFunction([]() { GScreen::endWindowDrag(); }); // NOT DROGBAR
 	titleBar->addComponent(new CIcon("WINDOW_ICON", MTexture::getTexture("gui\\icon\\window\\Logo.png"), {2, 2}, {24, 24}));
-	titleBar->addComponent(new CText("WINDOW_TITLE", "Nick's Voxel Editor v0.9", {30, 14}, {0, 0}, Alignment::ALIGN_LEFT, Color(1, 1, 1)));
+	titleBar->addComponent(new CText("WINDOW_TITLE", GScreen::m_windowTitle, {30, 14}, {0, 0}, Alignment::ALIGN_LEFT, Color(1, 1, 1)));
 	titleBar->addComponent(new CButton("BUTTON_MINIMIZE_WINDOW", "", MTexture::getTexture("gui\\icon\\window\\Minimize.png"),
 		{-64, 0}, {32, 28}, CButton::RenderStyle::FILL, []() { GScreen::m_windowCommand = GScreen::WindowCommand::MINIMIZE; }), Component::Anchor::TOP_RIGHT);
 	titleBar->addComponent(new CButton("BUTTON_RESIZE_WINDOW", "", MTexture::getTexture("gui\\icon\\window\\Resize.png"),
@@ -166,6 +166,7 @@ Container* ModelOverlay::init(Model* p_model) {
 		->setPressFunction([]() {})
 		->setReleaseFunction([]() {
 		if(m_container->findComponent("DIALOG_NEWMATRIX\\MATRIXNAME")->getTitle() != "") {
+			/* TODO Uncomment this
 			Vector3<Sint32> pos = Vector3<Sint32>(m_container->findComponent("DIALOG_NEWMATRIX\\WIDTH")->getValue() / -2, 
 				m_container->findComponent("DIALOG_NEWMATRIX\\HEIGHT")->getValue() / -2, 
 				m_container->findComponent("DIALOG_NEWMATRIX\\DEPTH")->getValue() / -2) + Camera::getFocus();
@@ -173,6 +174,7 @@ Container* ModelOverlay::init(Model* p_model) {
 				Vector3<Sint32>(m_container->findComponent("DIALOG_NEWMATRIX\\WIDTH")->getValue(), 
 					m_container->findComponent("DIALOG_NEWMATRIX\\HEIGHT")->getValue(), 
 					m_container->findComponent("DIALOG_NEWMATRIX\\DEPTH")->getValue()));
+			*/
 		}
 	});
 	m_container->findComponent("DIALOG_NEWMATRIX")->addComponent(new TextField("MATRIXNAME", "Matrix Name", {0, 20}, {200, 1}, 0), Component::Anchor::TOP_CENTER)
@@ -208,10 +210,10 @@ Container* ModelOverlay::init(Model* p_model) {
 		if(m_container->findComponent("DIALOG_PROPERTIES\\MATRIXNAME")->getTitle() != "")
 			m_model->renameMatrix(m->getId(), m_container->findComponent("DIALOG_PROPERTIES\\MATRIXNAME")->getTitle());
 		m->setParent(m_container->findComponent("DIALOG_PROPERTIES\\PARENTNAME")->getTitle());
-		m->setPosition(Vector3<GLfloat>(m_container->findComponent("DIALOG_PROPERTIES\\OFFX")->getValue(),
+		m->setPosition(glm::vec3(m_container->findComponent("DIALOG_PROPERTIES\\OFFX")->getValue(),
 			m_container->findComponent("DIALOG_PROPERTIES\\OFFY")->getValue(),
 			m_container->findComponent("DIALOG_PROPERTIES\\OFFZ")->getValue()));
-		m->setSize(Vector3<GLfloat>(m_container->findComponent("DIALOG_PROPERTIES\\WIDTH")->getValue(),
+		m->setSize(glm::ivec3(m_container->findComponent("DIALOG_PROPERTIES\\WIDTH")->getValue(),
 			m_container->findComponent("DIALOG_PROPERTIES\\HEIGHT")->getValue(),
 			m_container->findComponent("DIALOG_PROPERTIES\\DEPTH")->getValue()));
 	});
@@ -234,10 +236,11 @@ Container* ModelOverlay::init(Model* p_model) {
 	m_container->addPauseScreen(new Dialog("DIALOG_ABOUT", "About Voxel Model Editor", {}, {300, 200}), Component::Anchor::MIDDLE_CENTER)
 		->setPressFunction([]() {})
 		->setReleaseFunction([]() {});
-	m_container->findComponent("DIALOG_ABOUT")->addComponent(new CText("TEXT_1", "Voxel Model Editor", {-120, 26}, {0, 0}, Alignment::ALIGN_LEFT, Color(1, 1, 1)), Component::Anchor::TOP_CENTER);
-	m_container->findComponent("DIALOG_ABOUT")->addComponent(new CText("TEXT_2", "Version 1.0.0.0", {-120, 46}, {0, 0}, Alignment::ALIGN_LEFT, Color(1, 1, 1)), Component::Anchor::TOP_CENTER);
-	m_container->findComponent("DIALOG_ABOUT")->addComponent(new CText("TEXT_3", "@ Nick's Voxels 2017", {-120, 66}, {0, 0}, Alignment::ALIGN_LEFT, Color(1, 1, 1)), Component::Anchor::TOP_CENTER);
-	m_container->findComponent("DIALOG_ABOUT")->addComponent(new CText("TEXT_4", "All Rights Reserved", {-120, 86}, {0, 0}, Alignment::ALIGN_LEFT, Color(1, 1, 1)), Component::Anchor::TOP_CENTER);
+	// TODO: Read this from a file instead, or find an easier way to update version
+	m_container->findComponent("DIALOG_ABOUT")->addComponent(new CText("TEXT_1", "Voxel Model Editor", {0, 26}, {0, 0}, Alignment::ALIGN_CENTER, Color(1, 1, 1)), Component::Anchor::TOP_CENTER);
+	m_container->findComponent("DIALOG_ABOUT")->addComponent(new CText("TEXT_2", "Version 1.1", {0, 46}, {0, 0}, Alignment::ALIGN_CENTER, Color(1, 1, 1)), Component::Anchor::TOP_CENTER);
+	m_container->findComponent("DIALOG_ABOUT")->addComponent(new CText("TEXT_3", "@ Nick's Voxels 2017 - 2018", {0, 66}, {0, 0}, Alignment::ALIGN_CENTER, Color(1, 1, 1)), Component::Anchor::TOP_CENTER);
+	m_container->findComponent("DIALOG_ABOUT")->addComponent(new CText("TEXT_4", "All Rights Reserved", {0, 86}, {0, 0}, Alignment::ALIGN_CENTER, Color(1, 1, 1)), Component::Anchor::TOP_CENTER);
 
 	return m_container;
 }

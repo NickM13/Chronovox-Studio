@@ -9,7 +9,7 @@ public:
 		m_commandType = "MDrawCommand";
 		m_matrix = m;
 	}
-	void add(Vector3<Sint32> p_pos, Voxel p_voxelFrom, Voxel p_voxelTo) {
+	void add(glm::ivec3 p_pos, Voxel p_voxelFrom, Voxel p_voxelTo) {
 		m_voxelList.push_back(_Voxel(p_pos, p_voxelFrom, p_voxelTo));
 	}
 	void undo() {
@@ -27,11 +27,11 @@ private:
 	Matrix* m_matrix;
 
 	struct _Voxel {
-		Vector3<Sint32> pos;
+		glm::ivec3 pos;
 		Voxel from;
 		Voxel to;
 
-		_Voxel(Vector3<Sint32> p_pos, Voxel p_from, Voxel p_to) {
+		_Voxel(glm::ivec3 p_pos, Voxel p_from, Voxel p_to) {
 			pos = p_pos;
 			from = p_from;
 			to = p_to;

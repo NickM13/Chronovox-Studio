@@ -30,7 +30,7 @@ void CTileSet::input(Sint8& p_interactFlags)
 	if(m_selected == 0)
 		_size = m_size;
 	else
-		_size = Vector2<Sint32>(max(m_size.x, m_tileSheet->getSize().x), max(m_size.y, m_tileSheet->getSize().y));
+		_size = Vector2<Sint32>(std::fmaxf(m_size.x, m_tileSheet->getSize().x), std::fmaxf(m_size.y, m_tileSheet->getSize().y));
 	if(_mousePos.x >= m_pos.x - (1) && _mousePos.x <= m_pos.x + _size.x + (1) &&
 		_mousePos.y >= m_pos.y - 20 - (1) && _mousePos.y <= m_pos.y + _size.y + (1))
 		m_hover = true;
@@ -135,7 +135,7 @@ void CTileSet::render()
 	if(m_selected == 0)
 		_size = m_size;
 	else
-		_size = Vector2<Sint32>(max(m_size.x, m_tileSheet->getSize().x), max(m_size.y, m_tileSheet->getSize().y));
+		_size = Vector2<Sint32>(std::fmaxf(m_size.x, m_tileSheet->getSize().x), std::fmaxf(m_size.y, m_tileSheet->getSize().y));
 	glPushMatrix();
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);

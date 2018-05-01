@@ -104,7 +104,7 @@ GLfloat Math::perlinNoise(GLfloat x, GLfloat y, GLfloat z, Sint16 p_octaves, GLf
 	return _total / _maxValue;
 }
 
-void Math::castRay3d(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direction, Vector3<GLfloat> p_boxPosition, Vector3<GLfloat> p_boxDimension, GLfloat &p_near, GLfloat &p_far, Sint8 &p_side)
+void Math::castRay3d(glm::vec3 p_start, glm::vec3 p_direction, glm::vec3 p_boxPosition, glm::vec3 p_boxDimension, GLfloat &p_near, GLfloat &p_far, Sint8 &p_side)
 {
 	GLfloat _near = p_near, _far = p_far;
 	p_near = 0;
@@ -123,8 +123,8 @@ void Math::castRay3d(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direction, Vec
 			_far = 0;
 		}
 		else {
-			_near = max(_near, (p_boxPosition.x - p_start.x) / (p_direction.x));
-			_far = min(_far, (p_boxPosition.x + p_boxDimension.x - p_start.x) / (p_direction.x));
+			_near = std::fmaxf(_near, (p_boxPosition.x - p_start.x) / (p_direction.x));
+			_far = std::fminf(_far, (p_boxPosition.x + p_boxDimension.x - p_start.x) / (p_direction.x));
 			if(_near > p_near) {
 				_side = flip[0] ? FACE_NORTH : FACE_SOUTH;
 				p_near = _near;
@@ -136,8 +136,8 @@ void Math::castRay3d(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direction, Vec
 		_far = 0;
 	}
 	else {
-		_near = max(_near, 0);
-		_far = min(_far, 1);
+		_near = std::fmaxf(_near, 0);
+		_far = std::fminf(_far, 1);
 		if(_near > p_near) {
 			_side = flip[0] ? FACE_NORTH : FACE_SOUTH;
 			p_near = _near;
@@ -149,8 +149,8 @@ void Math::castRay3d(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direction, Vec
 			_far = 0;
 		}
 		else {
-			_near = max(_near, (p_boxPosition.y - p_start.y) / (p_direction.y));
-			_far = min(_far, (p_boxPosition.y + p_boxDimension.y - p_start.y) / (p_direction.y));
+			_near = std::fmaxf(_near, (p_boxPosition.y - p_start.y) / (p_direction.y));
+			_far = std::fminf(_far, (p_boxPosition.y + p_boxDimension.y - p_start.y) / (p_direction.y));
 			if(_near > p_near) {
 				_side = flip[1] ? FACE_TOP : FACE_BOTTOM;
 				p_near = _near;
@@ -162,8 +162,8 @@ void Math::castRay3d(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direction, Vec
 		_far = 0;
 	}
 	else {
-		_near = max(_near, 0);
-		_far = min(_far, 1);
+		_near = std::fmaxf(_near, 0);
+		_far = std::fminf(_far, 1);
 		if(_near > p_near) {
 			_side = flip[1] ? FACE_TOP : FACE_BOTTOM;
 			p_near = _near;
@@ -175,8 +175,8 @@ void Math::castRay3d(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direction, Vec
 			_far = 0;
 		}
 		else {
-			_near = max(_near, (p_boxPosition.z - p_start.z) / (p_direction.z));
-			_far = min(_far, (p_boxPosition.z + p_boxDimension.z - p_start.z) / (p_direction.z));
+			_near = std::fmaxf(_near, (p_boxPosition.z - p_start.z) / (p_direction.z));
+			_far = std::fminf(_far, (p_boxPosition.z + p_boxDimension.z - p_start.z) / (p_direction.z));
 			if(_near > p_near) {
 				_side = flip[2] ? FACE_EAST : FACE_WEST;
 				p_near = _near;
@@ -188,8 +188,8 @@ void Math::castRay3d(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direction, Vec
 		_far = 0;
 	}
 	else {
-		_near = max(_near, 0);
-		_far = min(_far, 1);
+		_near = std::fmaxf(_near, 0);
+		_far = std::fminf(_far, 1);
 		if(_near > p_near) {
 			_side = flip[2] ? FACE_EAST : FACE_WEST;
 			p_near = _near;
@@ -207,21 +207,21 @@ void Math::castRay3d(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direction, Vec
 	}
 }
 
-void Math::castBox3d(Vector3<GLfloat> p_start, Vector3<GLfloat> p_dimension, Vector3<GLfloat> p_direction, Vector3<GLfloat> p_boxPosition, Vector3<GLfloat> p_boxDimension, GLfloat &p_near, GLfloat &p_far, Sint8 &p_side) {
+void Math::castBox3d(glm::vec3 p_start, glm::vec3 p_dimension, glm::vec3 p_direction, glm::vec3 p_boxPosition, glm::vec3 p_boxDimension, GLfloat &p_near, GLfloat &p_far, Sint8 &p_side) {
 	GLfloat _near = 1, _nearCast;
 	GLfloat _far = 1;
 	Sint8 _side = 0, _sideCast;
 	GLfloat _c = 0.0001f; // Slight offset for corners to cast from
-	Vector3<GLfloat> _dCount = (p_dimension / (p_boxDimension)).ceil();
-	Vector3<GLfloat> _dOffset = p_dimension / (_dCount) - _c * 2;
-	p_direction = p_direction.getNormal();
+	glm::vec3 _dCount = glm::ceil(p_dimension / (p_boxDimension));
+	glm::vec3 _dOffset = p_dimension / (_dCount) - _c * 2;
+	p_direction = glm::normalize(p_direction);
 	if(p_direction.x < 0) {
 		for(Uint16 y = 0; y <= _dCount.y; y++) {
 			for(Uint16 z = 0; z <= _dCount.z; z++) {
 				_nearCast = 0;
 				_sideCast = 0;
 				_far = 1;
-				castRay3d(p_start + Vector3<GLfloat>(-_c, y * _dOffset.y + _c, z * _dOffset.z + _c), p_direction, p_boxPosition, p_boxDimension, _nearCast, _far, _sideCast);
+				castRay3d(p_start + glm::vec3(-_c, y * _dOffset.y + _c, z * _dOffset.z + _c), p_direction, p_boxPosition, p_boxDimension, _nearCast, _far, _sideCast);
 				if((_nearCast < _near) && (_sideCast & 1)) {
 					_side = 1;
 					_near = _nearCast;
@@ -235,7 +235,7 @@ void Math::castBox3d(Vector3<GLfloat> p_start, Vector3<GLfloat> p_dimension, Vec
 				_nearCast = 0;
 				_sideCast = 0;
 				_far = 1;
-				castRay3d(p_start + Vector3<GLfloat>(p_dimension.x + _c, y * _dOffset.y + _c, z * _dOffset.z + _c), p_direction, p_boxPosition, p_boxDimension, _nearCast, _far, _sideCast);
+				castRay3d(p_start + glm::vec3(p_dimension.x + _c, y * _dOffset.y + _c, z * _dOffset.z + _c), p_direction, p_boxPosition, p_boxDimension, _nearCast, _far, _sideCast);
 				if((_nearCast < _near) && (_sideCast & 1)) {
 					_side = 1;
 					_near = _nearCast;
@@ -249,7 +249,7 @@ void Math::castBox3d(Vector3<GLfloat> p_start, Vector3<GLfloat> p_dimension, Vec
 				_nearCast = 0;
 				_sideCast = 0;
 				_far = 1;
-				castRay3d(p_start + Vector3<GLfloat>(x * _dOffset.x + _c, -_c, z * _dOffset.z + _c), p_direction, p_boxPosition, p_boxDimension, _nearCast, _far, _sideCast);
+				castRay3d(p_start + glm::vec3(x * _dOffset.x + _c, -_c, z * _dOffset.z + _c), p_direction, p_boxPosition, p_boxDimension, _nearCast, _far, _sideCast);
 				if((_nearCast < _near) && (_sideCast & 2)) {
 					_side = 2;
 					_near = _nearCast;
@@ -263,7 +263,7 @@ void Math::castBox3d(Vector3<GLfloat> p_start, Vector3<GLfloat> p_dimension, Vec
 				_nearCast = 0;
 				_sideCast = 0;
 				_far = 1;
-				castRay3d(p_start + Vector3<GLfloat>(x * _dOffset.x + _c, p_dimension.y + _c, z * _dOffset.z + _c), p_direction, p_boxPosition, p_boxDimension, _nearCast, _far, _sideCast);
+				castRay3d(p_start + glm::vec3(x * _dOffset.x + _c, p_dimension.y + _c, z * _dOffset.z + _c), p_direction, p_boxPosition, p_boxDimension, _nearCast, _far, _sideCast);
 				if((_nearCast < _near) && (_sideCast & 2)) {
 					_side = 2;
 					_near = _nearCast;
@@ -277,7 +277,7 @@ void Math::castBox3d(Vector3<GLfloat> p_start, Vector3<GLfloat> p_dimension, Vec
 				_nearCast = 0;
 				_sideCast = 0;
 				_far = 1;
-				castRay3d(p_start + Vector3<GLfloat>(x * _dOffset.x + _c, y * _dOffset.y + _c, -_c), p_direction, p_boxPosition, p_boxDimension, _nearCast, _far, _sideCast);
+				castRay3d(p_start + glm::vec3(x * _dOffset.x + _c, y * _dOffset.y + _c, -_c), p_direction, p_boxPosition, p_boxDimension, _nearCast, _far, _sideCast);
 				if((_nearCast < _near) && (_sideCast & 4)) {
 					_side = 4;
 					_near = _nearCast;
@@ -291,7 +291,7 @@ void Math::castBox3d(Vector3<GLfloat> p_start, Vector3<GLfloat> p_dimension, Vec
 				_nearCast = 0;
 				_sideCast = 0;
 				_far = 1;
-				castRay3d(p_start + Vector3<GLfloat>(x * _dOffset.x + _c, y * _dOffset.y + _c, p_dimension.z + _c), p_direction, p_boxPosition, p_boxDimension, _nearCast, _far, _sideCast);
+				castRay3d(p_start + glm::vec3(x * _dOffset.x + _c, y * _dOffset.y + _c, p_dimension.z + _c), p_direction, p_boxPosition, p_boxDimension, _nearCast, _far, _sideCast);
 				if((_nearCast < _near) && (_sideCast & 4)) {
 					_side = 4;
 					_near = _nearCast;
@@ -306,7 +306,7 @@ void Math::castBox3d(Vector3<GLfloat> p_start, Vector3<GLfloat> p_dimension, Vec
 					_nearCast = 0;
 					_sideCast = 0;
 					_far = 1;
-					castRay3d(p_start + Vector3<GLfloat>(x * _dOffset.x + _c, y * _dOffset.y + _c, z * _dOffset.z + _c), p_direction, p_boxPosition, p_boxDimension, _nearCast, _far, _sideCast);
+					castRay3d(p_start + glm::vec3(x * _dOffset.x + _c, y * _dOffset.y + _c, z * _dOffset.z + _c), p_direction, p_boxPosition, p_boxDimension, _nearCast, _far, _sideCast);
 					if((_nearCast < _near) && (_sideCast & 4)) {
 						_side = 4 + 2 + 1;
 						_near = _nearCast;

@@ -33,11 +33,11 @@ public:
 	void saveChanges();
 	void refreshPos();
 
-	Voxel getVoxel(Vector3<Sint32> p_pos);
+	Voxel getVoxel(glm::ivec3 p_pos);
 	Sint16 &getId();
 	bool isSet();
-	Vector3<GLfloat> getPos();
-	Vector3<Sint32> getSize();
+	glm::vec3 getPos();
+	glm::ivec3 getSize();
 	Matrix* getMatrix();
 	Matrix* getInitMatrix();
 };

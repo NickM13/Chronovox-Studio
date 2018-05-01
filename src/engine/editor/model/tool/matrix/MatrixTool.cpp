@@ -1,7 +1,7 @@
 #include "engine\editor\model\tool\matrix\MatrixTool.h"
 
 std::vector<Matrix*>* MatrixTool::m_matrices;
-Vector3<GLfloat>* MatrixTool::m_scalePos, MatrixTool::m_startPos;
+glm::vec3* MatrixTool::m_scalePos, MatrixTool::m_startPos;
 Sint8* MatrixTool::m_selectedScale;
 
 MatrixTool::MatrixTool() {
@@ -11,7 +11,7 @@ MatrixTool::~MatrixTool() {
 
 }
 
-void MatrixTool::init(std::vector<Matrix*>* p_matrices, Vector3<GLfloat>* p_scalePos, Sint8* p_selectedScale) {
+void MatrixTool::init(std::vector<Matrix*>* p_matrices, glm::vec3* p_scalePos, Sint8* p_selectedScale) {
 	m_matrices = p_matrices;
 	m_scalePos = p_scalePos;
 	m_selectedScale = p_selectedScale;

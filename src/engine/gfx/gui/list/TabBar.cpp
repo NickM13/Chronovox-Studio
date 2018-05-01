@@ -52,7 +52,7 @@ void CTabBar::calcMaxScroll()
 	m_maxScroll = -m_size.x + 24 * 2 + 20 + (m_tabList.size()) * 12;
 	for(Uint16 i = 0; i < m_tabList.size(); i++)
 		m_maxScroll += Font::getMessageWidth(m_tabList[i]).x;
-	m_maxScroll = max(0, m_maxScroll);
+	m_maxScroll = std::fmaxf(0, m_maxScroll);
 }
 
 void CTabBar::input(Sint8& p_interactFlags)

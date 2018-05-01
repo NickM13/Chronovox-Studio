@@ -6,28 +6,28 @@
 #include "engine\utils\variable\datatype\Vector4.h"
 #include <vector>
 
-struct TMeshObject
-{
+#include <glm\glm.hpp>
+
+struct TMeshObject {
 	std::string m_objectName;
 
-	std::vector<Vector2<Vector3<GLfloat>>> m_lineVertices;
-	std::vector<Vector3<Vector3<GLfloat>>> m_triVertices;
-	std::vector<Vector4<Vector3<GLfloat>>> m_quadVertices;
+	std::vector<glm::vec3> m_vertices;
+	std::vector<glm::vec4> m_colors;
 
-	std::vector<GLfloat> m_lineShading;
-	std::vector<GLfloat> m_triShading;
-	std::vector<GLfloat> m_quadShading;
+	std::vector<Vector2<glm::vec3>> m_lineVertices;
+	std::vector<Vector3<glm::vec3>> m_triVertices;
+	std::vector<Vector4<glm::vec3>> m_quadVertices;
 
-	void addLine(Vector2<Vector3<GLfloat>> p_vertices, GLfloat p_shading) {
-		m_lineVertices.push_back(p_vertices);
-		m_lineShading.push_back(p_shading);
-	}
-	void addTriangle(Vector3<Vector3<GLfloat>> p_vertices, GLfloat p_shading) {
-		m_triVertices.push_back(p_vertices);
-		m_triShading.push_back(p_shading);
-	}
-	void addQuad(Vector4<Vector3<GLfloat>> p_vertices, GLfloat p_shading) {
-		m_quadVertices.push_back(p_vertices);
-		m_quadShading.push_back(p_shading);
-	}
+	std::vector<Vector2<glm::vec4>> m_lineColors;
+	std::vector<Vector3<glm::vec4>> m_triColors;
+	std::vector<Vector4<glm::vec4>> m_quadColors;
+
+	GLuint m_vaoId, m_vboId[2];
+	size_t m_lineCount, m_triCount, m_quadCount;
+
+	void addLine(Vector2<glm::vec3> p_vertices, glm::vec4 p_color);
+	void addTriangle(Vector3<glm::vec3> p_vertices, glm::vec4 p_color);
+	void addQuad(Vector4<glm::vec3> p_vertices, glm::vec4 p_color);
+
+	void rasterize();
 };

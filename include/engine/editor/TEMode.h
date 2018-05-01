@@ -9,12 +9,14 @@ protected:
 	virtual void inputEditor(Sint8 p_guiFlags);
 	virtual void updateEditor(GLfloat p_deltaUpdate);
 	virtual void renderEditor();
+	virtual void renderEditorShadow();
 public:
 	TEMode();
 
 	void input(Sint8 p_guiFlags);
 	void update(GLfloat p_deltaUpdate);
 	void render();
+	void renderShadow();
 
 	virtual void fileNew();
 	virtual void fileOpen();

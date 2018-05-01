@@ -28,7 +28,7 @@ void ColorOverlay::setColorHSV(Sint32 hue, Sint32 sat, Sint32 val) {
 void ColorOverlay::input(Sint8& p_interactFlags) {
 	Vector2<GLfloat> _mousePos = GMouse::getMousePos() - m_pos;
 	Vector2<GLfloat> _percent = Vector2<GLfloat>(_mousePos) / Vector2<GLfloat>(m_size);
-	_percent = Vector2<GLfloat>(min(1, max(0, _percent.x)), min(1, max(0, _percent.y)));
+	_percent = Vector2<GLfloat>(std::fminf(1, std::fmaxf(0, _percent.x)), std::fminf(1, std::fmaxf(0, _percent.y)));
 	if(!GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT))
 		held = false;
 	if((p_interactFlags & (Sint8)EventFlag::MOUSEOVER) && _mousePos.x >= 0 && _mousePos.y >= 0 && _mousePos.x <= m_size.x && _mousePos.y <= m_size.y)
@@ -44,9 +44,9 @@ void ColorOverlay::input(Sint8& p_interactFlags) {
 void ColorOverlay::update(GLfloat p_deltaUpdate) {
 	Sint32 r = color.r * 255, g = color.g * 255, b = color.b * 255;
 	if(r != pr || g != pg || b != pb) {
-		GLfloat max = (max(max(r, g), b)) / 255.f, min = (min(min(r, g), b)) / 255.f;
+		GLfloat max = (std::fmaxf(std::fmaxf(r, g), b)) / 255.f, min = (std::fminf(std::fminf(r, g), b)) / 255.f;
 		val = Sint32(max * 100);
-		if(max != 0)
+		if(std::fmaxf != 0)
 			sat = Sint32((max - min) / max * 100);
 		else
 			sat = 100;

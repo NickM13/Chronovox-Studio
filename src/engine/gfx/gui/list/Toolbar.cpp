@@ -101,9 +101,9 @@ void CToolbar::input(Sint8& p_interactFlags) {
 						_subWidth = _buttonWidth;
 						_descWidth = 0;
 						for(Uint16 k = 0; k < _subList->m_buttons.size(); k++)
-							_subWidth = max(_subWidth, Font::getMessageWidth(_subList->m_buttons[k].m_name).x);
+							_subWidth = std::fmaxf(_subWidth, Font::getMessageWidth(_subList->m_buttons[k].m_name).x);
 						for(Uint16 k = 0; k < _subList->m_buttons.size(); k++)
-							_descWidth = max(_descWidth, Font::getMessageWidth(_subList->m_buttons[k].m_desc).x);
+							_descWidth = std::fmaxf(_descWidth, Font::getMessageWidth(_subList->m_buttons[k].m_desc).x);
 						_subWidth += _descWidth + 32;
 						for(Uint16 g = 0; g < _subList->m_buttons.size(); g++) {
 							if(_mousePos.x - w >= 0 && _mousePos.x - w < _subWidth
@@ -230,9 +230,9 @@ void CToolbar::render() {
 						_subWidth = _buttonWidth;
 						_descWidth = 0;
 						for(Uint16 k = 0; k < _subList->m_buttons.size(); k++)
-							_subWidth = max(_subWidth, Font::getMessageWidth(_subList->m_buttons[k].m_name).x);
+							_subWidth = std::fmaxf(_subWidth, Font::getMessageWidth(_subList->m_buttons[k].m_name).x);
 						for(Uint16 k = 0; k < _subList->m_buttons.size(); k++)
-							_descWidth = max(_descWidth, Font::getMessageWidth(_subList->m_buttons[k].m_desc).x);
+							_descWidth = std::fmaxf(_descWidth, Font::getMessageWidth(_subList->m_buttons[k].m_desc).x);
 						glPushMatrix();
 						{
 							glTranslatef(GLfloat(j * 92), GLfloat(m_size.y), 0);

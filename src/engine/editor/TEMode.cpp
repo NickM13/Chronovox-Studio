@@ -1,5 +1,6 @@
 #include "engine\editor\TEMode.h"
 #include "engine\editor\menu\EditorOverlay.h"
+#include "engine\gfx\shader\Shader.h"
 
 TEMode::TEMode() {
 	Camera::init();
@@ -14,19 +15,27 @@ void TEMode::update(GLfloat p_deltaUpdate) {
 	updateEditor(p_deltaUpdate);
 }
 void TEMode::render() {
-	Camera::renderSkybox();
-	glPushMatrix();
-	{
-		Camera::applyTransformation();
-		renderEditor();
-		Camera::renderFocus();
-	}
-	glPopMatrix();
+	Shader::pushMatrixView();
+	Camera::applyTransformation();
+	Camera::applyLightDirection();
+
+	// Sky box no longer needed but Im leaving this here just incase I change my mind
+	//Camera::renderSkybox();
+
+	renderEditor();
+	Camera::renderFocus();
+	Shader::popMatrixView();
+}
+void TEMode::renderShadow() {
+	Shader::pushMatrixView();
+	renderEditorShadow();
+	Shader::popMatrixView();
 }
 
 void TEMode::inputEditor(Sint8 p_guiFlags) {}
 void TEMode::updateEditor(GLfloat p_updateTime) {}
 void TEMode::renderEditor() {}
+void TEMode::renderEditorShadow() {}
 
 void TEMode::fileNew() {}
 void TEMode::fileOpen() {}

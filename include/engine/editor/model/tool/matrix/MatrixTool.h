@@ -6,7 +6,7 @@
 class MatrixTool : public Tool {
 protected:
 	static std::vector<Matrix*>* m_matrices;
-	static Vector3<GLfloat>* m_scalePos, m_startPos;
+	static glm::vec3* m_scalePos, m_startPos;
 	static Sint8* m_selectedScale;
 	bool m_scaling;
 
@@ -25,7 +25,7 @@ public:
 	MatrixTool();
 	~MatrixTool();
 
-	static void init(std::vector<Matrix*>* p_matrices, Vector3<GLfloat>* p_scalePos, Sint8* p_selectedScale);
+	static void init(std::vector<Matrix*>* p_matrices, glm::vec3* p_scalePos, Sint8* p_selectedScale);
 
 	virtual void enable();
 	virtual void disable();

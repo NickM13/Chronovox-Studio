@@ -1,11 +1,11 @@
 #include "engine\editor\model\math\ModelMath.h"
 
-bool ModelMath::castRayMatrix(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direction, Matrix* p_matrix, GLfloat &p_near, GLfloat &p_far) {
+bool ModelMath::castRayMatrix(glm::vec3 p_start, glm::vec3 p_direction, Matrix* p_matrix, GLfloat &p_near, GLfloat &p_far) {
 	GLfloat _c = 0.00001f;
 	GLfloat _mNear, _mFar, _vNear, _vFar;
 	GLfloat _iNear = p_near, _iFar = p_far;
 	Sint8 _side = 0;
-	Vector3<Sint32> m_selectedVoxel, m_selectedVoxelOffset;
+	glm::ivec3 m_selectedVoxel, m_selectedVoxelOffset;
 	_mNear = _iNear;
 	_mFar = _iFar;
 	Math::castRay3d(p_start, p_direction, p_matrix->getPos(), p_matrix->getSize(), _mNear, _mFar, _side);
@@ -18,7 +18,7 @@ bool ModelMath::castRayMatrix(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direc
 	return (p_near <= 1);
 }
 
-bool ModelMath::castRayMatrices(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direction, std::vector<Matrix*> p_matrices, Sint16 &p_selectedMatrix, GLfloat &p_near, GLfloat &p_far) {
+bool ModelMath::castRayMatrices(glm::vec3 p_start, glm::vec3 p_direction, std::vector<Matrix*> p_matrices, Sint16 &p_selectedMatrix, GLfloat &p_near, GLfloat &p_far) {
 	// Small correction value
 	GLfloat _c = 0.00001f;
 	// Matrix, Voxel, Current
@@ -28,7 +28,7 @@ bool ModelMath::castRayMatrices(Vector3<GLfloat> p_start, Vector3<GLfloat> p_dir
 	GLfloat _iNear = p_near, _iFar = p_far;
 	Sint8 _side = 0;
 	Sint32 _cMatrix = -1;
-	Vector3<Sint32> m_selectedVoxel, m_selectedVoxelOffset;
+	glm::ivec3 m_selectedVoxel, m_selectedVoxelOffset;
 	for(Uint16 i = 0; i < p_matrices.size(); i++) {
 		_mNear = _iNear;
 		_mFar = _iFar;
@@ -52,12 +52,12 @@ bool ModelMath::castRayMatrices(Vector3<GLfloat> p_start, Vector3<GLfloat> p_dir
 	return (p_selectedMatrix != -1);
 }
 
-bool ModelMath::castRayVoxel(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direction, Matrix *p_matrix, GLfloat &p_near, GLfloat &p_far, Vector3<Sint32> &p_selectedVoxel, Sint8 &p_side, Vector3<Sint32> &p_selectedVoxelOffset) {
+bool ModelMath::castRayVoxel(glm::vec3 p_start, glm::vec3 p_direction, Matrix *p_matrix, GLfloat &p_near, GLfloat &p_far, glm::ivec3 &p_selectedVoxel, Sint8 &p_side, glm::ivec3 &p_selectedVoxelOffset) {
 	GLfloat _near = 0, _far = 1;
 	GLfloat _cNear = 0, _cFar = 1;
 	Sint32 _close = -1;
 	Vector2<GLfloat> _closest = {1, 1};
-	Vector3<Sint32> _size = p_matrix->getSize(), _pos = p_matrix->getPos();
+	glm::ivec3 _size = p_matrix->getSize(), _pos = p_matrix->getPos();
 	p_side = 0;
 
 	p_selectedVoxel = p_selectedVoxelOffset = {-1, -1, -1};
@@ -67,8 +67,8 @@ bool ModelMath::castRayVoxel(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direct
 	p_start = p_start - p_matrix->getPos() + p_direction * p_near;
 	p_direction = p_direction * (p_far - p_near);
 
-	Math::castRay3d(p_start, p_direction, p_start.floor(), {1, 1, 1}, _cNear, _cFar, p_side);
-	Vector3<GLfloat> _floor = (p_start).floor();
+	Math::castRay3d(p_start, p_direction, glm::floor(p_start), {1, 1, 1}, _cNear, _cFar, p_side);
+	glm::vec3 _floor = glm::floor(p_start);
 	int i = 500;
 	do {
 		if(_floor.x >= 0 && _floor.y >= 0 && _floor.z >= 0 &&
@@ -84,8 +84,8 @@ bool ModelMath::castRayVoxel(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direct
 		p_selectedVoxel = _floor;
 		_near = _cFar + 0.00001f;
 		_cNear = 0, _cFar = 1;
-		Math::castRay3d(p_start, p_direction, (p_start + p_direction * (_near)).floor(), {1, 1, 1}, _cNear, _cFar, p_side);
-		_floor = (p_start + p_direction * _near).floor();
+		Math::castRay3d(p_start, p_direction, glm::floor(p_start + p_direction * (_near)), {1, 1, 1}, _cNear, _cFar, p_side);
+		_floor = glm::floor(p_start + p_direction * _near);
 		i--;
 	} while(_cNear < 1 && _near < _far && i > 0);
 	p_selectedVoxelOffset = p_selectedVoxel;
@@ -101,7 +101,7 @@ bool ModelMath::castRayVoxel(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direct
 	p_near = p_far = 1;
 	return false;
 }
-bool ModelMath::castRayScale(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direction, Matrix* p_matrix, GLfloat &p_near, GLfloat &p_far, Vector3<GLfloat> &p_scalePos, Sint8 &p_scale) {
+bool ModelMath::castRayScale(glm::vec3 p_start, glm::vec3 p_direction, Matrix* p_matrix, GLfloat &p_near, GLfloat &p_far, glm::vec3 &p_scalePos, Sint8 &p_scale) {
 	if(!GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)) {
 		GLfloat _near = 0, _far = 1;
 		Sint8 _side = 0;
@@ -110,45 +110,45 @@ bool ModelMath::castRayScale(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direct
 		p_scale = 0;
 		GLfloat size = 0.2f;
 
-		Vector3<GLfloat> s = Vector3<GLfloat>(p_matrix->getSize()) / 2;
-		Vector3<GLfloat> _offset = p_matrix->getPos() + s;
+		glm::vec3 s = glm::vec3(p_matrix->getSize()) / glm::vec3(2);
+		glm::vec3 _offset = p_matrix->getPos() + s;
 
-		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{-(s.x + 2), -size, -size}, {2, size * 2, size * 2}, _near, _far, _side);
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{-(s.x + 2), -size, -size}, {2, size * 2, size * 2}, _near, _far, _side);
 		if(_near < _closest.x) {
 			p_scale = FACE_SOUTH;
 			_closest = {_near, _far};
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{(s.x), -size, -size}, {2, size * 2, size * 2}, _near, _far, _side);
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{(s.x), -size, -size}, {2, size * 2, size * 2}, _near, _far, _side);
 		if(_near < _closest.x) {
 			p_scale = FACE_NORTH;
 			_closest = {_near, _far};
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{-size, -(s.y + 2), -size}, {size * 2, 2, size * 2}, _near, _far, _side);
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{-size, -(s.y + 2), -size}, {size * 2, 2, size * 2}, _near, _far, _side);
 		if(_near < _closest.x) {
 			p_scale = FACE_BOTTOM;
 			_closest = {_near, _far};
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{-size, (s.y), -size}, {size * 2, 2, size * 2}, _near, _far, _side);
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{-size, (s.y), -size}, {size * 2, 2, size * 2}, _near, _far, _side);
 		if(_near < _closest.x) {
 			p_scale = FACE_TOP;
 			_closest = {_near, _far};
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{-size, -size, -(s.z + 2)}, {size * 2, size * 2, 2}, _near, _far, _side);
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{-size, -size, -(s.z + 2)}, {size * 2, size * 2, 2}, _near, _far, _side);
 		if(_near < _closest.x) {
 			p_scale = FACE_WEST;
 			_closest = {_near, _far};
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + Vector3<GLfloat>{-size, -size, (s.z)}, {size * 2, size * 2, 2}, _near, _far, _side);
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{-size, -size, (s.z)}, {size * 2, size * 2, 2}, _near, _far, _side);
 		if(_near < _closest.x) {
 			p_scale = FACE_EAST;
 			_closest = {_near, _far};

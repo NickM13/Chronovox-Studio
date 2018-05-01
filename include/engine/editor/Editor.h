@@ -25,6 +25,11 @@ public:
 		ANIMATION = 1
 	};
 private:
+	struct ShadowBuffer {
+		GLuint framebufferName, renderedTexture, depthRenderbuffer;
+		glm::vec2 shadowSize;
+	} m_shadowBuffer;
+
 	static Animation* m_animation;
 	static Model* m_model;
 	static TEMode* m_tMode; // Template pointer to current EngineMode variable, to compress EditorOverlay function lines
@@ -34,8 +39,13 @@ private:
 
 	static Container* m_mainGui;
 
+	glm::vec3 m_sunlightDirection;
+
 	GLfloat m_lastUpdate, m_deltaUpdate;
 	std::thread *m_autosaveThread;
+
+	bool initShadowBuffer();
+	void terminateShadowBuffer();
 public:
 	Editor();
 	~Editor();
@@ -56,8 +66,17 @@ public:
 
 	void renderMouse();
 
+	void bindShadowBuffer();
+	void unbindShadowBuffer();
+	void bindShadowTexture();
+	void renderShadowTexture();
+
+	glm::vec3 getSunlightDir();
+	glm::mat4 getSunlightMatrix();
+
 	void input();
 	void update();
+	void renderShadow();
 	void render3d();
 	void render2d();
 

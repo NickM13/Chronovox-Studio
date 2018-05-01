@@ -1,28 +1,35 @@
 #include "Application.h"
+#include <glm\gtc\matrix_transform.hpp>
 
 Editor* Application::m_editor = 0;
 Vector2<Uint16> Application::m_screenSize = {};
 GLFWwindow* Application::m_mainWindow = 0;
 
 bool Application::init(char *p_filePath) {
+	GLenum error;
+
 	GScreen::m_fov = 70;
 	m_maxFps = 60;
 	m_screenSize = Vector2<Uint16>(1280, 768);
 
+	GScreen::m_windowTitle = "Nick's Voxel Editor";
 	GScreen::m_developer = true;
 	GScreen::m_fps = 0;
 	GScreen::m_exitting = 0;
 
 	if(!glfwInit()) return false;
-	if(!glewInit()) return false;
 
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glfwWindowHint(GLFW_DECORATED, 0);
 	glfwWindowHint(GLFW_FLOATING, 0);
-
+	
 	const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-	m_mainWindow = glfwCreateWindow(min(m_screenSize.x, mode->width), min(m_screenSize.y, mode->height), "Voxel Model Editor", 0, 0);
+	m_mainWindow = glfwCreateWindow(std::fminf(m_screenSize.x, mode->width), std::fminf(m_screenSize.y, mode->height), GScreen::m_windowTitle.c_str(), 0, 0);
 	glfwSetWindowPos(m_mainWindow, (mode->width - m_screenSize.x) / 2, (mode->height - m_screenSize.y) / 2);
+	
 	GScreen::initWindow(m_mainWindow);
 	if(!m_mainWindow) {
 		glfwTerminate();
@@ -36,9 +43,27 @@ bool Application::init(char *p_filePath) {
 	glfwSetCursorEnterCallback(m_mainWindow, mouseEnterCallback);
 	glfwSetWindowSizeCallback(m_mainWindow, windowResizeCallback);
 	glfwSetDropCallback(m_mainWindow, dropFileCallback);
+	glfwSetWindowIconifyCallback(m_mainWindow, GScreen::windowIconifyCallback);
 
 	glfwMakeContextCurrent(m_mainWindow);
-	glClearColor(0.35f, 0.25f, 0.95f, 1);
+
+	if((error = glewInit()) != GLEW_OK) {
+		std::cout << "glewInit error: " << glewGetErrorString(error) << std::endl;;
+		return false;
+	}
+
+	Shader::init();
+	Shader::getProgram("simple")
+		->loadShader(GL_VERTEX_SHADER, "simple.vert")
+		->loadShader(GL_FRAGMENT_SHADER, "simple.frag");
+	Shader::getProgram("shadowmap")
+		->loadShader(GL_VERTEX_SHADER, "shadowmap.vert")
+		->loadShader(GL_FRAGMENT_SHADER, "shadowmap.frag");
+	Shader::getProgram("depthRTT")
+		->loadShader(GL_VERTEX_SHADER, "depthRTT.vert")
+		->loadShader(GL_FRAGMENT_SHADER, "depthRTT.frag");
+
+	glClearColor(0.25f, 0.25f, 0.25f, 1);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -48,6 +73,7 @@ bool Application::init(char *p_filePath) {
 }
 
 void Application::terminate() {
+	Shader::terminate();
 	glfwTerminate();
 	delete m_editor;
 }
@@ -106,10 +132,10 @@ void Application::init2d() {
 	glDisable(GL_MULTISAMPLE);
 	glLoadIdentity();
 }
-void Application::init3d() {
+void Application::init3dPersp() {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(GScreen::m_fov, GLfloat(m_screenSize.x) / m_screenSize.y, 0.01f, 2000.f);
 	glMatrixMode(GL_MODELVIEW);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
@@ -118,6 +144,41 @@ void Application::init3d() {
 	glEnable(GL_MULTISAMPLE);
 	glCullFace(GL_BACK);
 	glLoadIdentity();
+
+	Shader::loadIdentityModel();
+	Shader::loadIdentityView();
+	Shader::loadIdentityProjection();
+
+	glm::mat4 projection = glm::perspective((GLfloat)glm::radians(GScreen::m_fov), (GLfloat)GScreen::m_screenSize.x / GScreen::m_screenSize.y, 0.1f, 2000.0f);
+	Shader::transformProjection(projection);
+	Shader::applyProjection();
+
+	glUniform1i(4, 0);
+}
+void Application::init3dOrtho() {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glEnable(GL_MULTISAMPLE);
+	glCullFace(GL_FRONT);
+	glLoadIdentity();
+
+	Shader::loadIdentityModel();
+	Shader::loadIdentityView();
+	Shader::loadIdentityProjection();
+
+	glm::mat4 depthProjectionMatrix = glm::ortho<GLfloat>(-64.0f, 64.0f, -64.0f, 64.0f, -64.0f, 64.0f);
+	glm::mat4 depthViewMatrix = m_editor->getSunlightMatrix();
+
+	Shader::transformProjection(depthProjectionMatrix);
+	Shader::applyProjection();
+	Shader::transformView(depthViewMatrix);
+	Shader::applyView();
 }
 
 void Application::run() {
@@ -129,7 +190,7 @@ void Application::run() {
 		update();
 		render();
 
-		m_sleepTime = DWORD(max(1000 / m_maxFps - ((glfwGetTime() - i) * 1000), 0));
+		m_sleepTime = DWORD(std::fmaxf(1000 / m_maxFps - ((glfwGetTime() - i) * 1000), 0));
 		if(m_sleepTime > 0)
 			Sleep(m_sleepTime);
 		GScreen::m_fps = 1.f / GLfloat(glfwGetTime() - i);
@@ -164,20 +225,41 @@ GLfloat _last = 0;
 void Application::update() {
 	m_editor->update();
 
-	GMouse::update(GScreen::m_deltaTime);
-
 	if(GScreen::m_windowCommand == GScreen::MINIMIZE) glfwIconifyWindow(m_mainWindow);
 	if(GScreen::m_windowCommand == GScreen::RESIZE) maximize(false);
 	if(GScreen::m_windowCommand == GScreen::CLOSE) glfwSetWindowShouldClose(m_mainWindow, true);
 	GScreen::m_windowCommand = GScreen::NONE;
+
+	GMouse::update(GScreen::m_deltaTime);
 }
 
 void Application::render() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
+	if(GScreen::m_iconified) return;
+	
+	m_editor->bindShadowBuffer();
 
-	init3d();
+	Shader::useProgram("depthRTT");
+	m_editor->bindShadowTexture();
+	init3dOrtho();
+	m_editor->renderShadow();
+	m_editor->unbindShadowBuffer();
+
+	glm::mat4 biasMatrix{
+		0.5, 0.0, 0.0, 0.0,
+		0.0, 0.5, 0.0, 0.0,
+		0.0, 0.0, 0.5, 0.0,
+		0.5, 0.5, 0.5, 1.0
+	};
+	glm::mat4 depthBiasMVP = biasMatrix * Shader::getMVP();
+
+	Shader::useProgram("shadowmap");
+	Shader::setLightEnabled(false);
+	init3dPersp();
+	glUniformMatrix4fv(10, 1, GL_FALSE, &depthBiasMVP[0][0]);
+	glUniform3f(11, m_editor->getSunlightDir().x, m_editor->getSunlightDir().y, m_editor->getSunlightDir().z);
 	m_editor->render3d();
+
+	Shader::use(0);
 	init2d();
 	m_editor->render2d();
 

@@ -14,7 +14,7 @@ public:
 protected:
 	static EditMatrix* m_editMatrix;
 	static Sint32* m_subTool;
-	static Color m_colorSelect, m_colorError;
+	static glm::vec4 m_colorSelect, m_colorError;
 
 	ToolType m_toolType;
 	std::string m_toolName, m_toolDesc;

@@ -144,9 +144,6 @@
     <ClCompile Include="src\engine\editor\model\format\QbFormat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\editor\model\format\QbclFormat.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\editor\model\menu\ModelOverlay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -223,6 +220,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\editor\model\EditMatrix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\format\QbclFormat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\gfx\mesh\object\TMeshObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\gfx\model\ModelObj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\gfx\model\MModelObj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -524,6 +533,12 @@
     <ClInclude Include="include\engine\gfx\gui\global\GGui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\engine\gfx\model\MModelObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\gfx\model\ModelObj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VoxelModelEditor.rc">
@@ -552,5 +567,13 @@
     <Image Include="res\texture\gui\IconLarge.png">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\shader\simple.frag" />
+    <None Include="res\shader\simple.vert" />
+    <None Include="res\shader\shadowmap.frag" />
+    <None Include="res\shader\shadowmap.vert" />
+    <None Include="res\shader\depthRTT.frag" />
+    <None Include="res\shader\depthRTT.vert" />
   </ItemGroup>
 </Project>

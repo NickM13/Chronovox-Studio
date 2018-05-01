@@ -11,17 +11,17 @@ CList::CList(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos,
 
 void CList::resize() {
 	m_maxVisible = (GLfloat)m_size.y / m_itemHeight;
-	m_maxScroll = max(0, Sint16((m_itemList.size() - m_maxVisible) * m_itemHeight));
+	m_maxScroll = std::fmaxf(0, Sint16((m_itemList.size() - m_maxVisible) * m_itemHeight));
 }
 
 Component* CList::addItem(std::string p_itemName) {
 	m_itemList.push_back(ListItem(p_itemName, 0));
-	m_maxScroll = max(0, Sint16((m_itemList.size() - m_maxVisible) * m_itemHeight));
+	m_maxScroll = std::fmaxf(0, Sint16((m_itemList.size() - m_maxVisible) * m_itemHeight));
 	return this;
 }
 Component* CList::insertItem(Uint16 p_index, std::string p_itemName) {
 	m_itemList.insert(m_itemList.begin() + p_index, ListItem(p_itemName, 0));
-	m_maxScroll = m_maxScroll = max(0, Sint16((m_itemList.size() - m_maxVisible) * m_itemHeight));
+	m_maxScroll = m_maxScroll = std::fmaxf(0, Sint16((m_itemList.size() - m_maxVisible) * m_itemHeight));
 	return this;
 }
 void CList::removeItem(Uint16 p_index) {
@@ -115,8 +115,8 @@ void CList::input(Sint8& p_interactFlags) {
 				m_selectedItemCtrl = m_selectedItem;
 			}
 			if(GKey::modDown(GLFW_MOD_SHIFT)) {
-				Sint32 low = min(m_selectedItemCtrl, m_selectedItem), high = max(m_selectedItemCtrl, m_selectedItem);
-				for(Sint32 i = max(0, low); i <= min(getItemCount() - 1, high); i++) {
+				Sint32 low = std::fminf(m_selectedItemCtrl, m_selectedItem), high = std::fmaxf(m_selectedItemCtrl, m_selectedItem);
+				for(Sint32 i = std::fmaxf(0, low); i <= std::fminf(getItemCount() - 1, high); i++) {
 					m_itemList[i].state = 2;
 				}
 			}
@@ -228,7 +228,7 @@ void CList::render() {
 		glPopMatrix();
 		glPushMatrix();
 		{
-			GLfloat _scrollHeight = powf(m_size.y, 2) / (max(m_maxVisible, m_itemList.size()) * m_itemHeight);
+			GLfloat _scrollHeight = powf(m_size.y, 2) / (std::fmaxf(m_maxVisible, m_itemList.size()) * m_itemHeight);
 			glTranslatef(m_size.x - 12, m_maxScroll > 0 ? ((GLfloat) m_scroll / m_maxScroll) * (m_size.y - _scrollHeight) : 0, 0);
 			glBegin(GL_QUADS);
 			{

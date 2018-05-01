@@ -1,4 +1,6 @@
 #include "engine\editor\model\tool\matrix\MTSelect.h"
+#include "engine\gfx\shader\Shader.h"
+#include "engine\gfx\model\MModelObj.h"
 
 MTSelect::MTSelect()
 	: MatrixTool() {
@@ -25,20 +27,20 @@ void MTSelect::inputMove() {
 }
 void MTSelect::updateMove() {
 	if(m_scaling) {
-		Vector3<GLfloat> norm;
+		glm::vec3 norm;
 		GLfloat denom, dist, dragDiff;
 		switch(*m_selectedScale) {
 		case FACE_SOUTH:
 		case FACE_NORTH:
 			norm = m_startPos - Camera::getPosition();
 			norm.x = 0;
-			norm = norm.getNormal();
-			denom = norm.dot(Camera::getMouseDirection());
+			norm = glm::normalize(norm);
+			denom = glm::dot(norm, Camera::getMouseDirection());
 			if(abs(denom) > 0.0001f) {
-				dist = (m_startPos - Camera::getPosition()).dot(norm) / denom;
+				dist = glm::dot(m_startPos - Camera::getPosition(), norm) / denom;
 				if(dist >= 0.0001f) {
 					dragDiff = (Camera::getPosition() + Camera::getMouseDirection() * dist).x - m_startPos.x;
-					m_editMatrix->getMatrix()->setPosition(m_editMatrix->getInitMatrix()->getPos() + Vector3<GLfloat>(dragDiff, 0, 0));
+					m_editMatrix->getMatrix()->setPosition(m_editMatrix->getInitMatrix()->getPos() + glm::vec3(dragDiff, 0, 0));
 				}
 			}
 			break;
@@ -46,13 +48,13 @@ void MTSelect::updateMove() {
 		case FACE_TOP:
 			norm = m_startPos - Camera::getPosition();
 			norm.y = 0;
-			norm = norm.getNormal();
-			denom = norm.dot(Camera::getMouseDirection());
+			norm = glm::normalize(norm);
+			denom = glm::dot(norm, Camera::getMouseDirection());
 			if(abs(denom) > 0.0001f) {
-				dist = (m_startPos - Camera::getPosition()).dot(norm) / denom;
+				dist = glm::dot(m_startPos - Camera::getPosition(), norm) / denom;
 				if(dist >= 0.0001f) {
 					dragDiff = (Camera::getPosition() + Camera::getMouseDirection() * dist).y - m_startPos.y;
-					m_editMatrix->getMatrix()->setPosition(m_editMatrix->getInitMatrix()->getPos() + Vector3<GLfloat>(0, dragDiff, 0));
+					m_editMatrix->getMatrix()->setPosition(m_editMatrix->getInitMatrix()->getPos() + glm::vec3(0, dragDiff, 0));
 				}
 			}
 			break;
@@ -60,13 +62,13 @@ void MTSelect::updateMove() {
 		case FACE_EAST:
 			norm = (m_startPos - Camera::getPosition());
 			norm.z = 0;
-			norm = norm.getNormal();
-			denom = norm.dot(Camera::getMouseDirection());
+			norm = glm::normalize(norm);
+			denom = glm::dot(norm, Camera::getMouseDirection());
 			if(abs(denom) > 0.0001f) {
-				dist = (m_startPos - Camera::getPosition()).dot(norm) / denom;
+				dist = glm::dot(m_startPos - Camera::getPosition(), norm) / denom;
 				if(dist >= 0.0001f) {
 					dragDiff = (Camera::getPosition() + Camera::getMouseDirection() * dist).z - m_startPos.z;
-					m_editMatrix->getMatrix()->setPosition(m_editMatrix->getInitMatrix()->getPos() + Vector3<GLfloat>(0, 0, dragDiff));
+					m_editMatrix->getMatrix()->setPosition(m_editMatrix->getInitMatrix()->getPos() + glm::vec3(0, 0, dragDiff));
 				}
 			}
 			break;
@@ -74,22 +76,52 @@ void MTSelect::updateMove() {
 	}
 }
 void MTSelect::renderMove() {
-	Vector3<GLfloat> s = Vector3<GLfloat>((*m_matrices)[m_editMatrix->getId()]->getSize()) / 2.f;
-	Vector3<GLfloat> _offset = (*m_matrices)[m_editMatrix->getId()]->getPos() + s;
-	glPushMatrix();
-	{
-		glTranslatef(_offset.x, _offset.y, _offset.z);
+	glm::vec3 s = glm::vec3((*m_matrices)[m_editMatrix->getId()]->getSize()) / 2.f;
+	glm::vec3 _offset = (*m_matrices)[m_editMatrix->getId()]->getPos() + s;
 
-		MMesh::render("Arrow", {-s.x, 0, 0}, {0.1f, 2, 0.1f}, {0, 0, 90}, (*m_selectedScale == FACE_SOUTH ? Color(1, 0.25f, 0.25f) : Color(0.75f, 0, 0)));
-		MMesh::render("Arrow", {s.x, 0, 0}, {0.1f, 2, 0.1f}, {0, 0, -90}, (*m_selectedScale == FACE_NORTH ? Color(1, 0.25f, 0.25f) : Color(0.75f, 0, 0)));
+	Shader::pushMatrixModel();
+	Shader::translate(glm::vec3(_offset));
 
-		MMesh::render("Arrow", {0, -s.y, 0}, {0.1f, 2, 0.1f}, {180, 0, 0}, (*m_selectedScale == FACE_BOTTOM ? Color(0.25f, 1, 0.25f) : Color(0, 0.75f, 0)));
-		MMesh::render("Arrow", {0, s.y, 0}, {0.1f, 2, 0.1f}, {0, 0, 0}, (*m_selectedScale == FACE_TOP ? Color(0.25f, 1, 0.25f) : Color(0, 0.75f, 0)));
+	Shader::setColor(((*m_selectedScale == FACE_SOUTH || *m_selectedScale == FACE_NORTH) ? glm::vec4(1.0f, 0.25f, 0.25f, 1.0f) : glm::vec4(0.75f, 0.0f, 0.0f, 1.f)));
+	Shader::pushMatrixModel();
+	Shader::translate(glm::vec3(s.x, 0, 0));
+	Shader::rotate(-90, glm::vec3(0, 0, 1));
+	MModelObj::get("Arrow.obj")->renderObj();
+	Shader::popMatrixModel();
 
-		MMesh::render("Arrow", {0, 0, -s.z}, {0.1f, 2, 0.1f}, {-90, 0, 0}, (*m_selectedScale == FACE_WEST ? Color(0.25f, 0.25f, 1) : Color(0, 0, 0.75f)));
-		MMesh::render("Arrow", {0, 0, s.z}, {0.1f, 2, 0.1f}, {90, 0, 0}, (*m_selectedScale == FACE_EAST ? Color(0.25f, 0.25f, 1) : Color(0, 0, 0.75f)));
-	}
-	glPopMatrix();
+	Shader::pushMatrixModel();
+	Shader::translate(glm::vec3(-s.x, 0, 0));
+	Shader::rotate(90, glm::vec3(0, 0, 1));
+	MModelObj::get("Arrow.obj")->renderObj();
+	Shader::popMatrixModel();
+
+	Shader::setColor(((*m_selectedScale == FACE_BOTTOM || *m_selectedScale == FACE_TOP) ? glm::vec4(0.25f, 1.0f, 0.25f, 1.0f) : glm::vec4(0.0f, 0.75f, 0.0f, 1.f)));
+	Shader::pushMatrixModel();
+	Shader::translate(glm::vec3(0, s.y, 0));
+	//Shader::rotate(0, glm::vec3(0, 0, 1));
+	MModelObj::get("Arrow.obj")->renderObj();
+	Shader::popMatrixModel();
+
+	Shader::pushMatrixModel();
+	Shader::translate(glm::vec3(0, -s.y, 0));
+	Shader::rotate(180, glm::vec3(0, 0, 1));
+	MModelObj::get("Arrow.obj")->renderObj();
+	Shader::popMatrixModel();
+
+	Shader::setColor(((*m_selectedScale == FACE_WEST || *m_selectedScale == FACE_EAST) ? glm::vec4(0.25f, 0.25f, 1.0f, 1.0f) : glm::vec4(0.0f, 0.0f, 0.75f, 1.f)));
+	Shader::pushMatrixModel();
+	Shader::translate(glm::vec3(0, 0, s.z));
+	Shader::rotate(90, glm::vec3(1, 0, 0));
+	MModelObj::get("Arrow.obj")->renderObj();
+	Shader::popMatrixModel();
+
+	Shader::pushMatrixModel();
+	Shader::translate(glm::vec3(0, 0, -s.z));
+	Shader::rotate(-90, glm::vec3(1, 0, 0));
+	MModelObj::get("Arrow.obj")->renderObj();
+	Shader::popMatrixModel();
+
+	Shader::popMatrixModel();
 }
 
 void MTSelect::inputResize() {
@@ -104,25 +136,25 @@ void MTSelect::inputResize() {
 }
 void MTSelect::updateResize() {
 	if(m_scaling) {
-		Vector3<GLfloat> p_camDir;
+		glm::vec3 p_camDir;
 		GLfloat dist, denom, p, m_dragDifference;
-		denom = p_camDir.dot(Camera::getMouseDirection());
+		denom = glm::dot(p_camDir, Camera::getMouseDirection());
 		switch(*m_selectedScale) {
 		case FACE_SOUTH:
 			p_camDir = m_startPos - Camera::getPosition();
 			p_camDir.x = 0;
-			p_camDir = p_camDir.getNormal();
-			denom = p_camDir.dot(Camera::getMouseDirection());
+			p_camDir = glm::normalize(p_camDir);
+			denom = glm::dot(p_camDir, Camera::getMouseDirection());
 			if(abs(denom) > 0.0001f) {
-				dist = (m_startPos - Camera::getPosition()).dot(p_camDir) / denom;
+				dist = glm::dot(m_startPos - Camera::getPosition(), p_camDir) / denom;
 				if(dist >= 0.0001f) {
 					m_dragDifference = (Camera::getPosition() + Camera::getMouseDirection() * dist).x - m_startPos.x;
 					if(abs(m_dragDifference) >= 1 && m_editMatrix->getMatrix()->getSize().x - m_dragDifference > 0) {
 						p = m_editMatrix->getMatrix()->getPos().x;
-						if(m_dragDifference > 0) m_editMatrix->getMatrix()->shiftVoxels(Vector3<Sint32>(-m_dragDifference, 0, 0));
-						m_editMatrix->getMatrix()->setSize(m_editMatrix->getMatrix()->getSize() - Vector3<Sint32>(m_dragDifference, 0, 0));
-						m_editMatrix->getMatrix()->addPosition(Vector3<Sint32>(m_dragDifference, 0, 0));
-						if(m_dragDifference < 0) m_editMatrix->getMatrix()->shiftVoxels(Vector3<Sint32>(-m_dragDifference, 0, 0));
+						if(m_dragDifference > 0) m_editMatrix->getMatrix()->shiftVoxels(glm::ivec3(-m_dragDifference, 0, 0));
+						m_editMatrix->getMatrix()->setSize(m_editMatrix->getMatrix()->getSize() - glm::ivec3(m_dragDifference, 0, 0));
+						m_editMatrix->getMatrix()->addPosition(glm::vec3(m_dragDifference, 0, 0));
+						if(m_dragDifference < 0) m_editMatrix->getMatrix()->shiftVoxels(glm::ivec3(-m_dragDifference, 0, 0));
 						m_startPos.x += m_editMatrix->getMatrix()->getPos().x - p;
 					}
 				}
@@ -131,15 +163,15 @@ void MTSelect::updateResize() {
 		case FACE_NORTH:
 			p_camDir = m_startPos - Camera::getPosition();
 			p_camDir.x = 0;
-			p_camDir = p_camDir.getNormal();
-			denom = p_camDir.dot(Camera::getMouseDirection());
+			p_camDir = glm::normalize(p_camDir);
+			denom = glm::dot(p_camDir, Camera::getMouseDirection());
 			if(abs(denom) > 0.0001f) {
-				dist = (m_startPos - Camera::getPosition()).dot(p_camDir) / denom;
+				dist = glm::dot(m_startPos - Camera::getPosition(), p_camDir) / denom;
 				if(dist >= 0.0001f) {
 					m_dragDifference = (Camera::getPosition() + Camera::getMouseDirection() * dist).x - m_startPos.x;
 					if(abs(m_dragDifference) >= 1 && m_editMatrix->getMatrix()->getSize().x + m_dragDifference > 0) {
 						p = m_editMatrix->getMatrix()->getSize().x;
-						m_editMatrix->getMatrix()->setSize(m_editMatrix->getMatrix()->getSize() + Vector3<Sint32>(m_dragDifference, 0, 0));
+						m_editMatrix->getMatrix()->setSize(m_editMatrix->getMatrix()->getSize() + glm::ivec3(m_dragDifference, 0, 0));
 						m_startPos.x += m_editMatrix->getMatrix()->getSize().x - p;
 					}
 				}
@@ -148,18 +180,18 @@ void MTSelect::updateResize() {
 		case FACE_BOTTOM:
 			p_camDir = m_startPos - Camera::getPosition();
 			p_camDir.y = 0;
-			p_camDir = p_camDir.getNormal();
-			denom = p_camDir.dot(Camera::getMouseDirection());
+			p_camDir = glm::normalize(p_camDir);
+			denom = glm::dot(p_camDir, Camera::getMouseDirection());
 			if(abs(denom) > 0.0001f) {
-				dist = (m_startPos - Camera::getPosition()).dot(p_camDir) / denom;
+				dist = glm::dot(m_startPos - Camera::getPosition(), p_camDir) / denom;
 				if(dist >= 0.0001f) {
 					m_dragDifference = (Camera::getPosition() + Camera::getMouseDirection() * dist).y - m_startPos.y;
 					if(abs(m_dragDifference) >= 1 && m_editMatrix->getMatrix()->getSize().y - m_dragDifference > 0) {
 						p = m_editMatrix->getMatrix()->getPos().y;
-						if(m_dragDifference > 0) m_editMatrix->getMatrix()->shiftVoxels(Vector3<Sint32>(0, -m_dragDifference, 0));
-						m_editMatrix->getMatrix()->setSize(m_editMatrix->getMatrix()->getSize() - Vector3<Sint32>(0, m_dragDifference, 0));
-						m_editMatrix->getMatrix()->addPosition(Vector3<Sint32>(0, m_dragDifference, 0));
-						if(m_dragDifference < 0) m_editMatrix->getMatrix()->shiftVoxels(Vector3<Sint32>(0, -m_dragDifference, 0));
+						if(m_dragDifference > 0) m_editMatrix->getMatrix()->shiftVoxels(glm::ivec3(0, -m_dragDifference, 0));
+						m_editMatrix->getMatrix()->setSize(m_editMatrix->getMatrix()->getSize() - glm::ivec3(0, m_dragDifference, 0));
+						m_editMatrix->getMatrix()->addPosition(glm::vec3(0, m_dragDifference, 0));
+						if(m_dragDifference < 0) m_editMatrix->getMatrix()->shiftVoxels(glm::ivec3(0, -m_dragDifference, 0));
 						m_startPos.y += m_editMatrix->getMatrix()->getPos().y - p;
 					}
 				}
@@ -168,15 +200,15 @@ void MTSelect::updateResize() {
 		case FACE_TOP:
 			p_camDir = m_startPos - Camera::getPosition();
 			p_camDir.y = 0;
-			p_camDir = p_camDir.getNormal();
-			denom = p_camDir.dot(Camera::getMouseDirection());
+			p_camDir = glm::normalize(p_camDir);
+			denom = glm::dot(p_camDir, Camera::getMouseDirection());
 			if(abs(denom) > 0.0001f) {
-				dist = (m_startPos - Camera::getPosition()).dot(p_camDir) / denom;
+				dist = glm::dot(m_startPos - Camera::getPosition(), p_camDir) / denom;
 				if(dist >= 0.0001f) {
 					m_dragDifference = (Camera::getPosition() + Camera::getMouseDirection() * dist).y - m_startPos.y;
 					if(abs(m_dragDifference) >= 1 && m_editMatrix->getMatrix()->getSize().y + m_dragDifference > 0) {
 						p = m_editMatrix->getMatrix()->getSize().y;
-						m_editMatrix->getMatrix()->setSize(m_editMatrix->getMatrix()->getSize() + Vector3<Sint32>(0, m_dragDifference, 0));
+						m_editMatrix->getMatrix()->setSize(m_editMatrix->getMatrix()->getSize() + glm::ivec3(0, m_dragDifference, 0));
 						m_startPos.y += m_editMatrix->getMatrix()->getSize().y - p;
 					}
 				}
@@ -185,18 +217,18 @@ void MTSelect::updateResize() {
 		case FACE_WEST:
 			p_camDir = (m_startPos - Camera::getPosition());
 			p_camDir.z = 0;
-			p_camDir = p_camDir.getNormal();
-			denom = p_camDir.dot(Camera::getMouseDirection());
+			p_camDir = glm::normalize(p_camDir);
+			denom = glm::dot(p_camDir, Camera::getMouseDirection());
 			if(abs(denom) > 0.0001f) {
-				dist = (m_startPos - Camera::getPosition()).dot(p_camDir) / denom;
+				dist = glm::dot(m_startPos - Camera::getPosition(), p_camDir) / denom;
 				if(dist >= 0.0001f) {
 					m_dragDifference = (Camera::getPosition() + Camera::getMouseDirection() * dist).z - m_startPos.z;
 					if(abs(m_dragDifference) >= 1 && m_editMatrix->getMatrix()->getSize().z - m_dragDifference > 0) {
 						p = m_editMatrix->getMatrix()->getPos().z;
-						if(m_dragDifference > 0) m_editMatrix->getMatrix()->shiftVoxels(Vector3<Sint32>(0, 0, -m_dragDifference));
-						m_editMatrix->getMatrix()->setSize(m_editMatrix->getMatrix()->getSize() - Vector3<Sint32>(0, 0, m_dragDifference));
-						m_editMatrix->getMatrix()->addPosition(Vector3<Sint32>(0, 0, m_dragDifference));
-						if(m_dragDifference < 0) m_editMatrix->getMatrix()->shiftVoxels(Vector3<Sint32>(0, 0, -m_dragDifference));
+						if(m_dragDifference > 0) m_editMatrix->getMatrix()->shiftVoxels(glm::ivec3(0, 0, -m_dragDifference));
+						m_editMatrix->getMatrix()->setSize(m_editMatrix->getMatrix()->getSize() - glm::ivec3(0, 0, m_dragDifference));
+						m_editMatrix->getMatrix()->addPosition(glm::vec3(0, 0, m_dragDifference));
+						if(m_dragDifference < 0) m_editMatrix->getMatrix()->shiftVoxels(glm::ivec3(0, 0, -m_dragDifference));
 						m_startPos.z += m_editMatrix->getMatrix()->getPos().z - p;
 					}
 				}
@@ -205,15 +237,15 @@ void MTSelect::updateResize() {
 		case FACE_EAST:
 			p_camDir = (m_startPos - Camera::getPosition());
 			p_camDir.z = 0;
-			p_camDir = p_camDir.getNormal();
-			denom = p_camDir.dot(Camera::getMouseDirection());
+			p_camDir = glm::normalize(p_camDir);
+			denom = glm::dot(p_camDir, Camera::getMouseDirection());
 			if(abs(denom) > 0.0001f) {
-				dist = (m_startPos - Camera::getPosition()).dot(p_camDir) / denom;
+				dist = glm::dot(m_startPos - Camera::getPosition(), p_camDir) / denom;
 				if(dist >= 0.0001f) {
 					m_dragDifference = (Camera::getPosition() + Camera::getMouseDirection() * dist).z - m_startPos.z;
 					if(abs(m_dragDifference) >= 1 && m_editMatrix->getMatrix()->getSize().z + m_dragDifference > 0) {
 						p = m_editMatrix->getMatrix()->getSize().z;
-						m_editMatrix->getMatrix()->setSize(m_editMatrix->getMatrix()->getSize() + Vector3<Sint32>(0, 0, m_dragDifference));
+						m_editMatrix->getMatrix()->setSize(m_editMatrix->getMatrix()->getSize() + glm::ivec3(0, 0, m_dragDifference));
 						m_startPos.z += m_editMatrix->getMatrix()->getSize().z - p;
 					}
 				}
@@ -223,20 +255,50 @@ void MTSelect::updateResize() {
 	}
 }
 void MTSelect::renderResize() {
-	Vector3<GLfloat> s = Vector3<GLfloat>((*m_matrices)[m_editMatrix->getId()]->getSize()) / 2.f;
-	Vector3<GLfloat> _offset = (*m_matrices)[m_editMatrix->getId()]->getPos() + s;
-	glPushMatrix();
-	{
-		glTranslatef(_offset.x, _offset.y, _offset.z);
+	glm::vec3 s = glm::vec3((*m_matrices)[m_editMatrix->getId()]->getSize()) / 2.f;
+	glm::vec3 _offset = (*m_matrices)[m_editMatrix->getId()]->getPos() + s;
 
-		MMesh::render("Scale", {-s.x, 0, 0}, {0.1f, 2, 0.1f}, {0, 0, 90}, (*m_selectedScale == FACE_SOUTH ? Color(1, 0.25f, 0.25f) : Color(0.75f, 0, 0)));
-		MMesh::render("Scale", {s.x, 0, 0}, {0.1f, 2, 0.1f}, {0, 0, -90}, (*m_selectedScale == FACE_NORTH ? Color(1, 0.25f, 0.25f) : Color(0.75f, 0, 0)));
+	Shader::pushMatrixModel();
+	Shader::translate(glm::vec3(_offset));
 
-		MMesh::render("Scale", {0, -s.y, 0}, {0.1f, 2, 0.1f}, {180, 0, 0}, (*m_selectedScale == FACE_BOTTOM ? Color(0.25f, 1, 0.25f) : Color(0, 0.75f, 0)));
-		MMesh::render("Scale", {0, s.y, 0}, {0.1f, 2, 0.1f}, {0, 0, 0}, (*m_selectedScale == FACE_TOP ? Color(0.25f, 1, 0.25f) : Color(0, 0.75f, 0)));
+	Shader::setColor(((*m_selectedScale == FACE_SOUTH || *m_selectedScale == FACE_NORTH) ? glm::vec4(1.0f, 0.25f, 0.25f, 1.0f) : glm::vec4(0.75f, 0.0f, 0.0f, 1.f)));
+	Shader::pushMatrixModel();
+	Shader::translate(glm::vec3(s.x, 0, 0));
+	Shader::rotate(-90, glm::vec3(0, 0, 1));
+	MModelObj::get("Scale.obj")->renderObj();
+	Shader::popMatrixModel();
 
-		MMesh::render("Scale", {0, 0, -s.z}, {0.1f, 2, 0.1f}, {-90, 0, 0}, (*m_selectedScale == FACE_WEST ? Color(0.25f, 0.25f, 1) : Color(0, 0, 0.75f)));
-		MMesh::render("Scale", {0, 0, s.z}, {0.1f, 2, 0.1f}, {90, 0, 0}, (*m_selectedScale == FACE_EAST ? Color(0.25f, 0.25f, 1) : Color(0, 0, 0.75f)));
-	}
-	glPopMatrix();
+	Shader::pushMatrixModel();
+	Shader::translate(glm::vec3(-s.x, 0, 0));
+	Shader::rotate(90, glm::vec3(0, 0, 1));
+	MModelObj::get("Scale.obj")->renderObj();
+	Shader::popMatrixModel();
+
+	Shader::setColor(((*m_selectedScale == FACE_BOTTOM || *m_selectedScale == FACE_TOP) ? glm::vec4(0.25f, 1.0f, 0.25f, 1.0f) : glm::vec4(0.0f, 0.75f, 0.0f, 1.f)));
+	Shader::pushMatrixModel();
+	Shader::translate(glm::vec3(0, s.y, 0));
+	//Shader::rotate(0, glm::vec3(0, 0, 1));
+	MModelObj::get("Scale.obj")->renderObj();
+	Shader::popMatrixModel();
+
+	Shader::pushMatrixModel();
+	Shader::translate(glm::vec3(0, -s.y, 0));
+	Shader::rotate(180, glm::vec3(0, 0, 1));
+	MModelObj::get("Scale.obj")->renderObj();
+	Shader::popMatrixModel();
+
+	Shader::setColor(((*m_selectedScale == FACE_WEST || *m_selectedScale == FACE_EAST) ? glm::vec4(0.25f, 0.25f, 1.0f, 1.0f) : glm::vec4(0.0f, 0.0f, 0.75f, 1.f)));
+	Shader::pushMatrixModel();
+	Shader::translate(glm::vec3(0, 0, s.z));
+	Shader::rotate(90, glm::vec3(1, 0, 0));
+	MModelObj::get("Scale.obj")->renderObj();
+	Shader::popMatrixModel();
+
+	Shader::pushMatrixModel();
+	Shader::translate(glm::vec3(0, 0, -s.z));
+	Shader::rotate(-90, glm::vec3(1, 0, 0));
+	MModelObj::get("Scale.obj")->renderObj();
+	Shader::popMatrixModel();
+
+	Shader::popMatrixModel();
 }

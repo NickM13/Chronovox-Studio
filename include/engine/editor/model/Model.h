@@ -44,22 +44,22 @@ private:
 	CList* m_nameList;
 
 	// Editting tool variables
-	Vector3<GLfloat> m_point, m_scalePos; // Point of selection, move/scale drag offsets
-	Vector3<Sint32> m_selectedVoxel; // Selected voxel coord
-	Vector3<Sint32> m_selectedVoxelOffset; // Voxel off of selected face
+	glm::vec3 m_point, m_scalePos; // Point of selection, move/scale drag offsets
+	glm::ivec3 m_selectedVoxel; // Selected voxel coord
+	glm::ivec3 m_selectedVoxelOffset; // Voxel off of selected face
 	Voxel m_boxVoxel; // Voxel filling box area
 	Sint8 m_selectedSide; // Face selected
 
-	Vector3<GLfloat> m_pos;
-	Vector3<GLfloat> m_size;
+	glm::vec3 m_pos;
+	glm::vec3 m_size;
 	Sint16 m_hoverMatrix;
-	Vector3<GLfloat> m_grabStart, m_grabCurrent;
+	glm::vec3 m_grabStart, m_grabCurrent;
 	GLfloat m_dragDifference;
 	Sint8 m_selectedScale;
 
 	EditMatrix *m_matrixEdit;
 
-	Vector3<GLfloat> dir, pos, norm;
+	glm::vec3 dir, pos, norm;
 	GLfloat dist, denom, p;
 public:
 	Model();
@@ -83,29 +83,30 @@ public:
 	void copyMatrix();
 	void pasteMatrix();
 
-	void setVoxel(Uint16 p_matrix, Vector3<Sint32> p_pos, Voxel p_voxel);
-	Voxel getVoxel(Uint16 p_matrix, Vector3<Sint32> p_pos);
-	Uint16 getVoxelId(Uint16 p_matrix, Vector3<Sint32> p_pos);
+	void setVoxel(Uint16 p_matrix, glm::ivec3 p_pos, Voxel p_voxel);
+	Voxel getVoxel(Uint16 p_matrix, glm::ivec3 p_pos);
+	Uint16 getVoxelId(Uint16 p_matrix, glm::ivec3 p_pos);
 
-	void resize(Uint16 p_matrixId, Vector3<Sint32> p_offset, Vector3<Sint32> p_size);
-	void shiftMatrix(Vector3<Sint32> p_direction);
+	void resize(Uint16 p_matrixId, glm::ivec3 p_offset, glm::ivec3 p_size);
+	void shiftMatrix(glm::ivec3 p_direction);
 	void flipMatrix(Sint8 p_axesFlags);
 	void rotateMatrix(Sint8 p_axesFlags);
-	void addMatrix(std::string p_name, Vector3<GLfloat> p_pos, Vector3<Sint16> p_size);
+	void addMatrix(std::string p_name, glm::vec3 p_pos, glm::ivec3 p_size);
 	void renameMatrix(Uint16 id, std::string p_name);
 	void deleteSelectedMatrices();
 	void moveMatrix(bool up);
 	void hoverMatrix(Sint16 id);
 	void selectMatrix(Sint16 id);
 
-	Vector3<GLfloat> getPos() { return m_pos; }
-	Vector3<GLfloat> getSize() { return m_size; }
+	glm::vec3 getPos() { return m_pos; }
+	glm::vec3 getSize() { return m_size; }
 
 	void updateMatrixList();
 
 	void inputEditor(Sint8 p_guiFlags);
 	void updateEditor(GLfloat p_deltaUpdate);
 	void renderEditor();
+	void renderEditorShadow();
 
 	std::vector<std::string> getMatrixNames();
 	Matrix* getMatrix(Sint16 id);
@@ -113,7 +114,7 @@ public:
 	std::vector<Matrix*> getMatrixList() { return m_matrices; }
 	Matrix* getSelectedMatrix();
 	std::vector<Matrix*> getSelectedMatrices();
-	Vector3<GLfloat> getSelectedMatricesCenter();
+	glm::vec3 getSelectedMatricesCenter();
 	
 	bool exitSave();
 	void autosave();

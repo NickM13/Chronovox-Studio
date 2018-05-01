@@ -122,7 +122,7 @@ void EditMatrix::refreshPos() {
 		m_initMatrix->setPosition(m_matrix->getPos());
 }
 
-Voxel EditMatrix::getVoxel(Vector3<Sint32> p_pos) {
+Voxel EditMatrix::getVoxel(glm::ivec3 p_pos) {
 	if(m_initMatrix)
 		return m_initMatrix->getVoxel(p_pos);
 	return Voxel();
@@ -133,12 +133,12 @@ Sint16& EditMatrix::getId() {
 bool EditMatrix::isSet() {
 	return (m_matrix);
 }
-Vector3<GLfloat> EditMatrix::getPos() {
+glm::vec3 EditMatrix::getPos() {
 	if(m_initMatrix)
 		return m_initMatrix->getPos();
 	return {};
 }
-Vector3<Sint32> EditMatrix::getSize() {
+glm::ivec3 EditMatrix::getSize() {
 	if(m_initMatrix)
 		return m_initMatrix->getSize();
 	return {};

@@ -5,6 +5,7 @@
 #include "engine\gfx\gui\Component.h"
 #include "engine\editor\menu\EditorOverlay.h"
 #include "engine\editor\model\menu\ModelOverlay.h"
+#include "engine\gfx\shader\Shader.h"
 
 #include <direct.h>
 #include <shlobj.h>
@@ -95,7 +96,7 @@ void Model::toggleOutline() {
 
 void Model::focus() {
 	if(MTool::getTool(m_tool)->getType() == Tool::ToolType::VOXEL)
-		Camera::setPosition(m_matrixEdit->getPos() + Vector3<GLfloat>(m_selectedVoxel) + Vector3<GLfloat>(0.5f, 0.5f, 0.5f));
+		Camera::setPosition(m_matrixEdit->getPos() + glm::vec3(m_selectedVoxel) + glm::vec3(0.5f, 0.5f, 0.5f));
 	else if(MTool::getTool(m_tool)->getType() == Tool::ToolType::MATRIX)
 		Camera::setPosition(getSelectedMatricesCenter());
 }
@@ -115,9 +116,9 @@ void Model::copyMatrix() {
 void Model::pasteMatrix() {
 	if(m_matrixCopy) {
 		m_matrixEdit->setCommandListOpen(false);
-		addMatrix(m_matrixCopy->getName() + " - Copy", Camera::getPosition() - (m_matrixCopy->getSize() / 2), m_matrixCopy->getSize());
+		addMatrix(m_matrixCopy->getName() + " - Copy", Camera::getPosition() - (glm::vec3(m_matrixCopy->getSize()) / glm::vec3(2)), m_matrixCopy->getSize());
 		Matrix* _matrix = getMatrix(Sint16(getMatrixNames().size()) - 1);
-		_matrix->setPosition(Camera::getPosition() - (m_matrixCopy->getSize() / 2));
+		_matrix->setPosition(Camera::getPosition() - (glm::vec3(m_matrixCopy->getSize()) / glm::vec3(2)));
 		MNewCommand* _cmd = new MNewCommand(_matrix, m_matrices, Uint16(m_matrices.size()) - 1, m_nameList);
 		m_matrixEdit->addCommand(_cmd);
 		for(Uint16 x = 0; x < m_matrixCopy->getSize().x; x++) {
@@ -133,17 +134,17 @@ void Model::pasteMatrix() {
 	}
 }
 
-void Model::setVoxel(Uint16 p_matrix, Vector3<Sint32> p_pos, Voxel p_voxel) {
+void Model::setVoxel(Uint16 p_matrix, glm::ivec3 p_pos, Voxel p_voxel) {
 	m_matrices[p_matrix]->setVoxel(p_pos, p_voxel);
 }
-Voxel Model::getVoxel(Uint16 p_matrix, Vector3<Sint32> p_pos) {
+Voxel Model::getVoxel(Uint16 p_matrix, glm::ivec3 p_pos) {
 	return m_matrices[p_matrix]->getVoxel(p_pos);
 }
-Uint16 Model::getVoxelId(Uint16 p_matrix, Vector3<Sint32> p_pos) {
+Uint16 Model::getVoxelId(Uint16 p_matrix, glm::ivec3 p_pos) {
 	return m_matrices[p_matrix]->getVoxelId(p_pos);
 }
 
-void Model::resize(Uint16 p_matrixId, Vector3<Sint32> p_offset, Vector3<Sint32> p_size) {
+void Model::resize(Uint16 p_matrixId, glm::ivec3 p_offset, glm::ivec3 p_size) {
 	if(p_size.x <= p_offset.x || p_size.x <= p_offset.x || p_size.x <= p_offset.x) return;
 	Sint32 id = m_matrixEdit->getId();
 	m_matrixEdit->clearMatrix();
@@ -158,7 +159,7 @@ void Model::resize(Uint16 p_matrixId, Vector3<Sint32> p_offset, Vector3<Sint32> 
 	if(id != -1)
 		m_matrixEdit->setMatrix(m_matrices[id], id);
 }
-void Model::shiftMatrix(Vector3<Sint32> p_direction) {
+void Model::shiftMatrix(glm::ivec3 p_direction) {
 	if(m_hoverMatrix != -1) {
 		m_matrices[m_hoverMatrix]->shiftVoxels(p_direction);
 	}
@@ -170,14 +171,14 @@ void Model::flipMatrix(Sint8 p_axesFlags) {
 	}
 }
 void Model::rotateMatrix(Sint8 p_axesFlags) {
-	Vector3<GLfloat> center = getSelectedMatricesCenter();
+	glm::vec3 center = getSelectedMatricesCenter();
 	for(Matrix* m : getSelectedMatrices()) {
 		m_matrixEdit->setMatrix(m, m->getId());
 		m->rotate(p_axesFlags, center);
 		m_matrixEdit->clearMatrix();
 	}
 }
-void Model::addMatrix(std::string p_name, Vector3<GLfloat> p_pos, Vector3<Sint16> p_size) {
+void Model::addMatrix(std::string p_name, glm::vec3 p_pos, glm::ivec3 p_size) {
 	bool validName;
 	Uint16 i = 0;
 	std::string _name = p_name;
@@ -198,13 +199,13 @@ void Model::addMatrix(std::string p_name, Vector3<GLfloat> p_pos, Vector3<Sint16
 	m_matrixEdit->addCommand(_cmd);
 	m_hoverMatrix = Sint16(m_matrices.size()) - 1;
 	m_matrixEdit->setMatrix(m_matrices[m_hoverMatrix], m_hoverMatrix);
-	Vector3<GLfloat> _pos = m_pos = {1000, 1000, 1000};
+	glm::vec3 _pos = m_pos = {1000, 1000, 1000};
 	m_size = {-1000, -1000, -1000};
 	for(Matrix *m : m_matrices) {
-		_pos = Vector3<GLfloat>(min(m_pos.x, m->getPos().x), min(m_pos.y, m->getPos().y), min(m_pos.z, m->getPos().z));
-		m_size = Vector3<GLfloat>(max(m_pos.x + m_size.x, m->getPos().x + m->getSize().x) - _pos.x,
-			max(m_pos.y + m_size.y, m->getPos().y + m->getSize().y) - _pos.y,
-			max(m_pos.z + m_size.z, m->getPos().z + m->getSize().z) - _pos.z);
+		_pos = glm::vec3(std::fminf(m_pos.x, m->getPos().x), std::fminf(m_pos.y, m->getPos().y), std::fminf(m_pos.z, m->getPos().z));
+		m_size = glm::vec3(std::fmaxf(m_pos.x + m_size.x, m->getPos().x + m->getSize().x) - _pos.x,
+			std::fmaxf(m_pos.y + m_size.y, m->getPos().y + m->getSize().y) - _pos.y,
+			std::fmaxf(m_pos.z + m_size.z, m->getPos().z + m->getSize().z) - _pos.z);
 		m_pos = _pos;
 	}
 	updateMatrixList();
@@ -303,9 +304,9 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 	if(MTool::getTool(m_tool)->getType() == Tool::ToolType::VOXEL
 		&& GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)
 		&& m_matrixEdit->getId() != -1)
-		ModelMath::castRayMatrix(Camera::getPosition(), Camera::getMouseDirection() * 4096, m_matrixEdit->getInitMatrix(), _near, _far);
+		ModelMath::castRayMatrix(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), m_matrixEdit->getInitMatrix(), _near, _far);
 	else
-		ModelMath::castRayMatrices(Camera::getPosition(), Camera::getMouseDirection() * 4096, m_matrices, m_hoverMatrix, _near, _far);
+		ModelMath::castRayMatrices(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), m_matrices, m_hoverMatrix, _near, _far);
 	
 	if(!mouseOnGui) {
 		switch(MTool::getTool(m_tool)->getType()) {
@@ -325,11 +326,11 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 	if(!mouseOnGui && m_matrixEdit->getId() != -1 && !GMouse::mouseDown(GLFW_MOUSE_BUTTON_RIGHT)) {
 		switch(MTool::getTool(m_tool)->getType()) {
 		case Tool::ToolType::VOXEL:
-			ModelMath::castRayVoxel(Camera::getPosition(), Camera::getMouseDirection() * 4096, m_matrixEdit->getInitMatrix(), _near, _far, m_selectedVoxel, m_selectedSide, m_selectedVoxelOffset);
+			ModelMath::castRayVoxel(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), m_matrixEdit->getInitMatrix(), _near, _far, m_selectedVoxel, m_selectedSide, m_selectedVoxelOffset);
 			static_cast<VoxelTool*>(MTool::getTool(m_tool))->input();
 			break;
 		case Tool::ToolType::MATRIX:
-			ModelMath::castRayScale(Camera::getPosition(), Camera::getMouseDirection() * 4096, m_matrixEdit->getMatrix(), _near, _far, m_scalePos, m_selectedScale);
+			ModelMath::castRayScale(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), m_matrixEdit->getMatrix(), _near, _far, m_scalePos, m_selectedScale);
 			static_cast<MatrixTool*>(MTool::getTool(m_tool))->input();
 			break;
 		}
@@ -339,26 +340,26 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 	}
 
 	if(!EditorOverlay::getContainer()->isPaused() && (p_guiFlags & (Sint8)Component::EventFlag::KEYPRESS)) {
-		if(GKey::keyPressed(GLFW_KEY_Z, GLFW_MOD_CONTROL)) undo();
-		if(GKey::keyPressed(GLFW_KEY_C, GLFW_MOD_CONTROL)) copyMatrix();
-		if(GKey::keyPressed(GLFW_KEY_V, GLFW_MOD_CONTROL)) pasteMatrix();
-		if(GKey::keyPressed(GLFW_KEY_Y, GLFW_MOD_CONTROL)) redo();
-		if(GKey::keyPressed(GLFW_KEY_S, GLFW_MOD_CONTROL)) save();
-		if(GKey::keyPressed(GLFW_KEY_O, GLFW_MOD_CONTROL)) open();
-		if(GKey::keyPressed(GLFW_KEY_G, GLFW_MOD_CONTROL)) toggleGrid();
-		if(GKey::keyPressed(GLFW_KEY_H, GLFW_MOD_CONTROL)) toggleOutline();
-		if(GKey::keyPressed(GLFW_KEY_N, GLFW_MOD_CONTROL)) EditorOverlay::getContainer()->findComponent("GUI_MODEL")->setPauseScreen("NEWMATRIX");
-		if(GKey::keyPressed(GLFW_KEY_F2) && getSelectedMatrix()) EditorOverlay::getContainer()->findComponent("GUI_MODEL")->setPauseScreen("PROPERTIES");
-		if(GKey::keyPressed(GLFW_KEY_DELETE)) deleteSelectedMatrices();
-		if(GKey::keyPressed(GLFW_KEY_SPACE)) focus();
-		if(GKey::keyPressed(GLFW_KEY_T)) setTool("VTAdd");
-		if(GKey::keyPressed(GLFW_KEY_E)) setTool("VTErase");
-		if(GKey::keyPressed(GLFW_KEY_R)) setTool("VTReplace");
-		if(GKey::keyPressed(GLFW_KEY_K)) setTool("VTEyedrop");
-		if(GKey::keyPressed(GLFW_KEY_M)) setTool("MTSelect");
-		if(GKey::keyPressed(GLFW_KEY_1)) setSubTool(0);
-		if(GKey::keyPressed(GLFW_KEY_2)) setSubTool(1);
-		if(GKey::keyPressed(GLFW_KEY_3)) setSubTool(2);
+		if(GKey::keyPressed(GLFW_KEY_Z, GLFW_MOD_CONTROL))       undo();
+		if(GKey::keyPressed(GLFW_KEY_C, GLFW_MOD_CONTROL))       copyMatrix();
+		if(GKey::keyPressed(GLFW_KEY_V, GLFW_MOD_CONTROL))       pasteMatrix();
+		if(GKey::keyPressed(GLFW_KEY_Y, GLFW_MOD_CONTROL))       redo();
+		if(GKey::keyPressed(GLFW_KEY_S, GLFW_MOD_CONTROL))       save();
+		if(GKey::keyPressed(GLFW_KEY_O, GLFW_MOD_CONTROL))       open();
+		if(GKey::keyPressed(GLFW_KEY_G, GLFW_MOD_CONTROL))       toggleGrid();
+		if(GKey::keyPressed(GLFW_KEY_H, GLFW_MOD_CONTROL))       toggleOutline();
+		if(GKey::keyPressed(GLFW_KEY_N, GLFW_MOD_CONTROL))       ModelOverlay::getContainer()->setPauseScreen("DIALOG_NEWMATRIX");
+		if(GKey::keyPressed(GLFW_KEY_F2) && getSelectedMatrix()) ModelOverlay::getContainer()->setPauseScreen("DIALOG_PROPERTIES");
+		if(GKey::keyPressed(GLFW_KEY_DELETE))                    deleteSelectedMatrices();
+		if(GKey::keyPressed(GLFW_KEY_SPACE))                     focus();
+		if(GKey::keyPressed(GLFW_KEY_T))                         setTool("VTAdd");
+		if(GKey::keyPressed(GLFW_KEY_E))                         setTool("VTErase");
+		if(GKey::keyPressed(GLFW_KEY_R))                         setTool("VTReplace");
+		if(GKey::keyPressed(GLFW_KEY_K))                         setTool("VTEyedrop");
+		if(GKey::keyPressed(GLFW_KEY_M))                         setTool("MTSelect");
+		if(GKey::keyPressed(GLFW_KEY_1))                         setSubTool(0);
+		if(GKey::keyPressed(GLFW_KEY_2))                         setSubTool(1);
+		if(GKey::keyPressed(GLFW_KEY_3))                         setSubTool(2);
 	}
 }
 void Model::updateEditor(GLfloat p_deltaUpdate) {
@@ -371,6 +372,9 @@ void Model::updateEditor(GLfloat p_deltaUpdate) {
 		break;
 	default: break;
 	}
+
+	for(Matrix* m : m_matrices)
+		m->update();
 	
 	Matrix* m = 0;
 	if(getSelectedMatrix()) m = getSelectedMatrix();
@@ -389,9 +393,12 @@ void Model::updateEditor(GLfloat p_deltaUpdate) {
 		*m_dataString = "";
 }
 void Model::renderEditor() {
-	if(m_grid) renderGrid();
+	Shader::setLightEnabled(true);
+	for(Matrix* m : m_matrices)
+		m->renderMatrix();
 
-	for(Matrix* m : m_matrices) m->renderMatrix();
+	Shader::setLightEnabled(false);
+	if(m_grid) renderGrid();
 
 	for(Uint16 i = 0; i < m_matrices.size(); i++) {
 		if(m_outline)
@@ -410,43 +417,38 @@ void Model::renderEditor() {
 	default: break;
 	}
 }
+void Model::renderEditorShadow() {
+	for(Matrix* m : m_matrices)
+		m->renderShadow();
+}
 void Model::renderGrid() {
-	glPushMatrix();
-	{
-		glTranslatef(0, -0.025f, 0);
-		glBegin(GL_LINES);
-		{
-			for(Sint16 i = -32; i <= 32; i++) {
-				if(i == 0) {
-					glColor3f(0.5f, 0.5f, 0.5f);
-					glVertex3f(i, 0, -32);
-					glVertex3f(i, 0, 0);
-					glVertex3f(0, 0, i);
-					glVertex3f(-32, 0, i);
+	GLfloat w1 = 0.05f, w2 = w1 / 2.5f;
+	GLfloat gc = 32; // Grid Count
+	Shader::pushMatrixModel();
+	Shader::transformModel(glm::translate(glm::mat4(), glm::vec3(0.f, -0.025f, 0.f)));
+	Shader::applyModel();
+	Shader::setColor(glm::vec4(1.f, 1.f, 1.f, 1.f));
+	for(Sint16 i = -gc; i <= gc; i++) {
+		if(i == 0) {
+			MMesh::renderLine(glm::vec3(-gc, 0, 0), glm::vec3(0, 0, 0), glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
+			MMesh::renderLine(glm::vec3(0, 0, -gc), glm::vec3(0, 0, 0), glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
 
-					glColor3f(1, 0, 0);
-					glVertex3f(0, 0, i);
-					glVertex3f(32, 0, i);
-
-					glColor3f(0, 0, 1);
-					glVertex3f(i, 0, 0);
-					glVertex3f(i, 0, 32);
-				}
-				else {
-					glColor3f(0.5f, 0.5f, 0.5f);
-					glVertex3f(-32, 0, i);
-					glVertex3f(32, 0, i);
-					glVertex3f(i, 0, -32);
-					glVertex3f(i, 0, 32);
-				}
-			}
-			glColor3f(0, 1, 0);
-			glVertex3f(0, 0, 0);
-			glVertex3f(0, 16, 0);
+			MMesh::renderLine(glm::vec3(0, 0, 0), glm::vec3(gc, 0, 0), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+			MMesh::renderLine(glm::vec3(0, 0, 0), glm::vec3(0, gc, 0), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+			MMesh::renderLine(glm::vec3(0, 0, 0), glm::vec3(0, 0, gc), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 		}
-		glEnd();
+		else {
+			if(i % 2 == 0) {
+				MMesh::renderLine(glm::vec3(i, 0, -gc), glm::vec3(i, 0, gc), glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
+				MMesh::renderLine(glm::vec3(-gc, 0, i), glm::vec3(gc, 0, i), glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
+			}
+			else {
+				MMesh::renderLine(glm::vec3(i, 0, -gc), glm::vec3(i, 0, gc), glm::vec4(0.5f, 0.5f, 0.5f, 0.35f));
+				MMesh::renderLine(glm::vec3(-gc, 0, i), glm::vec3(gc, 0, i), glm::vec4(0.5f, 0.5f, 0.5f, 0.35f));
+			}
+		}
 	}
-	glPopMatrix();
+	Shader::popMatrixModel();
 }
 
 std::vector<std::string> Model::getMatrixNames() {
@@ -477,17 +479,17 @@ std::vector<Matrix*> Model::getSelectedMatrices() {
 			selected.push_back(getMatrix(li.name));
 	return selected;
 }
-Vector3<GLfloat> Model::getSelectedMatricesCenter() {
+glm::vec3 Model::getSelectedMatricesCenter() {
 	GLfloat bn = 1e8;
-	Vector3<GLfloat> minBound = {bn, bn, bn}, maxBound = {-bn, -bn, -bn};
-	Vector3<GLfloat> center;
+	glm::vec3 minBound = {bn, bn, bn}, maxBound = {-bn, -bn, -bn};
+	glm::vec3 center;
 	for(Matrix* m : getSelectedMatrices()) {
-		minBound.x = min(m->getPos().x, minBound.x);
-		minBound.y = min(m->getPos().y, minBound.y);
-		minBound.z = min(m->getPos().z, minBound.z);
-		maxBound.x = max(m->getPos().x + m->getSize().x, maxBound.x);
-		maxBound.y = max(m->getPos().y + m->getSize().y, maxBound.y);
-		maxBound.z = max(m->getPos().z + m->getSize().z, maxBound.z);
+		minBound.x = std::fminf(m->getPos().x, minBound.x);
+		minBound.y = std::fminf(m->getPos().y, minBound.y);
+		minBound.z = std::fminf(m->getPos().z, minBound.z);
+		maxBound.x = std::fmaxf(m->getPos().x + m->getSize().x, maxBound.x);
+		maxBound.y = std::fmaxf(m->getPos().y + m->getSize().y, maxBound.y);
+		maxBound.z = std::fmaxf(m->getPos().z + m->getSize().z, maxBound.z);
 	}
 	center.x = minBound.x + (maxBound.x - minBound.x) / 2;
 	center.y = minBound.y + (maxBound.y - minBound.y) / 2;

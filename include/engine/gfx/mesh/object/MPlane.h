@@ -7,6 +7,7 @@ struct MPlane : public TMeshObject {
 	{
 		m_objectName = "Plane";
 
-		addQuad({{-0.5f, 0.5f, -0.5f},{-0.5f, 0.5f, 0.5f},{0.5f, 0.5f, 0.5f},{0.5f, 0.5f, -0.5f}}, 1.00f);
+		addQuad({{-0.5f, 0.5f, -0.5f},{-0.5f, 0.5f, 0.5f},{0.5f, 0.5f, 0.5f},{0.5f, 0.5f, -0.5f}}, glm::vec4(1.00f, 1.00f, 1.00f, 1.0f));
+		addQuad({{-0.5f, 0.5f, -0.5f},{0.5f, 0.5f, -0.5f},{0.5f, 0.5f, 0.5f},{-0.5f, 0.5f, 0.5f}}, glm::vec4(1.00f, 1.00f, 1.00f, 1.0f));
 	}
 };

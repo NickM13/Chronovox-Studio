@@ -57,7 +57,7 @@ Component* Container::addComponent(Component* p_component, Anchor p_posAnchor, A
 	if(m_componentMap.empty())
 		m_contentArea = Vector4<Sint32>(p_component->getRealPosition().x, p_component->getRealPosition().y, p_component->getRealPosition().x + p_component->getSize().x, p_component->getRealPosition().y + p_component->getSize().y);
 	else if(p_component->isVisible())
-		m_contentArea = Vector4<Sint32>(min(p_component->getRealPosition().x, m_contentArea.x1), min(p_component->getRealPosition().y, m_contentArea.y1), max(p_component->getRealPosition().x + p_component->getRealSize().x, m_contentArea.x2), max(p_component->getRealPosition().y + p_component->getRealSize().y, m_contentArea.y2));
+		m_contentArea = Vector4<Sint32>(std::fminf(p_component->getRealPosition().x, m_contentArea.x1), std::fminf(p_component->getRealPosition().y, m_contentArea.y1), std::fmaxf(p_component->getRealPosition().x + p_component->getRealSize().x, m_contentArea.x2), std::fmaxf(p_component->getRealPosition().y + p_component->getRealSize().y, m_contentArea.y2));
 	Comp c = Comp(p_posAnchor, p_sizeAnchor, p_component);
 	m_componentMap.insert({p_component->getName(), c});
 	sortInComponent(c);
@@ -108,7 +108,7 @@ void Container::resize() {
 		if(m_componentMap.empty())
 			m_contentArea = Vector4<Sint32>(component->getRealPosition().x, component->getRealPosition().y, component->getRealPosition().x + component->getSize().x, component->getRealPosition().y + component->getSize().y);
 		else if(component->isVisible())
-			m_contentArea = Vector4<Sint32>(min(component->getRealPosition().x, m_contentArea.x1), min(component->getRealPosition().y, m_contentArea.y1), max(component->getRealPosition().x + component->getRealSize().x, m_contentArea.x2), max(component->getRealPosition().y + component->getRealSize().y, m_contentArea.y2));
+			m_contentArea = Vector4<Sint32>(std::fminf(component->getRealPosition().x, m_contentArea.x1), std::fminf(component->getRealPosition().y, m_contentArea.y1), std::fmaxf(component->getRealPosition().x + component->getRealSize().x, m_contentArea.x2), std::fmaxf(component->getRealPosition().y + component->getRealSize().y, m_contentArea.y2));
 		
 	}
 }
@@ -142,7 +142,7 @@ void Container::updateSize() {
 	m_contentArea = Vector4<Sint32>();
 	for(std::pair<std::string, Comp> comp : m_componentMap) {
 		if(comp.second.m_component->isVisible())
-			m_contentArea = Vector4<Sint32>(min(comp.second.m_component->getRealPosition().x, m_contentArea.x1), min(comp.second.m_component->getRealPosition().y, m_contentArea.y1), max(comp.second.m_component->getRealPosition().x + comp.second.m_component->getRealSize().x, m_contentArea.x2), max(comp.second.m_component->getRealPosition().y + comp.second.m_component->getRealSize().y, m_contentArea.y2));
+			m_contentArea = Vector4<Sint32>(std::fminf(comp.second.m_component->getRealPosition().x, m_contentArea.x1), std::fminf(comp.second.m_component->getRealPosition().y, m_contentArea.y1), std::fmaxf(comp.second.m_component->getRealPosition().x + comp.second.m_component->getRealSize().x, m_contentArea.x2), std::fmaxf(comp.second.m_component->getRealPosition().y + comp.second.m_component->getRealSize().y, m_contentArea.y2));
 	}
 }
 

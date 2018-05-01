@@ -42,7 +42,7 @@ void KeyframeTimeline::addKeyframe(Keyframe* p_keyframe) {
 		}
 	}
 	m_keyframes.push_back({p_keyframe, layer});
-	m_maxLayer = max(m_maxLayer, layer);
+	m_maxLayer = std::fmaxf(m_maxLayer, layer);
 	m_keyframeHeight = m_keyframeArea.h / (m_maxLayer + 1); // Frame height
 }
 void KeyframeTimeline::terminate() {
@@ -55,7 +55,7 @@ void KeyframeTimeline::input(Sint8& p_interactFlags) {
 	Vector2<Sint32> _mousePos = GMouse::getMousePos() - m_pos;
 
 	if(findComponent("RULER_BG")->isSelected()) {
-		m_time = min(m_length, max(0, m_length * (GLfloat(_mousePos.x) / m_size.x)));
+		m_time = std::fminf(m_length, std::fmaxf(0, m_length * (GLfloat(_mousePos.x) / m_size.x)));
 		m_playing = false;
 	}
 

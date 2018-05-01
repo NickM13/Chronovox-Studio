@@ -17,19 +17,7 @@ void VTReplace::updateSingle() {
 
 }
 void VTReplace::renderSingle() {
-	if(!m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel)) return;
-	glPushMatrix();
-	{
-		glBindTexture(GL_TEXTURE_2D, 0);
-		Vector3<GLfloat> _mPos = m_editMatrix->getPos();
-		Vector3<GLfloat> _offset = _mPos + *m_selectedVoxel + 0.5f;
-		GLfloat c = 1.025f;
-
-		glTranslatef(_offset.x, _offset.y, _offset.z);
-
-		MMesh::render("SCube", {}, c, {}, m_colorSelect);
-	}
-	glPopMatrix();
+	renderSingleMesh(false);
 }
 
 void VTReplace::inputBox() {
@@ -49,38 +37,30 @@ void VTReplace::updateBox() {
 
 }
 void VTReplace::renderBox() {
-	if(!m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel)) return;
-	glPushMatrix();
-	{
-		glBindTexture(GL_TEXTURE_2D, 0);
-		Vector3<GLfloat> _mPos = m_editMatrix->getPos();
-		Vector3<GLfloat> _offset = _mPos + *m_selectedVoxel + 0.5f;
-		GLfloat c = 1.025f;
-
-		MMesh::render("SCube", _offset, c, {}, m_colorSelect);
-	}
-	glPopMatrix();
+	renderBoxMesh(false, false);
 }
 
 void VTReplace::inputFill() {
 	if(GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
-		fill(Voxel(1, MColor::getInstance().getUnitID(*m_color)));
+		m_fillArea->use(Voxel(1, MColor::getInstance().getUnitID(*m_color)));
 }
 void VTReplace::updateFill() {
-	fillInsert();
+	m_fillArea->create(true);
 }
 void VTReplace::renderFill() {
 	if(!m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel)) return;
 	glPushMatrix();
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
-		Vector3<GLfloat> _offset = m_editMatrix->getPos() + 0.5f;
+		glm::vec3 _offset = m_editMatrix->getPos() + 0.5f;
 		GLfloat c = 1.025f;
-
+		/*
 		glTranslatef(_offset.x, _offset.y, _offset.z);
-		for(Vector3<Sint32> voxel : m_fillVoxels) {
-			MMesh::render("SCube", voxel, c, {}, m_colorSelect);
+		for(glm::ivec3 voxel : m_fillVoxels) {
+			MMesh::render("SCube", voxel, glm::vec3(c), {}, m_colorSelect);
 		}
+		*/
 	}
 	glPopMatrix();
+	renderFillMesh(false, false);
 }

@@ -22,8 +22,8 @@ private:
 	std::string m_name;
 	Sint16 m_id;
 
-	Vector3<GLfloat> m_pos;
-	Vector3<Sint16> m_size;
+	glm::vec3 m_pos;
+	glm::ivec3 m_size;
 
 	Uint16*** m_voxelData;
 	Sint8*** m_faceData;
@@ -36,7 +36,7 @@ private:
 	std::vector<Keyframe*> m_keyframes;
 
 public:
-	Matrix(Sint16 p_id, std::string p_name, std::string p_parent, Vector3<GLfloat> p_pos = {}, Vector3<Sint16> p_size = {});
+	Matrix(Sint16 p_id, std::string p_name, std::string p_parent, glm::vec3 p_pos = {}, glm::ivec3 p_size = {});
 	Matrix(Matrix&);
 	~Matrix();
 	void operator=(Matrix&);
@@ -44,24 +44,24 @@ public:
 	void setId(Sint16 p_id) { m_id = p_id; }
 	void setName(std::string p_name) { m_name = p_name; }
 
-	void setSize(Vector3<Sint32> p_size);
-	void setPosition(Vector3<GLfloat> p_pos);
-	void addPosition(Vector3<GLfloat> p_pos);
+	void setSize(glm::ivec3 p_size);
+	void setPosition(glm::vec3 p_pos);
+	void addPosition(glm::vec3 p_pos);
 
-	bool setVoxel(Vector3<Sint32> p_pos, Voxel p_voxel);
-	Voxel getVoxel(Vector3<Sint32> p_pos);
-	Uint16 getVoxelId(Vector3<Sint32> p_pos);
-	void shiftVoxels(Vector3<Sint32> p_direction);
-	void flip(Sint8 p_axes, Vector3<GLfloat> p_focus);
-	void rotate(Sint8 p_axes, Vector3<GLfloat> p_focus);
+	bool setVoxel(glm::ivec3 p_pos, Voxel p_voxel);
+	Voxel getVoxel(glm::ivec3 p_pos);
+	Uint16 getVoxelId(glm::ivec3 p_pos);
+	void shiftVoxels(glm::ivec3 p_direction);
+	void flip(Sint8 p_axes, glm::vec3 p_focus);
+	void rotate(Sint8 p_axes, glm::vec3 p_focus);
 
 	Sint16 getId() { return m_id; }
 	std::string &getName() { return m_name; }
-	Vector3<GLfloat> getPos() { return m_pos; }
-	Vector3<Sint32> getSize() { return m_size; }
-	Vector3<GLfloat> getCenter() { return m_pos + Vector3<GLfloat>(m_size) / 2; }
+	glm::vec3 getPos() { return m_pos; }
+	glm::ivec3 getSize() { return m_size; }
+	glm::vec3 getCenter() { return (m_pos + glm::vec3(m_size)) / glm::vec3(2); }
 
-	bool containsPoint(Vector3<Sint32> p_point);
+	bool containsPoint(glm::ivec3 p_point);
 
 	std::string &getParent() { return m_parent; }
 	void setParent(std::string p_parent) { m_parent = p_parent; }
@@ -71,6 +71,7 @@ public:
 
 	void update();
 	void renderMatrix();
+	void renderShadow();
 	void renderOutline(OutlineType p_outline);
 
 	void rasterize();

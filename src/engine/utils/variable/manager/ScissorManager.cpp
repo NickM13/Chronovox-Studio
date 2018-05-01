@@ -26,16 +26,16 @@ Uint32 MScissor::push(Rect& p_area, bool p_override)
 	else
 	{
 		glGetIntegerv(GL_SCISSOR_BOX, _scissorBox);
-		_rect.x = GLfloat(max(GLint(_mat[12] + p_area.x), _scissorBox[0]));
-		_rect.y = GLfloat(max(GLint(GScreen::m_screenSize.y - (p_area.y + _mat[13] + p_area.h)), _scissorBox[1]));
+		_rect.x = GLfloat(std::fmaxf(GLint(_mat[12] + p_area.x), _scissorBox[0]));
+		_rect.y = GLfloat(std::fmaxf(GLint(GScreen::m_screenSize.y - (p_area.y + _mat[13] + p_area.h)), _scissorBox[1]));
 		if((_mat[12] + p_area.x) + p_area.w <= _scissorBox[0] + _scissorBox[2])
 			_rect.w = p_area.w;
 		else
-			_rect.w = max(0, p_area.w - (((_mat[12] + p_area.x) + p_area.w) - (_scissorBox[0] + _scissorBox[2])));
+			_rect.w = std::fmaxf(0, p_area.w - (((_mat[12] + p_area.x) + p_area.w) - (_scissorBox[0] + _scissorBox[2])));
 		if((GScreen::m_screenSize.y - (p_area.y + _mat[13] + p_area.h)) + p_area.h < _scissorBox[1] + _scissorBox[3])
 			_rect.h = p_area.h;
 		else
-			_rect.h = max(0, p_area.h - (((GScreen::m_screenSize.y - (p_area.y + _mat[13] + p_area.h)) + p_area.h) - (_scissorBox[1] + _scissorBox[3])));
+			_rect.h = std::fmaxf(0, p_area.h - (((GScreen::m_screenSize.y - (p_area.y + _mat[13] + p_area.h)) + p_area.h) - (_scissorBox[1] + _scissorBox[3])));
 	}
 	glScissor(GLint(_rect.x), GLint(_rect.y), GLsizei(_rect.w), GLsizei(_rect.h));
 	m_unitList.push_back(_rect);

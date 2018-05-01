@@ -18,8 +18,8 @@ CButton::CButton(std::string p_compName, std::string p_title, Texture* p_buttonT
 void CButton::input(Sint8& p_interactFlags) {
 	Vector2<Sint32> _mousePos = GMouse::getMousePos();
 	if((p_interactFlags & (Sint8)EventFlag::MOUSEOVER) &&
-		_mousePos.x >= m_pos.x && _mousePos.x <= m_pos.x + m_size.x &&
-		_mousePos.y >= m_pos.y && _mousePos.y <= m_pos.y + m_size.y) {
+		_mousePos.x >= m_pos.x && _mousePos.x < m_pos.x + m_size.x &&
+		_mousePos.y >= m_pos.y && _mousePos.y < m_pos.y + m_size.y) {
 		if(!m_hovered) {
 			m_hovered = true;
 		}
@@ -66,8 +66,13 @@ void CButton::update(GLfloat p_deltaUpdate) {
 void CButton::render() {
 	if(m_renderStyle & RenderStyle::BORDER)
 		Component::renderBack();
-	if(m_renderStyle & RenderStyle::FILL)
+	if(m_renderStyle & RenderStyle::FILL) {
 		Component::renderFill(true);
+	}
+	else {
+		glColor4f(0, 0, 0, 0);
+		Component::renderFill(false);
+	}
 
 	m_colorTheme.m_text.useColor();
 	Font::setAlignment(ALIGN_CENTER);

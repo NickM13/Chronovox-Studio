@@ -125,7 +125,7 @@ bool NvmFormat::load1(std::vector<Matrix*>& p_matrixList) {
 
 	Matrix* m;
 	std::string name;
-	Vector3<Sint16> pos, size;
+	glm::ivec3 pos, size;
 	Sint32 volume;
 	Sint32 matrixIndex;
 	Uint8 count, r, g, b, a;
@@ -142,7 +142,7 @@ bool NvmFormat::load1(std::vector<Matrix*>& p_matrixList) {
 		size.y = FileExt::readShort(m_data, m_index);
 		size.z = FileExt::readShort(m_data, m_index);
 
-		m = new Matrix(i, name, "", Vector3<GLfloat>(pos) / 2, size);
+		m = new Matrix(i, name, "", glm::vec3(pos) / glm::vec3(2), size);
 
 		volume = size.x * size.y * size.z;
 		matrixIndex = 0;
@@ -155,7 +155,7 @@ bool NvmFormat::load1(std::vector<Matrix*>& p_matrixList) {
 			a = FileExt::readChar(m_data, m_index);
 			vox = Voxel(a, MColor::getInstance().getUnitID(Color(r / 255.f, g / 255.f, b / 255.f)));
 			for(Sint32 i = matrixIndex; i < matrixIndex + count; i++)
-				m->setVoxel(Vector3<Sint32>(fmod(floorf(GLfloat(i) / (size.z * size.y)), size.x), fmod(floorf(GLfloat(i) / (size.z)), size.y), fmod(i, size.z)), vox);
+				m->setVoxel(glm::ivec3(fmod(floorf(GLfloat(i) / (size.z * size.y)), size.x), fmod(floorf(GLfloat(i) / (size.z)), size.y), fmod(i, size.z)), vox);
 
 			matrixIndex += count;
 		}
@@ -173,7 +173,7 @@ bool NvmFormat::load2(std::vector<Matrix*>& p_matrixList) {
 
 	Matrix* m;
 	std::string name, parent;
-	Vector3<Sint16> pos, size;
+	glm::ivec3 pos, size;
 	Sint32 volume;
 	Sint32 matrixIndex;
 	Uint8 count, r, g, b, a;
@@ -191,7 +191,7 @@ bool NvmFormat::load2(std::vector<Matrix*>& p_matrixList) {
 		size.y = FileExt::readShort(m_data, m_index);
 		size.z = FileExt::readShort(m_data, m_index);
 
-		m = new Matrix(i, name, parent, Vector3<GLfloat>(pos) / 2, size);
+		m = new Matrix(i, name, parent, glm::vec3(pos) / glm::vec3(2), size);
 
 		volume = size.x * size.y * size.z;
 		matrixIndex = 0;
@@ -204,7 +204,7 @@ bool NvmFormat::load2(std::vector<Matrix*>& p_matrixList) {
 			a = FileExt::readChar(m_data, m_index);
 			vox = Voxel(a, MColor::getInstance().getUnitID(Color(r / 255.f, g / 255.f, b / 255.f)));
 			for(Sint32 i = matrixIndex; i < matrixIndex + count; i++)
-				m->setVoxel(Vector3<Sint32>(fmod(floorf(GLfloat(i) / (size.z * size.y)), size.x), fmod(floorf(GLfloat(i) / (size.z)), size.y), fmod(i, size.z)), vox);
+				m->setVoxel(glm::ivec3(fmod(floorf(GLfloat(i) / (size.z * size.y)), size.x), fmod(floorf(GLfloat(i) / (size.z)), size.y), fmod(i, size.z)), vox);
 
 			matrixIndex += count;
 		}

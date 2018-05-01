@@ -35,15 +35,15 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 
 		Matrix* m;
 		std::string name;
-		Vector3<Sint32> pos;
-		Vector3<Uint32> size;
+		glm::ivec3 pos;
+		glm::ivec3 size;
 		Sint32 matrixIndex;
 		Uint8 r, g, b, a;
 		Uint32 data, count;
 		Voxel voxel;
 		const Uint32 CODEFLAG = 2;
 		const Uint32 NEXTSLICEFLAG = 6;
-		Uint32 x, y, z;
+		Sint32 x, y, z;
 
 		for(Uint32 i = 0; i < numMatrices; i++) {
 			name = FileExt::readString(_data, _index);
@@ -72,7 +72,7 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 								a = (data & 0x000000FF);
 							}
 							if(a != 0)
-								m->setVoxel(Vector3<Sint32>(x, y, z), Voxel(1, MColor::getInstance().getUnitID(Color(r / 255.f, g / 255.f, b / 255.f))));
+								m->setVoxel(glm::ivec3(x, y, z), Voxel(1, MColor::getInstance().getUnitID(Color(r / 255.f, g / 255.f, b / 255.f))));
 						}
 					}
 				}
@@ -111,7 +111,7 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 								x = matrixIndex % size.x;
 								y = matrixIndex / size.x;
 								matrixIndex++;
-								m->setVoxel(Vector3<Sint32>(x, y, z), voxel);
+								m->setVoxel(glm::ivec3(x, y, z), voxel);
 							}
 						}
 						else {
@@ -133,7 +133,7 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 								}
 								voxel = Voxel(1, MColor::getInstance().getUnitID(Color(r / 255.f, g / 255.f, b / 255.f)));
 							}
-							m->setVoxel(Vector3<Sint32>(matrixIndex % size.x, matrixIndex / size.x, z), voxel);
+							m->setVoxel(glm::ivec3(matrixIndex % size.x, matrixIndex / size.x, z), voxel);
 							matrixIndex++;
 						}
 					}

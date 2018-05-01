@@ -17,6 +17,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <glm\glm.hpp>
 
 class Math
 {
@@ -37,15 +38,15 @@ public:
 		return GLfloat(tan((double)(p_f * 3.14159265359 / 180)));
 	}
 	// Does not use z-axis rotation
-	static Vector3<GLfloat> computeDirection(Vector3<GLfloat> p_rotation) {
+	static glm::vec3 computeDirection(glm::vec3 p_rotation) {
 		GLfloat ydist = GLfloat(2 * sind(p_rotation.x));
 		GLfloat xdist = GLfloat(sqrt(pow(2, 2) - pow(ydist, 2)));
 		GLfloat zdist = GLfloat(xdist * sind(p_rotation.y));
 		xdist = xdist * sind((p_rotation.y - 90));
-		return Vector3< GLfloat >(zdist, -ydist, xdist).getNormal();
+		return glm::normalize(glm::vec3(zdist, -ydist, xdist));
 	}
 
-	static Vector3<GLfloat> flipOverPoint(Vector3<GLfloat> p_start, Vector3<GLfloat> p_len, Vector3<GLfloat> p_point, bool p_flip[3]) {
+	static glm::vec3 flipOverPoint(glm::vec3 p_start, glm::vec3 p_len, glm::vec3 p_point, bool p_flip[3]) {
 		if(p_flip[0]) p_start.x = (p_start.x - (p_start.x - p_point.x) * 2) - p_len.x;
 		if(p_flip[1]) p_start.y = (p_start.y - (p_start.y - p_point.y) * 2) - p_len.y;
 		if(p_flip[2]) p_start.z = (p_start.z - (p_start.z - p_point.z) * 2) - p_len.z;
@@ -55,8 +56,8 @@ public:
 	static void initPerlin(Uint32 p_seed);
 	static GLfloat perlinNoise(GLfloat x, GLfloat y, GLfloat z, Sint16 p_octaves, GLfloat p_persistence);
 
-	static void castRay3d(Vector3<GLfloat> p_start, Vector3<GLfloat> p_direction, Vector3<GLfloat> p_boxPosition, Vector3<GLfloat> p_boxDimension, GLfloat &p_near, GLfloat &p_far, Sint8 &p_side);
-	static void castBox3d(Vector3<GLfloat> p_start, Vector3<GLfloat> p_dimension, Vector3<GLfloat> p_direction, Vector3<GLfloat> p_boxPosition, Vector3<GLfloat> p_boxDimension, GLfloat &p_near, GLfloat &p_far, Sint8 &p_side);
+	static void castRay3d(glm::vec3 p_start, glm::vec3 p_direction, glm::vec3 p_boxPosition, glm::vec3 p_boxDimension, GLfloat &p_near, GLfloat &p_far, Sint8 &p_side);
+	static void castBox3d(glm::vec3 p_start, glm::vec3 p_dimension, glm::vec3 p_direction, glm::vec3 p_boxPosition, glm::vec3 p_boxDimension, GLfloat &p_near, GLfloat &p_far, Sint8 &p_side);
 private:
 	static GLfloat perlin(GLfloat x, GLfloat y, GLfloat z);
 
