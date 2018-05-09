@@ -237,7 +237,6 @@ void Application::render() {
 	if(GScreen::m_iconified) return;
 	
 	m_editor->bindShadowBuffer();
-
 	Shader::useProgram("depthRTT");
 	m_editor->bindShadowTexture();
 	init3dOrtho();

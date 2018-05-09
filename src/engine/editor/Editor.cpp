@@ -292,7 +292,6 @@ void Editor::update() {
 }
 
 void Editor::renderShadow() {
-	
 	switch(m_editorMode) {
 	case EditorMode::ANIMATION:
 		m_animation->renderShadow();

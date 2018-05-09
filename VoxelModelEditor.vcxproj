@@ -256,9 +256,7 @@
     <ClCompile Include="src\engine\gfx\gui\list\Tileset.cpp" />
     <ClCompile Include="src\engine\gfx\gui\list\Toolbar.cpp" />
     <ClCompile Include="src\engine\gfx\gui\Component.cpp" />
-    <ClCompile Include="include\engine\gfx\mesh\object\MCube.h" />
     <ClCompile Include="src\engine\gfx\mesh\MMesh.cpp" />
-    <ClCompile Include="src\engine\gfx\mesh\object\TMeshObject.cpp" />
     <ClCompile Include="src\engine\gfx\mesh\VoxelMesh.cpp" />
     <ClCompile Include="src\engine\gfx\model\MModelObj.cpp" />
     <ClCompile Include="src\engine\gfx\model\ModelObj.cpp" />
@@ -343,12 +341,7 @@
     <ClInclude Include="include\engine\gfx\gui\list\Toolbar.h" />
     <ClInclude Include="include\engine\gfx\gui\Component.h" />
     <ClInclude Include="include\engine\gfx\LGui.h" />
-    <ClInclude Include="include\engine\gfx\mesh\object\MArrow.h" />
-    <ClInclude Include="include\engine\gfx\mesh\object\MPlane.h" />
-    <ClInclude Include="include\engine\gfx\mesh\object\MScale.h" />
     <ClInclude Include="include\engine\gfx\mesh\MMesh.h" />
-    <ClInclude Include="include\engine\gfx\mesh\object\MSCube.h" />
-    <ClInclude Include="include\engine\gfx\mesh\object\TMeshObject.h" />
     <ClInclude Include="include\engine\gfx\mesh\VoxelMesh.h" />
     <ClInclude Include="include\engine\gfx\model\MModelObj.h" />
     <ClInclude Include="include\engine\gfx\model\ModelObj.h" />

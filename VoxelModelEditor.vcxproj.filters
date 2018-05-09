@@ -126,9 +126,6 @@
     <ClCompile Include="src\engine\gfx\gui\frequency\SliderV.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="include\engine\gfx\mesh\object\MCube.h">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\gfx\gui\icon\Icon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -386,15 +383,6 @@
     <ClInclude Include="include\engine\gfx\gui\frequency\SliderV.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\engine\gfx\mesh\object\MArrow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\gfx\mesh\object\TMeshObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\gfx\mesh\object\MScale.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\engine\gfx\gui\icon\Icon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -507,12 +495,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\engine\editor\model\tool\matrix\MTSelect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\gfx\mesh\object\MPlane.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\gfx\mesh\object\MSCube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\engine\editor\model\tool\matrix\MatrixTool.h">

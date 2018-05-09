@@ -2,8 +2,6 @@
 #include "engine\gfx\shader\Shader.h"
 #include "engine\editor\camera\Camera.h"
 
-std::vector<TMeshObject*> MMesh::m_objectList;
-
 GLuint MMesh::m_lineVao, MMesh::m_lineVbo[2];
 glm::vec3 MMesh::m_lineVertices[2];
 
@@ -56,59 +54,7 @@ void MMesh::init() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 void MMesh::terminate() {
-	for(Uint16 i = 0; i < m_objectList.size(); i++) {
-		delete m_objectList[i];
-	}
-	m_objectList.clear();
-}
-void MMesh::addObject(TMeshObject* p_object) {
-	p_object->rasterize();
-	m_objectList.push_back(p_object);
-}
-void MMesh::render(std::string p_objectName, glm::vec3 p_pos, glm::vec3 p_size, glm::vec3 p_rotation, glm::vec4 p_color) {
-	return;
-	glm::mat4 transformations;
-	if(p_pos != glm::vec3(0, 0, 0)) transformations = glm::translate(transformations, glm::vec3(p_pos.x, p_pos.y, p_pos.z));
-	if(p_rotation.x != 0) transformations = glm::rotate(transformations, glm::radians(p_rotation.x), glm::vec3(1, 0, 0));
-	if(p_rotation.y != 0) transformations = glm::rotate(transformations, glm::radians(p_rotation.y), glm::vec3(0, 1, 0));
-	if(p_rotation.z != 0) transformations = glm::rotate(transformations, glm::radians(p_rotation.z), glm::vec3(0, 0, 1));
-	if(p_size != glm::vec3(0, 0, 0)) transformations = glm::scale(transformations, glm::vec3(p_size.x, p_size.y, p_size.z));
 
-	TMeshObject* _obj = 0;
-	for(Uint16 i = 0; i < m_objectList.size(); i++) {
-		if(p_objectName == m_objectList[i]->m_objectName) {
-			_obj = m_objectList[i];
-			break;
-		}
-	}
-	if(!_obj) return;
-
-	if(p_size.x < 0) {
-		p_size.x = -p_size.x;
-		p_pos.x -= p_size.x;
-	}
-	if(p_size.y < 0) {
-		p_size.y = -p_size.y;
-		p_pos.y -= p_size.y;
-	}
-	if(p_size.z < 0) {
-		p_size.z = -p_size.z;
-		p_pos.z -= p_size.z;
-	}
-
-	GLint location;
-	location = glGetUniformLocation(Shader::getProgram("simple")->program, "Model");
-	location = glGetUniformLocation(Shader::getProgram("simple")->program, "colorScalar");
-	glUniform4fv(location, 1, &p_color.x);
-	glBindVertexArray(_obj->m_vaoId);
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glDrawArrays(GL_LINES, 0, GLsizei(_obj->m_lineCount));
-	glDrawArrays(GL_TRIANGLES, 0, GLsizei(_obj->m_triCount));
-	glDrawArrays(GL_QUADS, 0, GLsizei(_obj->m_quadCount));
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glBindVertexArray(0);
 }
 
 void MMesh::renderLine(glm::vec3 p_pos1, glm::vec3 p_pos2) {
