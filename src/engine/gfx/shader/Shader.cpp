@@ -129,15 +129,12 @@ void Shader::transformModel(glm::mat4 p_matrix) {
 	m_modelStack.top() *= p_matrix;
 }
 void Shader::translate(const glm::vec3& p_value) {
-	std::cout << "test" << std::endl;
 	m_modelStack.top() *= glm::translate(glm::mat4(), p_value);
 }
 void Shader::rotate(GLfloat p_angle, const glm::vec3& p_value) {
-	std::cout << "test" << std::endl;
 	m_modelStack.top() *= glm::rotate(glm::mat4(), glm::radians(p_angle), p_value);
 }
 void Shader::scale(const glm::vec3& p_value) {
-	std::cout << "test" << std::endl;
 	m_modelStack.top() *= glm::scale(glm::mat4(), p_value);
 }
 void Shader::loadIdentityModel() {

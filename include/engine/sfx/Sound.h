@@ -26,7 +26,6 @@ public:
 	MBuffer operator=(const MBuffer&) {};
 	~MBuffer() {
 		m_unitList.clear();
-		std::cout << "test" << std::endl;
 	}
 
 	// Create unit, no matter if it exists or not
