@@ -22,22 +22,22 @@ Component::~Component() {
 void Component::init() {
 	m_colorThemes = {
 		//	ID								Border		Primary		Select		Hover		Text		Text Info	Border Highlight
-		{Theme::PRIMARY,		ColorTheme(	0x101010,	0x414141,	0x818181,	0x818181,	0xF0F0F0,	0x0F0F0F,	0x007ACC)},
-		{Theme::MENUBAR,		ColorTheme(	0x101010,	0x414141,	0x262626,	0x616161,	0xF0F0F0,	0x0F0F0F,	0x007ACC)},
-		{Theme::INFO,			ColorTheme(	0x444444,	0x727272,	0xBCBCBC,	0x818181,	0xF0F0F0,	0xF0F0F0,	0x007ACC)},
-		{Theme::ACTION,			ColorTheme(	0x101010,	0x414141,	0x303030,	0x707070,	0xF0F0F0,	0xF0F0F0,	0x007ACC)},
-		{Theme::ACTION_LIGHT,	ColorTheme(	0x101010,	0xFFFFFF,	0xBBBBBB,	0xDDDDDD,	0x0F0F0F,	0x0F0F0F,	0x007ACC)}
+		{Theme::PRIMARY,		ColorTheme(0x101010,	0x414141,	0x818181,	0x818181,	0xF0F0F0,	0x0F0F0F,	0x007ACC)},
+	{Theme::MENUBAR,		ColorTheme(0x101010,	0x414141,	0x262626,	0x616161,	0xF0F0F0,	0x0F0F0F,	0x007ACC)},
+	{Theme::INFO,			ColorTheme(0x444444,	0x007ACC,	0xBCBCBC,	0x818181,	0xF0F0F0,	0xF0F0F0,	0x007ACC)},
+	{Theme::ACTION,			ColorTheme(0x101010,	0x414141,	0x303030,	0x707070,	0xF0F0F0,	0xF0F0F0,	0x007ACC)},
+	{Theme::ACTION_LIGHT,	ColorTheme(0x101010,	0xFFFFFF,	0xBBBBBB,	0xDDDDDD,	0x0F0F0F,	0x0F0F0F,	0x007ACC)}
 	};// 0x007ACC - light blue
 }
 void Component::terminate() {
 	m_colorThemes.clear();
 }
 
-Component* Component::addComponent(Component* p_comp, Anchor p_posAnchor, Anchor p_sizeAnchor)						{ return this; }
-Component* Component::findComponent(std::string p_compName)															{ return this; }
-Component* Component::addButton(std::string p_dir, std::string p_buttonName, std::string p_desc, function p_func)	{ return this; }
-Component* Component::addItem(std::string p_item)																	{ return this; }
-Uint16 Component::getItemCount()																					{ return 0; }
+Component* Component::addComponent(Component* p_comp, Anchor p_posAnchor, Anchor p_sizeAnchor) { return this; }
+Component* Component::findComponent(std::string p_compName) { return this; }
+Component* Component::addButton(std::string p_dir, std::string p_buttonName, std::string p_desc, function p_func) { return this; }
+Component* Component::addItem(std::string p_item) { return this; }
+Uint16 Component::getItemCount() { return 0; }
 void Component::setList(std::vector<std::string> p_items) { }
 
 Component* Component::setPressFunction(function p_func) {
@@ -91,17 +91,17 @@ void Component::resetTooltip() {
 }
 
 void Component::resize() {}
-void Component::setTitle(std::string p_title)				{ m_title = p_title; }
-void Component::setPosition(Vector2<Sint32> p_pos)			{ m_pos = p_pos; }
-void Component::setSize(Vector2<Sint32> p_size)				{ m_size = p_size; resize(); }
-Vector2<Sint32> Component::getInitialPosition()				{ return m_posInit; }
-Vector2<Sint32> Component::getInitialSize()					{ return m_sizeInit; }
-Vector2<Sint32> Component::getPosition()					{ return m_pos; }
-Vector2<Sint32> Component::getSize()						{ return m_size; }
-Vector2<Sint32> Component::getRealPosition()				{ return m_pos; }
-Vector2<Sint32> Component::getRealSize()					{ return m_size; }
-void Component::setState(Sint8 p_selected)					{ m_selected = p_selected; }
-Component* Component::setPauseScreen(std::string p_screen)	{ return this; }
+void Component::setTitle(std::string p_title) { m_title = p_title; }
+void Component::setPosition(Vector2<Sint32> p_pos) { m_pos = p_pos; }
+void Component::setSize(Vector2<Sint32> p_size) { m_size = p_size; resize(); }
+Vector2<Sint32> Component::getInitialPosition() { return m_posInit; }
+Vector2<Sint32> Component::getInitialSize() { return m_sizeInit; }
+Vector2<Sint32> Component::getPosition() { return m_pos; }
+Vector2<Sint32> Component::getSize() { return m_size; }
+Vector2<Sint32> Component::getRealPosition() { return m_pos; }
+Vector2<Sint32> Component::getRealSize() { return m_size; }
+void Component::setState(Sint8 p_selected) { m_selected = p_selected; }
+Component* Component::setPauseScreen(std::string p_screen) { return this; }
 
 Component* Component::setVisible(bool p_visible)
 {
@@ -424,10 +424,10 @@ Sint8 Component::isSelected() {
 	return m_selected;
 }
 
-void Component::setValue(GLfloat p_value)	{ m_numValue = p_value; }
-GLfloat Component::getValue()				{ return m_numValue; }
-Sint8 Component::getPriorityLayer()			{ return m_priority + m_moveToFront; }
-bool Component::hasList()					{ return false; }
+void Component::setValue(GLfloat p_value) { m_numValue = p_value; }
+GLfloat Component::getValue() { return m_numValue; }
+Sint8 Component::getPriorityLayer() { return m_priority + m_moveToFront; }
+bool Component::hasList() { return false; }
 Component* Component::setPriorityLayer(Sint8 p_priority) {
 	m_priority = p_priority;
 	return this;

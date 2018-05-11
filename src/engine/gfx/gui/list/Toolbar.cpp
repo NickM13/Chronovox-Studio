@@ -193,31 +193,6 @@ void CToolbar::render() {
 			for(Uint16 i = 0; i < m_buttonsMain.m_buttons.size(); i++) {
 				_buttonName = m_buttonsMain.m_buttons[i].m_name;
 				_buttonWidth = Font::getMessageWidth(_buttonName).x + 16;
-				if(_splitDir[0] == m_buttonsMain.m_buttons[i].m_name) {
-					m_colorTheme.m_select.useColor();
-					glBegin(GL_QUADS);
-					{
-						glVertex2f(0, 0);
-						glVertex2f(GLfloat(_buttonWidth), 0);
-						glVertex2f(GLfloat(_buttonWidth), GLfloat(m_size.y));
-						glVertex2f(0, GLfloat(m_size.y));
-					}
-					glEnd();
-				}
-				else if(m_selected == m_buttonsMain.m_buttons[i].m_name) {
-					m_colorTheme.m_hover.useColor();
-					glBegin(GL_QUADS);
-					{
-						glVertex2f(0, 0);
-						glVertex2f(GLfloat(_buttonWidth), 0);
-						glVertex2f(GLfloat(_buttonWidth), GLfloat(m_size.y));
-						glVertex2f(0, GLfloat(m_size.y));
-					}
-					glEnd();
-				}
-				m_colorTheme.m_text.useColor();
-				Font::setAlignment(Alignment::ALIGN_CENTER);
-				Font::print(m_buttonsMain.m_buttons[i].m_name, _buttonWidth / 2, (m_size.y) / 2);
 
 				if(_splitDir[0] == m_buttonsMain.m_buttons[i].m_name) {
 					Font::setAlignment(Alignment::ALIGN_LEFT);
@@ -237,6 +212,7 @@ void CToolbar::render() {
 						{
 							glTranslatef(GLfloat(j * 92), GLfloat(m_size.y), 0);
 							m_panelSub->setState(1);
+							m_panelSub->setBorderFlag((Sint8)Component::BorderFlag::ALL);
 							m_panelSub->setSize(Vector2<Sint32>(Sint32(_subWidth + _descWidth + 32), Sint32((_subList->m_buttons.size()) * Font::getSpacingHeight() + 4)));
 							m_panelSub->render();
 
@@ -262,6 +238,37 @@ void CToolbar::render() {
 						glPopMatrix();
 					}
 				}
+				if(_splitDir[0] == m_buttonsMain.m_buttons[i].m_name) {
+					glBegin(GL_QUADS);
+					{
+						m_colorTheme.m_border.useColor();
+						glVertex2f(-1, 0);
+						glVertex2f(GLfloat(_buttonWidth), 0);
+						glVertex2f(GLfloat(_buttonWidth), GLfloat(m_size.y));
+						glVertex2f(-1, GLfloat(m_size.y));
+
+						m_colorTheme.m_select.useColor();
+						glVertex2f(0, 1);
+						glVertex2f(GLfloat(_buttonWidth - 1), 1);
+						glVertex2f(GLfloat(_buttonWidth - 1), GLfloat(m_size.y));
+						glVertex2f(0, GLfloat(m_size.y));
+					}
+					glEnd();
+				}
+				else if(m_selected == m_buttonsMain.m_buttons[i].m_name) {
+					m_colorTheme.m_hover.useColor();
+					glBegin(GL_QUADS);
+					{
+						glVertex2f(0, 0);
+						glVertex2f(GLfloat(_buttonWidth), 0);
+						glVertex2f(GLfloat(_buttonWidth), GLfloat(m_size.y));
+						glVertex2f(0, GLfloat(m_size.y));
+					}
+					glEnd();
+				}
+				m_colorTheme.m_text.useColor();
+				Font::setAlignment(Alignment::ALIGN_CENTER);
+				Font::print(m_buttonsMain.m_buttons[i].m_name, _buttonWidth / 2, (m_size.y) / 2);
 				glTranslatef(GLfloat(_buttonWidth), 0, 0);
 			}
 		}
