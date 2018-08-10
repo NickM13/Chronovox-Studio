@@ -35,6 +35,7 @@ public:
 	static void setColor(glm::vec4 p_colorScalar);
 	static void setTexture(GLint p_activeTexture, GLint p_textureId);
 	static void setTexture(GLint p_activeTexture, std::string p_textureName);
+	static void setShadowsEnabled(bool p_enabled);
 	static void setLightEnabled(bool p_enabled);
 	static void setLightDirection(glm::vec3 p_light);
 

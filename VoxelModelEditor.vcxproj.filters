@@ -222,9 +222,6 @@
     <ClCompile Include="src\engine\editor\model\format\QbclFormat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\gfx\mesh\object\TMeshObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\gfx\model\ModelObj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

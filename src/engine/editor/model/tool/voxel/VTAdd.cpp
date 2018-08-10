@@ -51,23 +51,6 @@ void VTAdd::updateFill() {
 	m_fillArea->create(false);
 }
 void VTAdd::renderFill() {
-	glPushMatrix();
-	{
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glm::vec3 _offset = m_editMatrix->getPos() + 0.5f;
-		GLfloat c = 0.925f;
-
-		glTranslatef(_offset.x, _offset.y, _offset.z);
-		/*
-		if(m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxelOffset)) {
-			for(glm::ivec3 voxel : m_fillVoxels) {
-				MMesh::render("SCube", voxel, glm::vec3(c), {}, m_colorSelect);
-			}
-		}
-		else {
-			MMesh::render("SCube", *m_selectedVoxelOffset, glm::vec3(c), {}, m_colorError);
-		}
-		*/
-	}
-	glPopMatrix();
+	if(!m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxelOffset)) return;
+	renderFillMesh();
 }

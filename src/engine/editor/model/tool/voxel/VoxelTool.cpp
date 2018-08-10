@@ -1,5 +1,6 @@
 #include "engine\editor\model\tool\voxel\VoxelTool.h"
 #include "engine\gfx\shader\Shader.h"
+#include <set>
 
 const GLfloat SELECT_CORRECTION = 0.025f;
 
@@ -161,6 +162,9 @@ bool VoxelTool::FillArea::append() {
 	m_fillMatrix = matrix->getId();
 	m_fillStart = *m_selectedVoxelOffset;
 	m_fillSide = *m_selectedSide;
+
+	createMesh();
+
 	return true;
 }
 bool VoxelTool::FillArea::insert() {
@@ -183,19 +187,146 @@ bool VoxelTool::FillArea::insert() {
 	GLfloat startTime = glfwGetTime();
 
 	while(check.size() > 0) {
-		if(check[0].x > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(-1, 0, 0))) vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(-1, 0, 0));
-		if(check[0].x < _size.x - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(1, 0, 0))) vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(1, 0, 0));
-		if(check[0].y > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, -1, 0))) vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, -1, 0));
-		if(check[0].y < _size.y - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 1, 0))) vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, 1, 0));
-		if(check[0].z > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 0, -1))) vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, 0, -1));
-		if(check[0].z < _size.z - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 0, 1))) vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, 0, 1));
+		if(check[0].x > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(-1, 0, 0)))		  vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(-1,  0,  0));
+		if(check[0].x < _size.x - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(1, 0, 0))) vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3( 1,  0,  0));
+		if(check[0].y > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, -1, 0)))		  vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3( 0, -1,  0));
+		if(check[0].y < _size.y - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 1, 0))) vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3( 0,  1,  0));
+		if(check[0].z > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 0, -1)))		  vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3( 0,  0, -1));
+		if(check[0].z < _size.z - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 0, 1))) vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3( 0,  0,  1));
 		m_fillVoxels.push_back(check[0]);
 		check.erase(check.begin());
 	}
 
 	m_fillMatrix = matrix->getId();
 	m_fillStart = *m_selectedVoxel;
+
+	createMesh();
+
 	return true;
+}
+void increment(std::map<VoxelTool::Coord, Sint8>& p_outline, glm::ivec3 p_coord, Sint8 p_amt) {
+	if(p_outline.find(VoxelTool::Coord(p_coord + glm::ivec3(0, 0, 0))) == p_outline.end()) p_outline.insert({VoxelTool::Coord(p_coord + glm::ivec3(0, 0, 0)), p_amt});
+	else p_outline.at(VoxelTool::Coord(p_coord + glm::ivec3(0, 0, 0))) += p_amt;
+}
+void VoxelTool::FillArea::createMesh() {
+	m_fillMesh.clear();
+	std::map<Coord, Sint8> outlineX, outlineY, outlineZ;
+
+	for(glm::ivec3 vox : m_fillVoxels) {
+		// Coordinates are out of order so concurrent lines are easier to find
+		increment(outlineX, glm::ivec3(0 + vox.y, 0 + vox.z, 0 + vox.x), 1);
+		increment(outlineX, glm::ivec3(1 + vox.y, 0 + vox.z, 0 + vox.x), 2);
+		increment(outlineX, glm::ivec3(1 + vox.y, 1 + vox.z, 0 + vox.x), 4);
+		increment(outlineX, glm::ivec3(0 + vox.y, 1 + vox.z, 0 + vox.x), 8);
+
+		increment(outlineY, glm::ivec3(0 + vox.z, 0 + vox.x, 0 + vox.y), 1);
+		increment(outlineY, glm::ivec3(1 + vox.z, 0 + vox.x, 0 + vox.y), 2);
+		increment(outlineY, glm::ivec3(1 + vox.z, 1 + vox.x, 0 + vox.y), 4);
+		increment(outlineY, glm::ivec3(0 + vox.z, 1 + vox.x, 0 + vox.y), 8);
+
+		increment(outlineZ, glm::ivec3(0 + vox.x, 0 + vox.y, 0 + vox.z), 1);
+		increment(outlineZ, glm::ivec3(1 + vox.x, 0 + vox.y, 0 + vox.z), 2);
+		increment(outlineZ, glm::ivec3(1 + vox.x, 1 + vox.y, 0 + vox.z), 4);
+		increment(outlineZ, glm::ivec3(0 + vox.x, 1 + vox.y, 0 + vox.z), 8);
+	}
+
+	// Create fill mesh
+	// X
+	std::pair<Coord, Sint8> lastPos = std::pair<Coord, Sint8>(Coord(glm::ivec3(-1)), 0);
+	for(std::pair<Coord, Sint8> c : outlineX) {
+		if(c.first.vec == lastPos.first.vec && c.second == lastPos.second) {
+			m_fillMesh.back().x++;
+		}
+		else {
+			switch(c.second) {
+			case 1:
+				m_fillMesh.push_back(glm::vec3(c.first.vec.z, c.first.vec.x, c.first.vec.y));
+				m_fillMesh.push_back(glm::vec3(c.first.vec.z + 1.0f, c.first.vec.x, c.first.vec.y));
+				break;
+			case 2:
+				m_fillMesh.push_back(glm::vec3(c.first.vec.z, c.first.vec.x, c.first.vec.y));
+				m_fillMesh.push_back(glm::vec3(c.first.vec.z + 1.0f, c.first.vec.x, c.first.vec.y));
+				break;
+			case 4:
+				m_fillMesh.push_back(glm::vec3(c.first.vec.z, c.first.vec.x, c.first.vec.y));
+				m_fillMesh.push_back(glm::vec3(c.first.vec.z + 1.0f, c.first.vec.x, c.first.vec.y));
+				break;
+			case 8:
+				m_fillMesh.push_back(glm::vec3(c.first.vec.z, c.first.vec.x, c.first.vec.y));
+				m_fillMesh.push_back(glm::vec3(c.first.vec.z + 1.0f, c.first.vec.x, c.first.vec.y));
+				break;
+			default: break;
+			}
+		}
+		if(c.second == 1 || c.second == 2 || c.second == 4 || c.second == 8)
+			lastPos = std::pair<Coord, Sint8>(glm::vec3(c.first.vec.x, c.first.vec.y, c.first.vec.z + 1), c.second);
+		else
+			lastPos = std::pair<Coord, Sint8>(glm::vec3(-1), 0);
+	}
+	// Y
+	lastPos = std::pair<Coord, Sint8>(Coord(glm::ivec3(-1)), 0);
+	for(std::pair<Coord, Sint8> c : outlineY) {
+		if(c.first.vec == lastPos.first.vec && c.second == lastPos.second) {
+			m_fillMesh.back().y++;
+		}
+		else {
+			switch(c.second) {
+			case 1:
+				m_fillMesh.push_back(glm::vec3(c.first.vec.y, c.first.vec.z, c.first.vec.x));
+				m_fillMesh.push_back(glm::vec3(c.first.vec.y, c.first.vec.z + 1.0f, c.first.vec.x));
+				break;
+			case 2:
+				m_fillMesh.push_back(glm::vec3(c.first.vec.y, c.first.vec.z, c.first.vec.x));
+				m_fillMesh.push_back(glm::vec3(c.first.vec.y, c.first.vec.z + 1.0f, c.first.vec.x));
+				break;
+			case 4:
+				m_fillMesh.push_back(glm::vec3(c.first.vec.y, c.first.vec.z, c.first.vec.x));
+				m_fillMesh.push_back(glm::vec3(c.first.vec.y, c.first.vec.z + 1.0f, c.first.vec.x));
+				break;
+			case 8:
+				m_fillMesh.push_back(glm::vec3(c.first.vec.y, c.first.vec.z, c.first.vec.x));
+				m_fillMesh.push_back(glm::vec3(c.first.vec.y, c.first.vec.z + 1.0f, c.first.vec.x));
+				break;
+			default: break;
+			}
+		}
+		if(c.second == 1 || c.second == 2 || c.second == 4 || c.second == 8)
+			lastPos = std::pair<Coord, Sint8>(glm::vec3(c.first.vec.x, c.first.vec.y, c.first.vec.z + 1), c.second);
+		else
+			lastPos = std::pair<Coord, Sint8>(glm::vec3(-1), 0);
+	}
+	// Z
+	lastPos = std::pair<Coord, Sint8>(Coord(glm::ivec3(-1)), 0);
+	for(std::pair<Coord, Sint8> c : outlineZ) {
+		if(c.first.vec == lastPos.first.vec && c.second == lastPos.second) {
+			m_fillMesh.back().z++;
+		}
+		else {
+			switch(c.second) {
+			case 1:
+				m_fillMesh.push_back(glm::vec3(c.first.vec.x, c.first.vec.y, c.first.vec.z));
+				m_fillMesh.push_back(glm::vec3(c.first.vec.x, c.first.vec.y, c.first.vec.z + 1.0f));
+				break;
+			case 2:
+				m_fillMesh.push_back(glm::vec3(c.first.vec.x, c.first.vec.y, c.first.vec.z));
+				m_fillMesh.push_back(glm::vec3(c.first.vec.x, c.first.vec.y, c.first.vec.z + 1.0f));
+				break;
+			case 4:
+				m_fillMesh.push_back(glm::vec3(c.first.vec.x, c.first.vec.y, c.first.vec.z));
+				m_fillMesh.push_back(glm::vec3(c.first.vec.x, c.first.vec.y, c.first.vec.z + 1.0f));
+				break;
+			case 8:
+				m_fillMesh.push_back(glm::vec3(c.first.vec.x, c.first.vec.y, c.first.vec.z));
+				m_fillMesh.push_back(glm::vec3(c.first.vec.x, c.first.vec.y, c.first.vec.z + 1.0f));
+				break;
+			default: break;
+			}
+		}
+		if(c.second == 1 || c.second == 2 || c.second == 4 || c.second == 8)
+			lastPos = std::pair<Coord, Sint8>(glm::vec3(c.first.vec.x, c.first.vec.y, c.first.vec.z + 1), c.second);
+		else
+			lastPos = std::pair<Coord, Sint8>(glm::vec3(-1), 0);
+	}
 }
 void VoxelTool::FillArea::use(Voxel p_fill) {
 	Matrix* matrix = m_editMatrix->getMatrix();
@@ -254,8 +385,16 @@ void VoxelTool::renderBoxMesh(bool p_insetVoxel, bool p_insetBox) {
 		MMesh::renderBoxOutline(pos, size);
 	}
 }
-void VoxelTool::renderFillMesh(bool p_insetVoxel, bool p_insetBox) {
-	m_fillArea->getMesh();
+void VoxelTool::renderFillMesh() {
+	Matrix* matrix = m_editMatrix->getMatrix();
+	std::vector<glm::vec3> coordList = m_fillArea->getMesh();
+	Shader::pushMatrixModel();
+	Shader::translate(matrix->getPos());
+	Shader::applyModel();
+	for(Sint32 i = 0; i < coordList.size(); i += 2) {
+		MMesh::renderLine(coordList[i], coordList[i+1]);
+	}
+	Shader::popMatrixModel();
 }
 
 void VoxelTool::inputSingle() {}

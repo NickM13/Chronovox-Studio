@@ -106,6 +106,9 @@ void Shader::setTexture(GLint p_activeTexture, std::string p_textureName) {
 	glBindTexture(GL_TEXTURE_2D, MTexture::getTexture(p_textureName)->getGlId());
 }
 
+void Shader::setShadowsEnabled(bool p_enabled) {
+	glUniform1i(20, (GLint)p_enabled);
+}
 void Shader::setLightEnabled(bool p_enabled) {
 	glUniform1i(6, (GLint)p_enabled);
 }

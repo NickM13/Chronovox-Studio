@@ -6,16 +6,14 @@ Vector2<Uint16> Application::m_screenSize = {};
 GLFWwindow* Application::m_mainWindow = 0;
 
 bool Application::init(char *p_filePath) {
-	GLenum error;
-
 	GScreen::m_fov = 70;
 	m_maxFps = 60;
-	m_screenSize = Vector2<Uint16>(1280, 768);
 
 	GScreen::m_windowTitle = "Nick's Voxel Editor";
 	GScreen::m_developer = true;
 	GScreen::m_fps = 0;
 	GScreen::m_exitting = 0;
+	GScreen::m_shadows = false;
 
 	if(!glfwInit()) return false;
 
@@ -25,8 +23,12 @@ bool Application::init(char *p_filePath) {
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glfwWindowHint(GLFW_DECORATED, 0);
 	glfwWindowHint(GLFW_FLOATING, 0);
-	
-	const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+	int count, monx, mony;
+	GLFWmonitor *monitor = glfwGetMonitors(&count)[1];
+	glfwGetMonitorPos(monitor, &monx, &mony);
+	const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+	m_screenSize = Vector2<Uint16>(std::fminf(1280, mode->width - 128), std::fminf(768, mode->height - 128));
 	m_mainWindow = glfwCreateWindow(std::fminf(m_screenSize.x, mode->width), std::fminf(m_screenSize.y, mode->height), GScreen::m_windowTitle.c_str(), 0, 0);
 	glfwSetWindowPos(m_mainWindow, (mode->width - m_screenSize.x) / 2, (mode->height - m_screenSize.y) / 2);
 	
@@ -47,6 +49,7 @@ bool Application::init(char *p_filePath) {
 
 	glfwMakeContextCurrent(m_mainWindow);
 
+	GLenum error;
 	if((error = glewInit()) != GLEW_OK) {
 		std::cout << "glewInit error: " << glewGetErrorString(error) << std::endl;;
 		return false;
@@ -235,13 +238,15 @@ void Application::update() {
 
 void Application::render() {
 	if(GScreen::m_iconified) return;
-	
-	m_editor->bindShadowBuffer();
-	Shader::useProgram("depthRTT");
-	m_editor->bindShadowTexture();
-	init3dOrtho();
-	m_editor->renderShadow();
-	m_editor->unbindShadowBuffer();
+
+	if(GScreen::m_shadows) {
+		m_editor->bindShadowBuffer();
+		Shader::useProgram("depthRTT");
+		m_editor->bindShadowTexture();
+		init3dOrtho();
+		m_editor->renderShadow();
+		m_editor->unbindShadowBuffer();
+	}
 
 	glm::mat4 biasMatrix{
 		0.5, 0.0, 0.0, 0.0,

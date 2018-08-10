@@ -22,6 +22,7 @@ Vector2<Sint32> GScreen::m_initWindowSize = {};
 Vector2<Sint32> GScreen::m_resizeMousePos = {};
 bool GScreen::m_resizing = false;
 bool GScreen::m_finishedResize = false;
+bool GScreen::m_shadows = false;
 
 GScreen::WindowCommand GScreen::m_windowCommand = NONE;
 

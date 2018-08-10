@@ -49,17 +49,5 @@ void VTErase::updateFill() {
 }
 void VTErase::renderFill() {
 	if(!m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel)) return;
-	glPushMatrix();
-	{
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glm::vec3 _offset = m_editMatrix->getPos() + 0.5f;
-		GLfloat c = 1.025f;
-		/*
-		glTranslatef(_offset.x, _offset.y, _offset.z);
-		for(glm::ivec3 voxel : m_fillVoxels) {
-			MMesh::render("SCube", voxel, glm::vec3(c), {}, m_colorSelect);
-		}
-		*/
-	}
-	glPopMatrix();
+	renderFillMesh();
 }

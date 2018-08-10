@@ -31,6 +31,7 @@ public:
 	static Vector2<Sint32> m_resizeMousePos;
 	static bool m_resizing;
 	static bool m_finishedResize;
+	static bool m_shadows;
 
 	static enum WindowCommand
 	{

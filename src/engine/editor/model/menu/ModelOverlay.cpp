@@ -29,7 +29,7 @@ Container* ModelOverlay::init(Model* p_model) {
 		addButton("File", "Save", "Ctrl+S", []() { m_model->fileSave(); })->
 		addButton("File", "Exit", "Alt+F4", []() { m_model->fileExit(); });
 	m_container->findComponent("TOOLBAR_MAIN")->addButton("", "Edit")->
-		//addButton("Edit", "Animation Mode", "", []() { Editor::setEditorMode(Editor::EditorMode::ANIMATION); })->
+		addButton("Edit", "Animation Mode", "", []() { Editor::setEditorMode(Editor::EditorMode::ANIMATION); })->
 		addButton("Edit", "Undo", "Ctrl+Z", []() { m_model->editUndo(); })->
 		addButton("Edit", "Redo", "Ctrl+Y", []() { m_model->editRedo(); });
 	m_container->findComponent("TOOLBAR_MAIN")->addButton("", "Model")->
@@ -166,15 +166,13 @@ Container* ModelOverlay::init(Model* p_model) {
 		->setPressFunction([]() {})
 		->setReleaseFunction([]() {
 		if(m_container->findComponent("DIALOG_NEWMATRIX\\MATRIXNAME")->getTitle() != "") {
-			/* TODO Uncomment this
-			Vector3<Sint32> pos = Vector3<Sint32>(m_container->findComponent("DIALOG_NEWMATRIX\\WIDTH")->getValue() / -2, 
+			glm::vec3 pos = glm::vec3(m_container->findComponent("DIALOG_NEWMATRIX\\WIDTH")->getValue() / -2, 
 				m_container->findComponent("DIALOG_NEWMATRIX\\HEIGHT")->getValue() / -2, 
 				m_container->findComponent("DIALOG_NEWMATRIX\\DEPTH")->getValue() / -2) + Camera::getFocus();
 			m_model->addMatrix(m_container->findComponent("DIALOG_NEWMATRIX\\MATRIXNAME")->getTitle(), pos, 
-				Vector3<Sint32>(m_container->findComponent("DIALOG_NEWMATRIX\\WIDTH")->getValue(), 
+				glm::ivec3(m_container->findComponent("DIALOG_NEWMATRIX\\WIDTH")->getValue(), 
 					m_container->findComponent("DIALOG_NEWMATRIX\\HEIGHT")->getValue(), 
 					m_container->findComponent("DIALOG_NEWMATRIX\\DEPTH")->getValue()));
-			*/
 		}
 	});
 	m_container->findComponent("DIALOG_NEWMATRIX")->addComponent(new TextField("MATRIXNAME", "Matrix Name", {0, 20}, {200, 1}, 0), Component::Anchor::TOP_CENTER)
