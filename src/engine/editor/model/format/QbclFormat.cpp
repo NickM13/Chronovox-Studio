@@ -1,15 +1,13 @@
 #include "engine\editor\model\format\QbclFormat.h"
 
-bool QbclFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
-{
+bool QbclFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList) {
 	std::ifstream _file;
 	Uint32 _length, _index;
 	char* _data;
 	_file.open(std::string(p_fileName).c_str(), std::ios::binary);
 	{
-		if(!_file.good())
-		{
-			std::cerr << "Error: File \"" << p_fileName << "\" not found." << std::endl;
+		if(!_file.good()) {
+			Logger::logMissingFile(p_fileName);
 			_file.close();
 			return false;
 		}
@@ -39,5 +37,6 @@ bool QbclFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList
 		delete[] _data;
 	}
 	_file.close();
+	Logger::logLoadedFile(p_fileName);
 	return true;
 }

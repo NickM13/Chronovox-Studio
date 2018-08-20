@@ -8,7 +8,7 @@
 std::map<std::string, Texture*> MTexture::m_textures;
 
 void MTexture::loadTexture(std::string p_texturePath) {
-	std::string path = LDirectory::getProjectPath().append("res\\texture\\").append(p_texturePath);
+	std::string path = LDirectory::getProjectPath() + "res\\texture\\" + p_texturePath;
 	ILuint imgId;
 	ilGenImages(1, &imgId);
 	ilBindImage(imgId);
@@ -16,11 +16,12 @@ void MTexture::loadTexture(std::string p_texturePath) {
 	ILenum Error;
 	Error = ilGetError();
 	if(Error != IL_NO_ERROR) {
-		std::cout << "Error loading texture " << p_texturePath << std::endl;
 		m_textures.insert({p_texturePath, new Texture()});
+		Logger::logError("Could not load texture: \"" + path + "\"");
 	}
 	else {
 		m_textures.insert({p_texturePath, new Texture(p_texturePath, imgId, ilutGLBindTexImage(), Vector2<Sint32>(Sint32(ilGetInteger(IL_IMAGE_WIDTH)), Sint32(ilGetInteger(IL_IMAGE_HEIGHT))))});
+		Logger::logNormal("Loaded texture: \"" + p_texturePath + "\"");
 	}
 }
 
@@ -47,7 +48,7 @@ void MTexture::terminate() {
 
 Texture* MTexture::getTexture(std::string p_texturePath) {
 	if(m_textures.find(p_texturePath) == m_textures.end()) {
-		std::cout << "Texture not found: " << p_texturePath << std::endl;
+		Logger::logWarning("Texture file could not be found: \"" + p_texturePath + "\"");
 		return m_textures.at("NULL");
 	}
 	return m_textures.at(p_texturePath);
@@ -57,6 +58,6 @@ Texture* MTexture::getTextureById(GLuint p_texId) {
 	for(std::pair<std::string, Texture*> t : m_textures)
 		if(t.second->getGlId() == p_texId)
 			return m_textures.at(t.first);
-	std::cout << "Texture id not found: " << p_texId << std::endl;
+	Logger::logWarning("Texture ID not found: " + p_texId);
 	return m_textures.at("NULL");
 }

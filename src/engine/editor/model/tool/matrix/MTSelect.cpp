@@ -153,7 +153,7 @@ void MTSelect::updateResize() {
 						p = m_editMatrix->getMatrix()->getPos().x;
 						if(m_dragDifference > 0) m_editMatrix->getMatrix()->shiftVoxels(glm::ivec3(-m_dragDifference, 0, 0));
 						m_editMatrix->getMatrix()->setSize(m_editMatrix->getMatrix()->getSize() - glm::ivec3(m_dragDifference, 0, 0));
-						m_editMatrix->getMatrix()->addPosition(glm::vec3(m_dragDifference, 0, 0));
+						m_editMatrix->getMatrix()->addPosition(glm::ivec3(m_dragDifference, 0, 0));
 						if(m_dragDifference < 0) m_editMatrix->getMatrix()->shiftVoxels(glm::ivec3(-m_dragDifference, 0, 0));
 						m_startPos.x += m_editMatrix->getMatrix()->getPos().x - p;
 					}
@@ -190,7 +190,7 @@ void MTSelect::updateResize() {
 						p = m_editMatrix->getMatrix()->getPos().y;
 						if(m_dragDifference > 0) m_editMatrix->getMatrix()->shiftVoxels(glm::ivec3(0, -m_dragDifference, 0));
 						m_editMatrix->getMatrix()->setSize(m_editMatrix->getMatrix()->getSize() - glm::ivec3(0, m_dragDifference, 0));
-						m_editMatrix->getMatrix()->addPosition(glm::vec3(0, m_dragDifference, 0));
+						m_editMatrix->getMatrix()->addPosition(glm::ivec3(0, m_dragDifference, 0));
 						if(m_dragDifference < 0) m_editMatrix->getMatrix()->shiftVoxels(glm::ivec3(0, -m_dragDifference, 0));
 						m_startPos.y += m_editMatrix->getMatrix()->getPos().y - p;
 					}
@@ -227,7 +227,7 @@ void MTSelect::updateResize() {
 						p = m_editMatrix->getMatrix()->getPos().z;
 						if(m_dragDifference > 0) m_editMatrix->getMatrix()->shiftVoxels(glm::ivec3(0, 0, -m_dragDifference));
 						m_editMatrix->getMatrix()->setSize(m_editMatrix->getMatrix()->getSize() - glm::ivec3(0, 0, m_dragDifference));
-						m_editMatrix->getMatrix()->addPosition(glm::vec3(0, 0, m_dragDifference));
+						m_editMatrix->getMatrix()->addPosition(glm::ivec3(0, 0, m_dragDifference));
 						if(m_dragDifference < 0) m_editMatrix->getMatrix()->shiftVoxels(glm::ivec3(0, 0, -m_dragDifference));
 						m_startPos.z += m_editMatrix->getMatrix()->getPos().z - p;
 					}

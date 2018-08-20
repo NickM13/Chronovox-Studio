@@ -14,9 +14,8 @@ bool VoxFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 	char* _data;
 	_file.open(std::string(p_fileName).c_str(), std::ios::binary);
 	{
-		if(!_file.good())
-		{
-			std::cerr << "Error: File \"" << p_fileName << "\" not found." << std::endl;
+		if(!_file.good()) {
+			Logger::logMissingFile(p_fileName);
 			_file.close();
 			return false;
 		}
@@ -33,7 +32,7 @@ bool VoxFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 
 		nvm = FileExt::readInt(_data, _index);
 		if(nvm != strToNum("VOX ")) {
-			std::cerr << "Error: File type not supported." << std::endl;
+			Logger::logError("File type not supported \"" + p_fileName + "\"");
 			return false;
 		}
 		version = FileExt::readInt(_data, _index);
@@ -51,5 +50,6 @@ bool VoxFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 		delete[] _data;
 	}
 	_file.close();
+	Logger::logLoadedFile(p_fileName);
 	return true;
 }

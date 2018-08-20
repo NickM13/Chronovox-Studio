@@ -17,23 +17,41 @@
 
 int main(int argc, char* argv[]) {
 	//_crtBreakAlloc;
+	Logger::init(Logger::Verbosity::MINIMAL);
+	Logger::logMinimal("Program launched using main");
+	Logger::logMinimal("Initializing...");
 	bool _success;
-	if(argc > 1) _success = Application::getInstance().init(argv[1]);
-	else _success = Application::getInstance().init();
-	if(_success) {
+	if (argc > 1) {
+		_success = Application::getInstance().init(argv[1]);
+	}
+	else {
+		_success = Application::getInstance().init();
+	}
+	if (_success) {
+		Logger::logMinimal("Program initialized");
 		Application::getInstance().run();
 		Application::getInstance().terminate();
+		Logger::logMinimal("Program closing...");
 		//_CrtDumpMemoryLeaks();
 		return 0;
 	}
+	Logger::logError("Failed to start program, exitting...");
+	Logger::terminate();
 	return -1;
 }
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow) {
-	if(Application::getInstance().init()) {
+	Logger::init(Logger::Verbosity::MINIMAL);
+	Logger::logMinimal("Program launched using WinMain");
+	Logger::logMinimal("Initializing...");
+	if (Application::getInstance().init()) {
+		Logger::logMinimal("Program initialized");
 		Application::getInstance().run();
 		Application::getInstance().terminate();
+		Logger::logMinimal("Program closing...");
 		return 0;
 	}
+	Logger::logError("Failed to start program, exitting...");
+	Logger::terminate();
 	return -1;
 }

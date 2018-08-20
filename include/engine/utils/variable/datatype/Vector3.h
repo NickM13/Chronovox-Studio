@@ -1,5 +1,6 @@
 #pragma once
 #include <math.h>
+#include <string>
 
 template<class T>
 struct Vector3 {
@@ -88,6 +89,6 @@ struct Vector3 {
 	float getLength() const
 	{ return sqrtf(float(x*x + y*y + z*z)); }
 
-	void print() const
-	{ std::cout << x << ", " << y << ", " << z << std::endl; }
+	std::string toString() const
+	{ return std::string(std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z)); }
 };

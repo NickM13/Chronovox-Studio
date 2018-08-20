@@ -1,5 +1,6 @@
 #pragma once
 #include <math.h>
+#include <string>
 
 template<class T>
 struct Vector4 {
@@ -70,6 +71,6 @@ struct Vector4 {
 	Vector4<T> mod(T p_value) const
 	{ return Vector4<T>(T(modf(x1, p_value)), T(modf(y1, p_value)), T(modf(x2, p_value)), T(modf(y2, p_value))); }
 
-	void print() const
-	{ std::cout << x1 << ", " << y1 << ", " << x2 << ", " << y2 << std::endl; }
+	std::string toString() const
+	{ return std::string(std::to_string(x1) + ", " + std::to_string(y1) + ", " + std::to_string(x2) + ", " + std::to_string(y2)); }
 };

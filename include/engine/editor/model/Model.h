@@ -61,6 +61,8 @@ private:
 
 	glm::vec3 dir, pos, norm;
 	GLfloat dist, denom, p;
+
+	void fixSelectedMatrix();
 public:
 	Model();
 	~Model();

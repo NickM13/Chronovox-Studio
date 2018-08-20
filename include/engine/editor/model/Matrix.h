@@ -59,7 +59,7 @@ public:
 	std::string &getName() { return m_name; }
 	glm::vec3 getPos() { return m_pos; }
 	glm::ivec3 getSize() { return m_size; }
-	glm::vec3 getCenter() { return (m_pos + glm::vec3(m_size)) / glm::vec3(2); }
+	glm::vec3 getCenter() { return (m_pos + (glm::vec3(m_size) / glm::vec3(2))); }
 
 	bool containsPoint(glm::ivec3 p_point);
 

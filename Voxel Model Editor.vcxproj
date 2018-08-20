@@ -13,9 +13,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}</ProjectGuid>
-    <RootNamespace>VoxelModelEditor</RootNamespace>
+    <RootNamespace>Voxel Model Editor</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
-    <ProjectName>VoxelModelEditor</ProjectName>
+    <ProjectName>Voxel Model Editor</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -62,7 +62,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;OpenAL32.lib;DevIL.lib;ILU.lib;ILUT.lib;alut.lib;freetyped.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -76,13 +76,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;DevIL.lib;ILU.lib;ILUT.lib;OpenAL32.lib;alut.lib;freetype.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -153,6 +153,7 @@
     <ClCompile Include="src\engine\utils\global\event\GKey.cpp" />
     <ClCompile Include="src\engine\utils\global\event\GMouse.cpp" />
     <ClCompile Include="src\engine\utils\global\GScreen.cpp" />
+    <ClCompile Include="src\engine\utils\logger\Logger.cpp" />
     <ClCompile Include="src\engine\utils\Utilities.cpp" />
     <ClCompile Include="src\engine\utils\variable\manager\ColorManager.cpp" />
     <ClCompile Include="src\engine\utils\variable\manager\Manager.cpp" />
@@ -239,6 +240,7 @@
     <ClInclude Include="include\engine\utils\global\event\GKey.h" />
     <ClInclude Include="include\engine\utils\global\event\GMouse.h" />
     <ClInclude Include="include\engine\utils\global\GScreen.h" />
+    <ClInclude Include="include\engine\utils\logger\Logger.h" />
     <ClInclude Include="include\engine\utils\LOpenGL.h" />
     <ClInclude Include="include\engine\utils\Singleton.h" />
     <ClInclude Include="include\engine\utils\Utilities.h" />
@@ -259,7 +261,7 @@
     <ClInclude Include="include\engine\gfx\gui\frequency\SliderV.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="VoxelModelEditor.rc" />
+    <ResourceCompile Include="Voxel Model Editor.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\texture\gui\Icon.ico" />

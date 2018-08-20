@@ -12,13 +12,14 @@
 
 #include <vector>
 #include <thread>
+#include <mutex>
 
 class Editor {
 public:
 	enum EditorState {
 		STARTING = 0,
 		RUNNING = 1,
-		CLOSING = 2
+		STOPPING = 2
 	};
 	enum EditorMode {
 		MODEL = 0,
@@ -43,6 +44,9 @@ private:
 
 	GLfloat m_lastUpdate, m_deltaUpdate;
 	std::thread *m_autosaveThread;
+	Sint32 m_autosavePeriod;
+	std::mutex m_autosaveMutex;
+	std::condition_variable m_autosaveCv;
 
 	bool initShadowBuffer();
 	void terminateShadowBuffer();

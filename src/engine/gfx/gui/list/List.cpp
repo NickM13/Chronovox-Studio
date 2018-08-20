@@ -197,17 +197,17 @@ void CList::render() {
 					glTranslatef(0, m_itemHeight * m_selectedItem + GLfloat(m_scroll % m_itemHeight) - m_scroll, 0);
 					glBegin(GL_LINES);
 					{
-						glVertex2f(1, 1);
-						glVertex2f(GLfloat(m_size.x - 1), 1);
+						glVertex2f(1, -1);
+						glVertex2f(GLfloat(m_size.x), -1);
 
-						glVertex2f(GLfloat(m_size.x - 1), 1);
-						glVertex2f(GLfloat(m_size.x - 1), GLfloat(m_itemHeight - 1));
+						glVertex2f(GLfloat(m_size.x), -1);
+						glVertex2f(GLfloat(m_size.x), GLfloat(m_itemHeight - 1));
 
-						glVertex2f(GLfloat(m_size.x - 1), GLfloat(m_itemHeight - 1));
+						glVertex2f(GLfloat(m_size.x), GLfloat(m_itemHeight - 1));
 						glVertex2f(1, GLfloat(m_itemHeight - 1));
 
 						glVertex2f(1, GLfloat(m_itemHeight - 1));
-						glVertex2f(1, 1);
+						glVertex2f(1, -1);
 					}
 					glEnd();
 				}

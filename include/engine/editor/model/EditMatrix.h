@@ -11,15 +11,19 @@ private:
 	Sint16 m_matrixId;
 	Matrix* m_matrix, *m_initMatrix;
 
-	std::vector<Command*> m_recentCommands;
+	std::vector<std::vector<Command*>> m_recentCommands;
 	Uint16 m_commandIndex;
 	bool m_commandListIsOpen;
+	bool m_commandChaining;
 
 public:
 	EditMatrix();
 	~EditMatrix();
 
 	void setCommandListOpen(bool p_isOpen);
+	// Set whether new commands are linked (when undoing or redoing, all commands in chain are done)
+	void setCommandChaining(bool p_chaining);
+	bool isCommandChaining() { return m_commandChaining; }
 
 	void addCommand(Command* p_com);
 	void undo();

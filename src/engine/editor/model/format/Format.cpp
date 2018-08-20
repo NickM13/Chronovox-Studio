@@ -16,7 +16,7 @@ Format::FormatType Format::valid(std::string p_fileName) {
 	_file.open(std::string(p_fileName).c_str(), std::ios::binary);
 	if(!_file.good())
 	{
-		std::cerr << "Error: File \"" << p_fileName << "\" not found." << std::endl;
+		Logger::logMissingFile(p_fileName);
 		_file.close();
 		return NONE;
 	}
@@ -38,7 +38,7 @@ Format::FormatType Format::valid(std::string p_fileName) {
 	else if(typeInt == strToNum(".NVM")) return NVM;
 	else if(typeInt == strToNum("QBCL")) return QBCL;
 	else if(typeInt == strToNum("VOX ")) return VOX;
-	std::cerr << "Error: File type not supported." << std::endl;
+	Logger::logError("File type not supported");
 	return NONE;
 }
 

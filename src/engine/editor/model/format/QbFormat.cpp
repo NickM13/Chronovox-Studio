@@ -1,16 +1,13 @@
 #include "engine\editor\model\format\QbFormat.h"
 
-bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
-{
-	std::cout << "loading QB" << std::endl;
+bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList) {
 	std::ifstream _file;
 	Uint32 _length, _index;
 	char* _data;
 	_file.open(std::string(p_fileName).c_str(), std::ios::binary);
 	{
-		if(!_file.good())
-		{
-			std::cerr << "Error: File \"" << p_fileName << "\" not found." << std::endl;
+		if (!_file.good()) {
+			Logger::logMissingFile(p_fileName);
 			_file.close();
 			return false;
 		}
@@ -32,7 +29,6 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 		visibilityMaskEncoded = FileExt::readInt(_data, _index);
 		numMatrices = FileExt::readInt(_data, _index);
 
-
 		Matrix* m;
 		std::string name;
 		glm::ivec3 pos;
@@ -45,7 +41,7 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 		const Uint32 NEXTSLICEFLAG = 6;
 		Sint32 x, y, z;
 
-		for(Uint32 i = 0; i < numMatrices; i++) {
+		for (Uint32 i = 0; i < numMatrices; i++) {
 			name = FileExt::readString(_data, _index);
 			size.x = FileExt::readInt(_data, _index);
 			size.y = FileExt::readInt(_data, _index);
@@ -54,12 +50,12 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 			pos.y = FileExt::readInt(_data, _index);
 			pos.z = FileExt::readInt(_data, _index);
 			m = new Matrix(i, name, "", pos, size);
-			if(!compressed) {
-				for(z = 0; z < size.z; z++) {
-					for(y = 0; y < size.y; y++) {
-						for(x = 0; x < size.x; x++) {
+			if (!compressed) {
+				for (z = 0; z < size.z; z++) {
+					for (y = 0; y < size.y; y++) {
+						for (x = 0; x < size.x; x++) {
 							data = FileExt::readInt(_data, _index);
-							if(colorFormat == 0) {
+							if (colorFormat == 0) {
 								a = (data & 0xFF000000) >> 24;
 								b = (data & 0x00FF0000) >> 16;
 								g = (data & 0x0000FF00) >> 8;
@@ -71,29 +67,30 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 								b = (data & 0x0000FF00) >> 8;
 								a = (data & 0x000000FF);
 							}
-							if(a != 0)
+							if (a != 0) {
 								m->setVoxel(glm::ivec3(x, y, z), Voxel(1, MColor::getInstance().getUnitID(Color(r / 255.f, g / 255.f, b / 255.f))));
+							}
 						}
 					}
 				}
 			}
 			else {
 				z = 0;
-				while(z < size.z) {
+				while (z < size.z) {
 					matrixIndex = 0;
-					while(true) {
+					while (true) {
 						data = FileExt::readInt(_data, _index);
-						if(data == NEXTSLICEFLAG) {
+						if (data == NEXTSLICEFLAG) {
 							break;
 						}
-						else if(data == CODEFLAG) {
+						else if (data == CODEFLAG) {
 							count = FileExt::readInt(_data, _index);
 							data = FileExt::readInt(_data, _index);
-							if(data == 0) {
+							if (data == 0) {
 								voxel = Voxel(0, 0);
 							}
 							else {
-								if(colorFormat == 0) {
+								if (colorFormat == 0) {
 									a = (data & 0xFF000000) >> 24;
 									b = (data & 0x00FF0000) >> 16;
 									g = (data & 0x0000FF00) >> 8;
@@ -107,7 +104,7 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 								}
 								voxel = Voxel(1, MColor::getInstance().getUnitID(Color(r / 255.f, g / 255.f, b / 255.f)));
 							}
-							for(Uint32 j = 0; j < count; j++) {
+							for (Uint32 j = 0; j < count; j++) {
 								x = matrixIndex % size.x;
 								y = matrixIndex / size.x;
 								matrixIndex++;
@@ -115,11 +112,11 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 							}
 						}
 						else {
-							if(data == 0) {
+							if (data == 0) {
 								voxel = Voxel(0, 0);
 							}
 							else {
-								if(colorFormat == 0) {
+								if (colorFormat == 0) {
 									a = (data & 0xFF000000) >> 24;
 									b = (data & 0x00FF0000) >> 16;
 									g = (data & 0x0000FF00) >> 8;
@@ -146,5 +143,6 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 		delete[] _data;
 	}
 	_file.close();
+	Logger::logLoadedFile(p_fileName);
 	return true;
 }

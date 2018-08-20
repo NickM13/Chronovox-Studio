@@ -236,7 +236,7 @@ Container* ModelOverlay::init(Model* p_model) {
 		->setReleaseFunction([]() {});
 	// TODO: Read this from a file instead, or find an easier way to update version
 	m_container->findComponent("DIALOG_ABOUT")->addComponent(new CText("TEXT_1", "Voxel Model Editor", {0, 26}, {0, 0}, Alignment::ALIGN_CENTER, Color(1, 1, 1)), Component::Anchor::TOP_CENTER);
-	m_container->findComponent("DIALOG_ABOUT")->addComponent(new CText("TEXT_2", "Version 1.1", {0, 46}, {0, 0}, Alignment::ALIGN_CENTER, Color(1, 1, 1)), Component::Anchor::TOP_CENTER);
+	m_container->findComponent("DIALOG_ABOUT")->addComponent(new CText("TEXT_2", "Version 1.2", {0, 46}, {0, 0}, Alignment::ALIGN_CENTER, Color(1, 1, 1)), Component::Anchor::TOP_CENTER);
 	m_container->findComponent("DIALOG_ABOUT")->addComponent(new CText("TEXT_3", "@ Nick's Voxels 2017 - 2018", {0, 66}, {0, 0}, Alignment::ALIGN_CENTER, Color(1, 1, 1)), Component::Anchor::TOP_CENTER);
 	m_container->findComponent("DIALOG_ABOUT")->addComponent(new CText("TEXT_4", "All Rights Reserved", {0, 86}, {0, 0}, Alignment::ALIGN_CENTER, Color(1, 1, 1)), Component::Anchor::TOP_CENTER);
 

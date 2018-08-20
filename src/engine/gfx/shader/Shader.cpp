@@ -26,7 +26,7 @@ Shader::Program* Shader::Program::loadShader(GLint p_shaderType, std::string p_s
 		code = shaderStream.str();
 	}
 	catch(std::ifstream::failure e) {
-		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+		Logger::logError("Shader file could not be read \"" + p_shaderFile + "\"");
 	}
 	const GLchar* shaderCode = code.c_str();
 
@@ -40,7 +40,7 @@ Shader::Program* Shader::Program::loadShader(GLint p_shaderType, std::string p_s
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 	if(!success) {
 		glGetShaderInfoLog(shader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
+		Logger::logError("Shader compilation failed \"" + p_shaderFile + "\"");
 	}
 
 	glAttachShader(program, shader);
@@ -48,7 +48,7 @@ Shader::Program* Shader::Program::loadShader(GLint p_shaderType, std::string p_s
 	glGetProgramiv(program, GL_LINK_STATUS, &success);
 	if(!success) {
 		glGetProgramInfoLog(program, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+		Logger::logError("Shader program failed to link \"" + p_shaderFile + "\"");
 	}
 
 	glDeleteShader(shader);

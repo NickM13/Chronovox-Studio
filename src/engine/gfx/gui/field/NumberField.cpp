@@ -12,7 +12,7 @@ NumberField::NumberField(std::string p_compName, std::string p_title, Vector2<Si
 }
 
 void NumberField::setValue(GLfloat p_value) {
-	m_numText = Util::numToStringFloat(p_value);
+	m_numText = Util::numToStringFloat(p_value, 0);
 }
 
 void NumberField::input(Sint8& p_interactFlags) {

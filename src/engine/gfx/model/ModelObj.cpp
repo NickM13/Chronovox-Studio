@@ -64,10 +64,8 @@ void ModelObj::renderObj() {
 	glBindVertexArray(m_vao);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
 	glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(2);
 	glBindVertexArray(0);
 }

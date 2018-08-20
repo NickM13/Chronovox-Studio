@@ -13,7 +13,7 @@ bool NvmFormat::save(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 	_file.open(std::string(p_fileName), std::ios::binary);
 	{
 		if(!_file.good()) {
-			std::cerr << "Error saving file." << std::endl;
+			Logger::logError("Could not create file \"" + p_fileName + "\"");
 			return false;
 		}
 		// Header
@@ -67,6 +67,7 @@ bool NvmFormat::save(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 		}
 	}
 	_file.close();
+	Logger::logSavedFile(p_fileName);
 	return true;
 }
 
@@ -77,7 +78,7 @@ bool NvmFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 	_file.open(std::string(p_fileName).c_str(), std::ios::binary);
 	{
 		if(!_file.good()) {
-			std::cerr << "Error: File \"" << p_fileName << "\" not found." << std::endl;
+			Logger::logMissingFile(p_fileName);
 			_file.close();
 			return false;
 		}
@@ -113,6 +114,7 @@ bool NvmFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 		delete[] m_data;
 	}
 	_file.close();
+	Logger::logLoadedFile(p_fileName);
 	return _success;
 }
 

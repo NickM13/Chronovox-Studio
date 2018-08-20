@@ -323,6 +323,34 @@ void Math::castBox3d(glm::vec3 p_start, glm::vec3 p_dimension, glm::vec3 p_direc
 	p_side = _side;
 }
 
+std::string Util::numToStringInt(Sint32 n) {
+	return std::to_string(n);
+}
+std::string Util::numToStringFloat(GLfloat n) {
+	std::stringstream ss;
+	ss << n;
+	return ss.str();
+}
+std::string Util::numToStringFloat(GLfloat n, Uint16 p_decimalPlaces) {
+	return std::to_string(n).substr(0, std::string(std::to_string(n)).find('.', 0) + p_decimalPlaces + (p_decimalPlaces > 0 ? 1 : 0));
+}
+
+std::string Util::subchar(char* chararray, Uint32 start, Uint32 end) {
+	std::string subbed;
+	for (Uint32 i = start; i < end + 1; i++) {
+		subbed += chararray[i];
+	}
+	return subbed;
+}
+
+std::string subchar(char* chararray, Uint32 start, Uint32 end) {
+	std::string subbed;
+	for (Uint32 i = start; i < end + 1; i++) {
+		subbed += chararray[i];
+	}
+	return subbed;
+}
+
 void FileExt::writeInt(std::ofstream& p_fileStream, Sint32 p_uint) {
 	p_fileStream << Uint8((p_uint & 0xFF));
 	p_fileStream << Uint8((p_uint & 0xFF00) >> 8);

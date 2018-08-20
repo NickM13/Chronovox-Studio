@@ -87,35 +87,35 @@ void Font::setAlignment(Alignment ALIGN)
 	m_alignment = ALIGN;
 }
 
-void Font::loadFont(std::string p_fontName, std::string p_src, Uint32 p_fontSize)
-{
+void Font::loadFont(std::string p_fontName, std::string p_src, Uint32 p_fontSize) {
 	m_fontList.push_back(init(p_src, p_fontSize));
 	m_fontList[m_fontList.size() - 1]->m_fontName = p_fontName;
 	m_font = m_fontList[m_fontList.size() - 1];
 }
-void Font::setFont(std::string p_fontName)
-{
-	for(Uint16 i = 0; i < m_fontList.size(); i++)
-		if(m_fontList[i]->m_fontName == p_fontName)
+void Font::setFont(std::string p_fontName) {
+	for (Uint16 i = 0; i < m_fontList.size(); i++) {
+		if (m_fontList[i]->m_fontName == p_fontName) {
 			m_font = m_fontList[i];
+		}
+	}
 }
 Font::FontType* Font::init(std::string p_src, Uint32 p_fontSize) {
 	char result[MAX_PATH];
 	std::string path = std::string(result, GetModuleFileName(NULL, result, MAX_PATH));
 	path = path.substr(0, path.find_last_of('\\') + 1);
-	p_src = path + p_src;
+	std::string _src = path + p_src;
 	FontType* _font = new FontType();
 	_font->m_textures = new GLuint[255];
 	_font->m_charWidth = new GLuint[255];
 	_font->m_height = p_fontSize;
 	FT_Library library;
 	if(FT_Init_FreeType(&library)) {
-		std::cerr << "FT_Init_FreeType failed" << std::endl;
+		Logger::logError("FT_Init_FreeType failed");
 		return 0;
 	}
 	FT_Face face;
-	if(FT_New_Face(library, p_src.c_str(), 0, &face)) {
-		std::cerr << "FT_New_Face failed (there is probably a problem with your font file) " << p_src << std::endl;
+	if(FT_New_Face(library, _src.c_str(), 0, &face)) {
+		Logger::logError("FT_New_Face failed: \"" + _src + "\"");
 		return 0;
 	}
 	FT_Set_Char_Size(face, p_fontSize << 6, p_fontSize << 6, 96, 96);
@@ -125,6 +125,7 @@ Font::FontType* Font::init(std::string p_src, Uint32 p_fontSize) {
 		_font->m_charWidth[i] = make_dList(face, i, _font->m_listBase, _font->m_textures);
 	FT_Done_Face(face);
 	FT_Done_FreeType(library);
+	Logger::logNormal("Loaded font: \"" + p_src + "\"");
 	return _font;
 }
 

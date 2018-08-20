@@ -267,6 +267,7 @@ void Matrix::shiftVoxels(glm::ivec3 d) {
 }
 void Matrix::flip(Sint8 p_axes, glm::vec3 p_focus) {
 	Voxel ***_data = new Voxel**[m_size.x];
+	glm::vec3 center = p_focus - getCenter();
 	for(Uint16 x = 0; x < m_size.x; x++) {
 		_data[x] = new Voxel*[m_size.y];
 		for(Uint16 y = 0; y < m_size.y; y++) {
@@ -283,6 +284,8 @@ void Matrix::flip(Sint8 p_axes, glm::vec3 p_focus) {
 			for(Uint16 y = 0; y < m_size.y; y++)
 				for(Uint16 z = 0; z < m_size.z; z++)
 					setVoxel({x, y, z}, _data[m_size.x - x - 1][y][z]);
+
+		addPosition(glm::vec3(center.x * 2, 0, 0));
 	}
 	if(p_axes & AXIS_Y) {
 		for(Uint16 x = 0; x < m_size.x; x++)
@@ -294,6 +297,8 @@ void Matrix::flip(Sint8 p_axes, glm::vec3 p_focus) {
 			for(Uint16 y = 0; y < m_size.y; y++)
 				for(Uint16 z = 0; z < m_size.z; z++)
 					setVoxel({x, y, z}, _data[x][m_size.y - y - 1][z]);
+
+		addPosition(glm::vec3(0, center.y * 2, 0));
 	}
 	if(p_axes & AXIS_Z) {
 		for(Uint16 x = 0; x < m_size.x; x++)
@@ -305,6 +310,8 @@ void Matrix::flip(Sint8 p_axes, glm::vec3 p_focus) {
 			for(Uint16 y = 0; y < m_size.y; y++)
 				for(Uint16 z = 0; z < m_size.z; z++)
 					setVoxel({x, y, z}, _data[x][y][m_size.z - z - 1]);
+
+		addPosition(glm::vec3(0, 0, center.z * 2));
 	}
 
 	for(Uint16 x = 0; x < m_size.x; x++) {
@@ -318,7 +325,7 @@ void Matrix::flip(Sint8 p_axes, glm::vec3 p_focus) {
 void Matrix::rotate(Sint8 p_axes, glm::vec3 p_focus) {
 	glm::ivec3 _size;
 	Voxel ***_data = new Voxel**[m_size.x];
-	glm::vec3 center;
+	glm::vec3 center = p_focus - getCenter();
 	for(Uint16 x = 0; x < m_size.x; x++) {
 		_data[x] = new Voxel*[m_size.y];
 		for(Uint16 y = 0; y < m_size.y; y++) {
@@ -348,7 +355,6 @@ void Matrix::rotate(Sint8 p_axes, glm::vec3 p_focus) {
 		}
 		delete[] _data;
 
-		center = p_focus - getCenter();
 		addPosition(glm::vec3(0, center.y - center.z, center.z + center.y));
 	}
 	if(p_axes & AXIS_Y) {
@@ -374,7 +380,6 @@ void Matrix::rotate(Sint8 p_axes, glm::vec3 p_focus) {
 		}
 		delete[] _data;
 
-		center = p_focus - getCenter();
 		addPosition(glm::vec3(center.x + center.z, 0, center.z - center.x));
 	}
 	if(p_axes & AXIS_Z) {
@@ -400,7 +405,6 @@ void Matrix::rotate(Sint8 p_axes, glm::vec3 p_focus) {
 		}
 		delete[] _data;
 
-		center = p_focus - getCenter();
 		addPosition(glm::vec3(center.x - center.y, center.y + center.x, 0));
 	}
 

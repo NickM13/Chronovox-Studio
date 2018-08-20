@@ -391,7 +391,7 @@ void VoxelTool::renderFillMesh() {
 	Shader::pushMatrixModel();
 	Shader::translate(matrix->getPos());
 	Shader::applyModel();
-	for(Sint32 i = 0; i < coordList.size(); i += 2) {
+	for(Sint32 i = 0; i < (Sint32) coordList.size(); i += 2) {
 		MMesh::renderLine(coordList[i], coordList[i+1]);
 	}
 	Shader::popMatrixModel();

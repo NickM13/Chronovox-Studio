@@ -26,8 +26,7 @@ bool GScreen::m_shadows = false;
 
 GScreen::WindowCommand GScreen::m_windowCommand = NONE;
 
-void GScreen::initWindow(GLFWwindow *p_window)
-{
+void GScreen::initWindow(GLFWwindow *p_window) {
 	m_window = p_window;
 
 	int *x = new int(), *y = new int();
@@ -42,20 +41,16 @@ void GScreen::windowIconifyCallback(GLFWwindow* p_window, int iconified) {
 	m_iconified = (iconified != 0);
 }
 
-void GScreen::startWindowDrag()
-{
+void GScreen::startWindowDrag() {
 	m_draggingWindow = true;
 	m_dragStart = GMouse::getMousePos();
 
 }
-bool GScreen::isDraggingWindow()
-{
+bool GScreen::isDraggingWindow() {
 	return m_draggingWindow;
 }
-void GScreen::endWindowDrag()
-{
-	if(m_draggingWindow)
-	{
+void GScreen::endWindowDrag() {
+	if (m_draggingWindow) {
 		m_draggingWindow = false;
 		m_dragDistance = {};
 	}
@@ -70,22 +65,21 @@ void GScreen::stopResizing() {
 	m_resizing = false;
 }
 
-void GScreen::updateWindow()
-{
-	if(isDraggingWindow() && !isMaximized()) {
+void GScreen::updateWindow() {
+	if (isDraggingWindow() && !isMaximized()) {
 		m_dragDistance = m_dragStart - GMouse::getMousePos();
 		m_windowPos = m_windowPos - m_dragDistance;
 		glfwSetWindowPos(m_window, m_windowPos.x, m_windowPos.y);
 		m_dragStart = GMouse::getMousePos() + m_dragDistance;
 	}
-	if(m_finishedResize) {
+	if (m_finishedResize) {
 		m_finishedResize = false;
 	}
-	if(m_resizing) {
+	if (m_resizing) {
 		Vector2<Sint32> _size = m_screenSize;
 		m_screenSize.x = (Sint32)std::fmaxf(800, (m_initWindowSize.x - (m_resizeMousePos.x - GMouse::getMousePos().x)));
 		m_screenSize.y = (Sint32)std::fmaxf(700, (m_initWindowSize.y - (m_resizeMousePos.y - GMouse::getMousePos().y)));
-		if(!(_size == m_screenSize))
+		if (!(_size == m_screenSize))
 			m_finishedResize = true;
 	}
 }

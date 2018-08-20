@@ -1,18 +1,22 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VoxelModelEditor", "VoxelModelEditor.vcxproj", "{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VoxelModelEditor", "Voxel Model Editor.vcxproj", "{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.Debug|x64.ActiveCfg = Debug|Win32
 		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.Debug|x86.ActiveCfg = Debug|Win32
 		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.Debug|x86.Build.0 = Debug|Win32
+		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.Release|x64.ActiveCfg = Release|Win32
 		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.Release|x86.ActiveCfg = Release|Win32
 		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
@@ -20,6 +24,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {52D02C58-3F28-49E7-B3CA-0AD450BB05F0}
+		SolutionGuid = {1D6ED478-9F94-47AF-8B7F-6B660EE80B77}
 	EndGlobalSection
 EndGlobal

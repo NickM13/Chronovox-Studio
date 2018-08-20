@@ -9,13 +9,18 @@ bool Application::init(char *p_filePath) {
 	GScreen::m_fov = 70;
 	m_maxFps = 60;
 
+	Logger::logNormal("Initializing application...");
+
 	GScreen::m_windowTitle = "Nick's Voxel Editor";
 	GScreen::m_developer = true;
 	GScreen::m_fps = 0;
 	GScreen::m_exitting = 0;
 	GScreen::m_shadows = false;
 
-	if(!glfwInit()) return false;
+	if (!glfwInit()) {
+		Logger::logError("glfw failed to initialize");
+		return false;
+	}
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -24,19 +29,20 @@ bool Application::init(char *p_filePath) {
 	glfwWindowHint(GLFW_DECORATED, 0);
 	glfwWindowHint(GLFW_FLOATING, 0);
 
-	int count, monx, mony;
-	GLFWmonitor *monitor = glfwGetMonitors(&count)[1];
+	int monx, mony;
+	GLFWmonitor *monitor = glfwGetPrimaryMonitor();
 	glfwGetMonitorPos(monitor, &monx, &mony);
 	const GLFWvidmode *mode = glfwGetVideoMode(monitor);
 	m_screenSize = Vector2<Uint16>(std::fminf(1280, mode->width - 128), std::fminf(768, mode->height - 128));
 	m_mainWindow = glfwCreateWindow(std::fminf(m_screenSize.x, mode->width), std::fminf(m_screenSize.y, mode->height), GScreen::m_windowTitle.c_str(), 0, 0);
-	glfwSetWindowPos(m_mainWindow, (mode->width - m_screenSize.x) / 2, (mode->height - m_screenSize.y) / 2);
-	
-	GScreen::initWindow(m_mainWindow);
-	if(!m_mainWindow) {
+	if (!m_mainWindow) {
+		Logger::logError("glfwWindow failed to initialize");
 		glfwTerminate();
 		return false;
 	}
+	glfwSetWindowPos(m_mainWindow, (mode->width - m_screenSize.x) / 2, (mode->height - m_screenSize.y) / 2);
+	
+	GScreen::initWindow(m_mainWindow);
 
 	glfwSetKeyCallback(m_mainWindow, GKey::keyCallback);
 	glfwSetMouseButtonCallback(m_mainWindow, GMouse::mousePressCallback);
@@ -51,7 +57,7 @@ bool Application::init(char *p_filePath) {
 
 	GLenum error;
 	if((error = glewInit()) != GLEW_OK) {
-		std::cout << "glewInit error: " << glewGetErrorString(error) << std::endl;;
+		Logger::logError(std::string("glew failed to initialize: ").append((const char*)glewGetErrorString(error)));
 		return false;
 	}
 
@@ -76,6 +82,7 @@ bool Application::init(char *p_filePath) {
 }
 
 void Application::terminate() {
+	Logger::logNormal("Terminating application...");
 	Shader::terminate();
 	glfwTerminate();
 	delete m_editor;

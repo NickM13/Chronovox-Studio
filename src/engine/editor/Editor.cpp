@@ -15,6 +15,7 @@
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\common.hpp>
 
+#include <condition_variable>
 #include <iostream>
 
 Animation* Editor::m_animation = 0;
@@ -41,26 +42,30 @@ Editor::Editor() {
 	m_mainGui->addComponent(AnimationOverlay::init(m_animation), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)->setVisible(false);
 	m_animation->init(m_model);
 	m_model->init();
-	m_autosaveThread = new std::thread([&]() {
-		GLfloat lastSave = glfwGetTime();
-		while(m_editorState != EditorState::CLOSING) {
-			if(glfwGetTime() - lastSave > 2) {
-				getModel()->autosave();
-				lastSave = glfwGetTime();
-			}
-			Sleep(1000);
-		}
-		getModel()->autosave();
-	});
+
 	setEditorState(EditorState::RUNNING);
 	setEditorMode(EditorMode::MODEL);
+
+	m_autosavePeriod = 15;
+	m_autosaveThread = new std::thread([&]() {
+		GLfloat lastSave = glfwGetTime();
+		std::unique_lock<std::mutex> lock(m_autosaveMutex);
+		std::chrono::system_clock::time_point time = std::chrono::system_clock::now();
+		while (!m_autosaveCv.wait_until(lock, time + std::chrono::seconds(m_autosavePeriod), [&]() {
+			time = std::chrono::system_clock::now();
+			return m_editorState == EditorState::STOPPING; 
+		})) {
+			getModel()->autosave();
+		}
+	});
 
 	initShadowBuffer();
 
 	m_sunlightDirection = glm::normalize(glm::vec3(0.5f, 4, 2));
 }
 Editor::~Editor() {
-	m_editorState = EditorState::CLOSING;
+	m_editorState = EditorState::STOPPING;
+	m_autosaveCv.notify_all();
 	if(m_autosaveThread->joinable()) m_autosaveThread->join();
 	delete m_autosaveThread;
 	MTexture::terminate();

@@ -11,6 +11,7 @@
 #include "engine\utils\global\event\GKey.h"
 #include "engine\utils\global\event\GMouse.h"
 #include "engine\utils\global\GScreen.h"
+#include "engine\utils\logger\Logger.h"
 #include "engine\utils\LOpenGL.h"
 #include <sstream>
 #include <stdlib.h>
@@ -67,43 +68,11 @@ private:
 
 class Util {
 public:
-	static std::string numToStringInt(Sint32 n) {
-		try {
-			return std::to_string(n);
-		}
-		catch(...) {
-			std::cout << "Warning: Arg passed to Util::numToString( T n ) was not a number." << std::endl;;
-		}
-		return "0";
-	}
-	static std::string numToStringFloat(GLfloat n) {
-		try {
-			std::stringstream ss;
-			ss << n;
-			return ss.str();
-		}
-		catch(...) {
-			std::cout << "Warning: Arg passed to Util::numToString( T n ) was not a number." << std::endl;;
-		}
-		return "0";
-	}
-	static std::string numToStringFloat(GLfloat n, Uint16 p_decimalPlaces) {
-		try {
-			return std::to_string(n).substr(0, std::string(std::to_string(n)).find('.', 0) + p_decimalPlaces + (p_decimalPlaces > 0 ? 1 : 0));
-		}
-		catch(...) {
-			std::cout << "Warning: Arg passed to Util::numToString( T n ) was not a number." << std::endl;;
-		}
-		return "0";
-	}
+	static std::string numToStringInt(Sint32 n);
+	static std::string numToStringFloat(GLfloat n);
+	static std::string numToStringFloat(GLfloat n, Uint16 p_decimalPlaces);
 
-	static std::string subchar(char* chararray, Uint32 start, Uint32 end) {
-		std::string subbed;
-		for(Uint32 i = start; i < end + 1; i++) {
-			subbed += chararray[i];
-		}
-		return subbed;
-	}
+	static std::string subchar(char* chararray, Uint32 start, Uint32 end);
 };
 
 class FileExt

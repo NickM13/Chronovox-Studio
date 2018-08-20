@@ -23,7 +23,7 @@ VoxelMesh::~VoxelMesh() {
 }
 
 void VoxelMesh::destroyMesh() {
-	
+	// Not really necessary
 }
 
 Vector4<GLfloat> VoxelMesh::getAO(Vector3<Uint16> p_pos, Voxel*** p_voxels, Uint8 p_side) {
@@ -98,6 +98,9 @@ Vector4<GLfloat> VoxelMesh::getAO(Vector3<Uint16> p_pos, Voxel*** p_voxels, Uint
 }
 
 void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Sint16> p_dimensions) {
+	Logger::logDiagnostic("Creating VoxelMesh (No AO), size {" + p_dimensions.toString() + "}...");
+	GLfloat start = glfwGetTime();
+
 	Voxel*** _voxels;
 	Sint8*** _faces;
 	// Outside voxels are for continuing lighting, and are not rendered
@@ -450,9 +453,15 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	Logger::logDiagnostic("Created mesh in " + std::to_string(glfwGetTime() - start) + " seconds");
+	Logger::logDiagnostic("Mesh vertices(" + std::to_string(m_vertices.size()) + "), colors(" + std::to_string(m_colors.size()) + ")");
 }
 
 void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Sint16> p_dimensions) {
+	Logger::logDiagnostic("Creating VoxelMesh (AO), size {" + p_dimensions.toString() + "}...");
+	GLfloat start = glfwGetTime();
+
 	glm::vec3 normals[6] = {
 		glm::vec3(-1,  0,  0),
 		glm::vec3( 1,  0,  0),
@@ -916,6 +925,9 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	Logger::logDiagnostic("Created mesh in " + std::to_string(glfwGetTime() - start) + " seconds");
+	Logger::logDiagnostic("Mesh vertices(" + std::to_string(m_vertices.size()) + "), colors(" + std::to_string(m_colors.size()) + ")");
 }
 
 void VoxelMesh::renderMesh() {
