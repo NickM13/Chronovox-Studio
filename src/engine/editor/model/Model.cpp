@@ -30,6 +30,7 @@ void Model::init() {
 	m_hoverMatrix = -1;
 	m_grid = true;
 	m_outline = true;
+	m_wireframe = false;
 	m_nameList = (CList*)ModelOverlay::getContainer()->findComponent("GUI_DETAILS\\GUI_MATRICES\\LIST_MATRICES");
 	m_colorOverlay = (ColorOverlay*)ModelOverlay::getContainer()->findComponent("GUI_DETAILS\\GUI_COLOR\\OVERLAY_COLOR");
 	m_colorOverlay->setColorRGB(0, 255, 128);
@@ -93,13 +94,18 @@ void Model::toggleGrid() {
 void Model::toggleOutline() {
 	m_outline = !m_outline;
 }
+void Model::toggleWireframe() {
+	m_wireframe = !m_wireframe;
+}
 
 void Model::focus() {
-	if (MTool::getTool(m_tool)->getType() == Tool::ToolType::VOXEL) {
-		Camera::setPosition(m_matrixEdit->getPos() + glm::vec3(m_selectedVoxel) + glm::vec3(0.5f, 0.5f, 0.5f));
-	}
-	else if (MTool::getTool(m_tool)->getType() == Tool::ToolType::MATRIX) {
-		Camera::setPosition(getSelectedMatricesCenter());
+	if (m_matrixEdit->getId() != -1) {
+		if (MTool::getTool(m_tool)->getType() == Tool::ToolType::VOXEL) {
+			Camera::setPosition(m_matrixEdit->getPos() + glm::vec3(m_selectedVoxel) + glm::vec3(0.5f, 0.5f, 0.5f));
+		}
+		else if (MTool::getTool(m_tool)->getType() == Tool::ToolType::MATRIX) {
+			Camera::setPosition(getSelectedMatricesCenter());
+		}
 	}
 }
 
@@ -324,23 +330,36 @@ void Model::updateMatrixList() {
 void Model::inputEditor(Sint8 p_guiFlags) {
 	bool mouseOnGui = !(p_guiFlags & (Sint8)Component::EventFlag::MOUSEOVER);
 	GLfloat _near = mouseOnGui ? 1 : 0, _far = 1;
-	if (MTool::getTool(m_tool)->getType() == Tool::ToolType::VOXEL
-		&& GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)
-		&& m_matrixEdit->getId() != -1)
-		ModelMath::castRayMatrix(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), m_matrixEdit->getInitMatrix(), _near, _far);
-	else
+	if (MTool::getTool(m_tool)->getType() == Tool::ToolType::VOXEL) {
+		if (GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)
+			&& m_matrixEdit->getId() != -1) {
+			ModelMath::castRayMatrix(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), m_matrixEdit->getInitMatrix(), _near, _far);
+		}
+		else {
+			std::vector<Matrix*> matrices = getSelectedMatrices();
+			if (matrices.empty()) {
+				matrices = m_matrices;
+			}
+			ModelMath::castRayMatrices(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), matrices, m_hoverMatrix, _near, _far);
+		}
+	}
+	else {
 		ModelMath::castRayMatrices(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), m_matrices, m_hoverMatrix, _near, _far);
+	}
 
 	if (!mouseOnGui) {
 		switch (MTool::getTool(m_tool)->getType()) {
 		case Tool::ToolType::VOXEL:
-			if ((!GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT) && m_hoverMatrix != m_matrixEdit->getId()) || GMouse::mouseReleased(GLFW_MOUSE_BUTTON_LEFT))
+			if ((!GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT) && m_hoverMatrix != m_matrixEdit->getId()) || GMouse::mouseReleased(GLFW_MOUSE_BUTTON_LEFT)) {
 				hoverMatrix(m_hoverMatrix);
+			}
 			break;
 		case Tool::ToolType::MATRIX:
-			if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
-				if (m_matrixEdit->getId() == -1 || m_selectedScale == 0)
+			if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
+				if (m_matrixEdit->getId() == -1 || m_selectedScale == 0) {
 					selectMatrix(m_hoverMatrix);
+				}
+			}
 			break;
 		default: break;
 		}
@@ -416,18 +435,21 @@ void Model::updateEditor(GLfloat p_deltaUpdate) {
 		*m_dataString = "";
 }
 void Model::renderEditor() {
-	Shader::setLightEnabled(true);
-	for (Matrix* m : m_matrices)
+	Shader::setLightEnabled(!m_wireframe);
+	for (Matrix* m : m_matrices) {
 		m->renderMatrix();
+	}
 
 	Shader::setLightEnabled(false);
 	if (m_grid) renderGrid();
 
 	for (Uint16 i = 0; i < m_matrices.size(); i++) {
-		if (m_outline)
+		if (m_outline) {
 			m_matrices[i]->renderOutline(static_cast<OutlineType>(m_nameList->getItem(i).state + 1));
-		else
+		}
+		else {
 			m_matrices[i]->renderOutline(OutlineType::NONE);
+		}
 	}
 
 	switch (MTool::getTool(m_tool)->getType()) {

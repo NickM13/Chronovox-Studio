@@ -40,7 +40,7 @@ bool ModelMath::castRayMatrices(glm::vec3 p_start, glm::vec3 p_direction, std::v
 			else _near = _mNear + ((_mFar - _mNear) * _vNear);
 			_far = _mFar;
 			if(_near < _cNear + _c) {
-				_cMatrix = i;
+				_cMatrix = p_matrices[i]->getId();
 				_cNear = _near + _c;
 				_cFar = _far;
 				p_near = _mNear + ((_mNear - _mFar) * _vNear);

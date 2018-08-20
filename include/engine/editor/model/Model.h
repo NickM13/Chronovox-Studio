@@ -37,6 +37,7 @@ private:
 	std::string* m_dataString; // Info bar at bottom of screen
 	bool m_grid;
 	bool m_outline;
+	bool m_wireframe;
 
 	// Matrices
 	std::vector<Matrix*> m_matrices;
@@ -76,6 +77,7 @@ public:
 
 	void toggleGrid();
 	void toggleOutline();
+	void toggleWireframe();
 
 	void focus();
 

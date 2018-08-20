@@ -52,6 +52,7 @@ bool Application::init(char *p_filePath) {
 	glfwSetWindowSizeCallback(m_mainWindow, windowResizeCallback);
 	glfwSetDropCallback(m_mainWindow, dropFileCallback);
 	glfwSetWindowIconifyCallback(m_mainWindow, GScreen::windowIconifyCallback);
+	glfwSetWindowFocusCallback(m_mainWindow, GScreen::windowFocusCallback);
 
 	glfwMakeContextCurrent(m_mainWindow);
 
@@ -200,7 +201,12 @@ void Application::run() {
 		update();
 		render();
 
-		m_sleepTime = DWORD(std::fmaxf(1000 / m_maxFps - ((glfwGetTime() - i) * 1000), 0));
+		if (GScreen::m_focused) {
+			m_sleepTime = DWORD(std::fmaxf(1000 / m_maxFps - ((glfwGetTime() - i) * 1000), 0));
+		}
+		else {
+			m_sleepTime = DWORD(std::fmaxf(1000 / 5.f - ((glfwGetTime() - i) * 1000), 0));
+		}
 		if(m_sleepTime > 0)
 			Sleep(m_sleepTime);
 		GScreen::m_fps = 1.f / GLfloat(glfwGetTime() - i);

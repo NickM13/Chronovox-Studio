@@ -13,6 +13,7 @@ Vector2<Sint32> GScreen::m_monitorSize = {};
 Vector2<Sint32> GScreen::m_windowPos = {};
 bool GScreen::m_maximized = false;
 bool GScreen::m_iconified = false;
+bool GScreen::m_focused = true;
 Vector2<Sint32> GScreen::m_screenSize = {};
 Vector2<Sint32> GScreen::m_smallScreen = {};
 bool GScreen::m_draggingWindow = false;
@@ -39,6 +40,15 @@ void GScreen::initWindow(GLFWwindow *p_window) {
 
 void GScreen::windowIconifyCallback(GLFWwindow* p_window, int iconified) {
 	m_iconified = (iconified != 0);
+}
+
+void GScreen::windowFocusCallback(GLFWwindow* p_window, int focus) {
+	if (focus == GLFW_TRUE) {
+		m_focused = true;
+	}
+	else {
+		m_focused = false;
+	}
 }
 
 void GScreen::startWindowDrag() {
