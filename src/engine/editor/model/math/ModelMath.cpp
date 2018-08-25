@@ -9,7 +9,7 @@ bool ModelMath::castRayMatrix(glm::vec3 p_start, glm::vec3 p_direction, Matrix* 
 	_mNear = _iNear;
 	_mFar = _iFar;
 	Math::castRay3d(p_start, p_direction, p_matrix->getPos(), p_matrix->getSize(), _mNear, _mFar, _side);
-	if(_mNear < 1) {
+	if (_mNear < 1) {
 		_vNear = _mNear, _vFar = _mFar;
 		castRayVoxel(p_start, p_direction, p_matrix, _vNear, _vFar, m_selectedVoxel, _side, m_selectedVoxelOffset);
 		p_near = _mNear + ((_mNear - _mFar) * _vNear);
@@ -29,17 +29,17 @@ bool ModelMath::castRayMatrices(glm::vec3 p_start, glm::vec3 p_direction, std::v
 	Sint8 _side = 0;
 	Sint32 _cMatrix = -1;
 	glm::ivec3 m_selectedVoxel, m_selectedVoxelOffset;
-	for(Uint16 i = 0; i < p_matrices.size(); i++) {
+	for (Uint16 i = 0; i < p_matrices.size(); i++) {
 		_mNear = _iNear;
 		_mFar = _iFar;
 		Math::castRay3d(p_start, p_direction, p_matrices[i]->getPos(), p_matrices[i]->getSize(), _mNear, _mFar, _side);
-		if(_mNear < _cNear) {
+		if (_mNear < _cNear) {
 			_vNear = _mNear, _vFar = _mFar;
 			castRayVoxel(p_start, p_direction, p_matrices[i], _vNear, _vFar, m_selectedVoxel, _side, m_selectedVoxelOffset);
-			if(_vFar == 1) _near = 1.f - _c;
+			if (_vFar == 1) _near = 1.f - _c;
 			else _near = _mNear + ((_mFar - _mNear) * _vNear);
 			_far = _mFar;
-			if(_near < _cNear + _c) {
+			if (_near < _cNear + _c) {
 				_cMatrix = p_matrices[i]->getId();
 				_cNear = _near + _c;
 				_cFar = _far;
@@ -56,24 +56,24 @@ bool ModelMath::castRayVoxel(glm::vec3 p_start, glm::vec3 p_direction, Matrix *p
 	GLfloat _near = 0, _far = 1;
 	GLfloat _cNear = 0, _cFar = 1;
 	Sint32 _close = -1;
-	Vector2<GLfloat> _closest = {1, 1};
+	Vector2<GLfloat> _closest = { 1, 1 };
 	glm::ivec3 _size = p_matrix->getSize(), _pos = p_matrix->getPos();
 	p_side = 0;
 
-	p_selectedVoxel = p_selectedVoxelOffset = {-1, -1, -1};
+	p_selectedVoxel = p_selectedVoxelOffset = { -1, -1, -1 };
 
 	p_near -= 0.000001f;
 	p_far += 0.000001f;
 	p_start = p_start - p_matrix->getPos() + p_direction * p_near;
 	p_direction = p_direction * (p_far - p_near);
 
-	Math::castRay3d(p_start, p_direction, glm::floor(p_start), {1, 1, 1}, _cNear, _cFar, p_side);
+	Math::castRay3d(p_start, p_direction, glm::floor(p_start), { 1, 1, 1 }, _cNear, _cFar, p_side);
 	glm::vec3 _floor = glm::floor(p_start);
 	int i = 500;
 	do {
-		if(_floor.x >= 0 && _floor.y >= 0 && _floor.z >= 0 &&
+		if (_floor.x >= 0 && _floor.y >= 0 && _floor.z >= 0 &&
 			_floor.x < _size.x && _floor.y < _size.y && _floor.z < _size.z) {
-			if(p_matrix->getVoxel(_floor).interactionType != 0) {
+			if (p_matrix->getVoxel(_floor).interactionType != 0) {
 				p_near = _near;
 				p_far = _near;
 				p_selectedVoxelOffset = p_selectedVoxel;
@@ -84,13 +84,13 @@ bool ModelMath::castRayVoxel(glm::vec3 p_start, glm::vec3 p_direction, Matrix *p
 		p_selectedVoxel = _floor;
 		_near = _cFar + 0.00001f;
 		_cNear = 0, _cFar = 1;
-		Math::castRay3d(p_start, p_direction, glm::floor(p_start + p_direction * (_near)), {1, 1, 1}, _cNear, _cFar, p_side);
+		Math::castRay3d(p_start, p_direction, glm::floor(p_start + p_direction * (_near)), { 1, 1, 1 }, _cNear, _cFar, p_side);
 		_floor = glm::floor(p_start + p_direction * _near);
 		i--;
-	} while(_cNear < 1 && _near < _far && i > 0);
+	} while (_cNear < 1 && _near < _far && i > 0);
 	p_selectedVoxelOffset = p_selectedVoxel;
 	p_selectedVoxel = _floor;
-	switch(p_side) {
+	switch (p_side) {
 	case FACE_NORTH:	p_selectedVoxelOffset.x++; break;
 	case FACE_SOUTH:	p_selectedVoxelOffset.x--; break;
 	case FACE_TOP:		p_selectedVoxelOffset.y++; break;
@@ -102,61 +102,128 @@ bool ModelMath::castRayVoxel(glm::vec3 p_start, glm::vec3 p_direction, Matrix *p
 	return false;
 }
 bool ModelMath::castRayScale(glm::vec3 p_start, glm::vec3 p_direction, Matrix* p_matrix, GLfloat &p_near, GLfloat &p_far, glm::vec3 &p_scalePos, Sint8 &p_scale) {
-	if(!GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)) {
+	if (!GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)) {
 		GLfloat _near = 0, _far = 1;
 		Sint8 _side = 0;
 		Sint32 _close = -1;
-		Vector2<GLfloat> _closest = {1, 1};
+		Vector2<GLfloat> _closest = { 1, 1 };
 		p_scale = 0;
 		GLfloat size = 0.2f;
 
 		glm::vec3 s = glm::vec3(p_matrix->getSize()) / glm::vec3(2);
 		glm::vec3 _offset = p_matrix->getPos() + s;
 
-		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{-(s.x + 2), -size, -size}, {2, size * 2, size * 2}, _near, _far, _side);
-		if(_near < _closest.x) {
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ -(s.x + 2), -size, -size }, { 2, size * 2, size * 2 }, _near, _far, _side);
+		if (_near < _closest.x) {
 			p_scale = FACE_SOUTH;
-			_closest = {_near, _far};
+			_closest = { _near, _far };
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{(s.x), -size, -size}, {2, size * 2, size * 2}, _near, _far, _side);
-		if(_near < _closest.x) {
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ (s.x), -size, -size }, { 2, size * 2, size * 2 }, _near, _far, _side);
+		if (_near < _closest.x) {
 			p_scale = FACE_NORTH;
-			_closest = {_near, _far};
+			_closest = { _near, _far };
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{-size, -(s.y + 2), -size}, {size * 2, 2, size * 2}, _near, _far, _side);
-		if(_near < _closest.x) {
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ -size, -(s.y + 2), -size }, { size * 2, 2, size * 2 }, _near, _far, _side);
+		if (_near < _closest.x) {
 			p_scale = FACE_BOTTOM;
-			_closest = {_near, _far};
+			_closest = { _near, _far };
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{-size, (s.y), -size}, {size * 2, 2, size * 2}, _near, _far, _side);
-		if(_near < _closest.x) {
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ -size, (s.y), -size }, { size * 2, 2, size * 2 }, _near, _far, _side);
+		if (_near < _closest.x) {
 			p_scale = FACE_TOP;
-			_closest = {_near, _far};
+			_closest = { _near, _far };
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{-size, -size, -(s.z + 2)}, {size * 2, size * 2, 2}, _near, _far, _side);
-		if(_near < _closest.x) {
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ -size, -size, -(s.z + 2) }, { size * 2, size * 2, 2 }, _near, _far, _side);
+		if (_near < _closest.x) {
 			p_scale = FACE_WEST;
-			_closest = {_near, _far};
+			_closest = { _near, _far };
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{-size, -size, (s.z)}, {size * 2, size * 2, 2}, _near, _far, _side);
-		if(_near < _closest.x) {
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ -size, -size, (s.z) }, { size * 2, size * 2, 2 }, _near, _far, _side);
+		if (_near < _closest.x) {
 			p_scale = FACE_EAST;
-			_closest = {_near, _far};
+			_closest = { _near, _far };
 		}
 
-		if(p_scale != 0)
+		if (p_scale != 0) {
 			p_scalePos = p_start + p_direction * _closest.x;
+		}
 		return (p_scale != 0);
 	}
+	return false;
+}
+
+bool ModelMath::castRayVoxelPlane(glm::vec3 p_start, glm::vec3 p_direction, Matrix *p_matrix, GLfloat &p_near, GLfloat &p_far, glm::ivec3 p_planePoint, Sint8 p_side, glm::ivec3 &p_selectedVoxel, glm::ivec3 &p_selectedVoxelOffset) {
+	GLfloat _near = 0, _far = 1;
+	GLfloat _cNear = 0, _cFar = 1;
+	Sint32 _close = -1;
+	Vector2<GLfloat> _closest = { 1, 1 };
+	glm::ivec3 _size = p_matrix->getSize(), _pos = p_matrix->getPos();
+	Sint8 _side = 0;
+
+	p_selectedVoxel = p_selectedVoxelOffset = { -1, -1, -1 };
+
+	p_near -= 0.000001f;
+	p_far += 0.000001f;
+	p_start = p_start - p_matrix->getPos() + p_direction * p_near;
+	p_direction = p_direction * (p_far - p_near);
+
+	Math::castRay3d(p_start, p_direction, glm::floor(p_start), { 1, 1, 1 }, _cNear, _cFar, _side);
+	glm::vec3 _floor = glm::floor(p_start);
+	int i = 1000;
+	do {
+		if (_floor.x >= 0 && _floor.y >= 0 && _floor.z >= 0
+			&& _floor.x < _size.x && _floor.y < _size.y && _floor.z < _size.z
+			&& p_side == _side) {
+			switch (p_side) {
+			case FACE_NORTH:
+			case FACE_SOUTH:
+				if (_floor.x == p_planePoint.x) {
+					p_near = _near;
+					p_far = _near;
+					p_selectedVoxelOffset = p_selectedVoxel;
+					p_selectedVoxel = _floor;
+					return true;
+				}
+				break;
+			case FACE_TOP:
+			case FACE_BOTTOM:
+				if (_floor.y == p_planePoint.y) {
+					p_near = _near;
+					p_far = _near;
+					p_selectedVoxelOffset = p_selectedVoxel;
+					p_selectedVoxel = _floor;
+					return true;
+				}
+				break;
+			case FACE_WEST:
+			case FACE_EAST:
+				if (_floor.z == p_planePoint.z) {
+					p_near = _near;
+					p_far = _near;
+					p_selectedVoxelOffset = p_selectedVoxel;
+					p_selectedVoxel = _floor;
+					return true;
+				}
+				break;
+			}
+		}
+		p_selectedVoxel = _floor;
+		_near = _cFar + 0.00001f;
+		_cNear = 0, _cFar = 1;
+		Math::castRay3d(p_start, p_direction, glm::floor(p_start + p_direction * (_near)), { 1, 1, 1 }, _cNear, _cFar, _side);
+		_floor = glm::floor(p_start + p_direction * _near);
+		i--;
+	} while (_cNear < 1 && _near < _far && i > 0);
+	p_selectedVoxel = p_selectedVoxelOffset = { -1, -1, -1 };
 	return false;
 }

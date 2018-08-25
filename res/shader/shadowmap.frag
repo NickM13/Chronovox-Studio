@@ -1,3 +1,5 @@
+#version 430
+
 // Interpolated values from the vertex shaders
 in vec2 UV;
 in vec4 ShadowCoord;

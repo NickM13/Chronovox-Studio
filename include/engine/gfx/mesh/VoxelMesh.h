@@ -22,7 +22,6 @@ private:
 	GLuint m_vaoId, m_vboId[3];
 
 	Vector4<GLfloat> getAO(Vector3<Uint16> p_pos, Voxel*** p_voxels, Uint8 p_side);
-	Vector4<glm::vec3> getNormals(Vector3<Uint16> p_pos, Voxel*** p_voxels, Uint8 p_side);
 public:
 	VoxelMesh();
 	~VoxelMesh();
@@ -34,10 +33,6 @@ public:
 	void createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Sint16> p_dimensions);
 	// Create a mesh with simulated ambient occlusion
 	void createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Sint16> p_dimensions);
-	// *Deprecated*
-	// - Doesn't use normals for shaded sides -
-	// Create a mesh with simulated ambient occlusion
-	void _createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Sint16> p_dimensions);
 
 	// TODO: Returns a buffer for vertex array.  Only useful for static objects like models.
 	//void createStaticMesh();

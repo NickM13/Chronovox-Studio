@@ -12,6 +12,7 @@ bool Application::init(char *p_filePath) {
 	Logger::logNormal("Initializing application...");
 
 	GScreen::m_windowTitle = "Nick's Voxel Editor";
+	GScreen::m_appVersion = "1.2.1";
 	GScreen::m_developer = true;
 	GScreen::m_fps = 0;
 	GScreen::m_exitting = 0;

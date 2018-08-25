@@ -468,10 +468,10 @@ void Matrix::renderOutline(OutlineType p_outline) {
 	GLfloat w1 = 0.05f, w2 = w1 / 2.5f;
 	glm::vec3 s = glm::vec3(m_size);
 	switch(p_outline) {
-	case NONE: return;
-	case OUTLINE:  Shader::setColor(glm::vec4(0.6f, 0.6f,  0.6f, 1.f)); break;
-	case HOVERED:  Shader::setColor(glm::vec4(0.7f, 0.85f, 1.0f, 1.f)); break;
-	case SELECTED: Shader::setColor(glm::vec4(1.f,  1.f,   1.f,  1.f)); break;
+	case OutlineType::NONE: return;
+	case OutlineType::OUTLINE:  Shader::setColor(glm::vec4(0.6f, 0.6f,  0.6f, 1.f)); break;
+	case OutlineType::HOVERED:  Shader::setColor(glm::vec4(0.7f, 0.85f, 1.0f, 1.f)); break;
+	case OutlineType::SELECTED: Shader::setColor(glm::vec4(1.f,  1.f,   1.f,  1.f)); break;
 	}
 	MMesh::renderBoxOutline(m_pos, s);
 }

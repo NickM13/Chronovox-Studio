@@ -6,7 +6,7 @@
 #include "engine\gfx\font\Font.h"
 
 class CList : public Component {
-private:
+protected:
 	Uint16 m_itemHeight;
 	GLfloat m_maxVisible; // Max items visible, more efficient rendering but not necessarily needed?
 	Sint16 m_scroll, m_maxScroll;
@@ -19,6 +19,8 @@ private:
 		ListItem(std::string name = "", Sint8 state = 0) : name(name), state(state) {};
 	};
 	std::vector<ListItem> m_itemList;
+
+	void renderItems();
 public:
 	CList(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Uint16 p_itemHeight);
 

@@ -21,7 +21,7 @@ Container* AnimationOverlay::init(Animation* p_animation) {
 		{-32, 0}, {32, 28}, CButton::RenderStyle::FILL, []() { GScreen::m_windowCommand = GScreen::WindowCommand::RESIZE; }), Component::Anchor::TOP_RIGHT);
 	titleBar->addComponent(new CButton("BUTTON_CLOSE_WINDOW", "", MTexture::getTexture("gui\\icon\\window\\Close.png"),
 		{0, 0}, {32, 28}, CButton::RenderStyle::FILL, []() { GScreen::m_windowCommand = GScreen::WindowCommand::CLOSE; }), Component::Anchor::TOP_RIGHT);
-	m_container->addComponent(new CToolbar("TOOLBAR_MAIN", {0, 28}, {0, 18}), Component::Anchor::TOP_LEFT, Component::Anchor::TOP_RIGHT)->setPriorityLayer(4);
+	m_container->addComponent(new CMenubar("TOOLBAR_MAIN", {0, 28}, {0, 18}), Component::Anchor::TOP_LEFT, Component::Anchor::TOP_RIGHT)->setPriorityLayer(4);
 	m_container->findComponent("TOOLBAR_MAIN")->addButton("", "File")->
 		addButton("File", "New", "", []() { m_animation->fileNew(); })->
 		addButton("File", "Open", "Ctrl+O", []() { m_animation->fileOpen(); })->

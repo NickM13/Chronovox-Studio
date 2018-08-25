@@ -1,3 +1,5 @@
+#version 430
+
 layout(location=4) uniform sampler2D texMap;
 
 in vec4 ex_color;

@@ -128,6 +128,7 @@
     <ClCompile Include="src\engine\gfx\gui\dialog\Dialog.cpp" />
     <ClCompile Include="src\engine\gfx\gui\field\DataField.cpp" />
     <ClCompile Include="src\engine\gfx\gui\field\FileField.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\field\TextFile.cpp" />
     <ClCompile Include="src\engine\gfx\gui\frequency\Counter.cpp" />
     <ClCompile Include="src\engine\gfx\gui\frequency\SliderV.cpp" />
     <ClCompile Include="src\engine\gfx\gui\global\GGui.cpp" />
@@ -141,7 +142,7 @@
     <ClCompile Include="src\engine\gfx\gui\field\Text.cpp" />
     <ClCompile Include="src\engine\gfx\gui\field\TextField.cpp" />
     <ClCompile Include="src\engine\gfx\gui\list\Tileset.cpp" />
-    <ClCompile Include="src\engine\gfx\gui\list\Toolbar.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\list\Menubar.cpp" />
     <ClCompile Include="src\engine\gfx\gui\Component.cpp" />
     <ClCompile Include="src\engine\gfx\mesh\MMesh.cpp" />
     <ClCompile Include="src\engine\gfx\mesh\VoxelMesh.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="include\engine\gfx\gui\dialog\Dialog.h" />
     <ClInclude Include="include\engine\gfx\gui\field\DataField.h" />
     <ClInclude Include="include\engine\gfx\gui\field\FileField.h" />
+    <ClInclude Include="include\engine\gfx\gui\field\TextFile.h" />
     <ClInclude Include="include\engine\gfx\gui\frequency\Counter.h" />
     <ClInclude Include="include\engine\gfx\gui\global\GGui.h" />
     <ClInclude Include="include\engine\gfx\gui\icon\Icon.h" />
@@ -226,7 +228,7 @@
     <ClInclude Include="include\engine\gfx\gui\field\Text.h" />
     <ClInclude Include="include\engine\gfx\gui\field\TextField.h" />
     <ClInclude Include="include\engine\gfx\gui\list\Tileset.h" />
-    <ClInclude Include="include\engine\gfx\gui\list\Toolbar.h" />
+    <ClInclude Include="include\engine\gfx\gui\list\Menubar.h" />
     <ClInclude Include="include\engine\gfx\gui\Component.h" />
     <ClInclude Include="include\engine\gfx\LGui.h" />
     <ClInclude Include="include\engine\gfx\mesh\MMesh.h" />
@@ -257,7 +259,6 @@
     <ClInclude Include="include\engine\utils\variable\manager\ScissorManager.h" />
     <ClInclude Include="include\engine\gfx\texture\MTexture.h" />
     <ClInclude Include="include\engine\utils\variable\manager\VoxelManager.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="include\engine\gfx\gui\frequency\SliderV.h" />
   </ItemGroup>
   <ItemGroup>

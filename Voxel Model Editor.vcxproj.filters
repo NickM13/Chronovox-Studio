@@ -174,9 +174,6 @@
     <ClCompile Include="src\engine\gfx\gui\list\Tileset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\gfx\gui\list\Toolbar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\gfx\gui\Component.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -229,6 +226,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\utils\logger\Logger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\gfx\gui\field\TextFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\gfx\gui\list\Menubar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -425,9 +428,6 @@
     <ClInclude Include="include\engine\gfx\gui\list\Tileset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\engine\gfx\gui\list\Toolbar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\engine\gfx\gui\Component.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -515,13 +515,16 @@
     <ClInclude Include="include\engine\utils\variable\manager\VoxelManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\engine\gfx\gui\frequency\SliderV.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\engine\utils\logger\Logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\gfx\gui\field\TextFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\gfx\gui\list\Menubar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

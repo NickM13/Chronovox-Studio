@@ -57,6 +57,9 @@ private:
 	glm::vec3 m_grabStart, m_grabCurrent;
 	GLfloat m_dragDifference;
 	Sint8 m_selectedScale;
+	bool m_voxelPlaneMode;
+	glm::ivec3 m_voxelPlanePos;
+	Sint8 m_voxelPlaneSide;
 
 	EditMatrix *m_matrixEdit;
 
@@ -78,6 +81,7 @@ public:
 	void toggleGrid();
 	void toggleOutline();
 	void toggleWireframe();
+	void setMatricesVisible(bool p_visible);
 
 	void focus();
 
@@ -100,6 +104,7 @@ public:
 	void deleteSelectedMatrices();
 	void moveMatrix(bool up);
 	void hoverMatrix(Sint16 id);
+	void setSelectedMatrix(Sint16 id);
 	void selectMatrix(Sint16 id);
 
 	glm::vec3 getPos() { return m_pos; }

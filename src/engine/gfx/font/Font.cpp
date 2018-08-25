@@ -1,8 +1,7 @@
 #include "engine\gfx\font\Font.h"
 #include "engine\utils\Utilities.h"
 
-// TODO: Majority of this code based on NeHe's FreeType2 tutorial found here: http://nehe.gamedev.net/tutorial/freetype_fonts_in_opengl/24001/
-// Need to find out if I have to credit this
+// Majority of this code is from NeHe's FreeType2 tutorial http://nehe.gamedev.net/tutorial/freetype_fonts_in_opengl/24001/
 
 std::vector<Font::FontType*> Font::m_fontList;
 Font::FontType* Font::m_font = 0;
@@ -176,8 +175,7 @@ std::string Font::getMessageSubstr(std::string p_msg, Sint32 p_width) {
 	return p_msg;
 }
 
-inline void pushScreenCoordinateMaterix()
-{
+inline void pushScreenCoordinateMatrix() {
 	glPushAttrib(GL_TRANSFORM_BIT);
 	{
 		GLint viewport[4];
@@ -190,16 +188,14 @@ inline void pushScreenCoordinateMaterix()
 	glPopAttrib();
 }
 
-inline void pop_projection_matrix()
-{
+inline void pop_projection_matrix() {
 	glPushAttrib(GL_TRANSFORM_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glPopAttrib();
 }
 
-void Font::print(std::string message, Sint32 x, Sint32 y)
-{
+void Font::print(std::string message, Sint32 x, Sint32 y) {
 	x = x;
 	y = y + m_font->m_height / 2;
 
@@ -208,7 +204,7 @@ void Font::print(std::string message, Sint32 x, Sint32 y)
 	int id;
 	glGetIntegerv(GL_TEXTURE_BINDING_2D, &id);
 
-	pushScreenCoordinateMaterix();
+	pushScreenCoordinateMatrix();
 	glPushMatrix();
 	{
 		glScalef(1, -1, 1);
@@ -262,15 +258,15 @@ void Font::print(std::string message, Sint32 x, Sint32 y)
 					case ALIGN_LEFT:
 						break;
 					case ALIGN_CENTER:
-						glTranslatef(-GLfloat(getMessageWidth(message).x / 2), 0, 0);
+						glTranslatef(-(getMessageWidth(message).x / 2), 0, 0);
 						break;
 					case ALIGN_RIGHT:
-						glTranslatef(-GLfloat(getMessageWidth(message).x), 0, 0);
+						glTranslatef(-(getMessageWidth(message).x), 0, 0);
 						break;
 					default:
 						break;
 					}
-					glTranslatef(GLfloat(x), GLfloat(y + h * i), 0);
+					glTranslatef(x, y + h * i, 0);
 					glMultMatrixf(modelview_matrix);
 
 					glCallLists(lines[i].length(), GL_UNSIGNED_BYTE, lines[i].c_str());

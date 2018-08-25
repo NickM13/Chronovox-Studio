@@ -11,6 +11,7 @@
 class GScreen {
 public:
 	static std::string m_windowTitle;
+	static std::string m_appVersion;
 	static GLfloat m_fps;
 	static GLfloat m_fov;
 	static GLfloat m_deltaTime;

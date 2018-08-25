@@ -43,11 +43,13 @@ public:
 	static void setFont(std::string p_fontName);
 	static void clean();
 
-	static Sint16 getHeight() {return m_font->m_height;};
+	static Sint16 getHeight() { return m_font->m_height; };
 	static Vector2<Sint32> getMessageWidth(std::string p_msg);
 	static std::string getMessageSubstr(std::string p_msg, Sint32 p_width);
-	static GLfloat getSpacingHeight() {return m_font->m_height * 1.8f;};	/*Value with height multiplied*/
-	static GLfloat getSpacing() {return 1.8f;};							/*Value without height multiplied*/
+	// Font Height * Spacing
+	static GLfloat getSpacingHeight() { return m_font->m_height * 1.8f; };
+	// Font Spacing, no height
+	static GLfloat getSpacing() { return 1.8f; };
 
 	static void print(std::string p_msg, Sint32 p_x, Sint32 p_y);
 };

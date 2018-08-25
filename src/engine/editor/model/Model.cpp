@@ -110,6 +110,10 @@ void Model::focus() {
 }
 
 void Model::fixSelectedMatrix() {
+	for (Sint32 i = 0; i < m_nameList->getItemList().size(); i++) {
+		auto li = m_nameList->getItemList().at(i);
+		getMatrix(li.name)->setId(i);
+	}
 	if (m_nameList->getSelectedItem() == -1) {
 		m_matrixEdit->clearMatrix();
 	}
@@ -300,20 +304,38 @@ void Model::hoverMatrix(Sint16 id) {
 		m_matrixEdit->setMatrix(m_matrices[id], id);
 	}
 }
+void Model::setSelectedMatrix(Sint16 id) {
+	m_matrixEdit->clearMatrix();
+	if (id != -1) {
+		m_matrixEdit->setMatrix(getMatrix(id), id);
+	}
+}
 void Model::selectMatrix(Sint16 id) {
 	if (id == -1) {
 		if (m_matrixEdit->getId() != -1) {
-			if (m_nameList->getItem(m_matrixEdit->getId()).state == 2)
+			if (m_nameList->getItem(m_matrixEdit->getId()).state == 2) {
 				m_nameList->selectItem(m_matrixEdit->getId());
+			}
 			m_matrixEdit->clearMatrix();
 		}
 	}
 	else {
 		m_nameList->selectItem(id);
-		if (m_nameList->getItem(id).state == 2)
+		if (m_nameList->getItem(id).state == 2) {
 			m_matrixEdit->setMatrix(m_matrices[id], id);
-		else
+		}
+		else {
 			m_matrixEdit->clearMatrix();
+			Sint32 i = 0;
+			for (auto li : m_nameList->getItemList()) {
+				if (li.state == 2) {
+					m_nameList->setSelectedItem(i);
+					m_matrixEdit->setMatrix(m_matrices[i], i);
+					break;
+				}
+				i++;
+			}
+		}
 	}
 }
 
@@ -331,16 +353,41 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 	bool mouseOnGui = !(p_guiFlags & (Sint8)Component::EventFlag::MOUSEOVER);
 	GLfloat _near = mouseOnGui ? 1 : 0, _far = 1;
 	if (MTool::getTool(m_tool)->getType() == Tool::ToolType::VOXEL) {
-		if (GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)
+		if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)
 			&& m_matrixEdit->getId() != -1) {
-			ModelMath::castRayMatrix(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), m_matrixEdit->getInitMatrix(), _near, _far);
+			if (GKey::modDown(GLFW_MOD_SHIFT)) {
+				m_voxelPlaneMode = true;
+				ModelMath::castRayMatrix(Camera::getPosition(),
+					Camera::getMouseDirection() * glm::vec3(4096),
+					m_matrixEdit->getInitMatrix(),
+					_near, _far);
+				ModelMath::castRayVoxel(Camera::getPosition(),
+					Camera::getMouseDirection() * glm::vec3(4096),
+					m_matrixEdit->getInitMatrix(),
+					_near, _far,
+					m_selectedVoxel,
+					m_selectedSide,
+					m_selectedVoxelOffset);
+				m_voxelPlanePos = m_selectedVoxel;
+				m_voxelPlaneSide = m_selectedSide;
+			}
 		}
 		else {
-			std::vector<Matrix*> matrices = getSelectedMatrices();
-			if (matrices.empty()) {
-				matrices = m_matrices;
+			if (GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)
+				&& m_matrixEdit->getId() != -1) {
+				ModelMath::castRayMatrix(Camera::getPosition(),
+					Camera::getMouseDirection() * glm::vec3(4096),
+					m_matrixEdit->getInitMatrix(),
+					_near, _far);
 			}
-			ModelMath::castRayMatrices(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), matrices, m_hoverMatrix, _near, _far);
+			else {
+				m_voxelPlaneMode = false;
+				std::vector<Matrix*> matrices = getSelectedMatrices();
+				if (matrices.empty()) {
+					matrices = getMatrixList();
+				}
+				ModelMath::castRayMatrices(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), matrices, m_hoverMatrix, _near, _far);
+			}
 		}
 	}
 	else {
@@ -368,7 +415,27 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 	if (!mouseOnGui && m_matrixEdit->getId() != -1 && !GMouse::mouseDown(GLFW_MOUSE_BUTTON_RIGHT)) {
 		switch (MTool::getTool(m_tool)->getType()) {
 		case Tool::ToolType::VOXEL:
-			ModelMath::castRayVoxel(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), m_matrixEdit->getInitMatrix(), _near, _far, m_selectedVoxel, m_selectedSide, m_selectedVoxelOffset);
+			if (m_voxelPlaneMode) {
+				if (!GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
+					ModelMath::castRayVoxelPlane(Camera::getPosition(),
+						Camera::getMouseDirection() * glm::vec3(4096),
+						m_matrixEdit->getInitMatrix(),
+						_near, _far,
+						m_voxelPlanePos,
+						m_voxelPlaneSide,
+						m_selectedVoxel,
+						m_selectedVoxelOffset);
+					m_selectedSide = m_voxelPlaneSide;
+				}
+			}
+			else {
+				ModelMath::castRayVoxel(Camera::getPosition(),
+					Camera::getMouseDirection() * glm::vec3(4096),
+					m_matrixEdit->getInitMatrix(),
+					_near, _far, m_selectedVoxel,
+					m_selectedSide,
+					m_selectedVoxelOffset);
+			}
 			static_cast<VoxelTool*>(MTool::getTool(m_tool))->input();
 			break;
 		case Tool::ToolType::MATRIX:
@@ -437,19 +504,16 @@ void Model::updateEditor(GLfloat p_deltaUpdate) {
 void Model::renderEditor() {
 	Shader::setLightEnabled(!m_wireframe);
 	for (Matrix* m : m_matrices) {
-		m->renderMatrix();
+		if (m_nameList->getItem(m->getId()).state > 1 || m_nameList->getSelectedItem() == -1) {
+			m->renderMatrix();
+		}
 	}
 
 	Shader::setLightEnabled(false);
 	if (m_grid) renderGrid();
 
 	for (Uint16 i = 0; i < m_matrices.size(); i++) {
-		if (m_outline) {
-			m_matrices[i]->renderOutline(static_cast<OutlineType>(m_nameList->getItem(i).state + 1));
-		}
-		else {
-			m_matrices[i]->renderOutline(OutlineType::NONE);
-		}
+		m_matrices[i]->renderOutline(m_outline ? static_cast<Matrix::OutlineType>(m_nameList->getItem(i).state + 1) : Matrix::OutlineType::NONE);
 	}
 
 	switch (MTool::getTool(m_tool)->getType()) {
@@ -463,8 +527,9 @@ void Model::renderEditor() {
 	}
 }
 void Model::renderEditorShadow() {
-	for (Matrix* m : m_matrices)
+	for (Matrix* m : m_matrices) {
 		m->renderShadow();
+	}
 }
 void Model::renderGrid() {
 	GLfloat w1 = 0.05f, w2 = w1 / 2.5f;
@@ -498,8 +563,9 @@ void Model::renderGrid() {
 
 std::vector<std::string> Model::getMatrixNames() {
 	std::vector<std::string> names;
-	for (Uint16 i = 0; i < m_matrices.size(); i++)
+	for (Uint16 i = 0; i < m_matrices.size(); i++) {
 		names.push_back("(" + Util::numToStringInt(i) + ") " + m_matrices[i]->getName());
+	}
 	return names;
 }
 Matrix* Model::getMatrix(Sint16 id) {
@@ -513,16 +579,19 @@ Matrix* Model::getMatrix(std::string p_name) {
 	return 0;
 }
 Matrix* Model::getSelectedMatrix() {
-	if (m_nameList->getSelectedItem() != -1)
+	if (m_nameList->getSelectedItem() != -1) {
 		return getMatrix(m_nameList->getSelectedItem());
+	}
 	return 0;
 }
 std::vector<Matrix*> Model::getSelectedMatrices() {
-	std::vector<Matrix*> selected;
-	for (auto li : m_nameList->getItemList())
-		if (li.state == 2)
-			selected.push_back(getMatrix(li.name));
-	return selected;
+	std::vector<Matrix*> matrices;
+	for (auto li : m_nameList->getItemList()) {
+		if (li.state == 2) {
+			matrices.push_back(getMatrix(li.name));
+		}
+	}
+	return matrices;
 }
 glm::vec3 Model::getSelectedMatricesCenter() {
 	GLfloat bn = 1e8;

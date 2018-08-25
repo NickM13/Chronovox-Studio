@@ -21,18 +21,29 @@ void Container::sortInComponent(Comp p_comp) {
 
 void Container::anchorComponent(Component* p_component, Anchor p_posAnchor, Anchor p_sizeAnchor) {
 	Vector2<Sint32> pos, size;
-	if((Sint8)p_posAnchor & (Sint8)BAnchor::RIGHT)
+	if ((Sint8)p_posAnchor & (Sint8)BAnchor::RIGHT) {
 		pos.x = p_component->getInitialPosition().x + (m_size.x - p_component->getInitialSize().x);
-	else if((Sint8)p_posAnchor & (Sint8)BAnchor::CENTER)
+	}
+	else if ((Sint8)p_posAnchor & (Sint8)BAnchor::CENTER) {
 		pos.x = p_component->getInitialPosition().x + (m_size.x - p_component->getInitialSize().x) / 2;
-	else // Anchor::LEFT and default
+	}
+	else {
 		pos.x = p_component->getInitialPosition().x;
-	if((Sint8)p_posAnchor & (Sint8)BAnchor::BOTTOM)
-		pos.y = p_component->getInitialPosition().y + (m_size.y - p_component->getInitialSize().y);
-	else if((Sint8)p_posAnchor & (Sint8)BAnchor::MIDDLE)
+	}
+	if ((Sint8)p_posAnchor & (Sint8)BAnchor::BOTTOM) {
+		if ((Sint8)p_sizeAnchor & (Sint8)BAnchor::BOTTOM) {
+			pos.y = p_component->getInitialPosition().y + m_size.y;
+		}
+		else {
+			pos.y = p_component->getInitialPosition().y + (m_size.y - p_component->getInitialSize().y);
+		}
+	}
+	else if ((Sint8)p_posAnchor & (Sint8)BAnchor::MIDDLE) {
 		pos.y = p_component->getInitialPosition().y + (m_size.y - p_component->getInitialSize().y) / 2;
-	else // Anchor::TOP and default
+	}
+	else {
 		pos.y = p_component->getInitialPosition().y;
+	}
 	p_component->setPosition(pos);
 
 	if((Sint8)p_sizeAnchor & (Sint8)BAnchor::RIGHT)
@@ -55,9 +66,15 @@ void Container::anchorComponent(Component* p_component, Anchor p_posAnchor, Anch
 Component* Container::addComponent(Component* p_component, Anchor p_posAnchor, Anchor p_sizeAnchor) {
 	anchorComponent(p_component, p_posAnchor, p_sizeAnchor);
 	if(m_componentMap.empty())
-		m_contentArea = Vector4<Sint32>(p_component->getRealPosition().x, p_component->getRealPosition().y, p_component->getRealPosition().x + p_component->getSize().x, p_component->getRealPosition().y + p_component->getSize().y);
+		m_contentArea = Vector4<Sint32>(p_component->getRealPosition().x
+			, p_component->getRealPosition().y
+			, p_component->getRealPosition().x + p_component->getSize().x
+			, p_component->getRealPosition().y + p_component->getSize().y);
 	else if(p_component->isVisible())
-		m_contentArea = Vector4<Sint32>(std::fminf(p_component->getRealPosition().x, m_contentArea.x1), std::fminf(p_component->getRealPosition().y, m_contentArea.y1), std::fmaxf(p_component->getRealPosition().x + p_component->getRealSize().x, m_contentArea.x2), std::fmaxf(p_component->getRealPosition().y + p_component->getRealSize().y, m_contentArea.y2));
+		m_contentArea = Vector4<Sint32>(std::fminf(p_component->getRealPosition().x, m_contentArea.x1)
+			, std::fminf(p_component->getRealPosition().y, m_contentArea.y1)
+			, std::fmaxf(p_component->getRealPosition().x + p_component->getRealSize().x, m_contentArea.x2)
+			, std::fmaxf(p_component->getRealPosition().y + p_component->getRealSize().y, m_contentArea.y2));
 	Comp c = Comp(p_posAnchor, p_sizeAnchor, p_component);
 	m_componentMap.insert({p_component->getName(), c});
 	sortInComponent(c);

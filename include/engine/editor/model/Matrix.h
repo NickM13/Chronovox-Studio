@@ -8,14 +8,6 @@
 #include "engine\gfx\mesh\VoxelMesh.h"
 #include "..\animation\keyframe\Keyframe.h"
 
-enum OutlineType
-{
-	NONE = 0,
-	OUTLINE = 1,
-	HOVERED = 2,
-	SELECTED = 3
-};
-
 // Data of one component of the Model
 struct Matrix {
 private:
@@ -36,6 +28,13 @@ private:
 	std::vector<Keyframe*> m_keyframes;
 
 public:
+	enum class OutlineType {
+		NONE = 0,
+		OUTLINE = 1,
+		HOVERED = 2,
+		SELECTED = 3
+	};
+
 	Matrix(Sint16 p_id, std::string p_name, std::string p_parent, glm::vec3 p_pos = {}, glm::ivec3 p_size = {});
 	Matrix(Matrix&);
 	~Matrix();

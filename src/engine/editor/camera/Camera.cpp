@@ -15,8 +15,8 @@ void Camera::init() {
 	reset();
 }
 void Camera::reset() {
-	m_position = {0, 6, 0};
-	m_rotation = {30, 30, 0};
+	m_position = { 0, 6, 0 };
+	m_rotation = { 30, 30, 0 };
 	m_zoom = 32;
 	m_tarZoom = 0;
 	m_zoomSpeed = 10.f;
@@ -24,16 +24,16 @@ void Camera::reset() {
 
 void Camera::zoom(GLfloat p_scroll) {
 	m_tarZoom += p_scroll;
-	if(m_zoom - m_tarZoom < 0)
+	if (m_zoom - m_tarZoom < 0)
 		m_tarZoom = m_zoom;
-	else if(m_zoom - m_tarZoom > 256)
+	else if (m_zoom - m_tarZoom > 256)
 		m_tarZoom = m_zoom - 256;
 }
 void Camera::turn(Vector2<Sint32> p_mouseMove) {
 	m_rotation = m_rotation + glm::vec3(GLfloat(p_mouseMove.y), GLfloat(p_mouseMove.x), 0) * 0.5f;
 
-	if(m_rotation.x < -90) m_rotation.x = -90;
-	if(m_rotation.x > 90) m_rotation.x = 90;
+	if (m_rotation.x < -90) m_rotation.x = -90;
+	if (m_rotation.x > 90) m_rotation.x = 90;
 
 	m_rotation.y = fmodf(m_rotation.y, 360);
 }
@@ -69,14 +69,14 @@ glm::vec3 Camera::getRotation() {
 }
 glm::vec3 Camera::getMouseDirection() {
 	glm::vec4 lRayStart_NDC(
-		((GLfloat)GMouse::getMousePos().x / (GLfloat)GScreen::m_screenSize.x - 0.5f) * 2.0f, // [0,1024] -> [-1,1]
-		((GLfloat)GMouse::getMousePos().y / (GLfloat)GScreen::m_screenSize.y - 0.5f) * -2.0f, // [0, 768] -> [-1,1]
+		((GLfloat)GMouse::getMousePos().x / GScreen::m_screenSize.x - 0.5f) * 2.0f, // [0,1024] -> [-1,1]
+		((GLfloat)GMouse::getMousePos().y / GScreen::m_screenSize.y - 0.5f) * -2.0f, // [0, 768] -> [-1,1]
 		-1.0, // The near plane maps to Z=-1 in Normalized Device Coordinates
 		1.0f
 	);
 	glm::vec4 lRayEnd_NDC(
-		((GLfloat)GMouse::getMousePos().x / (GLfloat)GScreen::m_screenSize.x - 0.5f) * 2.0f,
-		((GLfloat)GMouse::getMousePos().y / (GLfloat)GScreen::m_screenSize.y - 0.5f) * -2.0f,
+		((GLfloat)GMouse::getMousePos().x / GScreen::m_screenSize.x - 0.5f) * 2.0f,
+		((GLfloat)GMouse::getMousePos().y / GScreen::m_screenSize.y - 0.5f) * -2.0f,
 		0.0,
 		1.0f
 	);
@@ -117,26 +117,34 @@ void Camera::applyTransformation() {
 }
 
 void Camera::input(Sint8 p_guiFlags) {
-	if(!EditorOverlay::getContainer()->isPaused() && (p_guiFlags & (Sint8)Component::EventFlag::MOUSEOVER)) {
-		if(GMouse::mouseDown(GLFW_MOUSE_BUTTON_RIGHT, GLFW_MOD_SHIFT))
+	if (!EditorOverlay::getContainer()->isPaused() && (p_guiFlags & (Sint8)Component::EventFlag::MOUSEOVER)) {
+		if (GMouse::mouseDown(GLFW_MOUSE_BUTTON_RIGHT, GLFW_MOD_SHIFT)) {
 			pan(Vector3<GLfloat>(-GMouse::getDeltaMousePos().x, GMouse::getDeltaMousePos().y, 0.f));
-		else if(GMouse::mouseDown(GLFW_MOUSE_BUTTON_RIGHT))
+		}
+		else if (GMouse::mouseDown(GLFW_MOUSE_BUTTON_RIGHT)) {
 			turn(GMouse::getDeltaMousePos());
+		}
 		zoom(GMouse::getMouseScroll());
 		GLfloat speed = 4;
-		if(GKey::keyDown(GLFW_KEY_D, 0)) pan({speed,  0,      0});
-		if(GKey::keyDown(GLFW_KEY_A, 0)) pan({-speed,  0,      0});
-		if(GKey::keyDown(GLFW_KEY_Q, 0)) pan({0,      speed,  0});
-		if(GKey::keyDown(GLFW_KEY_Z, 0)) pan({0,     -speed,  0});
-		if(GKey::keyDown(GLFW_KEY_W, 0)) pan({0,      0,     -speed});
-		if(GKey::keyDown(GLFW_KEY_S, 0)) pan({0,      0,      speed});
+		if (GKey::keyDown(GLFW_KEY_D, 0)) pan({ speed,  0,      0 });
+		if (GKey::keyDown(GLFW_KEY_A, 0)) pan({ -speed,  0,      0 });
+		if (GKey::keyDown(GLFW_KEY_Q, 0)) pan({ 0,      speed,  0 });
+		if (GKey::keyDown(GLFW_KEY_Z, 0)) pan({ 0,     -speed,  0 });
+		if (GKey::keyDown(GLFW_KEY_W, 0)) pan({ 0,      0,     -speed });
+		if (GKey::keyDown(GLFW_KEY_S, 0)) pan({ 0,      0,      speed });
 	}
 }
 
 void Camera::update(GLfloat p_deltaUpdate) {
-	GLfloat _zoom = m_tarZoom * m_zoomSpeed * p_deltaUpdate;
-	m_zoom -= _zoom;
-	m_tarZoom -= _zoom;
+	GLfloat _zoom = std::min(std::abs(m_tarZoom * m_zoomSpeed * p_deltaUpdate), std::abs(m_tarZoom));
+	if (m_tarZoom < 0) {
+		m_zoom += _zoom;
+		m_tarZoom += _zoom;
+	}
+	else {
+		m_zoom -= _zoom;
+		m_tarZoom -= _zoom;
+	}
 }
 
 void Camera::renderSkybox() {

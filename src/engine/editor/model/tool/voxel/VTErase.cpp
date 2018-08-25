@@ -9,28 +9,32 @@ VTErase::VTErase()
 }
 
 void VTErase::inputSingle() {
-	if(GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)) {
+	if (GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)) {
 		m_editMatrix->getMatrix()->setVoxel(*m_selectedVoxel, Voxel(0, 0));
 	}
 }
 void VTErase::updateSingle() {
-	
+
 }
 void VTErase::renderSingle() {
 	renderSingleMesh(false);
 }
 
 void VTErase::inputBox() {
-	if(GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
+	if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
 		m_boxStart = *m_selectedVoxel;
 		m_boxing = true;
 	}
-	if(GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)) {
-		box(*m_selectedVoxel, Voxel(0, 0));
-	}
-	if(m_boxing && GMouse::mouseReleased(GLFW_MOUSE_BUTTON_LEFT)) {
-		m_editMatrix->saveChanges();
-		m_boxing = false;
+	if (m_boxing) {
+		if (GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)) {
+			if (m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel)) {
+				box(*m_selectedVoxel, Voxel(0, 0));
+			}
+		}
+		else {
+			m_editMatrix->saveChanges();
+			m_boxing = false;
+		}
 	}
 }
 void VTErase::updateBox() {
@@ -41,13 +45,13 @@ void VTErase::renderBox() {
 }
 
 void VTErase::inputFill() {
-	if(GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
+	if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
 		m_fillArea->use(Voxel(0, 0));
 }
 void VTErase::updateFill() {
 	m_fillArea->create(true);
 }
 void VTErase::renderFill() {
-	if(!m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel)) return;
+	if (!m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel)) return;
 	renderFillMesh();
 }

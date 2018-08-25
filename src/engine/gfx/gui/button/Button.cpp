@@ -64,14 +64,15 @@ void CButton::update(GLfloat p_deltaUpdate) {
 		m_stuck = false;
 }
 void CButton::render() {
-	if(m_renderStyle & RenderStyle::BORDER)
-		Component::renderBack();
 	if(m_renderStyle & RenderStyle::FILL) {
 		Component::renderFill(true);
 	}
 	else {
 		glColor4f(0, 0, 0, 0);
 		Component::renderFill(false);
+	}
+	if (m_renderStyle & RenderStyle::BORDER) {
+		Component::renderBorder();
 	}
 
 	m_colorTheme.m_text.useColor();

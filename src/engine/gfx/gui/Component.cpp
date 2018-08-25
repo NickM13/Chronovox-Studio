@@ -53,15 +53,15 @@ Component* Component::setReleaseFunction(function p_func) {
 	return this;
 }
 Component* Component::callPressFunction() {
-	if(m_pressFunction) m_pressFunction();
+	if (m_pressFunction) m_pressFunction();
 	return this;
 }
 Component* Component::callHoldFunction() {
-	if(m_holdFunction) m_holdFunction();
+	if (m_holdFunction) m_holdFunction();
 	return this;
 }
 Component* Component::callReleaseFunction() {
-	if(m_releaseFunction) m_releaseFunction();
+	if (m_releaseFunction) m_releaseFunction();
 	return this;
 }
 
@@ -75,17 +75,17 @@ std::string Component::getTitle() { return m_title; }
 
 void Component::setTooltip(std::string p_tooltip) { m_tooltip = p_tooltip; }
 void Component::addTooltip() {
-	if(!GMouse::mouseMoved() || m_tooltipTime > 0) {
+	if (!GMouse::mouseMoved() || m_tooltipTime > 0) {
 		m_tooltipCounted = true;
 		m_tooltipTime += GScreen::m_deltaTime;
-		if(m_tooltipTime > 0.25f)
+		if (m_tooltipTime > 0.25f)
 			GGui::setTooltip(m_tooltip, GMouse::getMousePos());
 	}
 	else
 		m_tooltipTime = 0;
 }
 void Component::resetTooltip() {
-	if(!m_tooltipCounted)
+	if (!m_tooltipCounted)
 		m_tooltipTime = 0;
 	m_tooltipCounted = false;
 }
@@ -114,54 +114,17 @@ void Component::input() { }
 void Component::input(Sint8& p_interactFlags) { }
 void Component::update(GLfloat p_deltaUpdate) { }
 void Component::renderBack() {
-	glPushMatrix();
-	{
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glTranslatef(GLfloat(m_pos.x), GLfloat(m_pos.y), 0);
-		m_colorTheme.m_border.useColor();
-		glBegin(GL_QUADS);
-		{
-			if(m_border & (Sint8)BorderFlag::TOP) {
-				glVertex2f(0, 0);
-				glVertex2f(GLfloat(m_size.x), 0);
-				glVertex2f(GLfloat(m_size.x), -1);
-				glVertex2f(0, -1);
-			}
-			if(m_border & (Sint8)BorderFlag::RIGHT) {
-				glVertex2f(GLfloat(m_size.x), 0);
-				glVertex2f(GLfloat(m_size.x), GLfloat(m_size.y));
-				glVertex2f(GLfloat(m_size.x) + 1, GLfloat(m_size.y));
-				glVertex2f(GLfloat(m_size.x) + 1, 0);
-			}
-			if(m_border & (Sint8)BorderFlag::BOTTOM) {
-				glVertex2f(GLfloat(m_size.x), GLfloat(m_size.y));
-				glVertex2f(0, GLfloat(m_size.y));
-				glVertex2f(0, GLfloat(m_size.y) + 1);
-				glVertex2f(GLfloat(m_size.x), GLfloat(m_size.y) + 1);
-			}
-			if(m_border & (Sint8)BorderFlag::LEFT) {
-				glVertex2f(0, 0);
-				glVertex2f(0, GLfloat(m_size.y));
-				glVertex2f(-1, GLfloat(m_size.y));
-				glVertex2f(-1, 0);
-			}
-		}
-		glEnd();
-	}
-	glPopMatrix();
+
 }
 void Component::renderFill(bool p_setColor) {
 	glPushMatrix();
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glTranslatef(GLfloat(m_pos.x), GLfloat(m_pos.y), 0);
-		if(p_setColor) {
-			if(isSelected())
-				m_colorTheme.m_select.useColor();
-			else if(m_hovered)
-				m_colorTheme.m_hover.useColor();
-			else
-				m_colorTheme.m_primary.useColor();
+		if (p_setColor) {
+			if (isSelected())	m_colorTheme.m_select.useColor();
+			else if (m_hovered)	m_colorTheme.m_hover.useColor();
+			else				m_colorTheme.m_primary.useColor();
 		}
 		glBegin(GL_QUADS);
 		{
@@ -171,14 +134,14 @@ void Component::renderFill(bool p_setColor) {
 			glVertex2f(0, m_size.y);
 		}
 		glEnd();
-		if(m_texture) {
+		if (m_texture) {
 			glColor3f(1, 1, 1);
 			m_texture->bind();
 			Vector2<Sint32> _texSize = m_texture->getSize();
 			GLfloat _height, _heightF, _width, _widthF;
 			glBegin(GL_QUADS);
 			{
-				switch(m_textureStyle) {
+				switch (m_textureStyle) {
 				case TextureStyle::STRETCH:
 					glTexCoord2f(0, 0);
 					glVertex2f(0, 0);
@@ -244,7 +207,7 @@ void Component::renderFill(bool p_setColor) {
 					_widthF = ((GLfloat(m_size.x) - _texSize.x / 2.f) / (_texSize.x / 2.f));
 
 					// Top and Bottom side
-					for(Uint16 i = 0; i < _width; i++) {
+					for (Uint16 i = 0; i < _width; i++) {
 						glTexCoord2f(0.25f, 1);
 						glVertex2f(_texSize.x / 4.f + (i * _texSize.x / 2.f), 0);
 						glTexCoord2f(0.75f, 1);
@@ -285,7 +248,7 @@ void Component::renderFill(bool p_setColor) {
 					_heightF = ((GLfloat(m_size.y) - _texSize.y / 2.f) / (_texSize.y / 2.f));
 
 					// Left and Right side
-					for(Uint16 i = 0; i < _height; i++) {
+					for (Uint16 i = 0; i < _height; i++) {
 						glTexCoord2f(0, 0.75f);
 						glVertex2f(0, _texSize.y / 4.f + (i * _texSize.y / 2.f));
 						glTexCoord2f(0, 0.25f);
@@ -323,8 +286,8 @@ void Component::renderFill(bool p_setColor) {
 					glVertex2f(GLfloat(m_size.x), _texSize.y / 4.f + (_height * _texSize.y / 2.f));
 
 					// Center
-					for(Uint16 x = 0; x < _width; x++) {
-						for(Uint16 y = 0; y < _height; y++) {
+					for (Uint16 x = 0; x < _width; x++) {
+						for (Uint16 y = 0; y < _height; y++) {
 							glTexCoord2f(0.25f, 0.75f);
 							glVertex2f(_texSize.x / 4.f + (x * _texSize.x / 2.f), _texSize.y / 4.f + (y * _texSize.y / 2.f));
 							glTexCoord2f(0.75f, 0.75f);
@@ -336,7 +299,7 @@ void Component::renderFill(bool p_setColor) {
 
 						}
 					}
-					for(Uint16 x = 0; x < _width; x++) {
+					for (Uint16 x = 0; x < _width; x++) {
 						glTexCoord2f(0.25f, 0.75f);
 						glVertex2f(_texSize.x / 4.f + (x * _texSize.x / 2.f), _texSize.y / 4.f + (_height * _texSize.y / 2.f));
 						glTexCoord2f(0.75f, 0.75f);
@@ -346,7 +309,7 @@ void Component::renderFill(bool p_setColor) {
 						glTexCoord2f(0.25f, 0.75f - 0.5f * (_heightF - _height));
 						glVertex2f(_texSize.x / 4.f + (x * _texSize.x / 2.f), _texSize.y / 4.f + ((_height + (_heightF - _height)) * _texSize.y / 2.f));
 					}
-					for(Uint16 y = 0; y < _height; y++) {
+					for (Uint16 y = 0; y < _height; y++) {
 						glTexCoord2f(0.25f, 0.75f);
 						glVertex2f(_texSize.x / 4.f + (_width * _texSize.y / 2.f), _texSize.y / 4.f + (y * _texSize.y / 2.f));
 						glTexCoord2f(0.25f + 0.5f * (_widthF - _width), 0.75f);
@@ -386,37 +349,72 @@ void Component::renderFill(bool p_setColor) {
 	glPopMatrix();
 }
 void Component::renderBorder() {
-	if(m_border & (Sint8)BorderFlag::TOP) {
-		glColor4f(1, 1, 1, 0.1f);
-		glVertex2f(0, 0);
-		glVertex2f(m_size.x, 0);
-		glVertex2f(m_size.x - 2, 2);
-		glVertex2f(2, 2);
+	glPushMatrix();
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glTranslatef(GLfloat(m_pos.x), GLfloat(m_pos.y), 0);
+		m_colorTheme.m_border.useColor();
+		glBegin(GL_QUADS);
+		{
+			if (m_border & (Sint8)BorderFlag::TOP) {
+				glVertex2f(0, 0);
+				glVertex2f(GLfloat(m_size.x), 0);
+				glVertex2f(GLfloat(m_size.x), -1);
+				glVertex2f(0, -1);
+				/* For rounded corners
+				if (m_border & (Sint8)BorderFlag::LEFT) {
+					glVertex2f(0, 0);
+					glVertex2f(1, 0);
+					glVertex2f(1, 1);
+					glVertex2f(0, 1);
+				}
+				if (m_border & (Sint8)BorderFlag::RIGHT) {
+					glVertex2f((GLfloat)m_size.x, 0);
+					glVertex2f((GLfloat)m_size.x - 1, 0);
+					glVertex2f((GLfloat)m_size.x - 1, 1);
+					glVertex2f((GLfloat)m_size.x, 1);
+				}
+				*/
+			}
+			if (m_border & (Sint8)BorderFlag::RIGHT) {
+				glVertex2f(GLfloat(m_size.x), 0);
+				glVertex2f(GLfloat(m_size.x), GLfloat(m_size.y));
+				glVertex2f(GLfloat(m_size.x) + 1, GLfloat(m_size.y));
+				glVertex2f(GLfloat(m_size.x) + 1, 0);
+			}
+			if (m_border & (Sint8)BorderFlag::BOTTOM) {
+				glVertex2f(GLfloat(m_size.x), GLfloat(m_size.y));
+				glVertex2f(0, GLfloat(m_size.y));
+				glVertex2f(0, GLfloat(m_size.y) + 1);
+				glVertex2f(GLfloat(m_size.x), GLfloat(m_size.y) + 1);
+				/*
+				if (m_border & (Sint8)BorderFlag::RIGHT) {
+					glVertex2f((GLfloat)m_size.x, (GLfloat)m_size.y);
+					glVertex2f((GLfloat)m_size.x - 1, (GLfloat)m_size.y);
+					glVertex2f((GLfloat)m_size.x - 1, (GLfloat)m_size.y - 1);
+					glVertex2f((GLfloat)m_size.x, (GLfloat)m_size.y - 1);
+				}
+				if (m_border & (Sint8)BorderFlag::LEFT) {
+					glVertex2f(0, (GLfloat)m_size.y);
+					glVertex2f(1, (GLfloat)m_size.y);
+					glVertex2f(1, (GLfloat)m_size.y - 1);
+					glVertex2f(0, (GLfloat)m_size.y - 1);
+				}
+				*/
+			}
+			if (m_border & (Sint8)BorderFlag::LEFT) {
+				glVertex2f(0, 0);
+				glVertex2f(0, GLfloat(m_size.y));
+				glVertex2f(-1, GLfloat(m_size.y));
+				glVertex2f(-1, 0);
+			}
+		}
+		glEnd();
 	}
-	if(m_border & (Sint8)BorderFlag::RIGHT) {
-		glColor4f(0, 0, 0, 0.1f);
-		glVertex2f(m_size.x, 0);
-		glVertex2f(m_size.x, m_size.y);
-		glVertex2f(m_size.x - 2, m_size.y - 2);
-		glVertex2f(m_size.x - 2, 2);
-	}
-	if(m_border & (Sint8)BorderFlag::BOTTOM) {
-		glColor4f(0, 0, 0, 0.1f);
-		glVertex2f(0, m_size.y);
-		glVertex2f(m_size.x, m_size.y);
-		glVertex2f(m_size.x - 2, m_size.y - 2);
-		glVertex2f(2, m_size.y - 2);
-	}
-	if(m_border & (Sint8)BorderFlag::LEFT) {
-		glColor4f(1, 1, 1, 0.1f);
-		glVertex2f(0, 0);
-		glVertex2f(0, m_size.y);
-		glVertex2f(2, m_size.y - 2);
-		glVertex2f(2, 2);
-	}
+	glPopMatrix();
 }
 void Component::render() {
-	renderBack();
+	//renderBack();
 	renderFill();
 	renderBorder();
 }

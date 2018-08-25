@@ -2,6 +2,7 @@
 #include "engine\utils\global\event\GMouse.h"
 
 std::string GScreen::m_windowTitle = "";
+std::string GScreen::m_appVersion = "";
 float GScreen::m_fps = 0;
 float GScreen::m_fov = 0;
 float GScreen::m_deltaTime = 0;
