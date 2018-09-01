@@ -1,5 +1,4 @@
 #include "engine\editor\model\tool\matrix\MTSelect.h"
-#include "engine\gfx\shader\Shader.h"
 #include "engine\gfx\model\MModelObj.h"
 
 MTSelect::MTSelect()

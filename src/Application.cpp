@@ -12,7 +12,7 @@ bool Application::init(char *p_filePath) {
 	Logger::logNormal("Initializing application...");
 
 	GScreen::m_windowTitle = "Nick's Voxel Editor";
-	GScreen::m_appVersion = "1.2.1";
+	GScreen::m_appVersion = "1.2.2";
 	GScreen::m_developer = true;
 	GScreen::m_fps = 0;
 	GScreen::m_exitting = 0;
@@ -73,6 +73,9 @@ bool Application::init(char *p_filePath) {
 	Shader::getProgram("depthRTT")
 		->loadShader(GL_VERTEX_SHADER, "depthRTT.vert")
 		->loadShader(GL_FRAGMENT_SHADER, "depthRTT.frag");
+	Shader::getProgram("gui")
+		->loadShader(GL_VERTEX_SHADER, "gui.vert")
+		->loadShader(GL_FRAGMENT_SHADER, "gui.frag");
 
 	glClearColor(0.25f, 0.25f, 0.25f, 1);
 
@@ -110,7 +113,10 @@ void Application::maximize(bool p_maximizedByDrag) {
 	GScreen::m_maximized = !GScreen::m_maximized;
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 	if(GScreen::m_maximized) {
-		HMONITOR hMon = MonitorFromPoint({0, 0}, MONITOR_DEFAULTTOPRIMARY);
+		Vector2<Sint32> wpos, wsize;
+		glfwGetWindowPos(GScreen::m_window, &wpos.x, &wpos.y);
+		glfwGetWindowSize(GScreen::m_window, &wsize.x, &wsize.y);
+		HMONITOR hMon = MonitorFromPoint({ wpos.x + wsize.x / 2, wpos.y + wsize.y / 2 }, MONITOR_DEFAULTTOPRIMARY);
 		MONITORINFO info;
 		info.cbSize = sizeof(MONITORINFO);
 		GetMonitorInfo(hMon, &info);
@@ -135,7 +141,6 @@ void Application::resize() {
 void Application::init2d() {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0, m_screenSize.x, m_screenSize.y, 0, -2000.f, 2000.f);
 	glMatrixMode(GL_MODELVIEW);
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_DEPTH_TEST);
@@ -143,6 +148,16 @@ void Application::init2d() {
 	glEnable(GL_BLEND);
 	glDisable(GL_MULTISAMPLE);
 	glLoadIdentity();
+
+	Shader::loadIdentityModel();
+	Shader::loadIdentityView();
+	Shader::loadIdentityProjection();
+
+	glm::mat4 projection = glm::ortho(0.f, (GLfloat)m_screenSize.x, (GLfloat)m_screenSize.y, 0.f, -2000.f, 2000.f);
+	Shader::transformProjection(projection);
+	Shader::applyProjection();
+	Shader::applyView();
+	Shader::applyModel();
 }
 void Application::init3dPersp() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -164,6 +179,7 @@ void Application::init3dPersp() {
 	glm::mat4 projection = glm::perspective((GLfloat)glm::radians(GScreen::m_fov), (GLfloat)GScreen::m_screenSize.x / GScreen::m_screenSize.y, 0.1f, 2000.0f);
 	Shader::transformProjection(projection);
 	Shader::applyProjection();
+	Camera::setProjectionMatrix(projection);
 
 	glUniform1i(4, 0);
 }
@@ -206,10 +222,11 @@ void Application::run() {
 			m_sleepTime = DWORD(std::fmaxf(1000 / m_maxFps - ((glfwGetTime() - i) * 1000), 0));
 		}
 		else {
-			m_sleepTime = DWORD(std::fmaxf(1000 / 5.f - ((glfwGetTime() - i) * 1000), 0));
+			m_sleepTime = DWORD(std::fmaxf(1000 / 20.f - ((glfwGetTime() - i) * 1000), 0));
 		}
-		if(m_sleepTime > 0)
-			Sleep(m_sleepTime);
+		if (m_sleepTime > 0) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepTime));
+		}
 		GScreen::m_fps = 1.f / GLfloat(glfwGetTime() - i);
 
 		if(GScreen::m_exitting == 1) {
@@ -226,14 +243,16 @@ void Application::run() {
 }
 
 void Application::input() {
-	if(glfwWindowShouldClose(m_mainWindow))
+	if (glfwWindowShouldClose(m_mainWindow)) {
 		GScreen::m_exitting = 1;
+	}
 	GMouse::reset();
 	GKey::reset();
 	glfwPollEvents();
 	m_editor->input();
-	if(GScreen::isMaximized() && GScreen::isDraggingWindow() && GScreen::m_dragStart.y < GMouse::getMousePos().y)
+	if (GScreen::isMaximized() && GScreen::isDraggingWindow() && GScreen::m_dragStart.y < GMouse::getMousePos().y) {
 		maximize(true);
+	}
 	if(GScreen::finishedResize()) resize();
 	GScreen::updateWindow();
 }
@@ -277,7 +296,7 @@ void Application::render() {
 	glUniform3f(11, m_editor->getSunlightDir().x, m_editor->getSunlightDir().y, m_editor->getSunlightDir().z);
 	m_editor->render3d();
 
-	Shader::use(0);
+	Shader::useProgram("gui");
 	init2d();
 	m_editor->render2d();
 

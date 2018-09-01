@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine\gfx\gui\Component.h"
+#include "engine\gfx\gui\component\Component.h"
 
 class ColorOverlay : public Component {
 private:

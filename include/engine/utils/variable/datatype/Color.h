@@ -32,6 +32,13 @@ public:
 		this->a = a;
 	}
 
+	Color applyScale(Color p_scalar) {
+		return Color(r * p_scalar.r,
+			g * p_scalar.g,
+			b * p_scalar.b,
+			a * p_scalar.a);
+	}
+
 	void useColor(GLfloat p_mod = 1.f) const {
 		glColor4f(r * p_mod, g * p_mod, b * p_mod, a);
 	}

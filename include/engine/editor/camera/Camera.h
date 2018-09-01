@@ -10,6 +10,7 @@ private:
 	static glm::vec3 m_position, m_rotation;
 	static GLfloat m_zoom, m_tarZoom, m_zoomSpeed;
 	static Texture* m_skyTexture;
+	static glm::mat4 m_projectionMatrix;
 
 	static void zoom(GLfloat p_scroll);
 	static void turn(Vector2<Sint32> p_mouseMove);
@@ -18,6 +19,11 @@ private:
 public:
 	static void init();
 	static void reset();
+
+	static void setProjectionMatrix(glm::mat4 p_projectionMatrix);
+
+	static void resetZoom();
+	static void addZoom(GLfloat p_zoom);
 
 	static void setPosition(glm::vec3 p_position);
 

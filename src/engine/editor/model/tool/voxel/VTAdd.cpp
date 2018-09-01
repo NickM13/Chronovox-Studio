@@ -1,5 +1,4 @@
 #include "engine\editor\model\tool\voxel\VTAdd.h"
-#include "engine\gfx\shader\Shader.h"
 
 VTAdd::VTAdd()
 	: VoxelTool() {

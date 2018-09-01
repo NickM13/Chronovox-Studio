@@ -29,13 +29,13 @@ void ColorOverlay::input(Sint8& p_interactFlags) {
 	Vector2<GLfloat> _mousePos = GMouse::getMousePos() - m_pos;
 	Vector2<GLfloat> _percent = Vector2<GLfloat>(_mousePos) / Vector2<GLfloat>(m_size);
 	_percent = Vector2<GLfloat>(std::fminf(1, std::fmaxf(0, _percent.x)), std::fminf(1, std::fmaxf(0, _percent.y)));
-	if(!GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT))
+	if (!GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT))
 		held = false;
-	if((p_interactFlags & (Sint8)EventFlag::MOUSEOVER) && _mousePos.x >= 0 && _mousePos.y >= 0 && _mousePos.x <= m_size.x && _mousePos.y <= m_size.y)
-		if(GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
+	if ((p_interactFlags & (Sint8)EventFlag::MOUSEOVER) && _mousePos.x >= 0 && _mousePos.y >= 0 && _mousePos.x <= m_size.x && _mousePos.y <= m_size.y)
+		if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
 			held = true;
 
-	if(held) {
+	if (held) {
 		hue = _percent.x * 360;
 		val = _percent.y * 100;
 		p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
@@ -43,35 +43,35 @@ void ColorOverlay::input(Sint8& p_interactFlags) {
 }
 void ColorOverlay::update(GLfloat p_deltaUpdate) {
 	Sint32 r = color.r * 255, g = color.g * 255, b = color.b * 255;
-	if(r != pr || g != pg || b != pb) {
+	if (r != pr || g != pg || b != pb) {
 		GLfloat max = (std::fmaxf(std::fmaxf(r, g), b)) / 255.f, min = (std::fminf(std::fminf(r, g), b)) / 255.f;
 		val = Sint32(max * 100);
-		if(std::fmaxf != 0)
+		if (std::fmaxf != 0)
 			sat = Sint32((max - min) / max * 100);
 		else
 			sat = 100;
-		if(r != g || g != b || b != r) {
-			if(r >= g && r >= b) hue = (g - b) / ((max - min) * 255) * -60;
-			else if(g >= r && g >= b) hue = (2 + (b - r) / ((max - min) * 255)) * -60;
+		if (r != g || g != b || b != r) {
+			if (r >= g && r >= b) hue = (g - b) / ((max - min) * 255) * -60;
+			else if (g >= r && g >= b) hue = (2 + (b - r) / ((max - min) * 255)) * -60;
 			else  hue = (4 + (r - g) / ((max - min) * 255)) * -60;
 		}
-		if(hue < 0) hue += 360;
+		if (hue < 0) hue += 360;
 		callPressFunction();
 	}
-	else if(hue != phue || sat != psat || val != pval) {
-		if(hue <= 60 || hue >= 300)	r = 255;
-		else if(hue <= 120)			r = ((120 - hue) / 60.f) * 255;
-		else if(hue <= 240)			r = 0;
+	else if (hue != phue || sat != psat || val != pval) {
+		if (hue <= 60 || hue >= 300)	r = 255;
+		else if (hue <= 120)			r = ((120 - hue) / 60.f) * 255;
+		else if (hue <= 240)			r = 0;
 		else						r = ((hue - 240) / 60.f) * 255;
 
-		if(hue <= 60)				b = ((hue) / 60.f) * 255;
-		else if(hue <= 180)			b = 255;
-		else if(hue <= 240)			b = ((240 - hue) / 60.f) * 255;
+		if (hue <= 60)				b = ((hue) / 60.f) * 255;
+		else if (hue <= 180)			b = 255;
+		else if (hue <= 240)			b = ((240 - hue) / 60.f) * 255;
 		else						b = 0;
 
-		if(hue <= 120)				g = 0;
-		else if(hue <= 180)			g = ((hue - 120) / 60.f) * 255;
-		else if(hue <= 300)			g = 255;
+		if (hue <= 120)				g = 0;
+		else if (hue <= 180)			g = ((hue - 120) / 60.f) * 255;
+		else if (hue <= 300)			g = 255;
 		else						g = ((360 - hue) / 60.f) * 255;
 
 		r += (255 - r) * (1.f - (sat / 100.f));
@@ -97,67 +97,47 @@ void ColorOverlay::update(GLfloat p_deltaUpdate) {
 	pb = b;
 }
 void ColorOverlay::render() {
-	glPushMatrix();
-	{
-		glTranslatef(m_pos.x, m_pos.y, 0);
+	Shader::pushMatrixModel();
+	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0));
 
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glColor3f(0, 0, 0);
-		glBegin(GL_QUADS);
-		{
-			glVertex2f(-1, -1);
-			glVertex2f(m_size.x + 1, -1);
-			glVertex2f(m_size.x + 1, m_size.y + 1);
-			glVertex2f(-1, m_size.y + 1);
-		}
-		glEnd();
+	GBuffer::setTexture(0);
+	GBuffer::setColor(Color(0.f, 0.f, 0.f));
+	GBuffer::addVertexQuad(-1, -1);
+	GBuffer::addVertexQuad(m_size.x + 1, -1);
+	GBuffer::addVertexQuad(m_size.x + 1, m_size.y + 1);
+	GBuffer::addVertexQuad(-1, m_size.y + 1);
 
-		m_background1->bind();
-		glColor4f(1, 1, 1, (sat / 100.f));
-		glBegin(GL_QUADS);
-		{
-			glTexCoord2f(0, 0); glVertex2f(0, 0);
-			glTexCoord2f(1, 0); glVertex2f(m_size.x, 0);
-			glTexCoord2f(1, 1); glVertex2f(m_size.x, m_size.y);
-			glTexCoord2f(0, 1); glVertex2f(0, m_size.y);
-		}
-		glEnd();
+	GBuffer::setTexture(m_background1->getGlId());
+	GBuffer::setColor(Color(1.f, 1.f, 1.f, (sat / 100.f)));
+	GBuffer::setUV(0, 0); GBuffer::addVertexQuad(0, 0);
+	GBuffer::setUV(1, 0); GBuffer::addVertexQuad(m_size.x, 0);
+	GBuffer::setUV(1, 1); GBuffer::addVertexQuad(m_size.x, m_size.y);
+	GBuffer::setUV(0, 1); GBuffer::addVertexQuad(0, m_size.y);
 
-		m_background2->bind();
-		glColor4f(1, 1, 1, 1.f - (sat / 100.f));
-		glBegin(GL_QUADS);
-		{
-			glTexCoord2f(0, 0); glVertex2f(0, 0);
-			glTexCoord2f(1, 0); glVertex2f(m_size.x, 0);
-			glTexCoord2f(1, 1); glVertex2f(m_size.x, m_size.y);
-			glTexCoord2f(0, 1); glVertex2f(0, m_size.y);
-		}
-		glEnd();
+	GBuffer::setTexture(m_background2->getGlId());
+	GBuffer::setColor(Color(1.f, 1.f, 1.f, 1.f - (sat / 100.f)));
+	GBuffer::setUV(0, 0); GBuffer::addVertexQuad(0, 0);
+	GBuffer::setUV(1, 0); GBuffer::addVertexQuad(m_size.x, 0);
+	GBuffer::setUV(1, 1); GBuffer::addVertexQuad(m_size.x, m_size.y);
+	GBuffer::setUV(0, 1); GBuffer::addVertexQuad(0, m_size.y);;
 
-		MScissor::getInstance().toggle();
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glTranslatef(hue / 360.f * m_size.x, val / 100.f * m_size.x, 0);
-		glColor3f(color.r, color.g, color.b);
-		glBegin(GL_QUADS);
-		{
-			glVertex2f(-6, -6);
-			glVertex2f(6, -6);
-			glVertex2f(6, 6);
-			glVertex2f(-6, 6);
-		}
-		glEnd();
+	GBuffer::setScissorActive(false);
 
-		m_selectTex->bind();
-		glColor3f(1, 1, 1);
-		glBegin(GL_QUADS);
-		{
-			glTexCoord2f(0, 1); glVertex2f(-8, -8);
-			glTexCoord2f(1, 1); glVertex2f(8, -8);
-			glTexCoord2f(1, 0); glVertex2f(8, 8);
-			glTexCoord2f(0, 0); glVertex2f(-8, 8);
-		}
-		glEnd();
-		MScissor::getInstance().toggle();
-	}
-	glPopMatrix();
+	GBuffer::setTexture(0);
+	Shader::translate(glm::vec3(hue / 360.f * m_size.x, val / 100.f * m_size.x, 0));
+	GBuffer::setColor(color);
+	GBuffer::addVertexQuad(-6, -6);
+	GBuffer::addVertexQuad(6, -6);
+	GBuffer::addVertexQuad(6, 6);
+	GBuffer::addVertexQuad(-6, 6);
+
+	GBuffer::setTexture(m_selectTex->getGlId());
+	GBuffer::setColor(Color(1.f, 1.f, 1.f));
+	GBuffer::setUV(0, 1); GBuffer::addVertexQuad(-8, -8);
+	GBuffer::setUV(1, 1); GBuffer::addVertexQuad(8, -8);
+	GBuffer::setUV(1, 0); GBuffer::addVertexQuad(8, 8);
+	GBuffer::setUV(0, 0); GBuffer::addVertexQuad(-8, 8);
+
+	GBuffer::setScissorActive(true);
+	Shader::popMatrixModel();
 }

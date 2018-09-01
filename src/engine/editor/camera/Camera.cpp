@@ -1,6 +1,5 @@
 #include "engine\editor\camera\Camera.h"
 #include "engine\editor\menu\EditorOverlay.h"
-#include "engine\gfx\shader\Shader.h"
 #include "engine\gfx\model\MModelObj.h"
 #include <glm\gtx\rotate_vector.hpp>
 #include <glm\gtx\perpendicular.hpp>
@@ -9,6 +8,7 @@
 glm::vec3 Camera::m_position, Camera::m_rotation;
 GLfloat Camera::m_zoom, Camera::m_tarZoom, Camera::m_zoomSpeed;
 Texture* Camera::m_skyTexture;
+glm::mat4 Camera::m_projectionMatrix;
 
 void Camera::init() {
 	m_skyTexture = MTexture::getTexture("DaylightSky.png");
@@ -22,12 +22,25 @@ void Camera::reset() {
 	m_zoomSpeed = 10.f;
 }
 
+void Camera::setProjectionMatrix(glm::mat4 p_projectionMatrix) {
+	m_projectionMatrix = p_projectionMatrix;
+}
+
+void Camera::resetZoom() {
+	m_tarZoom = m_zoom - 32;
+}
+void Camera::addZoom(GLfloat p_zoom) {
+	zoom(p_zoom);
+}
+
 void Camera::zoom(GLfloat p_scroll) {
 	m_tarZoom += p_scroll;
-	if (m_zoom - m_tarZoom < 0)
+	if (m_zoom - m_tarZoom < 0) {
 		m_tarZoom = m_zoom;
-	else if (m_zoom - m_tarZoom > 256)
+	}
+	else if (m_zoom - m_tarZoom > 256) {
 		m_tarZoom = m_zoom - 256;
+	}
 }
 void Camera::turn(Vector2<Sint32> p_mouseMove) {
 	m_rotation = m_rotation + glm::vec3(GLfloat(p_mouseMove.y), GLfloat(p_mouseMove.x), 0) * 0.5f;
@@ -81,7 +94,7 @@ glm::vec3 Camera::getMouseDirection() {
 		1.0f
 	);
 
-	glm::mat4 iProjectionMatrix = glm::inverse(Shader::getMatrixProjection());
+	glm::mat4 iProjectionMatrix = glm::inverse(m_projectionMatrix);
 	glm::mat4 iViewMatrix = glm::inverse(Camera::getViewMatrix());
 
 	glm::vec4 lRayStart_camera = iProjectionMatrix * lRayStart_NDC;      lRayStart_camera /= lRayStart_camera.w;
@@ -118,11 +131,13 @@ void Camera::applyTransformation() {
 
 void Camera::input(Sint8 p_guiFlags) {
 	if (!EditorOverlay::getContainer()->isPaused() && (p_guiFlags & (Sint8)Component::EventFlag::MOUSEOVER)) {
-		if (GMouse::mouseDown(GLFW_MOUSE_BUTTON_RIGHT, GLFW_MOD_SHIFT)) {
-			pan(Vector3<GLfloat>(-GMouse::getDeltaMousePos().x, GMouse::getDeltaMousePos().y, 0.f));
-		}
-		else if (GMouse::mouseDown(GLFW_MOUSE_BUTTON_RIGHT)) {
-			turn(GMouse::getDeltaMousePos());
+		if (GMouse::mouseDown(GLFW_MOUSE_BUTTON_RIGHT)) {
+			if (GKey::modDown(GLFW_MOD_SHIFT)) {
+				pan(Vector3<GLfloat>(-GMouse::getDeltaMousePos().x, GMouse::getDeltaMousePos().y, 0.f));
+			}
+			else {
+				turn(GMouse::getDeltaMousePos());
+			}
 		}
 		zoom(GMouse::getMouseScroll());
 		GLfloat speed = 4;
@@ -132,6 +147,11 @@ void Camera::input(Sint8 p_guiFlags) {
 		if (GKey::keyDown(GLFW_KEY_Z, 0)) pan({ 0,     -speed,  0 });
 		if (GKey::keyDown(GLFW_KEY_W, 0)) pan({ 0,      0,     -speed });
 		if (GKey::keyDown(GLFW_KEY_S, 0)) pan({ 0,      0,      speed });
+		if (GKey::keyDown(GLFW_KEY_MINUS, GLFW_MOD_CONTROL)
+			|| GKey::keyDown(GLFW_KEY_KP_SUBTRACT, GLFW_MOD_CONTROL)) zoom(-1.f);
+		if (GKey::keyDown(GLFW_KEY_EQUAL, GLFW_MOD_CONTROL)
+			|| GKey::keyDown(GLFW_KEY_KP_ADD, GLFW_MOD_CONTROL)) zoom(1.f);
+		if (GKey::keyPressed(GLFW_KEY_0, GLFW_MOD_CONTROL)) resetZoom();
 	}
 }
 

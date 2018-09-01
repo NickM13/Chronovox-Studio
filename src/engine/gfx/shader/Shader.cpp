@@ -141,8 +141,9 @@ void Shader::scale(const glm::vec3& p_value) {
 	m_modelStack.top() *= glm::scale(glm::mat4(), p_value);
 }
 void Shader::loadIdentityModel() {
-	while(m_modelStack.size() > 0)
+	while (m_modelStack.size() > 0) {
 		m_modelStack.pop();
+	}
 	m_modelStack.push(glm::mat4(1.f));
 }
 void Shader::popMatrixModel() {
@@ -160,8 +161,9 @@ void Shader::transformView(glm::mat4 p_matrix) {
 	m_viewStack.top() = m_viewStack.top() * p_matrix;
 }
 void Shader::loadIdentityView() {
-	while(m_viewStack.size() > 0)
+	while (m_viewStack.size() > 0) {
 		m_viewStack.pop();
+	}
 	m_viewStack.push(glm::mat4(1.f));
 }
 void Shader::popMatrixView() {
@@ -179,8 +181,9 @@ void Shader::transformProjection(glm::mat4 p_matrix) {
 	m_projStack.top() = m_projStack.top() * p_matrix;
 }
 void Shader::loadIdentityProjection() {
-	while(m_projStack.size() > 0)
+	while (m_projStack.size() > 0) {
 		m_projStack.pop();
+	}
 	m_projStack.push(glm::mat4(1.f));
 }
 void Shader::popMatrixProjection() {

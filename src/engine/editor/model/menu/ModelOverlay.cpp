@@ -1,5 +1,6 @@
 #include "engine\editor\model\menu\ModelOverlay.h"
 #include "engine\editor\Editor.h"
+#include "engine\editor\camera\Camera.h"
 #include "engine\utils\directory\LDirectory.h"
 
 Model* ModelOverlay::m_model = 0;
@@ -36,18 +37,23 @@ Container* ModelOverlay::init(Model* p_model) {
 	m_container->findComponent("TOOLBAR_MAIN")->addButton("", "Model")
 		->addButton("Model", "New Matrix", "Ctrl+N", []() { ModelOverlay::getContainer()->setPauseScreen("DIALOG_NEWMATRIX"); })
 		->addButton("Model", "Properties", "F2", []() { ModelOverlay::getContainer()->setPauseScreen("DIALOG_PROPERTIES"); })
-		->addButton("Model", "Flip X", "", []() { m_model->flipMatrix(AXIS_X); })
-		->addButton("Model", "Flip Y", "", []() { m_model->flipMatrix(AXIS_Y); })
-		->addButton("Model", "Flip Z", "", []() { m_model->flipMatrix(AXIS_Z); })
+		->addButton("Model", "Flip")
+		->addButton("Model\\Flip", "Flip X", "", []() { m_model->flipMatrix(AXIS_X); })
+		->addButton("Model\\Flip", "Flip Y", "", []() { m_model->flipMatrix(AXIS_Y); })
+		->addButton("Model\\Flip", "Flip Z", "", []() { m_model->flipMatrix(AXIS_Z); })
 		->addButton("Model", "Rotate")
 		->addButton("Model\\Rotate", "Rotate X", "", []() { m_model->rotateMatrix(AXIS_X); })
-		->addButton("Model", "Rotate Y", "", []() { m_model->rotateMatrix(AXIS_Y); })
-		->addButton("Model", "Rotate Z", "", []() { m_model->rotateMatrix(AXIS_Z); });
+		->addButton("Model\\Rotate", "Rotate Y", "", []() { m_model->rotateMatrix(AXIS_Y); })
+		->addButton("Model\\Rotate", "Rotate Z", "", []() { m_model->rotateMatrix(AXIS_Z); });
 	m_container->findComponent("TOOLBAR_MAIN")->addButton("", "View")
 		->addButton("View", "Focus Matrix", "Space", []() { m_model->focus(); })
 		->addButton("View", "Toggle Grid", "Ctrl+G", []() { m_model->toggleGrid(); })
-		->addButton("View", "Toggle Outline", "Ctrl+H", []() { m_model->toggleOutline(); });
-		//->addButton("View", "Toggle Wireframe", "Ctrl+O", []() { m_model->toggleWireframe(); });
+		->addButton("View", "Toggle Outline", "Ctrl+H", []() { m_model->toggleOutline(); })
+		->addButton("View", "Zoom")
+		->addButton("View\\Zoom", "Reset Zoom", "Ctrl + 0", []() { Camera::resetZoom(); })
+		->addButton("View\\Zoom", "Zoom In", "Ctrl + -", []() { Camera::addZoom(5.f); })
+		->addButton("View\\Zoom", "Zoom Out", "Ctrl + +", []() { Camera::addZoom(-5.f); });
+	//->addButton("View", "Toggle Wireframe", "Ctrl+O", []() { m_model->toggleWireframe(); });
 	m_container->findComponent("TOOLBAR_MAIN")->addButton("", "Help")
 		->addButton("Help", "About Voxel Model Editor", "", []() { ModelOverlay::getContainer()->setPauseScreen("DIALOG_ABOUT"); });
 
@@ -103,7 +109,7 @@ Container* ModelOverlay::init(Model* p_model) {
 		Component::Theme::PRIMARY, (Sint8)Component::BorderFlag::LEFT), Component::Anchor::TOP_RIGHT, Component::Anchor::BOTTOM_RIGHT);
 
 	m_container->findComponent("GUI_DETAILS")->addComponent(new ContainerPanel("GUI_COLOR", "Color Palette", { 0, 71 }, { 256, 200 },
-		Component::Theme::PRIMARY, (Sint8)Component::BorderFlag::BOTTOM));
+		Component::Theme::PRIMARY, (Sint8)Component::BorderFlag::BOTTOM))->setPriorityLayer(6);
 	m_colorOverlay = new ColorOverlay({ 80, 20 }, { 160, 160 });
 	m_container->findComponent("GUI_DETAILS\\GUI_COLOR")->addComponent(m_colorOverlay)->setPressFunction([]() {
 		m_container->findComponent("GUI_DETAILS\\GUI_COLOR\\R")->setValue((m_colorOverlay->getR()));

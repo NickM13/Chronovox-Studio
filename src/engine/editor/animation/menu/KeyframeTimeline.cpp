@@ -5,7 +5,7 @@ KeyframeTimeline::KeyframeTimeline(Vector2<Sint32> p_pos, Vector2<Sint32> p_size
 	: Container("TIMELINE_KEYFRAME", p_pos, p_size, true) {
 	m_border = ((Sint8)BorderFlag::TOP | (Sint8)BorderFlag::BOTTOM);
 	m_maxLayer = 0;
-	addComponent(new Panel("RULER_BG", "", {0, 0}, {0, 24}, Component::Theme::INFO, (Sint8)BorderFlag::ALL), Anchor::NONE, Anchor::TOP_RIGHT);
+	addComponent(new Panel("RULER_BG", "", { 0, 0 }, { 0, 24 }, Component::Theme::INFO, (Sint8)BorderFlag::ALL), Anchor::NONE, Anchor::TOP_RIGHT);
 	m_translateColor = Color(1, 0.5f, 0);
 	m_rotateColor = Color(1, 0, 0);
 	m_scaleColor = Color(0.5f, 1, 0);
@@ -31,17 +31,17 @@ void KeyframeTimeline::addKeyframe(Keyframe* p_keyframe) {
 	VKeyframe vk;
 	Keyframe* k;
 	Sint8 layer = 0;
-	for(Sint32 i = 0; i < (Sint32)m_keyframes.size(); i++) {
+	for (Sint32 i = 0; i < (Sint32)m_keyframes.size(); i++) {
 		vk = m_keyframes[i];
-		if(vk.layer == layer) {
+		if (vk.layer == layer) {
 			k = vk.keyframe;
-			if(k->m_start + k->m_length - 1 >= p_keyframe->m_start) {
+			if (k->m_start + k->m_length - 1 >= p_keyframe->m_start) {
 				layer++;
 				i = 0;
 			}
 		}
 	}
-	m_keyframes.push_back({p_keyframe, layer});
+	m_keyframes.push_back({ p_keyframe, layer });
 	m_maxLayer = std::fmaxf(m_maxLayer, layer);
 	m_keyframeHeight = m_keyframeArea.h / (m_maxLayer + 1); // Frame height
 }
@@ -54,132 +54,106 @@ void KeyframeTimeline::input(Sint8& p_interactFlags) {
 	Container::input(p_interactFlags);
 	Vector2<Sint32> _mousePos = GMouse::getMousePos() - m_pos;
 
-	if(findComponent("RULER_BG")->isSelected()) {
+	if (findComponent("RULER_BG")->isSelected()) {
 		m_time = std::fminf(m_length, std::fmaxf(0, m_length * (GLfloat(_mousePos.x) / m_size.x)));
 		m_playing = false;
 	}
 
 	m_hoveredKeyframe = -1;
-	if(m_keyframeArea.checkPoint(_mousePos.x, _mousePos.y) &&
+	if (m_keyframeArea.checkPoint(_mousePos.x, _mousePos.y) &&
 		(p_interactFlags & (Sint8)Component::EventFlag::MOUSEOVER)) {
 		_mousePos = _mousePos - Vector2<Sint32>(m_keyframeArea.x, m_keyframeArea.y);
 		VKeyframe vk;
 		Keyframe* k;
-		for(Sint32 i = 0; i < (Sint32)m_keyframes.size(); i++) {
+		for (Sint32 i = 0; i < (Sint32)m_keyframes.size(); i++) {
 			vk = m_keyframes[i];
 			k = vk.keyframe;
-			if(Rect(Sint32(k->m_start * m_keyframeArea.w / m_length), vk.layer * m_keyframeHeight,
+			if (Rect(Sint32(k->m_start * m_keyframeArea.w / m_length), vk.layer * m_keyframeHeight,
 				Sint32(k->m_length * m_keyframeArea.w / m_length), m_keyframeHeight)
 				.checkPoint(_mousePos.x, _mousePos.y)) {
 				m_hoveredKeyframe = i;
 				break;
 			}
 		}
-		if(GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
-			if(m_selectedKeyframe != -1) callReleaseFunction();
+		if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
+			if (m_selectedKeyframe != -1) callReleaseFunction();
 			m_selectedKeyframe = m_hoveredKeyframe;
-			if(m_selectedKeyframe != -1) callPressFunction();
+			if (m_selectedKeyframe != -1) callPressFunction();
 		}
 	}
 }
 void KeyframeTimeline::update(GLfloat p_deltaUpdate) {
 	Container::update(p_deltaUpdate);
-	if(m_playing && m_length > 0)
+	if (m_playing && m_length > 0)
 		m_time = (m_time + Sint32(p_deltaUpdate * 1000)) % m_length;
 }
 void KeyframeTimeline::render() {
 	renderBack();
 	renderFill();
-	glPushMatrix();
-	{
-		glTranslatef(GLfloat(m_pos.x), GLfloat(m_pos.y), 0);
-		glPushMatrix();
-		{
-			glTranslatef(m_keyframeArea.x, m_keyframeArea.y, 0);
-			glBegin(GL_QUADS);
-			{
-				VKeyframe vk;
-				Keyframe* k;
-				GLfloat s = 1; // Spacing
-				GLfloat b = 1; // Frame border
-				GLfloat ks, kl; // Keyframe start and length
-				Sint32 l0, l1; // Keyframe layer and layer+1
-				for(Sint32 i = 0; i < (Sint32)m_keyframes.size(); i++) {
-					vk = m_keyframes[i];
-					k = vk.keyframe;
-					ks = Sint32(k->m_start * m_keyframeArea.w / m_length);
-					kl = ks + Sint32(k->m_length * m_keyframeArea.w / m_length);
-					l0 = (vk.layer) * m_keyframeHeight;
-					l1 = (vk.layer + 1) * m_keyframeHeight;
+	Shader::pushMatrixModel();
+	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
+	Shader::pushMatrixModel();
+	Shader::translate(glm::vec3(m_keyframeArea.x, m_keyframeArea.y, 0.f));
+	VKeyframe vk;
+	Keyframe* k;
+	GLfloat s = 1; // Spacing
+	GLfloat b = 1; // Frame border
+	GLfloat ks, kl; // Keyframe start and length
+	Sint32 l0, l1; // Keyframe layer and layer+1
+	for (Sint32 i = 0; i < (Sint32)m_keyframes.size(); i++) {
+		vk = m_keyframes[i];
+		k = vk.keyframe;
+		ks = Sint32(k->m_start * m_keyframeArea.w / m_length);
+		kl = ks + Sint32(k->m_length * m_keyframeArea.w / m_length);
+		l0 = (vk.layer) * m_keyframeHeight;
+		l1 = (vk.layer + 1) * m_keyframeHeight;
 
-					switch(k->m_transformationType) {
-					case Keyframe::TRANSLATION: m_translateColor.useColor(); break;
-					case Keyframe::ROTATION: m_rotateColor.useColor(); break;
-					case Keyframe::SCALE: m_scaleColor.useColor(); break;
-					}
-					glVertex2f(ks, l0 + s);
-					glVertex2f(ks, l1 - s);
-					glVertex2f(kl, l1 - s);
-					glVertex2f(kl, l0 + s);
-
-					if(m_selectedKeyframe == i)
-						glColor4f(1, 1, 1, 0.5f);
-					else if(m_hoveredKeyframe == i)
-						Color(0xAADDFF).useColor(1, 1, 1, 0.3f);
-					else
-						glColor4f(0, 0, 0, 0.5f);
-					glVertex2f(ks + 6 + b, l0 + s + b);
-					glVertex2f(ks + 6 + b, l1 - s - b);
-					glVertex2f(kl - b, l1 - s - b);
-					glVertex2f(kl - b, l0 + s + b);
-
-				}
-			}
-			glEnd();
+		switch (k->m_transformationType) {
+		case Keyframe::TRANSLATION: GBuffer::setColor(m_translateColor); break;
+		case Keyframe::ROTATION:	GBuffer::setColor(m_rotateColor); break;
+		case Keyframe::SCALE:		GBuffer::setColor(m_scaleColor); break;
 		}
-		glPopMatrix();
+		GBuffer::addVertexQuad(ks, l0 + s);
+		GBuffer::addVertexQuad(ks, l1 - s);
+		GBuffer::addVertexQuad(kl, l1 - s);
+		GBuffer::addVertexQuad(kl, l0 + s);
+
+		if (m_selectedKeyframe == i)		GBuffer::setColor(Color(1, 1, 1, 0.5f));
+		else if (m_hoveredKeyframe == i)	GBuffer::setColor(Color(0xAADDFF40));
+		else								GBuffer::setColor(Color(0, 0, 0, 0.5f));
+		GBuffer::addVertexQuad(ks + 6 + b, l0 + s + b);
+		GBuffer::addVertexQuad(ks + 6 + b, l1 - s - b);
+		GBuffer::addVertexQuad(kl - b, l1 - s - b);
+		GBuffer::addVertexQuad(kl - b, l0 + s + b);
+
 	}
-	glPopMatrix();
+	Shader::popMatrixModel();
+	Shader::popMatrixModel();
 
 	Container::render();
 
-	glPushMatrix();
+
+	Shader::pushMatrixModel();
 	{
-		glTranslatef(GLfloat(m_pos.x), GLfloat(m_pos.y), 0);
+		Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 		// Time ruler
 		Sint32 lc = 20; // Ruler line count
-		m_colorTheme.m_border.useColor();
-		for(Sint32 i = 0; i < lc; i++) {
-			if(i % 5 == 0) {
-				glLineWidth(2);
-				glBegin(GL_LINES);
-				{
-					glVertex2f((GLfloat(i) / lc) * m_size.x, 0);
-					glVertex2f((GLfloat(i) / lc) * m_size.x, 12);
-				}
-				glEnd();
+		GBuffer::setColor(m_colorTheme.m_border);
+		for (Sint32 i = 0; i < lc; i++) {
+			if (i % 5 == 0) {
+				GBuffer::addVertexLine((GLfloat(i) / lc) * m_size.x, 0);
+				GBuffer::addVertexLine((GLfloat(i) / lc) * m_size.x, 12);
 				Font::print(Util::numToStringFloat((m_length * i / lc) / 1000.f, 1), (GLfloat(i) / lc) * m_size.x + 4, 8);
 			}
 			else {
-				glLineWidth(1);
-				glBegin(GL_LINES);
-				{
-					glVertex2f((GLfloat(i) / lc) * m_size.x, 0);
-					glVertex2f((GLfloat(i) / lc) * m_size.x, 8);
-				}
-				glEnd();
+				GBuffer::addVertexLine((GLfloat(i) / lc) * m_size.x, 0);
+				GBuffer::addVertexLine((GLfloat(i) / lc) * m_size.x, 8);
 			}
 		}
 		GLfloat tl = m_time * m_keyframeArea.w / m_length; // Time line
-		glLineWidth(2);
-		m_colorTheme.m_borderHighlight.useColor();
-		glBegin(GL_LINES);
-		{
-			glVertex2f(tl, 0);
-			glVertex2f(tl, m_size.y);
-		}
-		glEnd();
-		glLineWidth(1);
+		GBuffer::setColor(m_colorTheme.m_borderHighlight);
+		GBuffer::addVertexLine(tl, 0);
+		GBuffer::addVertexLine(tl, m_size.y);
 	}
-	glPopMatrix();
+	Shader::popMatrixModel();
 }

@@ -1,5 +1,4 @@
 #include "engine\editor\model\tool\voxel\VoxelTool.h"
-#include "engine\gfx\shader\Shader.h"
 #include <set>
 
 const GLfloat SELECT_CORRECTION = 0.025f;

@@ -4,8 +4,7 @@
 #include "engine\utils\variable\manager\ColorManager.h"
 #include "engine\editor\menu\EditorOverlay.h"
 #include "engine\editor\model\menu\ModelOverlay.h"
-#include "engine\gfx\gui\Component.h"
-#include "engine\gfx\shader\Shader.h"
+#include "engine\gfx\gui\component\Component.h"
 
 #include <direct.h>
 #include <shlobj.h>
@@ -110,7 +109,7 @@ void Model::focus() {
 }
 
 void Model::fixSelectedMatrix() {
-	for (Sint32 i = 0; i < m_nameList->getItemList().size(); i++) {
+	for (Sint32 i = 0; i < (Sint32)m_nameList->getItemList().size(); i++) {
 		auto li = m_nameList->getItemList().at(i);
 		getMatrix(li.name)->setId(i);
 	}

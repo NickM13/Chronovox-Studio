@@ -34,8 +34,6 @@ public:
 	// Create a mesh with simulated ambient occlusion
 	void createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Sint16> p_dimensions);
 
-	// TODO: Returns a buffer for vertex array.  Only useful for static objects like models.
-	//void createStaticMesh();
 	void renderMesh();
 	void renderMeshShadow();
 };

@@ -7,7 +7,6 @@
 #include "engine\gfx\font\Font.h"
 #include "engine\gfx\texture\MTexture.h"
 #include "engine\gfx\model\MModelObj.h"
-#include "engine\gfx\shader\Shader.h"
 
 #include "engine\sfx\Sound.h"
 
@@ -31,10 +30,11 @@ Editor::Editor() {
 	m_editorState = EditorState::STARTING;
 	MTexture::init();
 	MModelObj::init();
-	Font::loadFont("LeelawUI", "res\\font\\leelawui.ttf", 10);
-	Font::loadFont("SegoeUI", "res\\font\\segoeui.ttf", 10);
+	Font::loadFont("LeelawUI", "res\\font\\leelawui.ttf", 12);
+	Font::loadFont("SegoeUI", "res\\font\\segoeui.ttf", 12);
 	Sound::getInstance().init();
 	GGui::init(GScreen::m_window);
+	GBuffer::init();
 	m_animation = new Animation();
 	m_model = new Model();
 	m_mainGui = EditorOverlay::init(this);
@@ -53,7 +53,7 @@ Editor::Editor() {
 		std::chrono::system_clock::time_point time = std::chrono::system_clock::now();
 		while (!m_autosaveCv.wait_until(lock, time + std::chrono::seconds(m_autosavePeriod), [&]() {
 			time = std::chrono::system_clock::now();
-			return m_editorState == EditorState::STOPPING; 
+			return m_editorState == EditorState::STOPPING;
 		})) {
 			getModel()->autosave();
 		}
@@ -66,7 +66,7 @@ Editor::Editor() {
 Editor::~Editor() {
 	m_editorState = EditorState::STOPPING;
 	m_autosaveCv.notify_all();
-	if(m_autosaveThread->joinable()) m_autosaveThread->join();
+	if (m_autosaveThread->joinable()) m_autosaveThread->join();
 	delete m_autosaveThread;
 	MTexture::terminate();
 	MModelObj::terminate();
@@ -74,6 +74,7 @@ Editor::~Editor() {
 	Font::clean();
 	EditorOverlay::terminate();
 	GGui::terminate();
+	GBuffer::terminate();
 	delete m_model;
 
 	terminateShadowBuffer();
@@ -98,9 +99,9 @@ bool Editor::initShadowBuffer() {
 	glDrawBuffer(GL_NONE); // No color buffer is drawn to.
 
 						   // Always check that our framebuffer is ok
-	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		return false;
-	
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	return true;
@@ -119,7 +120,7 @@ void Editor::setEditorState(EditorState p_state) { m_editorState = p_state; }
 Editor::EditorState Editor::getEditorState() { return m_editorState; }
 
 void Editor::setEditorMode(EditorMode p_mode) {
-	switch(m_editorMode) {
+	switch (m_editorMode) {
 	case ANIMATION:
 		m_mainGui->findComponent("GUI_ANIMATION")->setVisible(false);
 		break;
@@ -130,7 +131,7 @@ void Editor::setEditorMode(EditorMode p_mode) {
 		break;
 	}
 	m_editorMode = p_mode;
-	switch(m_editorMode) {
+	switch (m_editorMode) {
 	case ANIMATION:
 		m_tMode = m_animation;
 		m_mainGui->findComponent("GUI_ANIMATION")->setVisible(true);
@@ -160,54 +161,47 @@ void Editor::dropFile(const char* path) {
 
 void Editor::renderMouse() {
 	std::string tooltip = GGui::getTooltip();
-	if(tooltip != "") {
+	if (tooltip != "") {
 		Sint32 b1 = 10, b2 = b1 + 1;
 		Vector2<Sint32> size = Font::getMessageWidth(tooltip);
 		Vector2<Sint32> pos = Vector2<Sint32>(GGui::getTooltipPos().x + b2, GGui::getTooltipPos().y + 23 + b2);
 		pos.x = std::fminf(GScreen::m_screenSize.x - size.x - b2, std::fmaxf(b2, pos.x));
 		pos.y = std::fminf(GScreen::m_screenSize.y - size.y - b2, std::fmaxf(b2, pos.y));
-		glPushMatrix();
-		{
-			glBindTexture(GL_TEXTURE_2D, 0);
-			glTranslatef(pos.x, pos.y, 0);
-			glColor3f(0.3f, 0.3f, 0.3f);
-			glBegin(GL_QUADS);
-			{
-				glVertex2f(-b1,				-b1);
-				glVertex2f(size.x + b1,		-b1);
-				glVertex2f(size.x + b1,		size.y + b1);
-				glVertex2f(-b1,				size.y + b1);
-			}
-			glEnd();
-			glColor3f(0.35f, 0.35f, 0.35f);
-			glBegin(GL_QUADS);
-			{
-				glVertex2f(-b1,				-b1);
-				glVertex2f(size.x + b1,		-b1);
-				glVertex2f(size.x + b1,		-b2);
-				glVertex2f(-b1,				-b2);
 
-				glVertex2f(size.x + b2,		-b1);
-				glVertex2f(size.x + b2,		size.y + b1);
-				glVertex2f(size.x + b1,		size.y + b1);
-				glVertex2f(size.x + b1,		-b1);
+		Shader::pushMatrixModel();
+		Shader::translate(glm::vec3(pos.x, pos.y, 0));
 
-				glVertex2f(size.x + b1,		size.y + b2);
-				glVertex2f(-b1,				size.y + b2);
-				glVertex2f(-b1,				size.y + b1);
-				glVertex2f(size.x + b1,		size.y + b1);
+		GBuffer::setColor(Color(0.3f, 0.3f, 0.3f));
+		GBuffer::addVertexQuad(-b1, -b1);
+		GBuffer::addVertexQuad(size.x + b1, -b1);
+		GBuffer::addVertexQuad(size.x + b1, size.y + b1);
+		GBuffer::addVertexQuad(-b1, size.y + b1);
 
-				glVertex2f(-b1,				size.y + b1);
-				glVertex2f(-b1,				-b1);
-				glVertex2f(-b2,				-b1);
-				glVertex2f(-b2,				size.y + b1);
-			}
-			glEnd();
-			Font::setAlignment(Alignment::ALIGN_LEFT);
-			glColor3f(1, 1, 1);
-			Font::print(tooltip, 0, Font::getHeight() / 2);
-		}
-		glPopMatrix();
+		GBuffer::setColor(Color(0.35f, 0.35f, 0.35f));
+		GBuffer::addVertexQuad(-b1, -b1);
+		GBuffer::addVertexQuad(size.x + b1, -b1);
+		GBuffer::addVertexQuad(size.x + b1, -b2);
+		GBuffer::addVertexQuad(-b1, -b2);
+
+		GBuffer::addVertexQuad(size.x + b2, -b1);
+		GBuffer::addVertexQuad(size.x + b2, size.y + b1);
+		GBuffer::addVertexQuad(size.x + b1, size.y + b1);
+		GBuffer::addVertexQuad(size.x + b1, -b1);
+
+		GBuffer::addVertexQuad(size.x + b1, size.y + b2);
+		GBuffer::addVertexQuad(-b1, size.y + b2);
+		GBuffer::addVertexQuad(-b1, size.y + b1);
+		GBuffer::addVertexQuad(size.x + b1, size.y + b1);
+
+		GBuffer::addVertexQuad(-b1, size.y + b1);
+		GBuffer::addVertexQuad(-b1, -b1);
+		GBuffer::addVertexQuad(-b2, -b1);
+		GBuffer::addVertexQuad(-b2, size.y + b1);
+
+		Font::setAlignment(Alignment::ALIGN_LEFT);
+		GBuffer::setColor(Color(1.f, 1.f, 1.f));
+		Font::print(tooltip, 0, Font::getHeight() / 2);
+		Shader::popMatrixModel();
 	}
 }
 
@@ -238,7 +232,7 @@ void Editor::renderShadowTexture() {
 
 glm::vec3 Editor::getSunlightDir() {
 	glm::vec4 lRayStart_NDC(0.f, 0.f, -1.0f, 1.0f);
-	glm::vec4 lRayEnd_NDC  (0.f, 0.f,  0.f,  1.0f);
+	glm::vec4 lRayEnd_NDC(0.f, 0.f, 0.f, 1.0f);
 
 	glm::mat4 iProjectionMatrix = glm::inverse(Shader::getMatrixProjection());
 	glm::mat4 iViewMatrix = glm::inverse(getSunlightMatrix());
@@ -264,7 +258,7 @@ void Editor::input() {
 
 	m_mainGui->input(_interact);
 
-	switch(m_editorMode) {
+	switch (m_editorMode) {
 	case EditorMode::ANIMATION:
 		m_animation->input(_interact);
 		break;
@@ -273,7 +267,7 @@ void Editor::input() {
 		break;
 	default: break;
 	}
-	if(GKey::keyPressed(GLFW_KEY_F4, GLFW_MOD_ALT)) GScreen::m_exitting = 2;
+	if (GKey::keyPressed(GLFW_KEY_F4, GLFW_MOD_ALT)) GScreen::m_exitting = 2;
 }
 
 void Editor::update() {
@@ -282,7 +276,7 @@ void Editor::update() {
 
 	GScreen::m_deltaTime = m_deltaUpdate;
 
-	switch(m_editorMode) {
+	switch (m_editorMode) {
 	case EditorMode::ANIMATION:
 		m_animation->update(m_deltaUpdate);
 		break;
@@ -297,7 +291,7 @@ void Editor::update() {
 }
 
 void Editor::renderShadow() {
-	switch(m_editorMode) {
+	switch (m_editorMode) {
 	case EditorMode::ANIMATION:
 		m_animation->renderShadow();
 		break;
@@ -312,7 +306,7 @@ void Editor::render3d() {
 	glBindTexture(GL_TEXTURE_2D, m_shadowBuffer.renderedTexture);
 	glUniform1i(7, 1);
 	glActiveTexture(GL_TEXTURE0);
-	switch(m_editorMode) {
+	switch (m_editorMode) {
 	case EditorMode::ANIMATION:
 		m_animation->render();
 		break;
@@ -323,28 +317,31 @@ void Editor::render3d() {
 	}
 }
 void Editor::render2d() {
+	GBuffer::clean();
 	Font::setAlignment(Alignment::ALIGN_LEFT);
 	m_mainGui->render();
 	renderMouse();
+	GBuffer::rasterize();
+	GBuffer::renderMesh();
 }
 
 void Editor::fileNew() {
-	if(m_tMode) m_tMode->fileNew();
+	if (m_tMode) m_tMode->fileNew();
 }
 void Editor::fileOpen() {
-	if(m_tMode) m_tMode->fileOpen();
+	if (m_tMode) m_tMode->fileOpen();
 }
 void Editor::fileSave() {
-	if(m_tMode) m_tMode->fileSave();
+	if (m_tMode) m_tMode->fileSave();
 }
 void Editor::fileExit() {
 	GScreen::m_exitting = 1;
-	if(m_tMode) m_tMode->fileExit();
+	if (m_tMode) m_tMode->fileExit();
 }
 
 void Editor::editUndo() {
-	if(m_tMode) m_tMode->editUndo();
+	if (m_tMode) m_tMode->editUndo();
 }
 void Editor::editRedo() {
-	if(m_tMode) m_tMode->editRedo();
+	if (m_tMode) m_tMode->editRedo();
 }

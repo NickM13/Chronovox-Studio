@@ -1,7 +1,5 @@
 #pragma once
 
-#include "engine\gfx\shader\Shader.h"
-
 #include "engine\utils\global\GScreen.h"
 #include "engine\utils\LOpenGL.h"
 #include "engine\utils\Singleton.h"

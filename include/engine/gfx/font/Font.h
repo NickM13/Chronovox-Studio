@@ -11,8 +11,7 @@
 #include <freetype/ftoutln.h>
 #include <freetype/fttrigon.h>
 
-enum Alignment
-{
+enum Alignment {
 	ALIGN_LEFT = 0,
 	ALIGN_CENTER = 1,
 	ALIGN_RIGHT = 2
@@ -20,13 +19,19 @@ enum Alignment
 
 class Font {
 private:
-	struct FontType
-	{
+	struct FontType {
+		struct Character {
+			GLuint textureId;
+			glm::ivec2 size;
+			glm::ivec2 bearing;
+			GLuint advance;
+		};
 		std::string m_fontName;
+		std::map<Sint8, Character> m_characters;
 		Sint16 m_height;
-		GLuint* m_textures;
-		GLuint* m_charWidth;
-		GLuint m_listBase;
+		//GLuint* m_textures;
+		//GLuint* m_charWidth;
+		//GLuint m_listBase;
 
 		GLfloat m_spacing;
 	};
@@ -43,13 +48,13 @@ public:
 	static void setFont(std::string p_fontName);
 	static void clean();
 
-	static Sint16 getHeight() { return m_font->m_height; };
+	static Sint16 getHeight();
 	static Vector2<Sint32> getMessageWidth(std::string p_msg);
 	static std::string getMessageSubstr(std::string p_msg, Sint32 p_width);
 	// Font Height * Spacing
-	static GLfloat getSpacingHeight() { return m_font->m_height * 1.8f; };
+	static GLfloat getSpacingHeight();
 	// Font Spacing, no height
-	static GLfloat getSpacing() { return 1.8f; };
+	static GLfloat getSpacing();
 
 	static void print(std::string p_msg, Sint32 p_x, Sint32 p_y);
 };

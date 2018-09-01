@@ -94,12 +94,12 @@ void Animation::renderEditor() {
 		 * 		m_model->getMatrix(k->m_matrix)->addKeyframe(k);
 		 */
 		for(Matrix* m : m_model->getMatrixList()) {
-			glPushMatrix();
+			Shader::pushMatrixModel();
 			{
 				applyMatrixTransformation(m);
 				m->renderMatrix();
 			}
-			glPopMatrix();
+			Shader::popMatrixModel();
 		}
 	}
 }

@@ -1,6 +1,5 @@
 #include "engine\editor\TEMode.h"
 #include "engine\editor\menu\EditorOverlay.h"
-#include "engine\gfx\shader\Shader.h"
 
 TEMode::TEMode() {
 	Camera::init();

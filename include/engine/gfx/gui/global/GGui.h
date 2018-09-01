@@ -17,12 +17,12 @@ public:
 		VRESIZE =	GLFW_VRESIZE_CURSOR
 	};
 private:
-	static GLFWwindow*						m_mainWindow;
-	static CursorType						m_cursorType;
+	static GLFWwindow*							m_mainWindow;
+	static CursorType							m_cursorType;
 	static std::map<CursorType, GLFWcursor*>	m_cursors;
-	static std::string						m_tooltip;
-	static Vector2<Sint32>					m_tooltipPos;
-	static GLfloat							m_tooltipLife; // Time at which tooltip disappears if not refreshed
+	static std::string							m_tooltip;
+	static Vector2<Sint32>						m_tooltipPos;
+	static GLfloat								m_tooltipLife; // Time at which tooltip disappears if not refreshed
 public:
 	static void init(GLFWwindow* p_mainWindow);
 	static void terminate();

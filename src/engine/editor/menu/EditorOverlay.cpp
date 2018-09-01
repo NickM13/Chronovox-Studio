@@ -57,7 +57,7 @@ Container* EditorOverlay::init(Editor* p_editor) {
 
 	std::string* _matrixData = new std::string("");
 	m_editor->getModel()->setDataString(_matrixData);
-	m_container->findComponent("PANEL_INFOBAR")->addComponent(new DataField("DATA_MATRIX", _matrixData, {4, 0}, {0, 20}, Component::Theme::INFO), Component::Anchor::MIDDLE_LEFT);
+	m_container->findComponent("PANEL_INFOBAR")->addComponent(new DataField("DATA_MATRIX", _matrixData, {4, 0}, {0, 24}, Component::Theme::INFO), Component::Anchor::MIDDLE_LEFT);
 
 	//TODO: Add cursor type to components that are applied on hover
 	m_container->findComponent("PANEL_INFOBAR")->addComponent((new CButton("BUTTON_RESIZE_WINDOW_DRAG", "", MTexture::getTexture("gui\\icon\\tool\\ResizeWindow.png"), {0, 0}, {20, 20}, CButton::RenderStyle::EMPTY))

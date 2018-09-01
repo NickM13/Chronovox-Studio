@@ -1,6 +1,6 @@
 #include "engine\gfx\gui\global\GGui.h"
 #include "engine\utils\global\event\GMouse.h"
-#include "engine\gfx\gui\Component.h"
+#include "engine\gfx\gui\component\Component.h"
 
 GLFWwindow* GGui::m_mainWindow = 0;
 GGui::CursorType GGui::m_cursorType = GGui::CursorType::ARROW;
