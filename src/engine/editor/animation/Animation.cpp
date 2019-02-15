@@ -9,7 +9,7 @@ Animation::Animation()
 Animation::~Animation() {
 
 }
-void Animation::init(Model* p_model) {
+void Animation::init(SimpleModel* p_model) {
 	m_model = p_model;
 	m_keyframeTimeline = (KeyframeTimeline*)AnimationOverlay::getContainer()->findComponent("TIMELINE_KEYFRAME");
 	setAnimationLength(2000);
@@ -76,6 +76,7 @@ void Animation::applyMatrixTransformation(Matrix* p_matrix) {
 }
 
 void Animation::inputEditor(Sint8 p_guiFlags) {
+	m_model->input(p_guiFlags);
 	if(!EditorOverlay::getContainer()->isPaused() && (p_guiFlags & (Sint8)Component::EventFlag::KEYPRESS)) {
 		if(GKey::keyPressed(GLFW_KEY_SPACE)) toggleAnimationPlaying();
 		else if(GKey::keyPressed(GLFW_KEY_ENTER)) saveKeyframeProperties();
@@ -83,17 +84,17 @@ void Animation::inputEditor(Sint8 p_guiFlags) {
 	}
 }
 void Animation::updateEditor(GLfloat p_deltaUpdate) {
-	
+	m_model->update(p_deltaUpdate);
 }
 void Animation::renderEditor() {
 	if(m_model) {
-		for(Matrix* m : m_model->getMatrixList()) m->clearAnimation();
+		for(Matrix* m : *m_model->getMatrixList()) m->clearAnimation();
 		/*
 		 * for(Keyframe* k : m_keyframes)
 		 * 	if(m_model->getMatrix(k->m_matrix))
 		 * 		m_model->getMatrix(k->m_matrix)->addKeyframe(k);
 		 */
-		for(Matrix* m : m_model->getMatrixList()) {
+		for(Matrix* m : *m_model->getMatrixList()) {
 			Shader::pushMatrixModel();
 			{
 				applyMatrixTransformation(m);
@@ -110,8 +111,8 @@ void Animation::fileNew() {
 void Animation::fileOpen() {
 
 }
-void Animation::fileSave() {
-
+bool Animation::fileSave() {
+	return true;
 }
 void Animation::fileExit() {
 
@@ -122,4 +123,8 @@ void Animation::editUndo() {
 }
 void Animation::editRedo() {
 
+}
+
+void Animation::viewLoadModel() {
+	m_model->open();
 }

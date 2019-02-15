@@ -5,6 +5,27 @@ TEMode::TEMode() {
 	Camera::init();
 }
 
+bool TEMode::hasChanged() {
+	return false;
+}
+void TEMode::setChanged(bool p_changed) {
+
+}
+
+void TEMode::setPath(std::string p_path) {
+	m_directory = p_path.substr(0, p_path.find_last_of('\\') + 1);
+	m_name = p_path.substr(p_path.find_last_of('\\') + 1);
+}
+std::string TEMode::getName() {
+	return m_name;
+}
+std::string TEMode::getDirectory() {
+	return m_directory;
+}
+std::string TEMode::getPath() {
+	return m_directory + m_name;
+}
+
 void TEMode::input(Sint8 p_guiFlags) {
 	Camera::input(p_guiFlags);
 	inputEditor(p_guiFlags);
@@ -38,7 +59,8 @@ void TEMode::renderEditorShadow() {}
 
 void TEMode::fileNew() {}
 void TEMode::fileOpen() {}
-void TEMode::fileSave() {}
+bool TEMode::fileSave() { return false; }
+bool TEMode::fileSaveAs() { return false; }
 void TEMode::fileExit() {}
 
 void TEMode::editUndo() {}

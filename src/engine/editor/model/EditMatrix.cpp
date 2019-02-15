@@ -6,6 +6,7 @@ EditMatrix::EditMatrix() {
 	m_matrixId = -1;
 	m_commandListIsOpen = true;
 	m_commandChaining = false;
+	m_changed = false;
 }
 EditMatrix::~EditMatrix() {
 	clearMatrix(false);
@@ -51,6 +52,7 @@ void EditMatrix::addCommand(Command* p_com) {
 	}
 	m_recentCommands.back().push_back(p_com);
 	m_commandIndex = Sint16(m_recentCommands.size());
+	m_changed = true;
 }
 void EditMatrix::undo() {
 	if (m_commandIndex > 0) {
@@ -61,6 +63,7 @@ void EditMatrix::undo() {
 			m_recentCommands[m_commandIndex - 1][i]->undo();
 		}
 		m_commandIndex--;
+		m_changed = true;
 		/*
 		if (id != -1 && m_recentCommands[m_commandIndex]->isStaticChange()) {
 			delete m_initMatrix;
@@ -79,6 +82,7 @@ void EditMatrix::redo() {
 				c->redo();
 			}
 			m_commandIndex++;
+			m_changed = true;
 		}
 	}
 }
@@ -148,13 +152,15 @@ void EditMatrix::saveChanges() {
 	}
 }
 void EditMatrix::refreshPos() {
-	if (m_matrix)
+	if (m_matrix) {
 		m_initMatrix->setPosition(m_matrix->getPos());
+	}
 }
 
 Voxel EditMatrix::getVoxel(glm::ivec3 p_pos) {
-	if (m_initMatrix)
+	if (m_initMatrix) {
 		return m_initMatrix->getVoxel(p_pos);
+	}
 	return Voxel();
 }
 Sint16& EditMatrix::getId() {
@@ -164,13 +170,15 @@ bool EditMatrix::isSet() {
 	return (m_matrix);
 }
 glm::vec3 EditMatrix::getPos() {
-	if (m_initMatrix)
+	if (m_initMatrix) {
 		return m_initMatrix->getPos();
+	}
 	return {};
 }
 glm::ivec3 EditMatrix::getSize() {
-	if (m_initMatrix)
+	if (m_initMatrix) {
 		return m_initMatrix->getSize();
+	}
 	return {};
 }
 Matrix* EditMatrix::getMatrix() {

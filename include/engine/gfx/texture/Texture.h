@@ -13,9 +13,9 @@ private:
 
 public:
 	Texture(std::string p_name = "", GLuint p_ilTexId = 0, GLuint p_glTexId = 0, Vector2<Sint32> p_size = {}) {
+		m_name = p_name;
 		m_ilTexId = p_ilTexId;
 		m_glTexId = p_glTexId;
-		m_name = p_name;
 		m_size = p_size;
 	}
 	~Texture() {
@@ -35,6 +35,10 @@ public:
 	}
 	Vector2<Sint32> getSize() const {
 		return m_size;
+	}
+	void setTexture(GLuint p_glTexId, Vector2<Sint32> p_size) {
+		m_glTexId = p_glTexId;
+		m_size = p_size;
 	}
 	bool operator==(const Texture p_tex) const {
 		return (m_name == p_tex.m_name);

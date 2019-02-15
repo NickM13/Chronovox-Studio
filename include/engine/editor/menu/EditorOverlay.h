@@ -5,8 +5,7 @@
 #include "..\model\menu\ColorOverlay.h"
 #include "..\Editor.h"
 
-class EditorOverlay
-{
+class EditorOverlay {
 private:
 	static Editor* m_editor;
 	static Container* m_container;

@@ -17,13 +17,14 @@
 class Editor {
 public:
 	enum EditorState {
-		STARTING = 0,
-		RUNNING = 1,
-		STOPPING = 2
+		STARTING,
+		RUNNING,
+		STOPPING
 	};
 	enum EditorMode {
-		MODEL = 0,
-		ANIMATION = 1
+		NONE,
+		MODEL,
+		ANIMATION
 	};
 private:
 	struct ShadowBuffer {
@@ -31,9 +32,16 @@ private:
 		glm::vec2 shadowSize;
 	} m_shadowBuffer;
 
-	static Animation* m_animation;
-	static Model* m_model;
-	static TEMode* m_tMode; // Template pointer to current EngineMode variable, to compress EditorOverlay function lines
+	struct Project {
+		EditorMode mode;
+		TEMode* editor;
+		Project(EditorMode p_mode, TEMode* p_editor) : mode(p_mode), editor(p_editor) {}
+	};
+	static std::vector<Project*> m_projects;
+	static CTabBar* m_projectTabs;
+	static Project* m_cProj;
+
+	static std::string* m_dataString;
 
 	static EditorState m_editorState;
 	static EditorMode m_editorMode;
@@ -48,6 +56,8 @@ private:
 	std::mutex m_autosaveMutex;
 	std::condition_variable m_autosaveCv;
 
+	void closeProject(Sint32 p_index);
+
 	bool initShadowBuffer();
 	void terminateShadowBuffer();
 public:
@@ -55,14 +65,21 @@ public:
 	~Editor();
 	bool attemptClose();
 
-	static Animation* getAnimation() { return m_animation; }
-	static Model* getModel() { return m_model; }
+	static Animation* getAnimation() { if (m_cProj) return (Animation*)m_cProj->editor; return 0; }
+	static Model* getModel() { if (m_cProj) return (Model*)m_cProj->editor; return 0; }
+
+	static void setDataString(std::string* p_dataString);
 
 	static void setEditorState(EditorState p_state);
 	static EditorState getEditorState();
 
 	static void setEditorMode(EditorMode p_mode);
 	static EditorMode getEditorMode();
+
+	void newProject(Project* p_project);
+	void setProject(Sint32 p_index);
+	void closeSelectedProject();
+	void attemptCloseProject(Sint32 p_index);
 
 	void resize();
 
@@ -85,10 +102,12 @@ public:
 	void render2d();
 
 	// Overlay functions
-	void fileNew();
-	void fileOpen();
-	void fileSave();
-	void fileExit();
+	bool fileNewModel();
+	bool fileNewAnimation();
+	bool fileOpen();
+	bool fileSave();
+	bool fileSaveAs();
+	bool fileExit();
 	
 	void editUndo();
 	void editRedo();

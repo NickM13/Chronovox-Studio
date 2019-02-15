@@ -47,7 +47,7 @@ public:
 		MOUSESCROLL = 4,
 		ALL = 7
 	};
-	enum class BorderFlag {
+	enum class BorderFlag : Sint8 {
 		NONE = 0,
 		TOP = 1,
 		RIGHT = 2,
@@ -56,6 +56,7 @@ public:
 		ALL = 15
 	};
 	enum class Theme {
+		WINDOW,
 		PRIMARY,
 		MENUBAR,
 		INFO,
@@ -89,7 +90,7 @@ protected:
 	Vector2<Sint32> m_posInit, m_pos, m_sizeInit, m_size;
 	Sint8 m_selected = 0;
 	bool m_hovered = false;
-	ColorTheme m_colorTheme;
+	ColorTheme* m_colorTheme;
 
 	Texture* m_texture;
 	TextureStyle m_textureStyle = TextureStyle::STRETCH;
@@ -99,7 +100,7 @@ protected:
 	GLfloat m_numValue = 0;
 
 	// Default color themes
-	static std::map<Theme, ColorTheme> m_colorThemes;
+	static std::map<Theme, ColorTheme*> m_colorThemes;
 	bool m_visible = true;
 	Sint8 m_moveToFront = 0;
 	Sint8 m_priority = 0;
@@ -114,16 +115,18 @@ public:
 	virtual ~Component();
 
 	static void init();
+	static void loadTheme();
 	static void terminate();
 
 	virtual Component* addComponent(Component* p_comp, Anchor p_posAnchor = Anchor::NONE, Anchor p_sizeAnchor = Anchor::NONE);
 	virtual Component* findComponent(std::string p_compName);
 
-	virtual Component* addButton(std::string p_dir, std::string p_buttonName, std::string p_desc = "", function p_func = 0);
 	virtual Component* addItem(std::string p_item);
 	virtual Uint16 getItemCount();
 	virtual void setList(std::vector<std::string> p_items);
 	virtual bool hasList();
+
+	virtual bool exists();
 
 	Component* setPressFunction(function p_func);
 	Component* setHoldFunction(function p_func);

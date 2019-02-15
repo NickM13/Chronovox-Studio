@@ -7,7 +7,7 @@
 
 std::map<std::string, Texture*> MTexture::m_textures;
 
-void MTexture::loadTexture(std::string p_texturePath) {
+Texture* MTexture::loadTexture(std::string p_texturePath) {
 	std::string path = LDirectory::getProjectPath() + "res\\texture\\" + p_texturePath;
 	ILuint imgId;
 	ilGenImages(1, &imgId);
@@ -16,12 +16,12 @@ void MTexture::loadTexture(std::string p_texturePath) {
 	ILenum Error;
 	Error = ilGetError();
 	if(Error != IL_NO_ERROR) {
-		m_textures.insert({p_texturePath, new Texture()});
 		Logger::logError("Could not load texture: \"" + path + "\"");
+		return new Texture();
 	}
 	else {
-		m_textures.insert({p_texturePath, new Texture(p_texturePath, imgId, ilutGLBindTexImage(), Vector2<Sint32>(Sint32(ilGetInteger(IL_IMAGE_WIDTH)), Sint32(ilGetInteger(IL_IMAGE_HEIGHT))))});
 		Logger::logNormal("Loaded texture: \"" + p_texturePath + "\"");
+		return new Texture(p_texturePath, imgId, ilutGLBindTexImage(), Vector2<Sint32>(Sint32(ilGetInteger(IL_IMAGE_WIDTH)), Sint32(ilGetInteger(IL_IMAGE_HEIGHT))));
 	}
 }
 
@@ -34,7 +34,19 @@ void MTexture::init() {
 	m_textures.insert({"NULL", new Texture()});
 	size_t rootLen = std::string(LDirectory::getProjectPath() + "res\\texture\\").length();
 	for(std::string path : LDirectory::getFilesInDirectory(LDirectory::getProjectPath() + "res\\texture\\", ".png")) {
-		loadTexture(path.substr(rootLen));
+		m_textures.insert({ path.substr(rootLen), loadTexture(path.substr(rootLen)) });
+	}
+}
+
+void MTexture::reload() {
+	std::string path;
+	for (std::pair<std::string, Texture*> t : m_textures) {
+		if (t.first != "NULL") {
+			path = LDirectory::getProjectPath() + "res\\texture\\" + t.second->getName();
+			ilBindImage(t.second->getIlId());
+			ilLoadImage(path.c_str());
+			t.second->setTexture(ilutGLBindTexImage(), Vector2<Sint32>(Sint32(ilGetInteger(IL_IMAGE_WIDTH)), Sint32(ilGetInteger(IL_IMAGE_HEIGHT))));
+		}
 	}
 }
 

@@ -3,7 +3,7 @@
 #include "..\Matrix.h"
 #include "engine\gfx\texture\MTexture.h"
 #include "engine\gfx\mesh\MMesh.h"
-#include "engine\editor\model\math\ModelMath.h"
+#include "engine\utils\math\ModelMath.h"
 
 class Tool {
 public:

@@ -13,12 +13,11 @@ std::vector<Rect> GBuffer::m_scissorList;
 Rect GBuffer::m_currScissor = Rect();
 
 GLuint GBuffer::m_quadVaoId, GBuffer::m_quadVboId[3];
-GLuint GBuffer::m_lineVaoId, GBuffer::m_lineVboId[2];
 
 std::vector<GBuffer::TextureBuffer> GBuffer::m_textureBuffers;
 
-std::vector<glm::vec2> GBuffer::m_quadVertices, GBuffer::m_lineVertices;
-std::vector<Color> GBuffer::m_quadColors, GBuffer::m_lineColors;
+std::vector<glm::vec2> GBuffer::m_quadVertices;
+std::vector<Color> GBuffer::m_quadColors;
 std::vector<glm::vec2> GBuffer::m_quadUVs;
 
 void GBuffer::init() {
@@ -34,31 +33,19 @@ void GBuffer::init() {
 	glBindBuffer(GL_ARRAY_BUFFER, m_quadVboId[2]);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
-	glGenVertexArrays(1, &m_lineVaoId);
-	glBindVertexArray(m_lineVaoId);
-	glGenBuffers(2, m_lineVboId);
-	glBindBuffer(GL_ARRAY_BUFFER, m_lineVboId[0]);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glBindBuffer(GL_ARRAY_BUFFER, m_lineVboId[1]);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
-
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void GBuffer::terminate() {
+	clean();
 	glDeleteVertexArrays(1, &m_quadVaoId);
 	glDeleteBuffers(3, m_quadVboId);
-
-	glDeleteVertexArrays(1, &m_lineVaoId);
-	glDeleteBuffers(2, m_lineVboId);
 }
 
 void GBuffer::clean() {
 	m_quadVertices.clear();
-	m_lineVertices.clear();
 	m_quadColors.clear();
-	m_lineColors.clear();
 	m_quadUVs.clear();
 	m_textureBuffers.clear();
 	setTexture(0, false);
@@ -76,18 +63,9 @@ void GBuffer::rasterize() {
 		glBindBuffer(GL_ARRAY_BUFFER, m_quadVboId[2]);
 		glBufferData(GL_ARRAY_BUFFER, m_quadUVs.size() * sizeof(GLfloat) * 2, &m_quadUVs[0].x, GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
-	if (!m_lineVertices.empty()) {
-		glBindVertexArray(m_lineVaoId);
-		glBindBuffer(GL_ARRAY_BUFFER, m_lineVboId[0]);
-		glBufferData(GL_ARRAY_BUFFER, m_lineVertices.size() * sizeof(GLfloat) * 2, &m_lineVertices[0].x, GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-		glBindBuffer(GL_ARRAY_BUFFER, m_lineVboId[1]);
-		glBufferData(GL_ARRAY_BUFFER, m_lineColors.size() * sizeof(GLfloat) * 4, &m_lineColors[0].r, GL_STATIC_DRAW);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	}
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void GBuffer::setTexture(GLuint p_textureId, bool p_font) {
@@ -110,6 +88,25 @@ void GBuffer::setColor(Color p_color) {
 }
 void GBuffer::setUV(GLfloat u, GLfloat v) {
 	m_currUV = glm::vec2(u, v);
+}
+void GBuffer::renderTexture(Texture* p_texture, TextureAnchor p_xAnchor, TextureAnchor p_yAnchor) {
+	Shader::pushMatrixModel();
+	switch (p_xAnchor) {
+	case TextureAnchor::NONE: break;
+	case TextureAnchor::HALF: Shader::translate(glm::vec3((GLfloat)-p_texture->getSize().x / 2, 0, 0));	break;
+	case TextureAnchor::FULL: Shader::translate(glm::vec3((GLfloat)-p_texture->getSize().x, 0, 0));		break;
+	}
+	switch (p_yAnchor) {
+	case TextureAnchor::NONE: break;
+	case TextureAnchor::HALF: Shader::translate(glm::vec3(0, (GLfloat)-p_texture->getSize().y / 2, 0));	break;
+	case TextureAnchor::FULL: Shader::translate(glm::vec3(0, (GLfloat)-p_texture->getSize().y, 0));		break;
+	}
+	setTexture(p_texture->getGlId());
+	setUV(0, 0);	addVertexQuad(0, 0);
+	setUV(1, 0);	addVertexQuad(p_texture->getSize().x, 0);
+	setUV(1, 1);	addVertexQuad(p_texture->getSize().x, p_texture->getSize().y);
+	setUV(0, 1);	addVertexQuad(0, p_texture->getSize().y);
+	Shader::popMatrixModel();
 }
 
 void GBuffer::pushScissor(Rect p_scissor) {
@@ -173,11 +170,6 @@ void GBuffer::addVertexQuad(Sint32 x, Sint32 y) {
 	m_quadUVs.push_back(m_currUV);
 	m_textureBuffers.back().quadCount++;
 }
-void GBuffer::addVertexLine(Sint32 x, Sint32 y) {
-	m_lineVertices.push_back(Shader::getMatrixModel() * glm::vec4((GLfloat)x, (GLfloat)y, 0.f, 1.f));
-	m_lineColors.push_back(m_currColor);
-	m_textureBuffers.back().lineCount++;
-}
 
 void GBuffer::renderMesh() {
 	Sint32 quadIndex = 0, lineIndex = 0;
@@ -202,10 +194,6 @@ void GBuffer::renderMesh() {
 		glEnableVertexAttribArray(2);
 		glDrawArrays(GL_QUADS, quadIndex, GLsizei(tb.quadCount));
 		glDisableVertexAttribArray(2);
-
-		// TODO: Uncomment this when quads are working
-		//glBindVertexArray(m_lineVaoId);
-		//glDrawArrays(GL_LINES, lineIndex, GLsizei(tb.lineCount));
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 		glBindVertexArray(0);
@@ -213,4 +201,5 @@ void GBuffer::renderMesh() {
 		quadIndex += tb.quadCount;
 		lineIndex += tb.lineCount;
 	}
+	glDisable(GL_SCISSOR_TEST);
 }

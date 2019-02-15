@@ -49,6 +49,7 @@ public:
 	static void clean();
 
 	static Sint16 getHeight();
+	static glm::ivec2 getCharSize(char c) { return m_font->m_characters[c].size; }
 	static Vector2<Sint32> getMessageWidth(std::string p_msg);
 	static std::string getMessageSubstr(std::string p_msg, Sint32 p_width);
 	// Font Height * Spacing

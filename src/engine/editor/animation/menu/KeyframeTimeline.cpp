@@ -135,25 +135,35 @@ void KeyframeTimeline::render() {
 
 	Shader::pushMatrixModel();
 	{
-		Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
+		Vector2<Sint32> framePos = m_pos + Vector2<Sint32>(8, 0);
+		Vector2<Sint32> frameArea = m_size - Vector2<Sint32>(16, 0);
+		Shader::translate(glm::vec3((GLfloat)framePos.x, (GLfloat)framePos.y, 0.f));
 		// Time ruler
 		Sint32 lc = 20; // Ruler line count
-		GBuffer::setColor(m_colorTheme.m_border);
+		GBuffer::setTexture(0);
+		GBuffer::setColor(m_colorTheme->m_border);
 		for (Sint32 i = 0; i < lc; i++) {
 			if (i % 5 == 0) {
-				GBuffer::addVertexLine((GLfloat(i) / lc) * m_size.x, 0);
-				GBuffer::addVertexLine((GLfloat(i) / lc) * m_size.x, 12);
-				Font::print(Util::numToStringFloat((m_length * i / lc) / 1000.f, 1), (GLfloat(i) / lc) * m_size.x + 4, 8);
+				GBuffer::addVertexQuad((GLfloat(i) / lc) * frameArea.x    , 0);
+				GBuffer::addVertexQuad((GLfloat(i) / lc) * frameArea.x + 2, 0);
+				GBuffer::addVertexQuad((GLfloat(i) / lc) * frameArea.x + 2, 12);
+				GBuffer::addVertexQuad((GLfloat(i) / lc) * frameArea.x    , 12);
+				Font::print(Util::numToStringFloat((m_length * i / lc) / 1000.f, 1), (GLfloat(i) / lc) * frameArea.x + 4, 8);
+				GBuffer::setTexture(0);
 			}
 			else {
-				GBuffer::addVertexLine((GLfloat(i) / lc) * m_size.x, 0);
-				GBuffer::addVertexLine((GLfloat(i) / lc) * m_size.x, 8);
+				GBuffer::addVertexQuad((GLfloat(i) / lc) * frameArea.x    , 0);
+				GBuffer::addVertexQuad((GLfloat(i) / lc) * frameArea.x + 1, 0);
+				GBuffer::addVertexQuad((GLfloat(i) / lc) * frameArea.x + 1, 8);
+				GBuffer::addVertexQuad((GLfloat(i) / lc) * frameArea.x    , 8);
 			}
 		}
 		GLfloat tl = m_time * m_keyframeArea.w / m_length; // Time line
-		GBuffer::setColor(m_colorTheme.m_borderHighlight);
-		GBuffer::addVertexLine(tl, 0);
-		GBuffer::addVertexLine(tl, m_size.y);
+		GBuffer::setColor(m_colorTheme->m_borderHighlight);
+		GBuffer::addVertexQuad(tl    , 12);
+		GBuffer::addVertexQuad(tl + 1, 12);
+		GBuffer::addVertexQuad(tl + 1, frameArea.y);
+		GBuffer::addVertexQuad(tl    , frameArea.y);
 	}
 	Shader::popMatrixModel();
 }

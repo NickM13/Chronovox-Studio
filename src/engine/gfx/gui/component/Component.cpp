@@ -1,8 +1,9 @@
 #include "engine\gfx\gui\component\Component.h"
 #include "engine\gfx\texture\MTexture.h"
 #include "engine\gfx\gui\global\GGui.h"
+#include "engine\utils\directory\LDirectory.h"
 
-std::map<Component::Theme, Component::ColorTheme> Component::m_colorThemes;
+std::map<Component::Theme, Component::ColorTheme*> Component::m_colorThemes;
 
 Component::Component() {
 	m_colorTheme = m_colorThemes[Theme::PRIMARY];
@@ -20,14 +21,64 @@ Component::~Component() {
 }
 
 void Component::init() {
+	// Initializes default values for themes
 	m_colorThemes = {
-		//	ID								Border		Primary		Select		Hover		Text		Text Info	Border Highlight
-		{Theme::PRIMARY,		ColorTheme(0x101010,	0x414141,	0x818181,	0x818181,	0xF0F0F0,	0x0F0F0F,	0x007ACC)},
-	{Theme::MENUBAR,		ColorTheme(0x101010,	0x414141,	0x262626,	0x616161,	0xF0F0F0,	0x0F0F0F,	0x007ACC)},
-	{Theme::INFO,			ColorTheme(0x444444,	0x007ACC,	0xBCBCBC,	0x818181,	0xF0F0F0,	0xF0F0F0,	0x007ACC)},
-	{Theme::ACTION,			ColorTheme(0x101010,	0x414141,	0x303030,	0x707070,	0xF0F0F0,	0xF0F0F0,	0x007ACC)},
-	{Theme::ACTION_LIGHT,	ColorTheme(0x101010,	0xFFFFFF,	0xBBBBBB,	0xDDDDDD,	0x0F0F0F,	0x0F0F0F,	0x007ACC)}
+		//	ID									Border		Primary		Select		Hover		Text		Text Info	Highlight
+		{Theme::WINDOW,			new ColorTheme(	0x101010,	0x414141,	0x818181,	0x818181,	0xF0F0F0,	0x0F0F0F,	0x007ACC)},
+		{Theme::PRIMARY,		new ColorTheme(	0x101010,	0x414141,	0x818181,	0x818181,	0xF0F0F0,	0x0F0F0F,	0x007ACC)},
+		{Theme::MENUBAR,		new ColorTheme(	0x101010,	0x414141,	0x262626,	0x616161,	0xF0F0F0,	0x0F0F0F,	0x007ACC)},
+		{Theme::INFO,			new ColorTheme(	0x444444,	0x007ACC,	0xBCBCBC,	0x818181,	0xF0F0F0,	0xF0F0F0,	0x007ACC)},
+		{Theme::ACTION,			new ColorTheme(	0x101010,	0x414141,	0x303030,	0x707070,	0xF0F0F0,	0xF0F0F0,	0x007ACC)},
+		{Theme::ACTION_LIGHT,	new ColorTheme(	0x101010,	0xFFFFFF,	0xBBBBBB,	0xDDDDDD,	0x0F0F0F,	0x0F0F0F,	0x007ACC)}
 	};// 0x007ACC - light blue
+	loadTheme();
+}
+void Component::loadTheme() {
+	std::ifstream themefile(LDirectory::getProjectPath() + "res\\config\\ColorTheme.ini");
+	if (themefile.good()) {
+		std::string line = "";
+		std::string first, second;
+		std::stringstream ss;
+		Sint32 colorhex;
+		Theme theme;
+		size_t equalPos;
+		while (!themefile.eof()) {
+			std::getline(themefile, line);
+			if (line.empty()) continue;
+			if (line.at(0) == '[') {
+				first = line.substr(1, line.find_first_of(']') - 1);
+				if (first == "WINDOW")				theme = Theme::WINDOW;
+				else if (first == "PRIMARY")		theme = Theme::PRIMARY;
+				else if (first == "MENUBAR")		theme = Theme::MENUBAR;
+				else if (first == "INFO")			theme = Theme::INFO;
+				else if (first == "ACTION")			theme = Theme::ACTION;
+				else if (first == "ACTION_LIGHT")	theme = Theme::ACTION_LIGHT;
+			}
+			else {
+				equalPos = line.find_first_of('=');
+				first = line.substr(0, equalPos);
+				second = line.substr(equalPos + 1);
+
+				if (second.length() > 2
+					&& second.substr(0, 2) == "/x") {
+					ss.clear();
+					ss << std::hex << second.substr(2);
+					ss >> colorhex;
+
+					if (first == "border")			m_colorThemes.at(theme)->m_border =				Color(colorhex);
+					else if (first == "primary")	m_colorThemes.at(theme)->m_primary =			Color(colorhex);
+					else if (first == "select")		m_colorThemes.at(theme)->m_select =				Color(colorhex);
+					else if (first == "hover")		m_colorThemes.at(theme)->m_hover =				Color(colorhex);
+					else if (first == "text1")		m_colorThemes.at(theme)->m_text =				Color(colorhex);
+					else if (first == "text2")		m_colorThemes.at(theme)->m_textLight =			Color(colorhex);
+					else if (first == "highlight")	m_colorThemes.at(theme)->m_borderHighlight =	Color(colorhex);
+
+				}
+			}
+			line = "";
+		}
+	}
+	themefile.close();
 }
 void Component::terminate() {
 	m_colorThemes.clear();
@@ -35,10 +86,11 @@ void Component::terminate() {
 
 Component* Component::addComponent(Component* p_comp, Anchor p_posAnchor, Anchor p_sizeAnchor) { return this; }
 Component* Component::findComponent(std::string p_compName) { return this; }
-Component* Component::addButton(std::string p_dir, std::string p_buttonName, std::string p_desc, function p_func) { return this; }
 Component* Component::addItem(std::string p_item) { return this; }
 Uint16 Component::getItemCount() { return 0; }
 void Component::setList(std::vector<std::string> p_items) { }
+
+bool Component::exists() { return true; }
 
 Component* Component::setPressFunction(function p_func) {
 	m_pressFunction = p_func;
@@ -120,9 +172,9 @@ void Component::renderFill(bool p_setColor) {
 	Shader::pushMatrixModel();
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 	if (p_setColor) {
-		if (isSelected())	GBuffer::setColor(m_colorTheme.m_select);
-		else if (m_hovered)	GBuffer::setColor(m_colorTheme.m_hover);
-		else				GBuffer::setColor(m_colorTheme.m_primary);
+		if (isSelected())	GBuffer::setColor(m_colorTheme->m_select);
+		else if (m_hovered)	GBuffer::setColor(m_colorTheme->m_hover);
+		else				GBuffer::setColor(m_colorTheme->m_primary);
 	}
 	GBuffer::setTexture(0);
 	GBuffer::addVertexQuad(0, 0);
@@ -252,21 +304,22 @@ void Component::renderFill(bool p_setColor) {
 			break;
 		case TextureStyle::CENTERED:
 		default:
-			GBuffer::setUV(0, 0); GBuffer::addVertexQuad(_texSize.x / -2 + m_size.x / 2, _texSize.y / 2 + m_size.y / 2);
-			GBuffer::setUV(1, 0); GBuffer::addVertexQuad(_texSize.x / 2 + m_size.x / 2, _texSize.y / 2 + m_size.y / 2);
-			GBuffer::setUV(1, 1); GBuffer::addVertexQuad(_texSize.x / 2 + m_size.x / 2, _texSize.y / -2 + m_size.y / 2);
-			GBuffer::setUV(0, 1); GBuffer::addVertexQuad(_texSize.x / -2 + m_size.x / 2, _texSize.y / -2 + m_size.y / 2);
+			GBuffer::setUV(0, 0); GBuffer::addVertexQuad(std::floor(_texSize.x / -2.f) + m_size.x / 2, std::floor(_texSize.y / 2.f) + m_size.y / 2);
+			GBuffer::setUV(1, 0); GBuffer::addVertexQuad(std::floor(_texSize.x / 2.f) + m_size.x / 2, std::floor(_texSize.y / 2.f) + m_size.y / 2);
+			GBuffer::setUV(1, 1); GBuffer::addVertexQuad(std::floor(_texSize.x / 2.f) + m_size.x / 2, std::floor(_texSize.y / -2.f) + m_size.y / 2);
+			GBuffer::setUV(0, 1); GBuffer::addVertexQuad(std::floor(_texSize.x / -2.f) + m_size.x / 2, std::floor(_texSize.y / -2.f) + m_size.y / 2);
 			break;
 		}
 	}
 	Shader::popMatrixModel();
 }
 void Component::renderBorder() {
+	if (m_border == 0) return;
 	GBuffer::setTexture(0);
 	Shader::pushMatrixModel();
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
-	GBuffer::setColor(m_colorTheme.m_border);
-	if (m_border & (Sint8)BorderFlag::TOP) {
+	GBuffer::setColor(m_colorTheme->m_border);
+	if (m_border & static_cast<Sint8>(BorderFlag::TOP)) {
 		GBuffer::addVertexQuad(0, 0);
 		GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
 		GBuffer::addVertexQuad(GLfloat(m_size.x), -1);
@@ -286,13 +339,13 @@ void Component::renderBorder() {
 		}
 		*/
 	}
-	if (m_border & (Sint8)BorderFlag::RIGHT) {
+	if (m_border & static_cast<Sint8>(BorderFlag::RIGHT)) {
 		GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
 		GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y));
 		GBuffer::addVertexQuad(GLfloat(m_size.x) + 1, GLfloat(m_size.y));
 		GBuffer::addVertexQuad(GLfloat(m_size.x) + 1, 0);
 	}
-	if (m_border & (Sint8)BorderFlag::BOTTOM) {
+	if (m_border & static_cast<Sint8>(BorderFlag::BOTTOM)) {
 		GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y));
 		GBuffer::addVertexQuad(0, GLfloat(m_size.y));
 		GBuffer::addVertexQuad(0, GLfloat(m_size.y) + 1);
@@ -312,7 +365,7 @@ void Component::renderBorder() {
 		}
 		*/
 	}
-	if (m_border & (Sint8)BorderFlag::LEFT) {
+	if (m_border & static_cast<Sint8>(BorderFlag::LEFT)) {
 		GBuffer::addVertexQuad(0, 0);
 		GBuffer::addVertexQuad(0, GLfloat(m_size.y));
 		GBuffer::addVertexQuad(-1, GLfloat(m_size.y));

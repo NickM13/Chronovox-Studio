@@ -1,13 +1,14 @@
 #pragma once
 #include "keyframe\Keyframe.h"
 #include "..\TEMode.h"
-#include "..\model\Model.h"
+#include "..\model\SimpleModel.h"
 #include "engine\gfx\LGui.h"
 #include "menu\KeyframeTimeline.h"
 
 class Animation : public TEMode {
 private:
-	Model* m_model;
+	std::vector<std::string> m_matrixList; // List of matrices used in animation
+	SimpleModel* m_model; // Visual aid for animation, animations are based on matrix names
 
 	std::string m_animationName;
 	Sint32 m_animationLength;
@@ -19,8 +20,9 @@ private:
 public:
 	Animation();
 	~Animation();
-	void init(Model* p_model);
+	void init(SimpleModel* p_model);
 	void setTimeline(KeyframeTimeline* p_keyframeTimeline) { m_keyframeTimeline = p_keyframeTimeline; }
+	KeyframeTimeline* getTimeline() { return m_keyframeTimeline; }
 
 	void loadKeyframeProperties();
 	void saveKeyframeProperties();
@@ -37,9 +39,11 @@ public:
 
 	void fileNew();
 	void fileOpen();
-	void fileSave();
+	bool fileSave();
 	void fileExit();
 
 	void editUndo();
 	void editRedo();
+
+	void viewLoadModel();
 };

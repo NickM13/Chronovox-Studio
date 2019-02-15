@@ -1,7 +1,7 @@
 #pragma once
 
-#include "..\EditMatrix.h"
-#include "..\Matrix.h"
+#include "engine\editor\model\EditMatrix.h"
+#include "engine\editor\model\Matrix.h"
 
 namespace ModelMath {
 	bool castRayMatrix(glm::vec3 p_start, glm::vec3 p_direction, Matrix* p_matrix, GLfloat &p_near, GLfloat &p_far);

@@ -5,14 +5,19 @@ Uint32 NvmFormat::m_index = 0;
 char* NvmFormat::m_data = 0;
 
 bool NvmFormat::save(std::string p_fileName, std::vector<Matrix*>& p_matrixList) {
-	if(p_fileName.substr(p_fileName.length() - 4, 4) != ".nvm")
+	if (p_fileName.substr(p_fileName.length() - 4, 4) != ".nvm") {
 		p_fileName.append(".nvm");
+	}
 	std::ofstream _file;
-	std::string folder = p_fileName.substr(0, p_fileName.find_last_of('\\'));
+	size_t pos = p_fileName.find_last_of('\\');
+	std::string folder = "";
+	if (pos != -1) {
+		folder = p_fileName.substr(0, pos);
+	}
 	CreateDirectory(folder.c_str(), NULL);
 	_file.open(std::string(p_fileName), std::ios::binary);
 	{
-		if(!_file.good()) {
+		if (!_file.good()) {
 			Logger::logError("Could not create file \"" + p_fileName + "\"");
 			return false;
 		}
@@ -23,7 +28,7 @@ bool NvmFormat::save(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 		FileExt::writeInt(_file, p_matrixList.size());
 
 		Matrix* m;
-		for(Uint16 i = 0; i < p_matrixList.size(); i++) {
+		for (Uint16 i = 0; i < p_matrixList.size(); i++) {
 			m = p_matrixList[i];
 			// Matrix Header
 			FileExt::writeString(_file, m->getName());
@@ -38,11 +43,11 @@ bool NvmFormat::save(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 			FileExt::writeShort(_file, m->getSize().z);
 
 			Uint8 count = 0;
-			Uint16 id = m->getVoxelId({0, 0, 0});
-			for(Uint16 x = 0; x < m->getSize().x; x++) {
-				for(Uint16 y = 0; y < m->getSize().y; y++) {
-					for(Uint16 z = 0; z < m->getSize().z; z++) {
-						if(m->getVoxelId({x, y, z}) == id && count < 255) {
+			Uint16 id = m->getVoxelId({ 0, 0, 0 });
+			for (Uint16 x = 0; x < m->getSize().x; x++) {
+				for (Uint16 y = 0; y < m->getSize().y; y++) {
+					for (Uint16 z = 0; z < m->getSize().z; z++) {
+						if (m->getVoxelId({ x, y, z }) == id && count < 255) {
 							count++;
 						}
 						else {
@@ -52,7 +57,7 @@ bool NvmFormat::save(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 							FileExt::writeChar(_file, Uint8(c.g * 255));
 							FileExt::writeChar(_file, Uint8(c.b * 255));
 							FileExt::writeChar(_file, MVoxel::getInstance().getUnit(id).interactionType);
-							id = m->getVoxelId({x, y, z});
+							id = m->getVoxelId({ x, y, z });
 							count = 1;
 						}
 					}
@@ -77,7 +82,7 @@ bool NvmFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 	bool _success = true;
 	_file.open(std::string(p_fileName).c_str(), std::ios::binary);
 	{
-		if(!_file.good()) {
+		if (!_file.good()) {
 			Logger::logMissingFile(p_fileName);
 			_file.close();
 			return false;
@@ -99,7 +104,7 @@ bool NvmFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 
 		m_index = 0;
 
-		switch(version) {
+		switch (version) {
 		case 1:
 			_success = load1(p_matrixList);
 			break;
@@ -132,7 +137,7 @@ bool NvmFormat::load1(std::vector<Matrix*>& p_matrixList) {
 	Sint32 matrixIndex;
 	Uint8 count, r, g, b, a;
 	Voxel vox;
-	for(Uint16 i = 0; i < matrixCount; i++) {
+	for (Uint16 i = 0; i < matrixCount; i++) {
 		// Matrix Header
 		name = FileExt::readString(m_data, m_index);
 
@@ -149,14 +154,14 @@ bool NvmFormat::load1(std::vector<Matrix*>& p_matrixList) {
 		volume = size.x * size.y * size.z;
 		matrixIndex = 0;
 
-		while(matrixIndex < volume) {
+		while (matrixIndex < volume) {
 			count = FileExt::readChar(m_data, m_index);
 			r = FileExt::readChar(m_data, m_index);
 			g = FileExt::readChar(m_data, m_index);
 			b = FileExt::readChar(m_data, m_index);
 			a = FileExt::readChar(m_data, m_index);
 			vox = Voxel(a, MColor::getInstance().getUnitID(Color(r / 255.f, g / 255.f, b / 255.f)));
-			for(Sint32 i = matrixIndex; i < matrixIndex + count; i++)
+			for (Sint32 i = matrixIndex; i < matrixIndex + count; i++)
 				m->setVoxel(glm::ivec3(fmod(floorf(GLfloat(i) / (size.z * size.y)), size.x), fmod(floorf(GLfloat(i) / (size.z)), size.y), fmod(i, size.z)), vox);
 
 			matrixIndex += count;
@@ -180,7 +185,7 @@ bool NvmFormat::load2(std::vector<Matrix*>& p_matrixList) {
 	Sint32 matrixIndex;
 	Uint8 count, r, g, b, a;
 	Voxel vox;
-	for(Uint16 i = 0; i < matrixCount; i++) {
+	for (Uint16 i = 0; i < matrixCount; i++) {
 		// Matrix Header
 		name = FileExt::readString(m_data, m_index);
 		parent = FileExt::readString(m_data, m_index);
@@ -198,14 +203,14 @@ bool NvmFormat::load2(std::vector<Matrix*>& p_matrixList) {
 		volume = size.x * size.y * size.z;
 		matrixIndex = 0;
 
-		while(matrixIndex < volume) {
+		while (matrixIndex < volume) {
 			count = FileExt::readChar(m_data, m_index);
 			r = FileExt::readChar(m_data, m_index);
 			g = FileExt::readChar(m_data, m_index);
 			b = FileExt::readChar(m_data, m_index);
 			a = FileExt::readChar(m_data, m_index);
 			vox = Voxel(a, MColor::getInstance().getUnitID(Color(r / 255.f, g / 255.f, b / 255.f)));
-			for(Sint32 i = matrixIndex; i < matrixIndex + count; i++)
+			for (Sint32 i = matrixIndex; i < matrixIndex + count; i++)
 				m->setVoxel(glm::ivec3(fmod(floorf(GLfloat(i) / (size.z * size.y)), size.x), fmod(floorf(GLfloat(i) / (size.z)), size.y), fmod(i, size.z)), vox);
 
 			matrixIndex += count;

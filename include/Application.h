@@ -14,7 +14,8 @@ private:
 	static Vector2<Uint16> m_screenSize;
 	GLuint m_shader;
 
-	time_t m_maxFps = 60;
+	time_t m_focusFps;
+	time_t m_unfocusFps;
 	DWORD m_sleepTime;
 
 	static void windowResizeCallback(GLFWwindow*, int, int);

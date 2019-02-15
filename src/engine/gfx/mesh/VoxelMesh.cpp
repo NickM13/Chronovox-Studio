@@ -23,75 +23,73 @@ VoxelMesh::~VoxelMesh() {
 }
 
 void VoxelMesh::destroyMesh() {
-	// Not really necessary
+	// Not really necessary, hmmm
 }
 
 Vector4<GLfloat> VoxelMesh::getAO(Vector3<Uint16> p_pos, Voxel*** p_voxels, Uint8 p_side) {
-	GLfloat intensity = 8;
-	GLfloat idk = 8;
+	GLfloat intensity = 12;
 	GLfloat ao00, ao10, ao11, ao01;
 	ao00 = ao10 = ao11 = ao01 = 0;
-	switch(p_side)
-	{
+	switch (p_side) {
 	case 0: // North
 		ao00 = GLfloat(p_voxels[p_pos.x - 1][p_pos.y - 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y - 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType != 0);
 		ao10 = GLfloat(p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y + 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y + 1][p_pos.z].interactionType != 0);
 		ao11 = GLfloat(p_voxels[p_pos.x - 1][p_pos.y][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y + 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y + 1][p_pos.z + 1].interactionType != 0);
 		ao01 = GLfloat(p_voxels[p_pos.x - 1][p_pos.y - 1][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y - 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z + 1].interactionType != 0);
-		ao00 = ao00 - ((p_voxels[p_pos.x][p_pos.y - 1][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType == 0)) / idk;
-		ao10 = ao10 - ((p_voxels[p_pos.x][p_pos.y + 1][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType == 0)) / idk;
-		ao11 = ao11 - ((p_voxels[p_pos.x][p_pos.y + 1][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType == 0)) / idk;
-		ao01 = ao01 - ((p_voxels[p_pos.x][p_pos.y - 1][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType == 0)) / idk;
+		ao00 = ao00 - ((p_voxels[p_pos.x][p_pos.y - 1][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType == 0));
+		ao10 = ao10 - ((p_voxels[p_pos.x][p_pos.y + 1][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType == 0));
+		ao11 = ao11 - ((p_voxels[p_pos.x][p_pos.y + 1][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType == 0));
+		ao01 = ao01 - ((p_voxels[p_pos.x][p_pos.y - 1][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType == 0));
 		break;
 	case 1: // South
 		ao00 = GLfloat(p_voxels[p_pos.x + 1][p_pos.y - 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y - 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType != 0);
 		ao10 = GLfloat(p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y + 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y + 1][p_pos.z].interactionType != 0);
 		ao11 = GLfloat(p_voxels[p_pos.x + 1][p_pos.y][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y + 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y + 1][p_pos.z + 1].interactionType != 0);
 		ao01 = GLfloat(p_voxels[p_pos.x + 1][p_pos.y - 1][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y - 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z + 1].interactionType != 0);
-		ao00 = ao00 - ((p_voxels[p_pos.x][p_pos.y - 1][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType == 0)) / idk;
-		ao10 = ao10 - ((p_voxels[p_pos.x][p_pos.y + 1][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType == 0)) / idk;
-		ao11 = ao11 - ((p_voxels[p_pos.x][p_pos.y + 1][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType == 0)) / idk;
-		ao01 = ao01 - ((p_voxels[p_pos.x][p_pos.y - 1][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType == 0)) / idk;
+		ao00 = ao00 - ((p_voxels[p_pos.x][p_pos.y - 1][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType == 0));
+		ao10 = ao10 - ((p_voxels[p_pos.x][p_pos.y + 1][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType == 0));
+		ao11 = ao11 - ((p_voxels[p_pos.x][p_pos.y + 1][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType == 0));
+		ao01 = ao01 - ((p_voxels[p_pos.x][p_pos.y - 1][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType == 0));
 		break;
 	case 2: // West
 		ao00 = GLfloat(p_voxels[p_pos.x - 1][p_pos.y][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y - 1][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType != 0);
 		ao10 = GLfloat(p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y - 1][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z + 1].interactionType != 0);
 		ao11 = GLfloat(p_voxels[p_pos.x][p_pos.y + 1][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y + 1][p_pos.z + 1].interactionType != 0);
 		ao01 = GLfloat(p_voxels[p_pos.x - 1][p_pos.y + 1][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z + 1].interactionType != 0);
-		ao00 = ao00 - ((p_voxels[p_pos.x - 1][p_pos.y - 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType == 0)) / idk;
-		ao10 = ao10 - ((p_voxels[p_pos.x + 1][p_pos.y - 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType == 0)) / idk;
-		ao11 = ao11 - ((p_voxels[p_pos.x + 1][p_pos.y + 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType == 0)) / idk;
-		ao01 = ao01 - ((p_voxels[p_pos.x - 1][p_pos.y + 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType == 0)) / idk;
+		ao00 = ao00 - ((p_voxels[p_pos.x - 1][p_pos.y - 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType == 0));
+		ao10 = ao10 - ((p_voxels[p_pos.x + 1][p_pos.y - 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType == 0));
+		ao11 = ao11 - ((p_voxels[p_pos.x + 1][p_pos.y + 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType == 0));
+		ao01 = ao01 - ((p_voxels[p_pos.x - 1][p_pos.y + 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType == 0));
 		break;
 	case 3: // East
 		ao00 = GLfloat(p_voxels[p_pos.x - 1][p_pos.y][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y - 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType != 0);
 		ao10 = GLfloat(p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y - 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z - 1].interactionType != 0);
 		ao11 = GLfloat(p_voxels[p_pos.x][p_pos.y + 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y + 1][p_pos.z - 1].interactionType != 0);
 		ao01 = GLfloat(p_voxels[p_pos.x - 1][p_pos.y + 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z - 1].interactionType != 0);
-		ao00 = ao00 - ((p_voxels[p_pos.x - 1][p_pos.y - 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType == 0)) / idk;
-		ao10 = ao10 - ((p_voxels[p_pos.x + 1][p_pos.y - 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType == 0)) / idk;
-		ao11 = ao11 - ((p_voxels[p_pos.x + 1][p_pos.y + 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType == 0)) / idk;
-		ao01 = ao01 - ((p_voxels[p_pos.x - 1][p_pos.y + 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType == 0)) / idk;
+		ao00 = ao00 - ((p_voxels[p_pos.x - 1][p_pos.y - 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType == 0));
+		ao10 = ao10 - ((p_voxels[p_pos.x + 1][p_pos.y - 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType == 0));
+		ao11 = ao11 - ((p_voxels[p_pos.x + 1][p_pos.y + 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType == 0));
+		ao01 = ao01 - ((p_voxels[p_pos.x - 1][p_pos.y + 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType == 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType == 0));
 		break;
 	case 4: // Top
 		ao00 = GLfloat(p_voxels[p_pos.x - 1][p_pos.y + 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y + 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType != 0);
 		ao10 = GLfloat(p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y + 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y + 1][p_pos.z].interactionType != 0);
 		ao11 = GLfloat(p_voxels[p_pos.x][p_pos.y + 1][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y + 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y + 1][p_pos.z + 1].interactionType != 0);
 		ao01 = GLfloat(p_voxels[p_pos.x - 1][p_pos.y + 1][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y + 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y + 1][p_pos.z + 1].interactionType != 0);
-		ao00 = ao00 - ((p_voxels[p_pos.x - 1][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType == 0)) / idk;
-		ao10 = ao10 - ((p_voxels[p_pos.x + 1][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType == 0)) / idk;
-		ao11 = ao11 - ((p_voxels[p_pos.x + 1][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType == 0)) / idk;
-		ao01 = ao01 - ((p_voxels[p_pos.x - 1][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType == 0)) / idk;
+		ao00 = ao00 - ((p_voxels[p_pos.x - 1][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType == 0));
+		ao10 = ao10 - ((p_voxels[p_pos.x + 1][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType == 0));
+		ao11 = ao11 - ((p_voxels[p_pos.x + 1][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType == 0));
+		ao01 = ao01 - ((p_voxels[p_pos.x - 1][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType == 0));
 		break;
 	case 5: // Bottom
 		ao00 = GLfloat(p_voxels[p_pos.x - 1][p_pos.y - 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y - 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType != 0);
 		ao10 = GLfloat(p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y - 1][p_pos.z - 1].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y - 1][p_pos.z].interactionType != 0);
 		ao11 = GLfloat(p_voxels[p_pos.x][p_pos.y - 1][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y - 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x + 1][p_pos.y - 1][p_pos.z + 1].interactionType != 0);
 		ao01 = GLfloat(p_voxels[p_pos.x - 1][p_pos.y - 1][p_pos.z + 1].interactionType != 0) + (p_voxels[p_pos.x - 1][p_pos.y - 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z].interactionType != 0) + (p_voxels[p_pos.x][p_pos.y - 1][p_pos.z + 1].interactionType != 0);
-		ao00 = ao00 - ((p_voxels[p_pos.x - 1][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType == 0)) / idk;
-		ao10 = ao10 - ((p_voxels[p_pos.x + 1][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType == 0)) / idk;
-		ao11 = ao11 - ((p_voxels[p_pos.x + 1][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType == 0)) / idk;
-		ao01 = ao01 - ((p_voxels[p_pos.x - 1][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType == 0)) / idk;
+		ao00 = ao00 - ((p_voxels[p_pos.x - 1][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType == 0));
+		ao10 = ao10 - ((p_voxels[p_pos.x + 1][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z - 1].interactionType == 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType == 0));
+		ao11 = ao11 - ((p_voxels[p_pos.x + 1][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x + 1][p_pos.y][p_pos.z].interactionType == 0));
+		ao01 = ao01 - ((p_voxels[p_pos.x - 1][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x][p_pos.y][p_pos.z + 1].interactionType == 0) + (p_voxels[p_pos.x - 1][p_pos.y][p_pos.z].interactionType == 0));
 		break;
 	}
 	return (Vector4<GLfloat>(1.f - std::fmaxf(0, std::fminf(2.25f, ao00 + 0.25f)) / intensity, 1.f - std::fmaxf(0, std::fminf(2.25f, ao10 + 0.25f)) / intensity, 1.f - std::fmaxf(0, std::fminf(2.25f, ao11 + 0.25f)) / intensity, 1.f - std::fmaxf(0, std::fminf(2.25f, ao01 + 0.25f) / intensity)));

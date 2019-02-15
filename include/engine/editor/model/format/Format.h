@@ -11,11 +11,12 @@ private:
 	static Sint32 strToNum(std::string str);
 public:
 	enum FormatType {
-		NONE = 0,
-		NVM = 1,
-		QBCL = 2,
-		QB = 3,
-		VOX = 4
+		NONE,
+		NVM,
+		NVA,
+		QBCL,
+		QB,
+		VOX
 	};
 	static FormatType valid(std::string p_fileName);
 	static bool load(std::string p_fileName, std::vector<Matrix*>& p_matrixList, FormatType p_formatType);

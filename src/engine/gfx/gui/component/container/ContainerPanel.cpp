@@ -13,6 +13,8 @@ ContainerPanel::ContainerPanel(std::string p_compName, std::string p_title, Vect
 	m_scrollX = m_scrollY = false;
 
 	m_panel = new Panel(p_compName.append("_PANEL"), p_title, p_pos, p_size, p_colorTheme, p_borderFlags);
+
+	m_border = 0;
 }
 
 Component* ContainerPanel::addComponent(Component* p_component, Anchor p_posAnchor, Anchor p_sizeAnchor) {
@@ -208,20 +210,20 @@ void ContainerPanel::render() {
 		Vector2<Sint32> _scrollDist = m_maxScroll - m_minScroll;
 		Shader::translate(glm::vec3(GLfloat(m_pos.x), GLfloat(m_pos.y), 0.f));
 		if (m_scrollX) {
-			GBuffer::setColor(m_colorTheme.m_border);
+			GBuffer::setColor(m_colorTheme->m_border);
 			GBuffer::addVertexQuad(0, m_size.y);
 			GBuffer::addVertexQuad(0, m_size.y + 10);
 			GBuffer::addVertexQuad(m_size.x, m_size.y + 10);
 			GBuffer::addVertexQuad(m_size.x, m_size.y);
-			GBuffer::setColor(m_colorTheme.m_primary);
+			GBuffer::setColor(m_colorTheme->m_primary);
 		}
 		if (m_scrollY) {
-			GBuffer::setColor(m_colorTheme.m_border);
+			GBuffer::setColor(m_colorTheme->m_border);
 			GBuffer::addVertexQuad(m_size.x, 0);
 			GBuffer::addVertexQuad(m_size.x + 10, 0);
 			GBuffer::addVertexQuad(m_size.x + 10, m_size.y);
 			GBuffer::addVertexQuad(m_size.x, m_size.y);
-			GBuffer::setColor(m_colorTheme.m_primary);
+			GBuffer::setColor(m_colorTheme->m_primary);
 			GBuffer::addVertexQuad(m_size.x + 1,
 				((m_scroll.y - m_minScroll.y) / _scrollDist.y) * (m_size.y * _scrollDist.y) / (m_size.y + _scrollDist.y) + 1);
 			GBuffer::addVertexQuad(m_size.x + 9,

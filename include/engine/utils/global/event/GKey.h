@@ -9,6 +9,11 @@ public:
 	struct KeyEvent {
 		Sint32 keyCode, scanCode, action, mods;
 	};
+	struct KeyBind {
+		Sint32 key, mods;
+		KeyBind(Sint32 p_key = -1, Sint32 p_mods = -1)
+			: key(p_key), mods(p_mods) {}
+	};
 private:
 	struct KeyCommand {
 		Sint32 state, mods;

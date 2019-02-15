@@ -74,38 +74,38 @@ void CSlider::render() {
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 
 	//Outline
-	GBuffer::setColor(m_colorTheme.m_border.applyScale(Color(0.5f, 0.5f, 0.5f)));
+	GBuffer::setColor(m_colorTheme->m_border.applyScale(Color(0.5f, 0.5f, 0.5f)));
 	GBuffer::addVertexQuad(-m_width - 1, -GLfloat(m_height / 2) - 1);
 	GBuffer::addVertexQuad(GLfloat(m_length + m_width + 1), -GLfloat(m_height / 2) - 1);
 	GBuffer::addVertexQuad(GLfloat(m_length + m_width + 1), GLfloat(m_height / 2) + 1);
 	GBuffer::addVertexQuad(-m_width - 1, GLfloat(m_height / 2) + 1);
 
 	//Background
-	GBuffer::setColor(m_colorTheme.m_border);
+	GBuffer::setColor(m_colorTheme->m_border);
 	GBuffer::addVertexQuad(-m_width, -GLfloat(m_height / 2));
 	GBuffer::addVertexQuad(GLfloat(m_length + m_width), -GLfloat(m_height / 2));
 	GBuffer::addVertexQuad(GLfloat(m_length + m_width), GLfloat(m_height / 2));
 	GBuffer::addVertexQuad(-m_width, GLfloat(m_height / 2));
 
-	GBuffer::setColor(m_colorTheme.m_primary);
+	GBuffer::setColor(m_colorTheme->m_primary);
 	GBuffer::addVertexQuad(-m_width, -GLfloat(m_height / 2));
 	GBuffer::addVertexQuad(GLfloat(m_slideValue), -GLfloat(m_height / 2));
 	GBuffer::addVertexQuad(GLfloat(m_slideValue), GLfloat(m_height / 2));
 	GBuffer::addVertexQuad(-m_width, GLfloat(m_height / 2));
 
 	//Slider
-	GBuffer::setColor(m_colorTheme.m_select);
+	GBuffer::setColor(m_colorTheme->m_select);
 	GBuffer::addVertexQuad(GLfloat(m_slideValue - m_width), -GLfloat(m_height / 2));
 	GBuffer::addVertexQuad(GLfloat(m_slideValue + m_width), -GLfloat(m_height / 2));
 	GBuffer::addVertexQuad(GLfloat(m_slideValue + m_width), GLfloat(m_height / 2));
 	GBuffer::addVertexQuad(GLfloat(m_slideValue - m_width), GLfloat(m_height / 2));
 	Shader::popMatrixModel();
 
-	GBuffer::setColor(m_colorTheme.m_textLight);
+	GBuffer::setColor(m_colorTheme->m_textLight);
 	Font::setAlignment(ALIGN_CENTER);
 	Font::print(m_title, Sint32(m_pos.x + m_length / 2), Sint32(m_pos.y - m_height));
 
-	GBuffer::setColor(m_colorTheme.m_text);
+	GBuffer::setColor(m_colorTheme->m_text);
 	Font::setAlignment(ALIGN_CENTER);
 	Font::print(Util::numToStringInt(m_numValue), Sint32(m_pos.x + m_length / 2), Sint32(m_pos.y));
 }

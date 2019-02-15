@@ -15,7 +15,11 @@ private:
 public:
 	CTextFile(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Alignment p_align, Color p_fontColor);
 
+	void updateTitle();
+
 	void addInputString(std::string p_str);
+
+	std::string getTitle();
 
 	void render();
 };

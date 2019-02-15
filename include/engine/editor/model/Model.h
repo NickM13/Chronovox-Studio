@@ -1,21 +1,13 @@
 #pragma once
 
 #include "EditMatrix.h"
-#include "Matrix.h"
 #include "..\TEMode.h"
+#include "SimpleModel.h"
 
 #include "engine\gfx\LGui.h"
 
-#include "engine\utils\variable\datatype\Color.h"
-#include "engine\utils\variable\datatype\Macros.h"
-#include "engine\utils\variable\datatype\Vector2.h"
-#include "engine\utils\variable\datatype\Vector3.h"
-#include "engine\editor\model\tool\MTool.h"
-
 #include "engine\gfx\texture\MTexture.h"
 #include "engine\editor\model\menu\ColorOverlay.h"
-
-#include "format\Format.h"
 
 #include <vector>
 #include <iostream>
@@ -24,32 +16,32 @@ class Model : public TEMode {
 private:
 	void renderGrid();
 
-	std::string m_modelName;
-
 	// Editting tool, tool mode
-	Sint32 m_tool, m_subTool;
+	static Sint32 m_tool, m_subTool;
 
 	// Shared variables color
-	Color* m_voxelColor;
+	static Color* m_voxelColor;
 	ColorOverlay* m_colorOverlay;
 
 	// Visual guidelines
-	std::string* m_dataString; // Info bar at bottom of screen
+	std::string* m_dataString;	// Info bar at bottom of screen
 	bool m_grid;
 	bool m_outline;
+	bool m_hideOnSelect;	// Visible on select
 	bool m_wireframe;
 
 	// Matrices
-	std::vector<Matrix*> m_matrices;
+	SimpleModel* m_sModel;
 	Matrix* m_matrixCopy; // Copy/paste matrix
 	CList* m_nameList;
 
 	// Editting tool variables
-	glm::vec3 m_point, m_scalePos; // Point of selection, move/scale drag offsets
-	glm::ivec3 m_selectedVoxel; // Selected voxel coord
-	glm::ivec3 m_selectedVoxelOffset; // Voxel off of selected face
+	glm::vec3 m_point;
+	glm::vec3 m_scalePos; // Point of selection, move/scale drag offsets
+	static glm::ivec3 m_selectedVoxel; // Selected voxel coord
+	static glm::ivec3 m_selectedVoxelOffset; // Voxel off of selected face
 	Voxel m_boxVoxel; // Voxel filling box area
-	Sint8 m_selectedSide; // Face selected
+	static Sint8 m_selectedSide; // Face selected
 
 	glm::vec3 m_pos;
 	glm::vec3 m_size;
@@ -71,6 +63,10 @@ public:
 	Model();
 	~Model();
 	void init();
+	void activate();
+
+	bool hasChanged();
+	void setChanged(bool p_changed);
 
 	void setDataString(std::string* p_dataString);
 	void setTool(Sint32 p_tool);
@@ -79,9 +75,12 @@ public:
 	void updateTool();
 
 	void toggleGrid();
+	bool isGridVisible();
 	void toggleOutline();
+	bool isOutlineVisible();
+	void toggleHideOnSelect();
+	bool isHideOnSelect();
 	void toggleWireframe();
-	void setMatricesVisible(bool p_visible);
 
 	void focus();
 
@@ -120,7 +119,7 @@ public:
 	std::vector<std::string> getMatrixNames();
 	Matrix* getMatrix(Sint16 id);
 	Matrix* getMatrix(std::string p_name);
-	std::vector<Matrix*> getMatrixList() { return m_matrices; }
+	std::vector<Matrix*> getMatrixList() { return *m_sModel->getMatrixList(); }
 	Matrix* getSelectedMatrix();
 	std::vector<Matrix*> getSelectedMatrices();
 	glm::vec3 getSelectedMatricesCenter();
@@ -128,18 +127,24 @@ public:
 	bool exitSave();
 	void autosave();
 	bool autoload();
-	void save();
 	void open();
+	void add();
 	void newModel();
 
-	void save(std::string p_fileName);
-	bool load(std::string p_fileName);
+	bool save();
+	bool saveAs();
+	bool loadOpen(std::string p_fileName);
+	bool loadAdd(std::string p_fileName);
 
 	void fileNew();
 	void fileOpen();
-	void fileSave();
+	void fileAdd();
+	bool fileSave();
+	bool fileSaveAs();
 	void fileExit();
 
+	void editNewMatrix();
+	void editMatrixProperties();
 	void editUndo();
 	void editRedo();
 };

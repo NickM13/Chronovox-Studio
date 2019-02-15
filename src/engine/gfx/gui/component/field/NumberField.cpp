@@ -134,25 +134,25 @@ void NumberField::render() {
 	Shader::pushMatrixModel();
 	GBuffer::setTexture(0);
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
-	GBuffer::setColor(m_colorTheme.m_border);
+	GBuffer::setColor(m_colorTheme->m_border);
 
 	GBuffer::addVertexQuad(-1, -1);
 	GBuffer::addVertexQuad((m_size.x + 1), -1);
 	GBuffer::addVertexQuad((m_size.x + 1), (m_size.y + 1));
 	GBuffer::addVertexQuad(-1, (m_size.y + 1));
 
-	if (m_selected) GBuffer::setColor(m_colorTheme.m_select);
-	else			GBuffer::setColor(m_colorTheme.m_primary);
+	if (m_selected) GBuffer::setColor(m_colorTheme->m_select);
+	else			GBuffer::setColor(m_colorTheme->m_primary);
 
 	GBuffer::addVertexQuad(0, 0);
 	GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
 	GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y));
 	GBuffer::addVertexQuad(0, GLfloat(m_size.y));
 
-	GBuffer::setColor(m_colorTheme.m_textLight);
+	GBuffer::setColor(m_colorTheme->m_textLight);
 	Font::setAlignment(ALIGN_RIGHT);
 	Font::print(m_title, -2, Sint32(0.5f * Font::getSpacingHeight()));
-	GBuffer::setColor(m_colorTheme.m_text);
+	GBuffer::setColor(m_colorTheme->m_text);
 	Font::setAlignment(ALIGN_LEFT);
 	Font::print(m_numText, 2, Sint32(0.5f * Font::getSpacingHeight()));
 	if (m_selected != 0 && (fmod(glfwGetTime(), 0.5) < 0.25)) {

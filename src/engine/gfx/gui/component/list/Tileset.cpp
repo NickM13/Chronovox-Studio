@@ -153,19 +153,19 @@ void CTileSet::render() {
 		GBuffer::setScissorActive(true);
 	}
 
-	GBuffer::setColor(m_colorTheme.m_border);
+	GBuffer::setColor(m_colorTheme->m_border);
 	GBuffer::addVertexQuad(-1, -1 - 20);
 	GBuffer::addVertexQuad((_size.x + 1), -1 - 20);
 	GBuffer::addVertexQuad((_size.x + 1), (_size.y + 1));
 	GBuffer::addVertexQuad(-1, (_size.y + 1));
 
-	GBuffer::setColor(m_colorTheme.m_primary);
+	GBuffer::setColor(m_colorTheme->m_primary);
 	GBuffer::addVertexQuad(-1, (_size.y + 1));
 	GBuffer::addVertexQuad((_size.x + 1), (_size.y + 1));
 	GBuffer::addVertexQuad((_size.x + 1), -20 - 1);
 	GBuffer::addVertexQuad(-1, -20 - 1);
 
-	GBuffer::setColor(m_colorTheme.m_text);
+	GBuffer::setColor(m_colorTheme->m_text);
 	Font::setAlignment(ALIGN_CENTER);
 	Font::print(m_title, _size.x / 2, -12);
 
@@ -225,7 +225,7 @@ void CTileSet::render() {
 	Shader::translate(glm::vec3((GLfloat)(m_scroll.x % m_tileSize), (GLfloat)(m_scroll.y % m_tileSize), 0.f));
 
 	if (m_hover || m_dragging) {
-		GBuffer::setColor(m_colorTheme.m_border);
+		GBuffer::setColor(m_colorTheme->m_border);
 		GBuffer::addVertexQuad((GLfloat(m_scroll.x) / (m_tileSheet->getSize().x - _size.x + m_tileSize - 1)) * (_size.x - 80) + 4, (_size.y - 12));
 		GBuffer::addVertexQuad((GLfloat(m_scroll.x) / (m_tileSheet->getSize().x - _size.x + m_tileSize - 1)) * (_size.x - 80) + 60, (_size.y - 12));
 		GBuffer::addVertexQuad((GLfloat(m_scroll.x) / (m_tileSheet->getSize().x - _size.x + m_tileSize - 1)) * (_size.x - 80) + 60, (_size.y - 4));
@@ -236,7 +236,7 @@ void CTileSet::render() {
 		GBuffer::addVertexQuad((_size.x - 4), (GLfloat(m_scroll.y) / (m_tileSheet->getSize().y - _size.y + m_tileSize - 1)) * (_size.y - 80) + 60);
 		GBuffer::addVertexQuad((_size.x - 12), (GLfloat(m_scroll.y) / (m_tileSheet->getSize().y - _size.y + m_tileSize - 1)) * (_size.y - 80) + 60);
 
-		GBuffer::setColor(m_colorTheme.m_primary);
+		GBuffer::setColor(m_colorTheme->m_primary);
 		GBuffer::addVertexQuad((GLfloat(m_scroll.x) / (m_tileSheet->getSize().x - _size.x + m_tileSize - 1)) * (_size.x - 80) + 5, (_size.y - 11));
 		GBuffer::addVertexQuad((GLfloat(m_scroll.x) / (m_tileSheet->getSize().x - _size.x + m_tileSize - 1)) * (_size.x - 80) + 59, (_size.y - 11));
 		GBuffer::addVertexQuad((GLfloat(m_scroll.x) / (m_tileSheet->getSize().x - _size.x + m_tileSize - 1)) * (_size.x - 80) + 59, (_size.y - 5));

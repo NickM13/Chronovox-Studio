@@ -36,26 +36,28 @@ public:
 	static void terminate();
 
 	static void log(Verbosity p_verbosity, Type p_type, std::string p_msg);
+	static void log(Verbosity p_verbosity, Type p_type, std::string p_msg, va_list p_list);
 
 	// Most common uses of log for ease of use
+
 	// Log a missing file error
-	static void logMissingFile(std::string p_msg);
+	static void logMissingFile(std::string p_msg, ...);
 	// Log a loaded file
-	static void logLoadedFile(std::string p_msg);
+	static void logLoadedFile(std::string p_msg, ...);
 	// Log a saved file
-	static void logSavedFile(std::string p_msg);
+	static void logSavedFile(std::string p_msg, ...);
 	// Log as an error message
-	static void logError(std::string p_msg);
+	static void logError(std::string p_msg, ...);
 	// Log as a warning message
-	static void logWarning(std::string p_msg);
+	static void logWarning(std::string p_msg, ...);
 	// Log as an info quiet message
-	static void logQuiet(std::string p_msg);
+	static void logQuiet(std::string p_msg, ...);
 	// Log as an info minimal message
-	static void logMinimal(std::string p_msg);
+	static void logMinimal(std::string p_msg, ...);
 	// Log as an info normal message
-	static void logNormal(std::string p_msg);
+	static void logNormal(std::string p_msg, ...);
 	// Log as an info detailed message
-	static void logDetailed(std::string p_msg);
+	static void logDetailed(std::string p_msg, ...);
 	// Log as an info diagnostic message
-	static void logDiagnostic(std::string p_msg);
+	static void logDiagnostic(std::string p_msg, ...);
 };

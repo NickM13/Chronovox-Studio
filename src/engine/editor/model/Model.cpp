@@ -4,40 +4,60 @@
 #include "engine\utils\variable\manager\ColorManager.h"
 #include "engine\editor\menu\EditorOverlay.h"
 #include "engine\editor\model\menu\ModelOverlay.h"
+#include "engine\editor\model\menu\NewModelDialog.h"
+#include "engine\editor\model\menu\ModelPropertiesDialog.h"
 #include "engine\gfx\gui\component\Component.h"
 
 #include <direct.h>
 #include <shlobj.h>
 #include <iostream>
 
+Sint32 Model::m_tool, Model::m_subTool;
+
+glm::ivec3 Model::m_selectedVoxel;
+glm::ivec3 Model::m_selectedVoxelOffset;
+Sint8 Model::m_selectedSide;
+Color* Model::m_voxelColor;
+
 Model::Model()
 	: TEMode() {
+	m_sModel = new SimpleModel();
 	m_matrixEdit = new EditMatrix();
 	MMesh::init();
-	MTool::init();
 }
 Model::~Model() {
-	for (Matrix *m : m_matrices)
-		delete m;
-	m_matrices.clear();
+	delete m_sModel;
 	delete m_matrixEdit;
 	MMesh::terminate();
 	MTool::terminate();
 }
 void Model::init() {
+	m_name = "New Model";
+	m_directory = "";
 	m_matrixCopy = 0;
 	m_hoverMatrix = -1;
 	m_grid = true;
 	m_outline = true;
+	m_hideOnSelect = false;
 	m_wireframe = false;
 	m_nameList = (CList*)ModelOverlay::getContainer()->findComponent("GUI_DETAILS\\GUI_MATRICES\\LIST_MATRICES");
 	m_colorOverlay = (ColorOverlay*)ModelOverlay::getContainer()->findComponent("GUI_DETAILS\\GUI_COLOR\\OVERLAY_COLOR");
 	m_colorOverlay->setColorRGB(0, 255, 128);
 	m_voxelColor = &m_colorOverlay->getColor();
-	if (!autoload()) newModel();
+	newModel();
 	Tool::init(m_matrixEdit, &m_subTool);
 	VoxelTool::init(&m_selectedVoxel, &m_selectedVoxelOffset, &m_selectedSide, m_voxelColor);
-	MatrixTool::init(&m_matrices, &m_scalePos, &m_selectedScale);
+	MatrixTool::init(m_sModel->getMatrixList(), &m_scalePos, &m_selectedScale);
+}
+void Model::activate() {
+	MatrixTool::setMatrixList(m_sModel->getMatrixList());
+}
+
+bool Model::hasChanged() {
+	return m_matrixEdit->hasChanged();
+}
+void Model::setChanged(bool p_changed) {
+	m_matrixEdit->setChanged(p_changed);
 }
 
 void Model::setDataString(std::string* p_dataString) {
@@ -46,7 +66,7 @@ void Model::setDataString(std::string* p_dataString) {
 void Model::setTool(Sint32 p_tool) {
 	setSubTool(0);
 	m_tool = p_tool;
-	ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR")->setSelectedItem(p_tool);
+	ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MAIN")->setSelectedItem(p_tool);
 	Tool* tool = MTool::getTool(m_tool);
 }
 void Model::setTool(std::string p_toolName) {
@@ -57,7 +77,7 @@ void Model::setTool(std::string p_toolName) {
 			m_tool = i;
 			break;
 		}
-	ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR")->setSelectedItem(m_tool);
+	ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MAIN")->setSelectedItem(m_tool);
 	MTool::getTool(m_tool)->enable();
 }
 void Model::setSubTool(Sint32 p_subTool) {
@@ -67,12 +87,12 @@ void Model::setSubTool(Sint32 p_subTool) {
 		bool success = false;
 		switch (tool->getType()) {
 		case Tool::ToolType::VOXEL:
-			success = (p_subTool < static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR_VOXEL\\TOOLBAR"))->getButtonCount());
-			ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR_VOXEL\\TOOLBAR")->setSelectedItem(p_subTool);
+			success = (p_subTool < static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_VOXEL"))->getButtonCount());
+			ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_VOXEL")->setSelectedItem(p_subTool);
 			break;
 		case Tool::ToolType::MATRIX:
-			success = (p_subTool < static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR_MATRIX\\TOOLBAR"))->getButtonCount());
-			ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR_MATRIX\\TOOLBAR")->setSelectedItem(p_subTool);
+			success = (p_subTool < static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MATRIX"))->getButtonCount());
+			ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MATRIX")->setSelectedItem(p_subTool);
 			break;
 		default: break;
 		}
@@ -81,17 +101,29 @@ void Model::setSubTool(Sint32 p_subTool) {
 	else m_subTool = 0;
 }
 void Model::updateTool() {
-	m_tool = ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR")->getSelectedItem();
+	m_tool = ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MAIN")->getSelectedItem();
 	if (MTool::getTool(m_tool)->getType() == Tool::ToolType::VOXEL)
-		m_subTool = ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR_VOXEL\\TOOLBAR")->getSelectedItem();
+		m_subTool = ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_VOXEL")->getSelectedItem();
 	if (MTool::getTool(m_tool)->getType() == Tool::ToolType::MATRIX) hoverMatrix(-1);
 }
 
 void Model::toggleGrid() {
 	m_grid = !m_grid;
 }
+bool Model::isGridVisible() {
+	return m_grid;
+}
 void Model::toggleOutline() {
 	m_outline = !m_outline;
+}
+bool Model::isOutlineVisible() {
+	return m_outline;
+}
+void Model::toggleHideOnSelect() {
+	m_hideOnSelect = !m_hideOnSelect;
+}
+bool Model::isHideOnSelect() {
+	return m_hideOnSelect;
 }
 void Model::toggleWireframe() {
 	m_wireframe = !m_wireframe;
@@ -100,7 +132,12 @@ void Model::toggleWireframe() {
 void Model::focus() {
 	if (m_matrixEdit->getId() != -1) {
 		if (MTool::getTool(m_tool)->getType() == Tool::ToolType::VOXEL) {
-			Camera::setPosition(m_matrixEdit->getPos() + glm::vec3(m_selectedVoxel) + glm::vec3(0.5f, 0.5f, 0.5f));
+			if (m_matrixEdit->getMatrix()->containsPoint(m_selectedVoxelOffset)) {
+				Camera::setPosition(m_matrixEdit->getPos() + glm::vec3(m_selectedVoxel) + glm::vec3(0.5f, 0.5f, 0.5f));
+			}
+			else {
+				Camera::setPosition(m_matrixEdit->getMatrix()->getCenter());
+			}
 		}
 		else if (MTool::getTool(m_tool)->getType() == Tool::ToolType::MATRIX) {
 			Camera::setPosition(getSelectedMatricesCenter());
@@ -133,15 +170,15 @@ void Model::redo() {
 void Model::copyMatrix() {
 	if (m_matrixCopy) delete m_matrixCopy;
 	if (m_matrixEdit->getId() != -1)
-		m_matrixCopy = new Matrix(*m_matrices[m_matrixEdit->getId()]);
+		m_matrixCopy = new Matrix(*m_sModel->getMatrix(m_matrixEdit->getId()));
 }
 void Model::pasteMatrix() {
 	if (m_matrixCopy) {
 		m_matrixEdit->setCommandListOpen(false);
 		addMatrix(m_matrixCopy->getName() + " - Copy", Camera::getPosition() - (glm::vec3(m_matrixCopy->getSize()) / glm::vec3(2)), m_matrixCopy->getSize());
 		Matrix* _matrix = getMatrix(Sint16(getMatrixNames().size()) - 1);
-		_matrix->setPosition(Camera::getPosition() - (glm::vec3(m_matrixCopy->getSize()) / glm::vec3(2)));
-		MNewCommand* _cmd = new MNewCommand(_matrix, m_matrices, Uint16(m_matrices.size()) - 1, m_nameList);
+		_matrix->setPosition(Camera::getFocus() - (glm::vec3(m_matrixCopy->getSize()) / glm::vec3(2)));
+		MNewCommand* _cmd = new MNewCommand(_matrix, *m_sModel->getMatrixList(), Uint16(m_sModel->getMatrixList()->size()) - 1, m_nameList);
 		m_matrixEdit->addCommand(_cmd);
 		for (Uint16 x = 0; x < m_matrixCopy->getSize().x; x++) {
 			for (Uint16 y = 0; y < m_matrixCopy->getSize().y; y++) {
@@ -152,39 +189,39 @@ void Model::pasteMatrix() {
 		}
 		m_matrixEdit->reset();
 		m_matrixEdit->setCommandListOpen(true);
-		m_matrixEdit->addCommand(new MNewCommand(m_matrices[m_matrices.size() - 1], m_matrices, Uint16(m_matrices.size()) - 1, m_nameList));
+		m_matrixEdit->addCommand(new MNewCommand(m_sModel->getMatrix(Sint16(m_sModel->getMatrixList()->size()) - 1), *m_sModel->getMatrixList(), Uint16(m_sModel->getMatrixList()->size()) - 1, m_nameList));
 	}
 }
 
 void Model::setVoxel(Uint16 p_matrix, glm::ivec3 p_pos, Voxel p_voxel) {
-	m_matrices[p_matrix]->setVoxel(p_pos, p_voxel);
+	m_sModel->setVoxel(p_matrix, p_pos, p_voxel);
 }
 Voxel Model::getVoxel(Uint16 p_matrix, glm::ivec3 p_pos) {
-	return m_matrices[p_matrix]->getVoxel(p_pos);
+	return m_sModel->getVoxel(p_matrix, p_pos);
 }
 Uint16 Model::getVoxelId(Uint16 p_matrix, glm::ivec3 p_pos) {
-	return m_matrices[p_matrix]->getVoxelId(p_pos);
+	return m_sModel->getVoxelId(p_matrix, p_pos);
 }
 
 void Model::resize(Uint16 p_matrixId, glm::ivec3 p_offset, glm::ivec3 p_size) {
 	if (p_size.x <= p_offset.x || p_size.x <= p_offset.x || p_size.x <= p_offset.x) return;
 	Sint32 id = m_matrixEdit->getId();
 	m_matrixEdit->clearMatrix();
-	Matrix* prev = new Matrix(*m_matrices[p_matrixId]);
-	m_matrices[p_matrixId]->setSize(p_size);
-	m_matrices[p_matrixId]->shiftVoxels(p_offset * -1);
-	m_matrices[p_matrixId]->setSize(p_size - p_offset);
-	m_matrices[p_matrixId]->addPosition(p_offset);
-	MResizeCommand* _cmd = new MResizeCommand(m_matrices[p_matrixId], prev);
+	Matrix* prev = new Matrix(*m_sModel->getMatrix(p_matrixId));
+	m_sModel->getMatrix(p_matrixId)->setSize(p_size);
+	m_sModel->getMatrix(p_matrixId)->shiftVoxels(p_offset * -1);
+	m_sModel->getMatrix(p_matrixId)->setSize(p_size - p_offset);
+	m_sModel->getMatrix(p_matrixId)->addPosition(p_offset);
+	MResizeCommand* _cmd = new MResizeCommand(m_sModel->getMatrix(p_matrixId), prev);
 	m_matrixEdit->addCommand(_cmd);
 
 	if (id != -1) {
-		m_matrixEdit->setMatrix(m_matrices[id], id);
+		m_matrixEdit->setMatrix(m_sModel->getMatrix(id), id);
 	}
 }
 void Model::shiftMatrix(glm::ivec3 p_direction) {
 	if (m_hoverMatrix != -1) {
-		m_matrices[m_hoverMatrix]->shiftVoxels(p_direction);
+		m_sModel->getMatrix(m_hoverMatrix)->shiftVoxels(p_direction);
 	}
 }
 void Model::flipMatrix(Sint8 p_axesFlags) {
@@ -215,7 +252,7 @@ void Model::addMatrix(std::string p_name, glm::vec3 p_pos, glm::ivec3 p_size) {
 	std::string _name = p_name;
 	do {
 		validName = true;
-		for (Matrix *m : m_matrices) {
+		for (Matrix *m : *m_sModel->getMatrixList()) {
 			if (m->getName() == _name) {
 				validName = false;
 				_name = p_name + Util::numToStringInt(i);
@@ -224,16 +261,18 @@ void Model::addMatrix(std::string p_name, glm::vec3 p_pos, glm::ivec3 p_size) {
 			}
 		}
 	} while (!validName);
-	Sint16 id = Sint16(m_matrices.size());
-	m_matrices.push_back(new Matrix(id, _name, "", p_pos, p_size));
-	MNewCommand* _cmd = new MNewCommand(m_matrices[m_matrices.size() - 1], m_matrices, Uint16(m_matrices.size()) - 1, m_nameList);
+	Sint16 id = Sint16(m_sModel->getMatrixList()->size());
+	m_sModel->getMatrixList()->push_back(new Matrix(id, _name, "", p_pos, p_size));
+	MNewCommand* _cmd = new MNewCommand(m_sModel->getMatrix(Sint16(m_sModel->getMatrixList()->size()) - 1), *m_sModel->getMatrixList(), Uint16(m_sModel->getMatrixList()->size()) - 1, m_nameList);
 	m_matrixEdit->addCommand(_cmd);
-	m_hoverMatrix = Sint16(m_matrices.size()) - 1;
-	m_matrixEdit->setMatrix(m_matrices[m_hoverMatrix], m_hoverMatrix);
+	m_hoverMatrix = Sint16(m_sModel->getMatrixList()->size()) - 1;
+	m_matrixEdit->setMatrix(m_sModel->getMatrix(m_hoverMatrix), m_hoverMatrix);
 	glm::vec3 _pos = m_pos = { 1000, 1000, 1000 };
 	m_size = { -1000, -1000, -1000 };
-	for (Matrix *m : m_matrices) {
-		_pos = glm::vec3(std::fminf(m_pos.x, m->getPos().x), std::fminf(m_pos.y, m->getPos().y), std::fminf(m_pos.z, m->getPos().z));
+	for (Matrix *m : *m_sModel->getMatrixList()) {
+		_pos = glm::vec3(std::fminf(m_pos.x, m->getPos().x),
+			std::fminf(m_pos.y, m->getPos().y),
+			std::fminf(m_pos.z, m->getPos().z));
 		m_size = glm::vec3(std::fmaxf(m_pos.x + m_size.x, m->getPos().x + m->getSize().x) - _pos.x,
 			std::fmaxf(m_pos.y + m_size.y, m->getPos().y + m->getSize().y) - _pos.y,
 			std::fmaxf(m_pos.z + m_size.z, m->getPos().z + m->getSize().z) - _pos.z);
@@ -242,7 +281,7 @@ void Model::addMatrix(std::string p_name, glm::vec3 p_pos, glm::ivec3 p_size) {
 	updateMatrixList();
 }
 void Model::renameMatrix(Uint16 id, std::string p_name) {
-	m_matrices[id]->setName(p_name);
+	m_sModel->getMatrix(id)->setName(p_name);
 	m_nameList->getItem(id).name = p_name;
 	updateMatrixList();
 }
@@ -252,9 +291,9 @@ void Model::deleteSelectedMatrices() {
 	m_matrixEdit->setCommandChaining(true);
 	for (Sint16 i = m_nameList->getItemCount() - 1; i >= 0; i--) {
 		if (m_nameList->getItem(i).state == 2) {
-			m_matrixEdit->addCommand(new MDeleteCommand(m_matrices[i], m_matrices, i, m_nameList));
+			m_matrixEdit->addCommand(new MDeleteCommand(m_sModel->getMatrix(i), *m_sModel->getMatrixList(), i, m_nameList));
 			m_nameList->removeItem(i);
-			m_matrices.erase(m_matrices.begin() + i);
+			m_sModel->getMatrixList()->erase(m_sModel->getMatrixList()->begin() + i);
 		}
 	}
 	m_matrixEdit->setCommandChaining(false);
@@ -265,8 +304,8 @@ void Model::moveMatrix(bool p_up) {
 	if (!p_up) {
 		for (Sint32 i = m_nameList->getItemCount() - 2; i >= 0; i--) {
 			if (m_nameList->getItem(i).state != 2) continue;
-			m_matrices.insert(m_matrices.begin() + i + 2, m_matrices.at(i));
-			m_matrices.erase(m_matrices.begin() + i);
+			m_sModel->getMatrixList()->insert(m_sModel->getMatrixList()->begin() + i + 2, m_sModel->getMatrix(i));
+			m_sModel->getMatrixList()->erase(m_sModel->getMatrixList()->begin() + i);
 			m_nameList->insertItem(i + 2, m_nameList->getItem(i).name);
 			m_nameList->getItem(i + 2).state = 2;
 			m_nameList->removeItem(i);
@@ -275,15 +314,15 @@ void Model::moveMatrix(bool p_up) {
 	else {
 		for (Sint32 i = 1; i < m_nameList->getItemCount(); i++) {
 			if (m_nameList->getItem(i).state != 2) continue;
-			m_matrices.insert(m_matrices.begin() + i - 1, m_matrices.at(i));
-			m_matrices.erase(m_matrices.begin() + i + 1);
+			m_sModel->getMatrixList()->insert(m_sModel->getMatrixList()->begin() + i - 1, m_sModel->getMatrix(i));
+			m_sModel->getMatrixList()->erase(m_sModel->getMatrixList()->begin() + i + 1);
 			m_nameList->insertItem(i - 1, m_nameList->getItem(i).name);
 			m_nameList->getItem(i - 1).state = 2;
 			m_nameList->removeItem(i + 1);
 		}
 	}
 	Sint32 id = 0;
-	for (Matrix* m : m_matrices) {
+	for (Matrix* m : *m_sModel->getMatrixList()) {
 		m->setId(id);
 		id++;
 	}
@@ -300,7 +339,7 @@ void Model::hoverMatrix(Sint16 id) {
 			m_nameList->getItem(m_matrixEdit->getId()).state = 0;
 		if (m_nameList->getItem(id).state != 2)
 			m_nameList->getItem(id).state = 1;
-		m_matrixEdit->setMatrix(m_matrices[id], id);
+		m_matrixEdit->setMatrix(m_sModel->getMatrix(id), id);
 	}
 }
 void Model::setSelectedMatrix(Sint16 id) {
@@ -321,7 +360,7 @@ void Model::selectMatrix(Sint16 id) {
 	else {
 		m_nameList->selectItem(id);
 		if (m_nameList->getItem(id).state == 2) {
-			m_matrixEdit->setMatrix(m_matrices[id], id);
+			m_matrixEdit->setMatrix(m_sModel->getMatrix(id), id);
 		}
 		else {
 			m_matrixEdit->clearMatrix();
@@ -329,7 +368,7 @@ void Model::selectMatrix(Sint16 id) {
 			for (auto li : m_nameList->getItemList()) {
 				if (li.state == 2) {
 					m_nameList->setSelectedItem(i);
-					m_matrixEdit->setMatrix(m_matrices[i], i);
+					m_matrixEdit->setMatrix(m_sModel->getMatrix(i), i);
 					break;
 				}
 				i++;
@@ -341,7 +380,7 @@ void Model::selectMatrix(Sint16 id) {
 void Model::updateMatrixList() {
 	m_nameList->clear();
 	Sint32 id = 0;
-	for (Matrix* m : m_matrices) {
+	for (Matrix* m : *m_sModel->getMatrixList()) {
 		m->setId(id);
 		m_nameList->addItem(m->getName());
 		id++;
@@ -390,7 +429,7 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 		}
 	}
 	else {
-		ModelMath::castRayMatrices(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), m_matrices, m_hoverMatrix, _near, _far);
+		ModelMath::castRayMatrices(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), *m_sModel->getMatrixList(), m_hoverMatrix, _near, _far);
 	}
 
 	if (!mouseOnGui) {
@@ -428,12 +467,14 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 				}
 			}
 			else {
-				ModelMath::castRayVoxel(Camera::getPosition(),
-					Camera::getMouseDirection() * glm::vec3(4096),
-					m_matrixEdit->getInitMatrix(),
-					_near, _far, m_selectedVoxel,
-					m_selectedSide,
-					m_selectedVoxelOffset);
+				if (!GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
+					ModelMath::castRayVoxel(Camera::getPosition(),
+						Camera::getMouseDirection() * glm::vec3(4096),
+						m_matrixEdit->getInitMatrix(),
+						_near, _far, m_selectedVoxel,
+						m_selectedSide,
+						m_selectedVoxelOffset);
+				}
 			}
 			static_cast<VoxelTool*>(MTool::getTool(m_tool))->input();
 			break;
@@ -448,18 +489,11 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 	}
 
 	if (!EditorOverlay::getContainer()->isPaused() && (p_guiFlags & (Sint8)Component::EventFlag::KEYPRESS)) {
-		if (GKey::keyPressed(GLFW_KEY_Z, GLFW_MOD_CONTROL))       undo();
 		if (GKey::keyPressed(GLFW_KEY_C, GLFW_MOD_CONTROL))       copyMatrix();
 		if (GKey::keyPressed(GLFW_KEY_V, GLFW_MOD_CONTROL))       pasteMatrix();
-		if (GKey::keyPressed(GLFW_KEY_Y, GLFW_MOD_CONTROL))       redo();
-		if (GKey::keyPressed(GLFW_KEY_S, GLFW_MOD_CONTROL))       save();
-		if (GKey::keyPressed(GLFW_KEY_O, GLFW_MOD_CONTROL))       open();
-		if (GKey::keyPressed(GLFW_KEY_G, GLFW_MOD_CONTROL))       toggleGrid();
-		if (GKey::keyPressed(GLFW_KEY_H, GLFW_MOD_CONTROL))       toggleOutline();
 		if (GKey::keyPressed(GLFW_KEY_N, GLFW_MOD_CONTROL))       ModelOverlay::getContainer()->setPauseScreen("DIALOG_NEWMATRIX");
 		if (GKey::keyPressed(GLFW_KEY_F2) && getSelectedMatrix()) ModelOverlay::getContainer()->setPauseScreen("DIALOG_PROPERTIES");
 		if (GKey::keyPressed(GLFW_KEY_DELETE))                    deleteSelectedMatrices();
-		if (GKey::keyPressed(GLFW_KEY_SPACE))                     focus();
 		if (GKey::keyPressed(GLFW_KEY_T))                         setTool("VTAdd");
 		if (GKey::keyPressed(GLFW_KEY_E))                         setTool("VTErase");
 		if (GKey::keyPressed(GLFW_KEY_R))                         setTool("VTReplace");
@@ -481,7 +515,7 @@ void Model::updateEditor(GLfloat p_deltaUpdate) {
 	default: break;
 	}
 
-	for (Matrix* m : m_matrices)
+	for (Matrix* m : *m_sModel->getMatrixList())
 		m->update();
 
 	Matrix* m = 0;
@@ -497,13 +531,16 @@ void Model::updateEditor(GLfloat p_deltaUpdate) {
 			", " + Util::numToStringInt(m->getSize().y) +
 			", " + Util::numToStringInt(m->getSize().z) + "}");
 	}
-	else
+	else {
 		*m_dataString = "";
+	}
 }
 void Model::renderEditor() {
 	Shader::setLightEnabled(!m_wireframe);
-	for (Matrix* m : m_matrices) {
-		if (m_nameList->getItem(m->getId()).state > 1 || m_nameList->getSelectedItem() == -1) {
+	for (Matrix* m : *m_sModel->getMatrixList()) {
+		if (!m_hideOnSelect
+			|| m_nameList->getItem(m->getId()).state > 1
+			|| m_nameList->getSelectedItem() == -1) {
 			m->renderMatrix();
 		}
 	}
@@ -511,8 +548,8 @@ void Model::renderEditor() {
 	Shader::setLightEnabled(false);
 	if (m_grid) renderGrid();
 
-	for (Uint16 i = 0; i < m_matrices.size(); i++) {
-		m_matrices[i]->renderOutline(m_outline ? static_cast<Matrix::OutlineType>(m_nameList->getItem(i).state + 1) : Matrix::OutlineType::NONE);
+	for (Uint16 i = 0; i < m_sModel->getMatrixList()->size(); i++) {
+		m_sModel->getMatrix(i)->renderOutline(m_outline ? static_cast<Matrix::OutlineType>(m_nameList->getItem(i).state + 1) : Matrix::OutlineType::NONE);
 	}
 
 	switch (MTool::getTool(m_tool)->getType()) {
@@ -526,7 +563,7 @@ void Model::renderEditor() {
 	}
 }
 void Model::renderEditorShadow() {
-	for (Matrix* m : m_matrices) {
+	for (Matrix* m : *m_sModel->getMatrixList()) {
 		m->renderShadow();
 	}
 }
@@ -561,18 +598,14 @@ void Model::renderGrid() {
 }
 
 std::vector<std::string> Model::getMatrixNames() {
-	std::vector<std::string> names;
-	for (Uint16 i = 0; i < m_matrices.size(); i++) {
-		names.push_back("(" + Util::numToStringInt(i) + ") " + m_matrices[i]->getName());
-	}
-	return names;
+	return m_sModel->getMatrixNames();
 }
 Matrix* Model::getMatrix(Sint16 id) {
-	if (id < 0 || id >= Sint16(m_matrices.size())) return 0;
-	return m_matrices[id];
+	if (id < 0 || id >= Sint16(m_sModel->getMatrixList()->size())) return 0;
+	return m_sModel->getMatrix(id);
 }
 Matrix* Model::getMatrix(std::string p_name) {
-	for (Matrix* m : m_matrices) {
+	for (Matrix* m : *m_sModel->getMatrixList()) {
 		if (m->getName() == p_name) return m;
 	}
 	return 0;
@@ -631,43 +664,20 @@ bool Model::exitSave() {
 	ofn.lpstrTitle = "Save As";
 
 	if (!GetSaveFileName(&ofn)) return false;
-	save(filename);
+	Format::save(filename, *m_sModel->getMatrixList());
 	return true;
 }
 void Model::autosave() {
 	char documents[MAX_PATH];
 	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
 	strcat_s(documents, "\\Voxel Models\\autosave.nvm");
-	NvmFormat::save(documents, m_matrices);
+	NvmFormat::save(documents, *m_sModel->getMatrixList());
 }
 bool Model::autoload() {
 	char documents[MAX_PATH];
 	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
 	strcat_s(documents, "\\Voxel Models\\autosave.nvm");
-	return load(documents);
-}
-void Model::save() {
-	char documents[MAX_PATH];
-	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
-
-	strcat_s(documents, "\\Voxel Models");
-	_mkdir(documents);
-
-	char filename[MAX_PATH];
-	OPENFILENAME ofn;
-
-	ZeroMemory(&filename, sizeof(filename));
-	ZeroMemory(&ofn, sizeof(ofn));
-	ofn.lStructSize = sizeof(ofn);
-	ofn.hwndOwner = NULL;
-	ofn.lpstrFilter = "NVM (*.nvm)\0*.nvm*\0Any File\0*.*\0";
-	ofn.lpstrFile = filename;
-	if (res == S_OK) ofn.lpstrInitialDir = documents;
-	ofn.nMaxFile = MAX_PATH;
-	ofn.lpstrTitle = "Save As";
-	if (!GetSaveFileName(&ofn)) return;
-	m_modelName = filename;
-	save(m_modelName);
+	return loadOpen(documents);
 }
 void Model::open() {
 	char documents[MAX_PATH];
@@ -689,32 +699,106 @@ void Model::open() {
 	ofn.nMaxFile = MAX_PATH;
 	ofn.lpstrTitle = "Open Model";
 	if (!GetOpenFileName(&ofn)) return;
-	m_modelName = filename;
-	load(m_modelName);
+	loadOpen(filename);
+}
+void Model::add() {
+	char documents[MAX_PATH];
+	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
+
+	strcat_s(documents, "\\Voxel Models");
+	_mkdir(documents);
+
+	char filename[MAX_PATH];
+	OPENFILENAME ofn;
+
+	ZeroMemory(&filename, sizeof(filename));
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = NULL;
+	ofn.lpstrFilter = "Model (*.nvm, *.qbcl, *.qb, *.vox)\0"
+		"*.nvm;*.qbcl;*.qb;*.vox*\0"
+		"Animation (*.nva)\0"
+		"*.nva\0"
+		"Any File\0"
+		"*.*\0\0";
+	ofn.lpstrFile = filename;
+	if (res == S_OK) ofn.lpstrInitialDir = documents;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.lpstrTitle = "Add Model";
+	if (!GetOpenFileName(&ofn)) return;
+	setPath(filename);
+	loadAdd(m_name);
+	updateMatrixList();
 }
 void Model::newModel() {
-	if (m_matrices.size() > 0) {
+	if (m_sModel->getMatrixList()->size() > 0) {
 		save();
-		for (Matrix* m : m_matrices)
+		for (Matrix* m : *m_sModel->getMatrixList()) {
 			delete m;
-		m_matrices.clear();
+		}
+		m_sModel->getMatrixList()->clear();
 		m_matrixEdit->clearCommands();
 		m_matrixEdit->clearMatrix(false);
 		m_nameList->clear();
 	}
 	addMatrix("Matrix", { -5, 0, -5 }, { 10, 10, 10 });
 }
-void Model::save(std::string p_fileName) {
-	Format::save(p_fileName, m_matrices);
+bool Model::save() {
+	if (m_directory != "") {
+		Format::save(getPath(), *m_sModel->getMatrixList());
+		m_matrixEdit->setChanged(false);
+		return true;
+	}
+	else {
+		return saveAs();
+	}
+	return false;
 }
-bool Model::load(std::string p_fileName) {
+bool Model::saveAs() {
+	char documents[MAX_PATH];
+	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
+
+	strcat_s(documents, "\\Voxel Models");
+	_mkdir(documents);
+
+	char filename[MAX_PATH];
+	OPENFILENAME ofn;
+
+	ZeroMemory(&filename, sizeof(filename));
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = NULL;
+	ofn.lpstrFilter = "NVM (*.nvm)\0*.nvm*\0Any File\0*.*\0";
+	ofn.lpstrFile = filename;
+	if (res == S_OK) ofn.lpstrInitialDir = documents;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.lpstrTitle = "Save As";
+	if (!GetSaveFileName(&ofn)) return false;
+
+	Format::save(filename, *m_sModel->getMatrixList());
+	setPath(filename);
+	m_matrixEdit->setChanged(false);
+	return true;
+}
+bool Model::loadOpen(std::string p_fileName) {
 	Format::FormatType _formatType = Format::valid(p_fileName);
 	if (_formatType != Format::FormatType::NONE) {
 		m_matrixEdit->clearCommands();
 		m_matrixEdit->clearMatrix(false);
 		m_nameList->clear();
-		m_matrices.clear();
-		Format::load(p_fileName, m_matrices, _formatType);
+		m_sModel->getMatrixList()->clear();
+		setPath(p_fileName);
+		Format::load(p_fileName, *m_sModel->getMatrixList(), _formatType);
+		updateMatrixList();
+		m_matrixEdit->setChanged(false);
+		return true;
+	}
+	return false;
+}
+bool Model::loadAdd(std::string p_fileName) {
+	Format::FormatType _formatType = Format::valid(p_fileName);
+	if (_formatType != Format::FormatType::NONE) {
+		Format::load(p_fileName, *m_sModel->getMatrixList(), _formatType);
 		updateMatrixList();
 		return true;
 	}
@@ -726,9 +810,9 @@ void Model::fileNew() {
 	m_matrixEdit->clearMatrix();
 	m_matrixEdit->setCommandChaining(true);
 	for (Sint16 i = m_nameList->getItemCount() - 1; i >= 0; i--) {
-		m_matrixEdit->addCommand(new MDeleteCommand(m_matrices[i], m_matrices, i, m_nameList));
+		m_matrixEdit->addCommand(new MDeleteCommand(m_sModel->getMatrix(i), *m_sModel->getMatrixList(), i, m_nameList));
 		m_nameList->removeItem(i);
-		m_matrices.erase(m_matrices.begin() + i);
+		m_sModel->getMatrixList()->erase(m_sModel->getMatrixList()->begin() + i);
 	}
 	m_matrixEdit->setCommandChaining(false);
 	updateMatrixList();
@@ -736,13 +820,80 @@ void Model::fileNew() {
 void Model::fileOpen() {
 	open();
 }
-void Model::fileSave() {
-	save();
+void Model::fileAdd() {
+	add();
+}
+bool Model::fileSave() {
+	return save();
+}
+bool Model::fileSaveAs() {
+	return saveAs();
 }
 void Model::fileExit() {
 
 }
 
+void Model::editNewMatrix() {
+	NewModelDialog::getInstance().getDialog()->setOptionFunc("Create", [&]() {
+		CDialog* nmd = NewModelDialog::getInstance().getDialog();
+		if (nmd->findComponent("MATRIXNAME")->getTitle() != ""
+			&& nmd->findComponent("WIDTH")->getValue() > 0
+			&& nmd->findComponent("HEIGHT")->getValue() > 0
+			&& nmd->findComponent("DEPTH")->getValue() > 0) {
+			glm::vec3 pos = glm::vec3(nmd->findComponent("WIDTH")->getValue() / -2,
+				nmd->findComponent("HEIGHT")->getValue() / -2,
+				nmd->findComponent("DEPTH")->getValue() / -2) + Camera::getFocus();
+			this->addMatrix(nmd->findComponent("MATRIXNAME")->getTitle(), pos,
+				glm::ivec3(nmd->findComponent("WIDTH")->getValue(),
+					nmd->findComponent("HEIGHT")->getValue(),
+					nmd->findComponent("DEPTH")->getValue()));
+		}
+		nmd->setActive(false);
+	});
+	EditorOverlay::getContainer()->openDialog(NewModelDialog::getInstance().getDialog());
+}
+void Model::editMatrixProperties() {
+	CDialog* mpd = ModelPropertiesDialog::getInstance().getDialog();
+	Matrix* m = getSelectedMatrix();
+	if (!m) {
+		return;
+	}
+	mpd->findComponent("WINDOW")->setTitle("Matrix Properties: " + m->getName());
+	mpd->findComponent("MATRIXNAME")->setTitle(m->getName());
+	mpd->findComponent("PARENTNAME")->setTitle(m->getParent());
+	mpd->findComponent("OFFX")->setValue(m->getPos().x);
+	mpd->findComponent("OFFY")->setValue(m->getPos().y);
+	mpd->findComponent("OFFZ")->setValue(m->getPos().z);
+	mpd->findComponent("WIDTH")->setValue(m->getSize().x);
+	mpd->findComponent("HEIGHT")->setValue(m->getSize().y);
+	mpd->findComponent("DEPTH")->setValue(m->getSize().z);
+
+
+	ModelPropertiesDialog::getInstance().getDialog()->setOptionFunc("Update", [&]() {
+		CDialog* mpd = ModelPropertiesDialog::getInstance().getDialog();
+		Matrix* m = 0;
+		m = getSelectedMatrix();
+		if (!m) {
+			mpd->setActive(false);
+			return;
+		}
+		if (mpd->findComponent("MATRIXNAME")->getTitle() != ""
+			&& mpd->findComponent("WIDTH")->getValue() > 0
+			&& mpd->findComponent("HEIGHT")->getValue() > 0
+			&& mpd->findComponent("DEPTH")->getValue() > 0) {
+			renameMatrix(m->getId(), mpd->findComponent("MATRIXNAME")->getTitle());
+			m->setParent(mpd->findComponent("PARENTNAME")->getTitle());
+			m->setPosition(glm::vec3(mpd->findComponent("OFFX")->getValue(),
+				mpd->findComponent("OFFY")->getValue(),
+				mpd->findComponent("OFFZ")->getValue()));
+			m->setSize(glm::ivec3(mpd->findComponent("WIDTH")->getValue(),
+				mpd->findComponent("HEIGHT")->getValue(),
+				mpd->findComponent("DEPTH")->getValue()));
+		}
+		mpd->setActive(false);
+	});
+	EditorOverlay::getContainer()->openDialog(mpd);
+}
 void Model::editUndo() {
 	undo();
 	updateMatrixList();

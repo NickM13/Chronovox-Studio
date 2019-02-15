@@ -4,6 +4,7 @@ CText::CText(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos,
 	: Component(p_compName, p_title, p_pos, p_size, Theme::PRIMARY) {
 	m_align = p_align;
 	m_color = p_fontColor;
+	m_size = Font::getMessageWidth(p_title);
 }
 
 void CText::render() {

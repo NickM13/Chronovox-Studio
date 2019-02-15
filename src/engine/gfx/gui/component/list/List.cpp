@@ -78,6 +78,9 @@ void CList::input(Sint8& p_interactFlags) {
 			Uint16 _hoveredItem = Uint16((_mousePos.y + (GLfloat(m_scroll) / m_itemHeight) * m_itemHeight) / m_itemHeight);
 			if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
 				selectItem(_hoveredItem);
+				if (m_itemList[_hoveredItem].state == 0) {
+					m_itemList[_hoveredItem].state = 1;
+				}
 				m_dragging = false;
 				callPressFunction();
 			}
@@ -95,18 +98,34 @@ void CList::input(Sint8& p_interactFlags) {
 		bool moved = false;
 		Sint32 selected = m_selectedItem;
 		if (GKey::keyPressed(GLFW_KEY_UP)) {
-			if (selected == -1) selected = 0;
+			if (getItemCount() == 0) {
+				selected = -1;
+			}
+			else if (getItemCount() == 1) {
+				selected = 0;
+			}
 			else {
-				selected--;
-				if (selected < 0) selected = selected % getItemCount() + getItemCount();
+				if (selected == -1) selected = 0;
+				else {
+					selected--;
+					if (selected < 0) selected = selected % getItemCount() + getItemCount();
+				}
 			}
 			moved = true;
 		}
 		else if (GKey::keyPressed(GLFW_KEY_DOWN)) {
-			if (selected == -1) selected = getItemCount() - 1;
+			if (getItemCount() == 0) {
+				selected = -1;
+			}
+			else if (getItemCount() == 1) {
+				selected = 0;
+			}
 			else {
-				selected++;
-				if (selected >= getItemCount()) selected = selected % getItemCount();
+				if (selected == -1) selected = getItemCount() - 1;
+				else {
+					selected++;
+					if (selected >= getItemCount()) selected = selected % getItemCount();
+				}
 			}
 			moved = true;
 		}
@@ -114,9 +133,12 @@ void CList::input(Sint8& p_interactFlags) {
 			m_selectedItem = selected;
 			callPressFunction();
 			if (!GKey::modDown(GLFW_MOD_CONTROL)) {
-				for (ListItem &item : m_itemList)
+				for (ListItem &item : m_itemList) {
 					if (item.state == 2) item.state = 0;
-				m_itemList[m_selectedItem].state = 2;
+				}
+				if (m_selectedItem != -1) {
+					m_itemList[m_selectedItem].state = 2;
+				}
 			}
 			if (!GKey::modDown(GLFW_MOD_CONTROL) && !GKey::modDown(GLFW_MOD_SHIFT)) {
 				m_selectedItemCtrl = m_selectedItem;
@@ -163,7 +185,7 @@ void CList::update(GLfloat p_deltaUpdate) {
 }
 void CList::renderItems() {
 	Shader::pushMatrixModel();
-	GBuffer::setColor(m_colorTheme.m_text);
+	GBuffer::setColor(m_colorTheme->m_text);
 	Font::setAlignment(ALIGN_CENTER);
 	Font::print(m_title, m_size.x / 2, -12);
 
@@ -176,28 +198,22 @@ void CList::renderItems() {
 		if (m_scroll / m_itemHeight + y >= Uint16(m_itemList.size())) continue;
 
 		switch (m_itemList.at(m_scroll / m_itemHeight + y).state) {
-		case 0: GBuffer::setColor(m_colorTheme.m_primary); break;
-		case 1: GBuffer::setColor(m_colorTheme.m_hover); break;
-		case 2: GBuffer::setColor(m_colorTheme.m_select); break;
-		default: GBuffer::setColor(m_colorTheme.m_primary); break;
+		case 0: GBuffer::setColor(m_colorTheme->m_primary); break;
+		case 1: GBuffer::setColor(m_colorTheme->m_hover); break;
+		case 2: GBuffer::setColor(m_colorTheme->m_select); break;
+		default: GBuffer::setColor(m_colorTheme->m_primary); break;
 		}
 
 		GBuffer::addVertexQuad(0, (y * m_itemHeight));
 		GBuffer::addVertexQuad(m_size.x, (y * m_itemHeight));
 		GBuffer::addVertexQuad(m_size.x, ((y + 1) * m_itemHeight));
 		GBuffer::addVertexQuad(0, ((y + 1) * m_itemHeight));
-
-		GBuffer::setColor(m_colorTheme.m_border);
-		GBuffer::addVertexQuad(m_size.x, ((y + 1) * m_itemHeight) - 1);
-		GBuffer::addVertexQuad(0, ((y + 1) * m_itemHeight) - 1);
-		GBuffer::addVertexQuad(0, ((y + 1) * m_itemHeight));
-		GBuffer::addVertexQuad(m_size.x, ((y + 1) * m_itemHeight));
 	}
 
 	if (m_selectedItem != -1) {
 		Shader::pushMatrixModel();
 
-		GBuffer::setColor(m_colorTheme.m_borderHighlight);
+		GBuffer::setColor(m_colorTheme->m_borderHighlight);
 		Shader::translate(glm::vec3(0.f, m_itemHeight * m_selectedItem + GLfloat(m_scroll % m_itemHeight) - m_scroll, 0.f));
 
 		GBuffer::addVertexQuad(1, 0);
@@ -208,7 +224,7 @@ void CList::renderItems() {
 		Shader::popMatrixModel();
 	}
 
-	GBuffer::setColor(m_colorTheme.m_text);
+	GBuffer::setColor(m_colorTheme->m_text);
 	Font::setAlignment(ALIGN_LEFT);
 	std::string _name;
 	for (Uint16 i = 0; i <= m_maxVisible; i++) {
@@ -231,13 +247,13 @@ void CList::render() {
 	Sint32 _scrollHeight = (Sint32)(powf(m_size.y, 2) / (std::fmaxf(m_maxVisible, m_itemList.size()) * m_itemHeight));
 	Shader::translate(glm::vec3(m_size.x - 12, m_maxScroll > 0 ? ((GLfloat)m_scroll / m_maxScroll) * (m_size.y - _scrollHeight) : 0.f, 0.f));
 
-	GBuffer::setColor(m_colorTheme.m_border);
+	GBuffer::setColor(m_colorTheme->m_border);
 	GBuffer::addVertexQuad(2, 2);
 	GBuffer::addVertexQuad(10, 2);
 	GBuffer::addVertexQuad(10, _scrollHeight - 2);
 	GBuffer::addVertexQuad(2, _scrollHeight - 2);
 
-	GBuffer::setColor(m_colorTheme.m_hover);
+	GBuffer::setColor(m_colorTheme->m_hover);
 	GBuffer::addVertexQuad(3, 3);
 	GBuffer::addVertexQuad(9, 3);
 	GBuffer::addVertexQuad(9, _scrollHeight - 3);

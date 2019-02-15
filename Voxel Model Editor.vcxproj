@@ -5,6 +5,10 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseConsole|Win32">
+      <Configuration>ReleaseConsole</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -31,6 +35,13 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseConsole|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -42,6 +53,9 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseConsole|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
@@ -51,6 +65,13 @@
     <LibraryPath>$(ProjectDir)lib\devil\lib\Debug;$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Debug;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\OpenAL\lib;$(ProjectDir)lib\tinyobjloader\lib\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)log\$(Configuration)\</IntDir>
+    <IncludePath>$(ProjectDir)lib\devil\include;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
+    <ReferencePath>$(ProjectDir)res;$(ProjectDir)dll\Release;$(ReferencePath)</ReferencePath>
+    <LibraryPath>$(ProjectDir)lib\devil\lib\Release;$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Release;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\OpenAL\lib;$(ProjectDir)lib\tinyobjloader\lib\Release;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseConsole|Win32'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)log\$(Configuration)\</IntDir>
     <IncludePath>$(ProjectDir)lib\devil\include;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
@@ -82,6 +103,24 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;DevIL.lib;ILU.lib;ILUT.lib;OpenAL32.lib;alut.lib;freetype.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseConsole|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;DevIL.lib;ILU.lib;ILUT.lib;OpenAL32.lib;alut.lib;freetype.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <EntryPointSymbol>
       </EntryPointSymbol>
@@ -93,6 +132,9 @@
     <ClCompile Include="src\engine\editor\animation\menu\AnimationOverlay.cpp" />
     <ClCompile Include="src\engine\editor\animation\menu\KeyframeTimeline.cpp" />
     <ClCompile Include="src\engine\editor\camera\Camera.cpp" />
+    <ClCompile Include="src\engine\editor\menu\AboutDialog.cpp" />
+    <ClCompile Include="src\engine\editor\menu\CloseTabDialog.cpp" />
+    <ClCompile Include="src\engine\editor\menu\FreshOverlay.cpp" />
     <ClCompile Include="src\engine\editor\model\EditMatrix.cpp" />
     <ClCompile Include="src\engine\editor\model\format\Format.cpp" />
     <ClCompile Include="src\engine\editor\model\format\QbclFormat.cpp" />
@@ -100,7 +142,9 @@
     <ClCompile Include="src\engine\editor\model\format\VoxFormat.cpp" />
     <ClCompile Include="src\engine\editor\model\menu\ColorOverlay.cpp" />
     <ClCompile Include="src\engine\editor\model\menu\ModelOverlay.cpp" />
-    <ClCompile Include="src\engine\editor\model\menu\PropertiesDialog.cpp" />
+    <ClCompile Include="src\engine\editor\model\menu\ModelPropertiesDialog.cpp" />
+    <ClCompile Include="src\engine\editor\model\menu\NewModelDialog.cpp" />
+    <ClCompile Include="src\engine\editor\model\SimpleModel.cpp" />
     <ClCompile Include="src\engine\editor\model\tool\matrix\MatrixTool.cpp" />
     <ClCompile Include="src\engine\editor\model\tool\matrix\MTSelect.cpp" />
     <ClCompile Include="src\engine\editor\model\tool\MTool.cpp" />
@@ -110,7 +154,7 @@
     <ClCompile Include="src\engine\editor\model\format\NvmFormat.cpp" />
     <ClCompile Include="src\engine\editor\model\Matrix.cpp" />
     <ClCompile Include="src\engine\editor\model\Model.cpp" />
-    <ClCompile Include="src\engine\editor\model\math\ModelMath.cpp" />
+    <ClCompile Include="src\engine\utils\math\ModelMath.cpp" />
     <ClCompile Include="src\engine\editor\model\tool\Tool.cpp" />
     <ClCompile Include="src\engine\editor\model\tool\voxel\VoxelTool.cpp" />
     <ClCompile Include="src\engine\editor\model\tool\voxel\VTAdd.cpp" />
@@ -173,6 +217,9 @@
     <ClInclude Include="include\engine\editor\command\Command.h" />
     <ClInclude Include="include\engine\editor\command\CommandCombo.h" />
     <ClInclude Include="include\engine\editor\command\LCommand.h" />
+    <ClInclude Include="include\engine\editor\menu\AboutDialog.h" />
+    <ClInclude Include="include\engine\editor\menu\CloseTabDialog.h" />
+    <ClInclude Include="include\engine\editor\menu\FreshOverlay.h" />
     <ClInclude Include="include\engine\editor\model\command\MDeleteCommand.h" />
     <ClInclude Include="include\engine\editor\model\command\MDrawCommand.h" />
     <ClInclude Include="include\engine\editor\model\command\MMoveCommand.h" />
@@ -183,7 +230,8 @@
     <ClInclude Include="include\engine\editor\model\menu\ColorOverlay.h" />
     <ClInclude Include="include\engine\editor\menu\EditorOverlay.h" />
     <ClInclude Include="include\engine\editor\model\menu\ModelOverlay.h" />
-    <ClInclude Include="include\engine\editor\model\menu\PropertiesDialog.h" />
+    <ClInclude Include="include\engine\editor\model\menu\ModelPropertiesDialog.h" />
+    <ClInclude Include="include\engine\editor\model\menu\NewModelDialog.h" />
     <ClInclude Include="include\engine\editor\model\EditMatrix.h" />
     <ClInclude Include="include\engine\editor\model\format\Format.h" />
     <ClInclude Include="include\engine\editor\model\format\NvmFormat.h" />
@@ -192,8 +240,9 @@
     <ClInclude Include="include\engine\editor\model\format\VoxFormat.h" />
     <ClInclude Include="include\engine\editor\model\Matrix.h" />
     <ClInclude Include="include\engine\editor\model\Model.h" />
+    <ClInclude Include="include\engine\editor\model\SimpleModel.h" />
     <ClInclude Include="include\engine\editor\model\tool\LTool.h" />
-    <ClInclude Include="include\engine\editor\model\math\ModelMath.h" />
+    <ClInclude Include="include\engine\utils\math\ModelMath.h" />
     <ClInclude Include="include\engine\editor\model\tool\matrix\MatrixTool.h" />
     <ClInclude Include="include\engine\editor\model\tool\matrix\MTSelect.h" />
     <ClInclude Include="include\engine\editor\model\tool\MTool.h" />

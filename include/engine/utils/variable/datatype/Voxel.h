@@ -14,6 +14,7 @@
 #define FACE_TOP		(2 << 4)
 // Y-
 #define FACE_BOTTOM		(2 << 5)
+// All
 #define FACE_ALL		((2 << 6) - 1)
 
 struct Voxel
@@ -24,8 +25,7 @@ struct Voxel
 	Voxel() {};
 	Voxel(Sint8 p_interaction, Uint16 p_color) : interactionType(p_interaction), color(p_color) {};
 
-	bool operator==(Voxel p_vox)
-	{
+	bool operator==(Voxel p_vox) {
 		return (interactionType == p_vox.interactionType &&
 				color == p_vox.color);
 	}

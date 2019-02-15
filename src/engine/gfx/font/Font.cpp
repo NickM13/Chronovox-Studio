@@ -43,7 +43,7 @@ Font::FontType* Font::init(std::string p_src, Uint32 p_fontSize) {
 	FT_Set_Pixel_Sizes(face, 0, p_fontSize);
 
 	GLuint texture;
-	for (Uint8 c = 0; c < 128; c++) {
+	for (Uint8 c = 0; c < 255; c++) {
 		if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
 			Logger::logError("FT_Load_Char failed: " + c);
 			continue;

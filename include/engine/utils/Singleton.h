@@ -3,11 +3,9 @@
 // Thanks, Eric
 
 template<typename C>
-class Singleton 
-{
+class Singleton {
 public:
-	static C& getInstance() 
-	{
+	static C& getInstance() {
 		static C I;
 		return I;
 	}

@@ -9,6 +9,7 @@ glm::vec3 Camera::m_position, Camera::m_rotation;
 GLfloat Camera::m_zoom, Camera::m_tarZoom, Camera::m_zoomSpeed;
 Texture* Camera::m_skyTexture;
 glm::mat4 Camera::m_projectionMatrix;
+bool Camera::m_dragging = false;
 
 void Camera::init() {
 	m_skyTexture = MTexture::getTexture("DaylightSky.png");
@@ -16,7 +17,7 @@ void Camera::init() {
 }
 void Camera::reset() {
 	m_position = { 0, 6, 0 };
-	m_rotation = { 30, 30, 0 };
+	m_rotation = { 30, -45, 0 };
 	m_zoom = 32;
 	m_tarZoom = 0;
 	m_zoomSpeed = 10.f;
@@ -130,8 +131,16 @@ void Camera::applyTransformation() {
 }
 
 void Camera::input(Sint8 p_guiFlags) {
-	if (!EditorOverlay::getContainer()->isPaused() && (p_guiFlags & (Sint8)Component::EventFlag::MOUSEOVER)) {
-		if (GMouse::mouseDown(GLFW_MOUSE_BUTTON_RIGHT)) {
+	if (!EditorOverlay::getContainer()->isPaused()) {
+		if ((p_guiFlags & (Sint8)Component::EventFlag::MOUSEOVER)) {
+			if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_RIGHT)) {
+				m_dragging = true;
+			}
+		}
+		if (GMouse::mouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
+			m_dragging = false;
+		}
+		if (m_dragging) {
 			if (GKey::modDown(GLFW_MOD_SHIFT)) {
 				pan(Vector3<GLfloat>(-GMouse::getDeltaMousePos().x, GMouse::getDeltaMousePos().y, 0.f));
 			}
@@ -139,19 +148,19 @@ void Camera::input(Sint8 p_guiFlags) {
 				turn(GMouse::getDeltaMousePos());
 			}
 		}
-		zoom(GMouse::getMouseScroll());
-		GLfloat speed = 4;
-		if (GKey::keyDown(GLFW_KEY_D, 0)) pan({ speed,  0,      0 });
-		if (GKey::keyDown(GLFW_KEY_A, 0)) pan({ -speed,  0,      0 });
-		if (GKey::keyDown(GLFW_KEY_Q, 0)) pan({ 0,      speed,  0 });
-		if (GKey::keyDown(GLFW_KEY_Z, 0)) pan({ 0,     -speed,  0 });
-		if (GKey::keyDown(GLFW_KEY_W, 0)) pan({ 0,      0,     -speed });
-		if (GKey::keyDown(GLFW_KEY_S, 0)) pan({ 0,      0,      speed });
-		if (GKey::keyDown(GLFW_KEY_MINUS, GLFW_MOD_CONTROL)
-			|| GKey::keyDown(GLFW_KEY_KP_SUBTRACT, GLFW_MOD_CONTROL)) zoom(-1.f);
-		if (GKey::keyDown(GLFW_KEY_EQUAL, GLFW_MOD_CONTROL)
-			|| GKey::keyDown(GLFW_KEY_KP_ADD, GLFW_MOD_CONTROL)) zoom(1.f);
-		if (GKey::keyPressed(GLFW_KEY_0, GLFW_MOD_CONTROL)) resetZoom();
+		if ((p_guiFlags & (Sint8)Component::EventFlag::MOUSESCROLL)) {
+			zoom(GMouse::getMouseScroll());
+		}
+		if ((p_guiFlags & (Sint8)Component::EventFlag::KEYPRESS)) {
+			GLfloat speed = 8;
+			if (GKey::keyDown(GLFW_KEY_D, 0)) pan({ speed,  0,      0 });
+			if (GKey::keyDown(GLFW_KEY_A, 0)) pan({ -speed,  0,      0 });
+			if (GKey::keyDown(GLFW_KEY_Q, 0)) pan({ 0,      speed,  0 });
+			if (GKey::keyDown(GLFW_KEY_Z, 0)) pan({ 0,     -speed,  0 });
+			if (GKey::keyDown(GLFW_KEY_W, 0)) pan({ 0,      0,     -speed });
+			if (GKey::keyDown(GLFW_KEY_S, 0)) pan({ 0,      0,      speed });
+			if (GKey::keyPressed(GLFW_KEY_0, GLFW_MOD_CONTROL))				resetZoom();
+		}
 	}
 }
 

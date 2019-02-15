@@ -1,5 +1,7 @@
 #pragma once
 
+#include "engine\gfx\texture\MTexture.h"
+
 #include "engine\utils\LOpenGL.h"
 #include "engine\utils\variable\datatype\Macros.h"
 #include "engine\utils\variable\datatype\Rectangle.h"
@@ -40,16 +42,21 @@ private:
 	static Rect m_currScissor;
 	
 	static GLuint m_quadVaoId, m_quadVboId[3];
-	static GLuint m_lineVaoId, m_lineVboId[2];
 
-	// How many vertices go to current bound texture
+	// How many vertices go to current bound texture/scissor
 	static std::vector<TextureBuffer> m_textureBuffers;
 
-	static std::vector<glm::vec2> m_quadVertices, m_lineVertices;
-	static std::vector<Color> m_quadColors, m_lineColors;
+	static std::vector<glm::vec2> m_quadVertices;
+	static std::vector<Color> m_quadColors;
 	static std::vector<glm::vec2> m_quadUVs;
 
 public:
+	enum class TextureAnchor : Sint8 {
+		NONE = 0,
+		HALF = 1,
+		FULL = 2
+	};
+
 	static void init();
 	static void terminate();
 
@@ -60,13 +67,14 @@ public:
 	static void setColor(Color p_color);
 	static void setUV(GLfloat u, GLfloat v);
 
+	static void renderTexture(Texture* p_texture, TextureAnchor p_xAnchor = TextureAnchor::NONE, TextureAnchor p_yAnchor = TextureAnchor::NONE);
+
 	static void pushScissor(Rect p_scissor);
 	static void popScissor();
 	static void setScissorActive(bool p_isActive);
 	static bool isScissorActive();
 
 	static void addVertexQuad(Sint32 x, Sint32 y);
-	static void addVertexLine(Sint32 x, Sint32 y);
 
 	static void renderMesh();
 };

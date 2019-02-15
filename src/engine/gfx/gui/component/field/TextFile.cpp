@@ -32,6 +32,17 @@ CTextFile::CTextFile(std::string p_compName, std::string p_src, Vector2<Sint32> 
 		_max = std::fmaxf(_max, Font::getMessageWidth(line).x);
 	}
 	m_sizeInit = m_size = Vector2<Sint32>(_max, m_lines.size() * Font::getSpacingHeight());
+	updateTitle();
+}
+
+void CTextFile::updateTitle() {
+	m_title = "";
+	for (Sint32 i = 0; i < m_lines.size(); i++) {
+		m_title += m_lines[i];
+		if (i < m_lines.size() - 1) {
+			m_title += "\n";
+		}
+	}
 }
 
 void CTextFile::addInputString(std::string p_str) {
@@ -39,6 +50,11 @@ void CTextFile::addInputString(std::string p_str) {
 		m_lines.at(m_variableInputLoc.at(m_variableInputIndex).x).insert(m_variableInputLoc.at(m_variableInputIndex).y, p_str);
 		m_variableInputIndex++;
 	}
+	updateTitle();
+}
+
+std::string CTextFile::getTitle() {
+	return m_title;
 }
 
 void CTextFile::render() {

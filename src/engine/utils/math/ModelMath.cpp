@@ -1,4 +1,4 @@
-#include "engine\editor\model\math\ModelMath.h"
+#include "engine\utils\math\ModelMath.h"
 
 bool ModelMath::castRayMatrix(glm::vec3 p_start, glm::vec3 p_direction, Matrix* p_matrix, GLfloat &p_near, GLfloat &p_far) {
 	GLfloat _c = 0.00001f;

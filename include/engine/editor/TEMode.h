@@ -6,12 +6,23 @@
 
 class TEMode {
 protected:
+	std::string m_directory;
+	std::string m_name;
+
 	virtual void inputEditor(Sint8 p_guiFlags);
 	virtual void updateEditor(GLfloat p_deltaUpdate);
 	virtual void renderEditor();
 	virtual void renderEditorShadow();
 public:
 	TEMode();
+
+	virtual bool hasChanged();
+	virtual void setChanged(bool p_changed);
+
+	void setPath(std::string p_path);
+	std::string getName();
+	std::string getDirectory();
+	std::string getPath();
 
 	void input(Sint8 p_guiFlags);
 	void update(GLfloat p_deltaUpdate);
@@ -20,7 +31,8 @@ public:
 
 	virtual void fileNew();
 	virtual void fileOpen();
-	virtual void fileSave();
+	virtual bool fileSave();
+	virtual bool fileSaveAs();
 	virtual void fileExit();
 
 	virtual void editUndo();

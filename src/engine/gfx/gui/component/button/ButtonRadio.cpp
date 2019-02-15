@@ -38,11 +38,13 @@ void CButtonRadio::input(Sint8& p_interactFlags) {
 	}
 }
 void CButtonRadio::update(GLfloat p_deltaUpdate) {
-	m_buttonList[m_prevSelectedButton]->setState(0);
-	m_buttonList[m_selectedButton]->setState(1);
-	if (m_prevSelectedButton != m_selectedButton) {
-		callPressFunction();
-		m_prevSelectedButton = m_selectedButton;
+	if (m_buttonList.size() != 0) {
+		m_buttonList[m_prevSelectedButton]->setState(0);
+		m_buttonList[m_selectedButton]->setState(1);
+		if (m_prevSelectedButton != m_selectedButton) {
+			callPressFunction();
+			m_prevSelectedButton = m_selectedButton;
+		}
 	}
 }
 void CButtonRadio::render() {

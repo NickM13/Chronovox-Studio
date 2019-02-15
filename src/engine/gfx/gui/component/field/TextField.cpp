@@ -61,8 +61,21 @@ void TextField::input(Sint8& p_interactFlags) {
 		&& _mousePos.y >= 0 && _mousePos.y < _boxHeight) {
 		p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
 		addTooltip();
-		if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
+		if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
+			Sint32 row = _mousePos.y / Font::getSpacingHeight();
+			Sint32 col = 0;
+			Sint32 currLength = 0;
+			m_cursorPos.x = m_text[row].length();
+			for (Sint32 i = 0; i < (Sint32)m_text[row].length(); i++) {
+				currLength += Font::getCharSize(m_text[row][i]).x;
+				Logger::logMinimal("%i", currLength);
+				if (_mousePos.x < currLength) {
+					m_cursorPos.x = i;
+					break;
+				}
+			}
 			m_selected = 1;
+		}
 		GGui::setCursorType(GGui::CursorType::IBEAM);
 	}
 	else if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
@@ -240,22 +253,22 @@ void TextField::render() {
 	Shader::pushMatrixModel();
 	GBuffer::setTexture(0);
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
-	GBuffer::setColor(m_colorTheme.m_border);
+	GBuffer::setColor(m_colorTheme->m_border);
 
 	GBuffer::addVertexQuad(-1, -1);
 	GBuffer::addVertexQuad(GLfloat(m_size.x + 1), -1);
 	GBuffer::addVertexQuad(GLfloat(m_size.x + 1), GLfloat(_boxHeight + 1));
 	GBuffer::addVertexQuad(-1, GLfloat(_boxHeight + 1));
 
-	if (m_selected) GBuffer::setColor(m_colorTheme.m_select);
-	else			GBuffer::setColor(m_colorTheme.m_primary);
+	if (m_selected) GBuffer::setColor(m_colorTheme->m_select);
+	else			GBuffer::setColor(m_colorTheme->m_primary);
 
 	GBuffer::addVertexQuad(0, 0);
 	GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
 	GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(_boxHeight));
 	GBuffer::addVertexQuad(0, GLfloat(_boxHeight));
 
-	GBuffer::setColor(m_colorTheme.m_text);
+	GBuffer::setColor(m_colorTheme->m_text);
 	Font::setAlignment(ALIGN_LEFT);
 	if (m_title != "" || m_text[0] != "" || m_text.size() > 1) {
 		for (Uint16 i = 0; i < m_text.size(); i++) {
@@ -263,18 +276,18 @@ void TextField::render() {
 		}
 		if (m_selected != 0 && (fmod(glfwGetTime(), 0.5) < 0.25)) {
 			Font::print("|",
-				Sint32(Font::getMessageWidth(m_text[m_cursorPos.y].substr(0, m_cursorPos.x)).x + 1) + 2,
+				Sint32(Font::getMessageWidth(m_text[m_cursorPos.y].substr(0, m_cursorPos.x)).x + 1) + 0,
 				Sint32((m_cursorPos.y + 0.5f) * Font::getSpacingHeight() - 2));
 		}
 	}
 	else {
 		if (m_selected != 0) {
-			GBuffer::setColor(m_colorTheme.m_text);
+			GBuffer::setColor(m_colorTheme->m_text);
 			Font::print(((fmod(glfwGetTime(), 0.5) < 0.25) ? "|" : ""),
 				2,
 				Sint32(0.5f * Font::getSpacingHeight() - 2));
 		}
-		GBuffer::setColor(m_colorTheme.m_text.applyScale(Color(1.f, 1.f, 1.f, 0.5f)));
+		GBuffer::setColor(m_colorTheme->m_text.applyScale(Color(1.f, 1.f, 1.f, 0.5f)));
 		for (Uint16 i = 0; i < fmin((_boxHeight), ceil(GLfloat(m_blankField.length()) / (m_size.x))); i++) {
 			Font::print(m_blankField.substr(i * (m_size.x), (m_size.x)) + ((m_selected && (i == (_boxHeight)-1) && fmod(glfwGetTime(), 0.5) < 0.25) ? "|" : ""),
 				2,

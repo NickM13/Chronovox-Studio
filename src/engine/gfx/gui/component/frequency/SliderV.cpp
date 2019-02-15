@@ -71,27 +71,27 @@ void CSliderV::render() {
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 
 	//Outline
-	GBuffer::setColor(m_colorTheme.m_border.applyScale(Color(0.5f, 0.5f, 0.5f)));
+	GBuffer::setColor(m_colorTheme->m_border.applyScale(Color(0.5f, 0.5f, 0.5f)));
 	GBuffer::addVertexQuad(-m_width / 2.f - 1, -m_height - 1);
 	GBuffer::addVertexQuad(m_width / 2.f + 1, -m_height - 1);
 	GBuffer::addVertexQuad(m_width / 2.f + 1, m_length + m_height + 1);
 	GBuffer::addVertexQuad(-m_width / 2.f - 1, m_length + m_height + 1);
 
 	//Background
-	GBuffer::setColor(m_colorTheme.m_primary);
+	GBuffer::setColor(m_colorTheme->m_primary);
 	GBuffer::addVertexQuad(-m_width / 2.f, -m_height);
 	GBuffer::addVertexQuad(m_width / 2.f, -m_height);
 	GBuffer::addVertexQuad(m_width / 2.f, m_length + m_height);
 	GBuffer::addVertexQuad(-m_width / 2.f, m_length + m_height);
 
-	GBuffer::setColor(m_colorTheme.m_border);
+	GBuffer::setColor(m_colorTheme->m_border);
 	GBuffer::addVertexQuad(-m_width / 2.f, -m_height);
 	GBuffer::addVertexQuad(m_width / 2.f, -m_height);
 	GBuffer::addVertexQuad(m_width / 2.f, GLfloat(m_length - m_slideValue));
 	GBuffer::addVertexQuad(-m_width / 2.f, GLfloat(m_length - m_slideValue));
 
 	//Slider
-	GBuffer::setColor(m_colorTheme.m_hover);
+	GBuffer::setColor(m_colorTheme->m_hover);
 	GBuffer::addVertexQuad(-GLfloat(m_width / 2), GLfloat((m_length - m_slideValue) - m_height));
 	GBuffer::addVertexQuad(GLfloat(m_width / 2), GLfloat((m_length - m_slideValue) - m_height));
 	GBuffer::addVertexQuad(GLfloat(m_width / 2), GLfloat((m_length - m_slideValue) + m_height));

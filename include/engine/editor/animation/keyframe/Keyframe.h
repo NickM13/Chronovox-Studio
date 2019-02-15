@@ -15,6 +15,8 @@ public:
 	Vector3<GLfloat> m_focus;
 	Vector3<GLfloat> m_value;
 
+	Keyframe() {}
+
 	Keyframe(std::string p_matrix, GLfloat p_start, GLfloat p_length, TransformationType p_transformationType, Vector3<GLfloat> p_focus, Vector3<GLfloat> p_value)
 		: m_matrix(p_matrix), m_start(p_start), m_length(p_length), m_transformationType(p_transformationType), m_focus(p_focus), m_value(p_value) {
 

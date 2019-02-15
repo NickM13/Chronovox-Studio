@@ -277,20 +277,20 @@ void FileField::render() {
 	GBuffer::setTexture(0);
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 
-	GBuffer::setColor(m_colorTheme.m_border);
+	GBuffer::setColor(m_colorTheme->m_border);
 	GBuffer::addVertexQuad(-1, -1);
 	GBuffer::addVertexQuad(GLfloat(m_size.x + 1), -1);
 	GBuffer::addVertexQuad(GLfloat(m_size.x + 1), GLfloat(m_size.y + 1));
 	GBuffer::addVertexQuad(-1, GLfloat(m_size.y + 1));
 
-	if (m_selected)	GBuffer::setColor(m_colorTheme.m_select);
-	else			GBuffer::setColor(m_colorTheme.m_primary);
+	if (m_selected)	GBuffer::setColor(m_colorTheme->m_select);
+	else			GBuffer::setColor(m_colorTheme->m_primary);
 	GBuffer::addVertexQuad(0, 0);
 	GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
 	GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y));
 	GBuffer::addVertexQuad(0, GLfloat(m_size.y));
 
-	GBuffer::setColor(m_colorTheme.m_text);
+	GBuffer::setColor(m_colorTheme->m_text);
 	Font::setAlignment(ALIGN_LEFT);
 	if (m_title != "" || m_text[0] != "" || m_text.size() > 1) {
 		for (Uint16 i = 0; i < m_text.size(); i++) {
@@ -308,12 +308,12 @@ void FileField::render() {
 	}
 	else {
 		if (m_selected != 0) {
-			GBuffer::setColor(m_colorTheme.m_text);
+			GBuffer::setColor(m_colorTheme->m_text);
 			Font::print(((fmod(glfwGetTime(), 0.5) < 0.25) ? "|" : ""),
 				2,
 				Sint32(0.5f * Font::getSpacingHeight() - 2));
 		}
-		GBuffer::setColor(m_colorTheme.m_text.applyScale(Color(1.f, 1.f, 1.f, 0.5f)));
+		GBuffer::setColor(m_colorTheme->m_text.applyScale(Color(1.f, 1.f, 1.f, 0.5f)));
 		for (Uint16 i = 0; i < fmin((m_size.y), ceil(GLfloat(m_blankField.length()) / (m_size.x))); i++) {
 			Font::print(m_blankField.substr(i * (m_size.x), (m_size.x)) + ((m_selected && (i == (m_size.y) - 1) && fmod(glfwGetTime(), 0.5) < 0.25) ? "|" : ""),
 				2,

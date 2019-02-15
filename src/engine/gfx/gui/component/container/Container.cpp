@@ -7,6 +7,7 @@ Container::Container(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint
 	m_visible = p_visible;
 	m_contentArea = Vector4<Sint32>();
 	addComponent(new SColorPanel("PAUSE_BACKGROUND", { 0, 0 }, p_size, Color(0, 0, 0, 0.5f)), Anchor::NONE, Anchor::BOTTOM_RIGHT)->setPriorityLayer(99)->setVisible(false);
+	m_border = 0;
 }
 
 void Container::sortInComponent(Comp p_comp) {
@@ -65,24 +66,27 @@ void Container::anchorComponent(Component* p_component, Anchor p_posAnchor, Anch
 
 Component* Container::addComponent(Component* p_component, Anchor p_posAnchor, Anchor p_sizeAnchor) {
 	anchorComponent(p_component, p_posAnchor, p_sizeAnchor);
-	if (m_componentMap.empty())
+	if (m_componentMap.empty()) {
 		m_contentArea = Vector4<Sint32>(p_component->getRealPosition().x
 			, p_component->getRealPosition().y
 			, p_component->getRealPosition().x + p_component->getSize().x
 			, p_component->getRealPosition().y + p_component->getSize().y);
-	else if (p_component->isVisible())
+	}
+	else if (p_component->isVisible()) {
 		m_contentArea = Vector4<Sint32>(std::fminf(p_component->getRealPosition().x, m_contentArea.x1)
 			, std::fminf(p_component->getRealPosition().y, m_contentArea.y1)
 			, std::fmaxf(p_component->getRealPosition().x + p_component->getRealSize().x, m_contentArea.x2)
 			, std::fmaxf(p_component->getRealPosition().y + p_component->getRealSize().y, m_contentArea.y2));
+	}
 	Comp c = Comp(p_posAnchor, p_sizeAnchor, p_component);
 	m_componentMap.insert({ p_component->getName(), c });
 	sortInComponent(c);
 	return p_component;
 }
 Container::~Container() {
-	for (std::pair<std::string, Comp> c : m_componentMap)
+	for (std::pair<std::string, Comp> c : m_componentMap) {
 		delete c.second.m_component;
+	}
 	m_componentMap.clear();
 }
 
@@ -90,10 +94,12 @@ Container::Component* Container::findComponent(std::string p_compName) {
 	Uint16 _loc = (Uint16)p_compName.find('\\');
 	std::string _compName = p_compName.substr(0, _loc);
 	Comp _comp = m_componentMap[_compName];
-	if (_loc < p_compName.length() && _comp.m_component)
+	if (_loc < p_compName.length() && _comp.m_component) {
 		return _comp.m_component->findComponent(p_compName.substr(_loc + 1));
-	else
+	}
+	else {
 		return _comp.m_component;
+	}
 }
 void Container::removeComponent(std::string p_compName) {
 	Comp _comp = m_componentMap[p_compName];
@@ -110,9 +116,11 @@ void Container::removeComponent(std::string p_compName) {
 
 Component* Container::setVisible(bool p_visible) {
 	m_visible = p_visible;
-	if (!m_visible)
-		for (std::pair<std::string, Comp> comp : m_componentMap)
+	if (!m_visible) {
+		for (std::pair<std::string, Comp> comp : m_componentMap) {
 			comp.second.m_component->update(0);
+		}
+	}
 	return this;
 }
 
@@ -122,15 +130,32 @@ void Container::resize() {
 		Comp comp = c.second;
 		Component* component = comp.m_component;
 		anchorComponent(component, comp.m_posAnchor, comp.m_sizeAnchor);
-		if (m_componentMap.empty())
+		if (m_componentMap.empty()) {
 			m_contentArea = Vector4<Sint32>(component->getRealPosition().x, component->getRealPosition().y, component->getRealPosition().x + component->getSize().x, component->getRealPosition().y + component->getSize().y);
-		else if (component->isVisible())
+		}
+		else if (component->isVisible()) {
 			m_contentArea = Vector4<Sint32>(std::fminf(component->getRealPosition().x, m_contentArea.x1), std::fminf(component->getRealPosition().y, m_contentArea.y1), std::fmaxf(component->getRealPosition().x + component->getRealSize().x, m_contentArea.x2), std::fmaxf(component->getRealPosition().y + component->getRealSize().y, m_contentArea.y2));
-
+		}
 	}
 }
 Vector2<Sint32> Container::getRealPosition() { return Vector2<Sint32>(m_contentArea.x1, m_pos.y + m_contentArea.y1); }
 Vector2<Sint32> Container::getRealSize() { return Vector2<Sint32>(m_contentArea.x2 - m_contentArea.x1, m_contentArea.y2 - m_contentArea.y1); }
+
+Component* Container::openDialog(Component* p_dialog) {
+	if (p_dialog) {
+		m_currDialog = p_dialog;
+		((CDialog*)m_currDialog)->setActive(true);
+		m_currDialog->callPressFunction();
+		findComponent("PAUSE_BACKGROUND")->setVisible(true);
+	}
+	return this;
+}
+Component* Container::closeDialog() {
+	m_currDialog->callReleaseFunction();
+	m_currDialog = 0;
+	findComponent("PAUSE_BACKGROUND")->setVisible(false);
+	return this;
+}
 
 Component* Container::addPauseScreen(Component* p_comp, Anchor p_posAnchor, Anchor p_sizeAnchor) {
 	m_pauseScreens.insert({ p_comp->getName(), addComponent(p_comp, p_posAnchor, p_sizeAnchor) });
@@ -158,8 +183,9 @@ Component* Container::setPauseScreen(std::string p_compName) {
 void Container::updateSize() {
 	m_contentArea = Vector4<Sint32>();
 	for (std::pair<std::string, Comp> comp : m_componentMap) {
-		if (comp.second.m_component->isVisible())
+		if (comp.second.m_component->isVisible()) {
 			m_contentArea = Vector4<Sint32>(std::fminf(comp.second.m_component->getRealPosition().x, m_contentArea.x1), std::fminf(comp.second.m_component->getRealPosition().y, m_contentArea.y1), std::fmaxf(comp.second.m_component->getRealPosition().x + comp.second.m_component->getRealSize().x, m_contentArea.x2), std::fmaxf(comp.second.m_component->getRealPosition().y + comp.second.m_component->getRealSize().y, m_contentArea.y2));
+		}
 	}
 }
 
@@ -169,7 +195,10 @@ void Container::input() {
 }
 void Container::input(Sint8& p_interactFlags) {
 	if (m_visible) {
-		Vector2<Sint32> _mousePos = _mousePos - m_pos;;
+		if (m_currDialog) {
+			m_currDialog->input(p_interactFlags);
+			p_interactFlags = 0;
+		}
 		Component *_comp;
 		for (Sint32 i = m_componentOrder.size() - 1; i >= 0; i--) {
 			_comp = m_componentMap[m_componentOrder[i]].m_component;
@@ -178,19 +207,21 @@ void Container::input(Sint8& p_interactFlags) {
 			}
 		}
 	}
-	if (m_currentPause != "" &&
-		!m_pauseScreens[m_currentPause]->isVisible()) {
-		setPauseScreen("");
-	}
 }
 void Container::update(GLfloat p_updateTime) {
 	if (m_visible) {
+		if (m_currDialog) {
+			m_currDialog->update(p_updateTime);
+			if (!((CDialog*)m_currDialog)->isActive()) {
+				closeDialog();
+			}
+		}
 		Component *_comp;
 		for (Sint32 i = 0; i < (Sint32)m_componentOrder.size(); i++) {
 			_comp = m_componentMap[m_componentOrder[i]].m_component;
 			if (_comp->isVisible()) {
 				_comp->update(p_updateTime);
-				_comp->resetTooltip(); // TODO: Do I need this here?
+				//_comp->resetTooltip(); // TODO: Do I need this here?
 			}
 		}
 	}
@@ -201,10 +232,42 @@ void Container::render() {
 		for (Sint32 i = 0; i < (Sint32)m_componentOrder.size(); i++) {
 			_comp = m_componentMap[m_componentOrder[i]].m_component;
 			if (_comp->isVisible()) {
-				Shader::pushMatrixModel();
 				_comp->render();
-				Shader::popMatrixModel();
 			}
+		}
+		if (m_border != 0) {
+			GBuffer::setTexture(0);
+			Shader::pushMatrixModel();
+			Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
+			GBuffer::setColor(m_colorTheme->m_border);
+			if (m_border & static_cast<Sint8>(BorderFlag::TOP)) {
+				GBuffer::addVertexQuad(0,						0);
+				GBuffer::addVertexQuad(GLfloat(m_size.x),		0);
+				GBuffer::addVertexQuad(GLfloat(m_size.x),		1);
+				GBuffer::addVertexQuad(0,						1);
+			}
+			if (m_border & static_cast<Sint8>(BorderFlag::RIGHT)) {
+				GBuffer::addVertexQuad(GLfloat(m_size.x),		0);
+				GBuffer::addVertexQuad(GLfloat(m_size.x),		GLfloat(m_size.y));
+				GBuffer::addVertexQuad(GLfloat(m_size.x) - 1,	GLfloat(m_size.y));
+				GBuffer::addVertexQuad(GLfloat(m_size.x) - 1,	0);
+			}
+			if (m_border & static_cast<Sint8>(BorderFlag::BOTTOM)) {
+				GBuffer::addVertexQuad(GLfloat(m_size.x),		GLfloat(m_size.y));
+				GBuffer::addVertexQuad(0,						GLfloat(m_size.y));
+				GBuffer::addVertexQuad(0,						GLfloat(m_size.y) - 1);
+				GBuffer::addVertexQuad(GLfloat(m_size.x),		GLfloat(m_size.y) - 1);
+			}
+			if (m_border & static_cast<Sint8>(BorderFlag::LEFT)) {
+				GBuffer::addVertexQuad(0,						0);
+				GBuffer::addVertexQuad(0,						GLfloat(m_size.y));
+				GBuffer::addVertexQuad(1,						GLfloat(m_size.y));
+				GBuffer::addVertexQuad(1,						0);
+			}
+			Shader::popMatrixModel();
+		}
+		if (m_currDialog) {
+			m_currDialog->render();
 		}
 	}
 }

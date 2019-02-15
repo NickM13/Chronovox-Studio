@@ -26,6 +26,7 @@ public:
 	~MatrixTool();
 
 	static void init(std::vector<Matrix*>* p_matrices, glm::vec3* p_scalePos, Sint8* p_selectedScale);
+	static void setMatrixList(std::vector<Matrix*>* p_matrices) { m_matrices = p_matrices; };
 
 	virtual void enable();
 	virtual void disable();

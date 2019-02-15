@@ -8,8 +8,7 @@
 #include <map>
 #include <thread>
 
-class Container : public Component
-{
+class Container : public Component {
 protected:
 	struct Comp {
 		Anchor m_posAnchor;
@@ -23,6 +22,8 @@ protected:
 	std::map<std::string, Component*> m_pauseScreens;
 	Vector4<Sint32> m_contentArea;
 	std::string m_currentPause = "";
+	Component* m_currDialog = 0;
+
 	void sortInComponent(Comp comp);
 
 	void anchorComponent(Component* p_component, Anchor p_posAnchor = Anchor::NONE, Anchor p_sizeAnchor = Anchor::NONE);
@@ -41,6 +42,8 @@ public:
 	Vector2<Sint32> getRealPosition();
 	Vector2<Sint32> getRealSize();
 
+	Component* openDialog(Component* p_dialog);
+	Component* closeDialog();
 	Component* addPauseScreen(Component* p_comp, Anchor p_posAnchor = Anchor::NONE, Anchor p_sizeAnchor = Anchor::NONE);
 	Component* setPauseScreen(std::string p_compName);
 	bool isPaused() { return m_currentPause != ""; }

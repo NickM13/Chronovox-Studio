@@ -1,16 +1,17 @@
 #pragma once
 #include "engine\editor\model\Model.h"
+#include "engine\editor\Editor.h"
 #include "engine\gfx\LGui.h"
 
 #include "ColorOverlay.h"
 
 class ModelOverlay {
 private:
-	static Model* m_model;
+	static Editor* m_editor;
 	static Container* m_container;
 	static ColorOverlay* m_colorOverlay;
 public:
-	static Container* init(Model* p_model);
+	static Container* init(Editor* p_editor);
 	static void terminate() {
 		if(m_container) {
 			delete m_container;

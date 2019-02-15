@@ -42,24 +42,29 @@ void Panel::render() {
 			Component::render();
 			m_selected = _ignore;
 		}
-		else Component::render();
+		else {
+			Sint8 _ignore = m_selected;
+			m_selected = 0;
+			Component::render();
+			m_selected = _ignore;
+		}
 		if (m_title != "") {
 			Shader::pushMatrixModel();
 			Shader::translate(glm::vec3(m_pos.x, m_pos.y - 24, 0));
 			GBuffer::setTexture(0);
-			GBuffer::setColor(m_colorTheme.m_border);
+			GBuffer::setColor(m_colorTheme->m_border);
 			GBuffer::addVertexQuad(-1, -1);
 			GBuffer::addVertexQuad((GLfloat)m_size.x + 1, -1);
 			GBuffer::addVertexQuad((GLfloat)m_size.x + 1, 24);
 			GBuffer::addVertexQuad(-1, 24);
 
-			GBuffer::setColor(m_colorTheme.m_primary);
+			GBuffer::setColor(m_colorTheme->m_primary);
 			GBuffer::addVertexQuad(0, 0);
 			GBuffer::addVertexQuad((GLfloat)m_size.x, 0);
 			GBuffer::addVertexQuad((GLfloat)m_size.x, 23);
 			GBuffer::addVertexQuad(0, 23);
 
-			GBuffer::setColor(m_colorTheme.m_text);
+			GBuffer::setColor(m_colorTheme->m_text);
 			Font::setAlignment(ALIGN_CENTER);
 			Font::print(m_title, m_size.x / 2, 12);
 			GBuffer::setTexture(0);

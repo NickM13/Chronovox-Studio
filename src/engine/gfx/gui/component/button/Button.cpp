@@ -1,4 +1,4 @@
-#include "engine\gfx\gui\component\button\Button.h"
+ #include "engine\gfx\gui\component\button\Button.h"
 
 CButton::CButton(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, RenderStyle p_borderStyle, function p_func)
 	: Component(p_compName, p_title, p_pos, p_size, p_borderStyle == RenderStyle::EMPTY ? Theme::ACTION_LIGHT : Theme::ACTION) {
@@ -78,7 +78,7 @@ void CButton::render() {
 		Component::renderBorder();
 	}
 
-	GBuffer::setColor(m_colorTheme.m_text);
+	GBuffer::setColor(m_colorTheme->m_text);
 	Font::setAlignment(ALIGN_CENTER);
 	Font::print(m_title, m_pos.x + m_size.x / 2, m_pos.y + m_size.y / 2);
 }

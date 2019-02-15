@@ -7,12 +7,13 @@ GLFWwindow* Application::m_mainWindow = 0;
 
 bool Application::init(char *p_filePath) {
 	GScreen::m_fov = 70;
-	m_maxFps = 60;
+	m_focusFps = 60;
+	m_unfocusFps = 60;
 
 	Logger::logNormal("Initializing application...");
 
 	GScreen::m_windowTitle = "Nick's Voxel Editor";
-	GScreen::m_appVersion = "1.2.2";
+	GScreen::m_appVersion = "1.2.3";
 	GScreen::m_developer = true;
 	GScreen::m_fps = 0;
 	GScreen::m_exitting = 0;
@@ -42,7 +43,7 @@ bool Application::init(char *p_filePath) {
 		return false;
 	}
 	glfwSetWindowPos(m_mainWindow, (mode->width - m_screenSize.x) / 2, (mode->height - m_screenSize.y) / 2);
-	
+
 	GScreen::initWindow(m_mainWindow);
 
 	glfwSetKeyCallback(m_mainWindow, GKey::keyCallback);
@@ -58,7 +59,7 @@ bool Application::init(char *p_filePath) {
 	glfwMakeContextCurrent(m_mainWindow);
 
 	GLenum error;
-	if((error = glewInit()) != GLEW_OK) {
+	if ((error = glewInit()) != GLEW_OK) {
 		Logger::logError(std::string("glew failed to initialize: ").append((const char*)glewGetErrorString(error)));
 		return false;
 	}
@@ -77,7 +78,7 @@ bool Application::init(char *p_filePath) {
 		->loadShader(GL_VERTEX_SHADER, "gui.vert")
 		->loadShader(GL_FRAGMENT_SHADER, "gui.frag");
 
-	glClearColor(0.25f, 0.25f, 0.25f, 1);
+	glClearColor(0.2f, 0.2f, 0.2f, 1);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -112,7 +113,7 @@ void Application::dropFileCallback(GLFWwindow* p_window, int count, const char**
 void Application::maximize(bool p_maximizedByDrag) {
 	GScreen::m_maximized = !GScreen::m_maximized;
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-	if(GScreen::m_maximized) {
+	if (GScreen::m_maximized) {
 		Vector2<Sint32> wpos, wsize;
 		glfwGetWindowPos(GScreen::m_window, &wpos.x, &wpos.y);
 		glfwGetWindowSize(GScreen::m_window, &wsize.x, &wsize.y);
@@ -132,7 +133,7 @@ void Application::maximize(bool p_maximizedByDrag) {
 	m_editor->resize();
 }
 void Application::resize() {
-	if(GScreen::m_maximized) GScreen::m_maximized = false;
+	if (GScreen::m_maximized) GScreen::m_maximized = false;
 	m_screenSize = GScreen::m_screenSize;
 	glfwSetWindowSize(m_mainWindow, m_screenSize.x, m_screenSize.y);
 	m_editor->resize();
@@ -211,7 +212,7 @@ void Application::init3dOrtho() {
 
 void Application::run() {
 	GLdouble i;
-	while(GScreen::m_exitting != 2) {
+	while (GScreen::m_exitting != 2) {
 		i = glfwGetTime();
 
 		input();
@@ -219,20 +220,21 @@ void Application::run() {
 		render();
 
 		if (GScreen::m_focused) {
-			m_sleepTime = DWORD(std::fmaxf(1000 / m_maxFps - ((glfwGetTime() - i) * 1000), 0));
+			m_sleepTime = DWORD(std::fmaxf(1000 / m_focusFps - ((glfwGetTime() - i) * 1000), 0));
 		}
 		else {
-			m_sleepTime = DWORD(std::fmaxf(1000 / 20.f - ((glfwGetTime() - i) * 1000), 0));
+			m_sleepTime = DWORD(std::fmaxf(1000 / m_unfocusFps - ((glfwGetTime() - i) * 1000), 0));
 		}
 		if (m_sleepTime > 0) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepTime));
 		}
 		GScreen::m_fps = 1.f / GLfloat(glfwGetTime() - i);
 
-		if(GScreen::m_exitting == 1) {
-			if(m_editor->attemptClose()) {
+		if (GScreen::m_exitting == 1) {
+			if (m_editor->attemptClose()) {
 				GScreen::m_exitting = 2;
-			} else {
+			}
+			else {
 				GScreen::m_exitting = 0;
 				glfwSetWindowShouldClose(m_mainWindow, false);
 			}
@@ -253,7 +255,7 @@ void Application::input() {
 	if (GScreen::isMaximized() && GScreen::isDraggingWindow() && GScreen::m_dragStart.y < GMouse::getMousePos().y) {
 		maximize(true);
 	}
-	if(GScreen::finishedResize()) resize();
+	if (GScreen::finishedResize()) resize();
 	GScreen::updateWindow();
 }
 
@@ -261,18 +263,18 @@ GLfloat _last = 0;
 void Application::update() {
 	m_editor->update();
 
-	if(GScreen::m_windowCommand == GScreen::MINIMIZE) glfwIconifyWindow(m_mainWindow);
-	if(GScreen::m_windowCommand == GScreen::RESIZE) maximize(false);
-	if(GScreen::m_windowCommand == GScreen::CLOSE) glfwSetWindowShouldClose(m_mainWindow, true);
+	if (GScreen::m_windowCommand == GScreen::MINIMIZE)	glfwIconifyWindow(m_mainWindow);
+	if (GScreen::m_windowCommand == GScreen::RESIZE)		maximize(false);
+	if (GScreen::m_windowCommand == GScreen::CLOSE)		glfwSetWindowShouldClose(m_mainWindow, true);
 	GScreen::m_windowCommand = GScreen::NONE;
 
 	GMouse::update(GScreen::m_deltaTime);
 }
 
 void Application::render() {
-	if(GScreen::m_iconified) return;
+	if (GScreen::m_iconified) return;
 
-	if(GScreen::m_shadows) {
+	if (GScreen::m_shadows) {
 		m_editor->bindShadowBuffer();
 		Shader::useProgram("depthRTT");
 		m_editor->bindShadowTexture();
