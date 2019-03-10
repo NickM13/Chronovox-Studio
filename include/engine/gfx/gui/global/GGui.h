@@ -22,7 +22,9 @@ private:
 	static std::map<CursorType, GLFWcursor*>	m_cursors;
 	static std::string							m_tooltip;
 	static Vector2<Sint32>						m_tooltipPos;
+	static bool									m_tooltipFading;
 	static GLfloat								m_tooltipLife; // Time at which tooltip disappears if not refreshed
+	static GLfloat								m_tooltipMaxLife;
 public:
 	static void init(GLFWwindow* p_mainWindow);
 	static void terminate();
@@ -30,6 +32,7 @@ public:
 	static void setTooltip(std::string p_tooltip, Vector2<Sint32> p_pos);
 	static std::string getTooltip();
 	static Vector2<Sint32> getTooltipPos();
+	static GLfloat getTooltipFade();
 	static CursorType getCursorType();
 	static void setCursorType(CursorType p_cursorType);
 

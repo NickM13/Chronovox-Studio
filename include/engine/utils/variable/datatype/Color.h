@@ -7,11 +7,11 @@
 struct Color {
 private:
 	GLfloat sub(GLfloat a, GLfloat b) {
-		return GLfloat(fmax(a - b, 0));
+		return GLfloat(fmax(static_cast<double>(a) - b, 0));
 	}
 
 	GLfloat add(GLfloat a, GLfloat b) {
-		return GLfloat(fmin(a + b, 1.f));
+		return GLfloat(fmin(static_cast<double>(a) + b, 1.f));
 	}
 public:
 	GLfloat r, g, b, a;

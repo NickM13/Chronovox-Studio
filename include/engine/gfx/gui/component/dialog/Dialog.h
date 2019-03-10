@@ -4,10 +4,10 @@
 
 class CDialog : public Container {
 private:
-	Sint32 m_buffer, m_spacing, m_currWidth;
-	Sint32 m_optionBorder;
+	Sint32 m_buffer = 0, m_spacing = 0, m_currWidth = 0;
+	Sint32 m_optionBorder = 0;
 
-	bool m_active;
+	bool m_active = false;
 public:
 	CDialog() {};
 	CDialog(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size);

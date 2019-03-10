@@ -15,6 +15,7 @@ protected:
 	bool m_hover, m_dragging;
 	struct ListItem {
 		std::string name;
+		GLfloat hoverTimer = 0;
 		Sint8 state; // 0=Unselected, 1=Hovered, 2=Selected
 		ListItem(std::string name = "", Sint8 state = 0) : name(name), state(state) {};
 	};

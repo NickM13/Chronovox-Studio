@@ -264,7 +264,7 @@ void Application::update() {
 	m_editor->update();
 
 	if (GScreen::m_windowCommand == GScreen::MINIMIZE)	glfwIconifyWindow(m_mainWindow);
-	if (GScreen::m_windowCommand == GScreen::RESIZE)		maximize(false);
+	if (GScreen::m_windowCommand == GScreen::RESIZE)	maximize(false);
 	if (GScreen::m_windowCommand == GScreen::CLOSE)		glfwSetWindowShouldClose(m_mainWindow, true);
 	GScreen::m_windowCommand = GScreen::NONE;
 

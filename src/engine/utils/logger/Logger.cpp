@@ -93,7 +93,7 @@ void Logger::log(Verbosity p_verbosity, Type p_type, std::string p_msg, va_list 
 	if (static_cast<Sint32>(p_verbosity) <= static_cast<Sint32>(m_verbosity)) {
 		std::string msg = "";
 		char c0, c1;
-		for (Sint32 i = 0; i < p_msg.length(); i++) {
+		for (Sint32 i = 0; i < (Sint32)p_msg.length(); i++) {
 			c0 = p_msg[i];
 			if (c0 == '%') {
 				c1 = p_msg[i + 1];

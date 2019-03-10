@@ -5,7 +5,7 @@
 #include "engine\utils\LOpenGL.h"
 #include "engine\utils\variable\datatype\Rectangle.h"
 
-#include "engine\gfx\LGui.h"
+#include "engine\gfx\gui\LGui.h"
 
 #include "animation\Animation.h"
 #include "model\Model.h"
@@ -28,13 +28,13 @@ public:
 	};
 private:
 	struct ShadowBuffer {
-		GLuint framebufferName, renderedTexture, depthRenderbuffer;
-		glm::vec2 shadowSize;
-	} m_shadowBuffer;
+		GLuint framebufferName = 0, renderedTexture = 0, depthRenderbuffer = 0;
+		glm::vec2 shadowSize = {};
+	} m_shadowBuffer = {};
 
 	struct Project {
-		EditorMode mode;
-		TEMode* editor;
+		EditorMode mode = {};
+		TEMode* editor = 0;
 		Project(EditorMode p_mode, TEMode* p_editor) : mode(p_mode), editor(p_editor) {}
 	};
 	static std::vector<Project*> m_projects;
@@ -46,11 +46,9 @@ private:
 	static EditorState m_editorState;
 	static EditorMode m_editorMode;
 
-	static Container* m_mainGui;
-
 	glm::vec3 m_sunlightDirection;
 
-	GLfloat m_lastUpdate, m_deltaUpdate;
+	GLfloat m_lastUpdate = 0.f, m_deltaUpdate = 0.f;
 	std::thread *m_autosaveThread;
 	Sint32 m_autosavePeriod;
 	std::mutex m_autosaveMutex;

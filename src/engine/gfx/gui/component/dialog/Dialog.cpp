@@ -7,7 +7,8 @@ CDialog::CDialog(std::string p_compName, std::string p_title, Vector2<Sint32> p_
 	: Container(p_compName, p_pos, p_size, true) {
 	setPriorityLayer(100);
 	m_optionBorder = 10;
-	addComponent(new Panel("WINDOW", p_title, { 0, 0 }, { 0, 0 }, Component::Theme::PRIMARY, (Sint8)Component::BorderFlag::ALL), Anchor::TOP_LEFT, Component::Anchor::BOTTOM_RIGHT);
+	addComponent(new Panel("WINDOW", p_title, { 0, 0 }, { 0, 0 }, (Sint8)Component::BorderFlag::ALL), Anchor::TOP_LEFT, Component::Anchor::BOTTOM_RIGHT);
+	setPrimaryPos("Middle");
 }
 
 void CDialog::setActive(bool p_active) {

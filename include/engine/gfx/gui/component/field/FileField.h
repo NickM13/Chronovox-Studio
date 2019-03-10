@@ -8,7 +8,7 @@
 struct FileField : public Component
 {
 public:
-	FileField(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Theme p_colorTheme = Theme::PRIMARY, bool p_limitField = true);
+	FileField(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, bool p_limitField = true);
 
 	void setScroll(Vector2<Sint32> p_scroll);
 	void setScrolling(bool p_state);

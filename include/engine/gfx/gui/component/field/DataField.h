@@ -4,8 +4,8 @@
 
 struct DataField : public Component {
 public:
-	DataField(std::string p_compName, std::string* p_dataString, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Theme p_colorTheme)
-		: Component(p_compName, "", p_pos, p_size, p_colorTheme)
+	DataField(std::string p_compName, std::string* p_dataString, Vector2<Sint32> p_pos, Vector2<Sint32> p_size)
+		: Component(p_compName, "", p_pos, p_size)
 	{ m_dataString = p_dataString; }
 
 	void input(Sint8& p_interactFlags);

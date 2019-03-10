@@ -21,19 +21,19 @@ class Font {
 private:
 	struct FontType {
 		struct Character {
-			GLuint textureId;
-			glm::ivec2 size;
-			glm::ivec2 bearing;
-			GLuint advance;
+			GLuint textureId = 0;
+			glm::ivec2 size = {};
+			glm::ivec2 bearing = {};
+			GLuint advance = 0;
 		};
-		std::string m_fontName;
-		std::map<Sint8, Character> m_characters;
-		Sint16 m_height;
+		std::string m_fontName = "";
+		std::map<Sint8, Character> m_characters = {};
+		Sint16 m_height = 0;
 		//GLuint* m_textures;
 		//GLuint* m_charWidth;
 		//GLuint m_listBase;
 
-		GLfloat m_spacing;
+		GLfloat m_spacing = 0;
 	};
 	static std::vector<FontType*> m_fontList;
 	static FontType* m_font;

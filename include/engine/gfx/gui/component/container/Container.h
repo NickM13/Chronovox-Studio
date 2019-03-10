@@ -11,17 +11,15 @@
 class Container : public Component {
 protected:
 	struct Comp {
-		Anchor m_posAnchor;
-		Anchor m_sizeAnchor;
-		Component* m_component;
+		Anchor m_posAnchor = {};
+		Anchor m_sizeAnchor = {};
+		Component* m_component = 0;
 		Comp() { m_component = 0; }
 		Comp(Anchor p_posAnchor, Anchor p_sizeAnchor, Component* p_comp) : m_posAnchor(p_posAnchor), m_sizeAnchor(p_sizeAnchor), m_component(p_comp) {};
 	};
 	std::map<std::string, Comp> m_componentMap;
 	std::vector<std::string> m_componentOrder;
-	std::map<std::string, Component*> m_pauseScreens;
 	Vector4<Sint32> m_contentArea;
-	std::string m_currentPause = "";
 	Component* m_currDialog = 0;
 
 	void sortInComponent(Comp comp);
@@ -44,9 +42,6 @@ public:
 
 	Component* openDialog(Component* p_dialog);
 	Component* closeDialog();
-	Component* addPauseScreen(Component* p_comp, Anchor p_posAnchor = Anchor::NONE, Anchor p_sizeAnchor = Anchor::NONE);
-	Component* setPauseScreen(std::string p_compName);
-	bool isPaused() { return m_currentPause != ""; }
 
 	void updateSize();
 

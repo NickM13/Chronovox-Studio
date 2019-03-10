@@ -4,20 +4,19 @@
 #include "Panel.h"
 
 // ContainerPanel is a [draggable] Container with scroll bars
-class ContainerPanel : public Container
-{
+class ContainerPanel : public Container {
 private:
-	Sint8 m_lHeld, m_rHeld;
-	Vector2<Sint32> m_mousePos;
-	Vector2<Sint32> m_scroll;
-	Vector2<Sint32> m_minScroll;
-	Vector2<Sint32> m_maxScroll;
-	bool m_draggable;
-	bool m_scrollX, m_scrollY;
-	Panel* m_panel;
+	Sint8 m_lHeld = 0, m_rHeld = 0;
+	Vector2<Sint32> m_mousePos = {};
+	Vector2<Sint32> m_scroll = {};
+	Vector2<Sint32> m_minScroll = {};
+	Vector2<Sint32> m_maxScroll = {};
+	bool m_draggable = false;
+	bool m_scrollX = false, m_scrollY = false;
+	Panel* m_panel = 0;
 public:
 	ContainerPanel() {};
-	ContainerPanel(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Theme p_colorTheme, Sint8 p_borderFlags);
+	ContainerPanel(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint8 p_borderFlags);
 	~ContainerPanel();
 
 	Component* addComponent(Component* p_component, Anchor p_posAnchor = Anchor::NONE, Anchor p_sizeAnchor = Anchor::NONE);

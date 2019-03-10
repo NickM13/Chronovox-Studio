@@ -15,7 +15,7 @@ private:
 
 	Texture* m_arrow;
 public:
-	CDropDown(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Sint32 p_width, Theme p_colorTheme = Theme::PRIMARY);
+	CDropDown(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Sint32 p_width);
 
 	void setList(std::vector<std::string> p_items);
 	std::string getItem(Uint16 p_index);

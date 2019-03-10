@@ -35,6 +35,6 @@ public:
 
 	static std::vector<KeyEvent> getKeyEvents();
 
-	// Call update just before polling events
+	// Call reset before polling events
 	static void reset();
 };

@@ -132,12 +132,6 @@
     <ClCompile Include="src\engine\utils\Utilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\utils\variable\manager\ColorManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\utils\variable\manager\Manager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\gfx\texture\MTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -247,6 +241,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\editor\model\menu\ModelPropertiesDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\gfx\gui\LGui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\menu\CloseEditorDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -372,9 +372,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\engine\gfx\gui\global\GGui.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\gfx\LGui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\engine\gfx\model\MModelObj.h">
@@ -555,6 +552,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\engine\editor\model\menu\ModelPropertiesDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\gfx\gui\LGui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\editor\menu\CloseEditorDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

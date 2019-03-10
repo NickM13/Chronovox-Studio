@@ -1,7 +1,7 @@
 #include "engine\gfx\gui\component\field\NumberField.h"
 
 NumberField::NumberField(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Vector2<GLfloat> p_numBounds, NumType p_numType)
-	: Component(p_compName, p_title, p_pos, {}, Theme::ACTION) {
+	: Component(p_compName, p_title, p_pos, {}) {
 	m_sizeInit = p_size;
 	m_size = Vector2<Sint32>(p_size.x, Sint32(p_size.y * Font::getSpacingHeight()));
 	m_selected = 0;
@@ -25,8 +25,11 @@ void NumberField::input(Sint8& p_interactFlags) {
 			m_selected = 1;
 		GGui::setCursorType(GGui::CursorType::IBEAM);
 	}
-	else if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
-		m_selected = 0;
+	else {
+		if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
+			m_selected = 0;
+		resetTooltip();
+	}
 	if ((p_interactFlags & (Sint8)EventFlag::KEYPRESS) && m_selected != 0) {
 		p_interactFlags -= (Sint8)EventFlag::KEYPRESS;
 		std::vector<GKey::KeyEvent> _keyEvents = GKey::getKeyEvents();
@@ -134,25 +137,26 @@ void NumberField::render() {
 	Shader::pushMatrixModel();
 	GBuffer::setTexture(0);
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
-	GBuffer::setColor(m_colorTheme->m_border);
+
+	if (m_selected) GBuffer::setColor(m_colorThemeMap.at("borderElementFocused"));
+	else			GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 
 	GBuffer::addVertexQuad(-1, -1);
 	GBuffer::addVertexQuad((m_size.x + 1), -1);
 	GBuffer::addVertexQuad((m_size.x + 1), (m_size.y + 1));
 	GBuffer::addVertexQuad(-1, (m_size.y + 1));
 
-	if (m_selected) GBuffer::setColor(m_colorTheme->m_select);
-	else			GBuffer::setColor(m_colorTheme->m_primary);
+	GBuffer::setColor(m_colorThemeMap.at("primaryText"));
 
 	GBuffer::addVertexQuad(0, 0);
 	GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
 	GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y));
 	GBuffer::addVertexQuad(0, GLfloat(m_size.y));
 
-	GBuffer::setColor(m_colorTheme->m_textLight);
+	GBuffer::setColor(m_colorThemeMap.at("textLight"));
 	Font::setAlignment(ALIGN_RIGHT);
 	Font::print(m_title, -2, Sint32(0.5f * Font::getSpacingHeight()));
-	GBuffer::setColor(m_colorTheme->m_text);
+	GBuffer::setColor(m_colorThemeMap.at("textLight"));
 	Font::setAlignment(ALIGN_LEFT);
 	Font::print(m_numText, 2, Sint32(0.5f * Font::getSpacingHeight()));
 	if (m_selected != 0 && (fmod(glfwGetTime(), 0.5) < 0.25)) {

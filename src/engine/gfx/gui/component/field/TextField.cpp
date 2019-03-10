@@ -1,7 +1,7 @@
 #include "engine\gfx\gui\component\field\TextField.h"
 
 TextField::TextField(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint8 p_colorTheme, bool p_limitField)
-	: Component(p_compName, "", p_pos, p_size, Theme::ACTION) {
+	: Component(p_compName, "", p_pos, p_size) {
 	m_blankField = p_title;
 	m_size = Vector2<Sint32>(p_size.x, Sint32(p_size.y));
 	m_scrolling = false;
@@ -253,22 +253,23 @@ void TextField::render() {
 	Shader::pushMatrixModel();
 	GBuffer::setTexture(0);
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
-	GBuffer::setColor(m_colorTheme->m_border);
+
+	if (m_selected) GBuffer::setColor(m_colorThemeMap.at("borderElementFocused"));
+	else			GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 
 	GBuffer::addVertexQuad(-1, -1);
 	GBuffer::addVertexQuad(GLfloat(m_size.x + 1), -1);
 	GBuffer::addVertexQuad(GLfloat(m_size.x + 1), GLfloat(_boxHeight + 1));
 	GBuffer::addVertexQuad(-1, GLfloat(_boxHeight + 1));
 
-	if (m_selected) GBuffer::setColor(m_colorTheme->m_select);
-	else			GBuffer::setColor(m_colorTheme->m_primary);
+	GBuffer::setColor(m_colorThemeMap.at("primaryText"));
 
 	GBuffer::addVertexQuad(0, 0);
 	GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
 	GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(_boxHeight));
 	GBuffer::addVertexQuad(0, GLfloat(_boxHeight));
 
-	GBuffer::setColor(m_colorTheme->m_text);
+	GBuffer::setColor(m_colorThemeMap.at("textLight"));
 	Font::setAlignment(ALIGN_LEFT);
 	if (m_title != "" || m_text[0] != "" || m_text.size() > 1) {
 		for (Uint16 i = 0; i < m_text.size(); i++) {
@@ -282,12 +283,12 @@ void TextField::render() {
 	}
 	else {
 		if (m_selected != 0) {
-			GBuffer::setColor(m_colorTheme->m_text);
+			GBuffer::setColor(m_colorThemeMap.at("textLight"));
 			Font::print(((fmod(glfwGetTime(), 0.5) < 0.25) ? "|" : ""),
 				2,
 				Sint32(0.5f * Font::getSpacingHeight() - 2));
 		}
-		GBuffer::setColor(m_colorTheme->m_text.applyScale(Color(1.f, 1.f, 1.f, 0.5f)));
+		GBuffer::setColor(m_colorThemeMap.at("textLight").applyScale(Color(1.f, 1.f, 1.f, 0.5f)));
 		for (Uint16 i = 0; i < fmin((_boxHeight), ceil(GLfloat(m_blankField.length()) / (m_size.x))); i++) {
 			Font::print(m_blankField.substr(i * (m_size.x), (m_size.x)) + ((m_selected && (i == (_boxHeight)-1) && fmod(glfwGetTime(), 0.5) < 0.25) ? "|" : ""),
 				2,

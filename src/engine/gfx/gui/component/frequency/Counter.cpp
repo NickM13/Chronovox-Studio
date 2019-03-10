@@ -1,7 +1,7 @@
 #include "engine\gfx\gui\component\frequency\Counter.h"
 
 CCounter::CCounter(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint32& p_currValue)
-	: Component(p_compName, p_title, p_pos, p_size, Theme::MENUBAR) {
+	: Component(p_compName, p_title, p_pos, p_size) {
 	m_buttonAdd = new CButton("", "+", Vector2<Sint32>(p_pos.x + m_title.length() * 16 + 20, p_pos.y), Vector2<Sint32>(16, 16), CButton::RenderStyle::ALL);
 	m_buttonSubtract = new CButton("", "-", Vector2<Sint32>(p_pos.x + m_title.length() * 16, p_pos.y), Vector2<Sint32>(16, 16), CButton::RenderStyle::ALL);
 }

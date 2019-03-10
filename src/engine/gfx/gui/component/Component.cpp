@@ -3,17 +3,16 @@
 #include "engine\gfx\gui\global\GGui.h"
 #include "engine\utils\directory\LDirectory.h"
 
-std::map<Component::Theme, Component::ColorTheme*> Component::m_colorThemes;
+std::map<std::string, Color> Component::m_colorThemeMap;
 
 Component::Component() {
-	m_colorTheme = m_colorThemes[Theme::PRIMARY];
+
 }
-Component::Component(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Theme p_colorTheme) {
+Component::Component(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size) {
 	m_compName = p_compName;
 	m_title = p_title;
 	m_posInit = m_pos = p_pos;
 	m_sizeInit = m_size = p_size;
-	m_colorTheme = m_colorThemes[p_colorTheme];
 	m_texture = 0;
 }
 Component::~Component() {
@@ -21,71 +20,63 @@ Component::~Component() {
 }
 
 void Component::init() {
-	// Initializes default values for themes
-	m_colorThemes = {
-		//	ID									Border		Primary		Select		Hover		Text		Text Info	Highlight
-		{Theme::WINDOW,			new ColorTheme(	0x101010,	0x414141,	0x818181,	0x818181,	0xF0F0F0,	0x0F0F0F,	0x007ACC)},
-		{Theme::PRIMARY,		new ColorTheme(	0x101010,	0x414141,	0x818181,	0x818181,	0xF0F0F0,	0x0F0F0F,	0x007ACC)},
-		{Theme::MENUBAR,		new ColorTheme(	0x101010,	0x414141,	0x262626,	0x616161,	0xF0F0F0,	0x0F0F0F,	0x007ACC)},
-		{Theme::INFO,			new ColorTheme(	0x444444,	0x007ACC,	0xBCBCBC,	0x818181,	0xF0F0F0,	0xF0F0F0,	0x007ACC)},
-		{Theme::ACTION,			new ColorTheme(	0x101010,	0x414141,	0x303030,	0x707070,	0xF0F0F0,	0xF0F0F0,	0x007ACC)},
-		{Theme::ACTION_LIGHT,	new ColorTheme(	0x101010,	0xFFFFFF,	0xBBBBBB,	0xDDDDDD,	0x0F0F0F,	0x0F0F0F,	0x007ACC)}
-	};// 0x007ACC - light blue
 	loadTheme();
 }
 void Component::loadTheme() {
 	std::ifstream themefile(LDirectory::getProjectPath() + "res\\config\\ColorTheme.ini");
 	if (themefile.good()) {
+		m_colorThemeMap.clear();
 		std::string line = "";
 		std::string first, second;
 		std::stringstream ss;
 		Sint32 colorhex;
-		Theme theme;
 		size_t equalPos;
 		while (!themefile.eof()) {
 			std::getline(themefile, line);
-			if (line.empty()) continue;
-			if (line.at(0) == '[') {
-				first = line.substr(1, line.find_first_of(']') - 1);
-				if (first == "WINDOW")				theme = Theme::WINDOW;
-				else if (first == "PRIMARY")		theme = Theme::PRIMARY;
-				else if (first == "MENUBAR")		theme = Theme::MENUBAR;
-				else if (first == "INFO")			theme = Theme::INFO;
-				else if (first == "ACTION")			theme = Theme::ACTION;
-				else if (first == "ACTION_LIGHT")	theme = Theme::ACTION_LIGHT;
-			}
-			else {
-				equalPos = line.find_first_of('=');
-				first = line.substr(0, equalPos);
-				second = line.substr(equalPos + 1);
+			if (line.empty() || line.at(0) == '#') continue;
+			equalPos = line.find_first_of('=');
+			first = line.substr(0, equalPos);
+			second = line.substr(equalPos + 1);
 
-				if (second.length() > 2
-					&& second.substr(0, 2) == "/x") {
-					ss.clear();
-					ss << std::hex << second.substr(2);
-					ss >> colorhex;
+			ss.clear();
+			ss << std::hex << second;
+			ss >> colorhex;
 
-					if (first == "border")			m_colorThemes.at(theme)->m_border =				Color(colorhex);
-					else if (first == "primary")	m_colorThemes.at(theme)->m_primary =			Color(colorhex);
-					else if (first == "select")		m_colorThemes.at(theme)->m_select =				Color(colorhex);
-					else if (first == "hover")		m_colorThemes.at(theme)->m_hover =				Color(colorhex);
-					else if (first == "text1")		m_colorThemes.at(theme)->m_text =				Color(colorhex);
-					else if (first == "text2")		m_colorThemes.at(theme)->m_textLight =			Color(colorhex);
-					else if (first == "highlight")	m_colorThemes.at(theme)->m_borderHighlight =	Color(colorhex);
+			m_colorThemeMap.insert({ first, Color(colorhex) });
 
-				}
-			}
 			line = "";
 		}
 	}
 	themefile.close();
 }
 void Component::terminate() {
-	m_colorThemes.clear();
+	m_colorThemeMap.clear();
 }
 
 Component* Component::addComponent(Component* p_comp, Anchor p_posAnchor, Anchor p_sizeAnchor) { return this; }
 Component* Component::findComponent(std::string p_compName) { return this; }
+
+Color Component::getElementColor(std::string p_element) {
+	return m_colorThemeMap.at(p_element);
+}
+Color Component::getPrimaryColor() {
+	if (getPrimaryPos() != "") {
+		return m_colorThemeMap.at("primary" + getPrimaryPos());
+	}
+	if (m_parentContainer) {
+		return m_colorThemeMap.at("primary" + m_parentContainer->getPrimaryPos());
+	}
+	return Color(1, 0, 0);
+}
+std::string Component::getPrimaryPos() {
+	if (m_parentContainer != 0 && m_primaryPos == "") {
+		return m_parentContainer->getPrimaryPos();
+	}
+	return m_primaryPos;
+}
+void Component::setPrimaryPos(std::string p_pp) {
+	m_primaryPos = p_pp;
+}
 Component* Component::addItem(std::string p_item) { return this; }
 Uint16 Component::getItemCount() { return 0; }
 void Component::setList(std::vector<std::string> p_items) { }
@@ -130,15 +121,18 @@ void Component::addTooltip() {
 	if (!GMouse::mouseMoved() || m_tooltipTime > 0) {
 		m_tooltipCounted = true;
 		m_tooltipTime += GScreen::m_deltaTime;
-		if (m_tooltipTime > 0.25f)
-			GGui::setTooltip(m_tooltip, GMouse::getMousePos());
 	}
-	else
+	else {
 		m_tooltipTime = 0;
+	}
+	if (m_tooltipTime > 0.15f) {
+		GGui::setTooltip(m_tooltip, GMouse::getMousePos());
+	}
 }
 void Component::resetTooltip() {
-	if (!m_tooltipCounted)
+	if (!m_tooltipCounted) {
 		m_tooltipTime = 0;
+	}
 	m_tooltipCounted = false;
 }
 
@@ -153,10 +147,12 @@ Vector2<Sint32> Component::getSize() { return m_size; }
 Vector2<Sint32> Component::getRealPosition() { return m_pos; }
 Vector2<Sint32> Component::getRealSize() { return m_size; }
 void Component::setState(Sint8 p_selected) { m_selected = p_selected; }
-Component* Component::setPauseScreen(std::string p_screen) { return this; }
 
-Component* Component::setVisible(bool p_visible)
-{
+void Component::setHovered(bool p_hovered) {
+	m_hovered = p_hovered;
+}
+
+Component* Component::setVisible(bool p_visible) {
 	m_visible = p_visible;
 	return this;
 }
@@ -164,25 +160,41 @@ bool Component::isVisible() { return m_visible; }
 
 void Component::input() { }
 void Component::input(Sint8& p_interactFlags) { }
-void Component::update(GLfloat p_deltaUpdate) { }
+void Component::update(GLfloat p_deltaUpdate) {
+	if (m_hovered) {
+		m_hoverTimer += p_deltaUpdate * 8;
+		if (m_hoverTimer > 1) {
+			m_hoverTimer = 1;
+		}
+	}
+	else {
+		m_hoverTimer -= p_deltaUpdate * 8;
+		if (m_hoverTimer < 0) {
+			m_hoverTimer = 0;
+		}
+	}
+}
 void Component::renderBack() {
 
 }
 void Component::renderFill(bool p_setColor) {
 	Shader::pushMatrixModel();
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
-	if (p_setColor) {
-		if (isSelected())	GBuffer::setColor(m_colorTheme->m_select);
-		else if (m_hovered)	GBuffer::setColor(m_colorTheme->m_hover);
-		else				GBuffer::setColor(m_colorTheme->m_primary);
-	}
+	GBuffer::setColor(getPrimaryColor());
 	GBuffer::setTexture(0);
 	GBuffer::addVertexQuad(0, 0);
 	GBuffer::addVertexQuad(m_size.x, 0);
 	GBuffer::addVertexQuad(m_size.x, m_size.y);
 	GBuffer::addVertexQuad(0, m_size.y);
+	if (isSelected() || m_hoverTimer > 0) {
+		if (isSelected())			GBuffer::setColor(m_colorThemeMap.at("actionPressed").applyScale(Color(1.f, 1.f, 1.f, 0.5f)));
+		else if (m_hoverTimer > 0)	GBuffer::setColor(m_colorThemeMap.at("actionHover").applyScale(Color(1.f, 1.f, 1.f, m_hoverTimer / 2.f)));
+		GBuffer::addVertexQuad(0, 0);
+		GBuffer::addVertexQuad(m_size.x, 0);
+		GBuffer::addVertexQuad(m_size.x, m_size.y);
+		GBuffer::addVertexQuad(0, m_size.y);
+	}
 	if (m_texture) {
-		glColor3f(1, 1, 1);
 		GBuffer::setColor(Color(1.f, 1.f, 1.f, 1.f));
 		GBuffer::setTexture(m_texture->getGlId());
 		Vector2<Sint32> _texSize = m_texture->getSize();
@@ -318,26 +330,13 @@ void Component::renderBorder() {
 	GBuffer::setTexture(0);
 	Shader::pushMatrixModel();
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
-	GBuffer::setColor(m_colorTheme->m_border);
+	GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 	if (m_border & static_cast<Sint8>(BorderFlag::TOP)) {
-		GBuffer::addVertexQuad(0, 0);
-		GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
-		GBuffer::addVertexQuad(GLfloat(m_size.x), -1);
-		GBuffer::addVertexQuad(0, -1);
-		/* For rounded corners
-		if (m_border & (Sint8)BorderFlag::LEFT) {
-			GBuffer::addVertexQuad(0, 0);
-			GBuffer::addVertexQuad(1, 0);
-			GBuffer::addVertexQuad(1, 1);
-			GBuffer::addVertexQuad(0, 1);
-		}
-		if (m_border & (Sint8)BorderFlag::RIGHT) {
-			GBuffer::addVertexQuad((GLfloat)m_size.x, 0);
-			GBuffer::addVertexQuad((GLfloat)m_size.x - 1, 0);
-			GBuffer::addVertexQuad((GLfloat)m_size.x - 1, 1);
-			GBuffer::addVertexQuad((GLfloat)m_size.x, 1);
-		}
-		*/
+		GBuffer::addVertexQuad((m_border & (Sint8)BorderFlag::LEFT) ? -1 : 0, 0);
+		GBuffer::addVertexQuad(GLfloat(m_size.x) + ((m_border & (Sint8)BorderFlag::RIGHT) ? 1 : 0), 0);
+		GBuffer::addVertexQuad(GLfloat(m_size.x) + ((m_border & (Sint8)BorderFlag::RIGHT) ? 1 : 0), -1);
+		GBuffer::addVertexQuad((m_border & (Sint8)BorderFlag::LEFT) ? -1 : 0, -1);
+
 	}
 	if (m_border & static_cast<Sint8>(BorderFlag::RIGHT)) {
 		GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
@@ -346,24 +345,10 @@ void Component::renderBorder() {
 		GBuffer::addVertexQuad(GLfloat(m_size.x) + 1, 0);
 	}
 	if (m_border & static_cast<Sint8>(BorderFlag::BOTTOM)) {
-		GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y));
-		GBuffer::addVertexQuad(0, GLfloat(m_size.y));
-		GBuffer::addVertexQuad(0, GLfloat(m_size.y) + 1);
-		GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y) + 1);
-		/*
-		if (m_border & (Sint8)BorderFlag::RIGHT) {
-			GBuffer::addVertexQuad((GLfloat)m_size.x, (GLfloat)m_size.y);
-			GBuffer::addVertexQuad((GLfloat)m_size.x - 1, (GLfloat)m_size.y);
-			GBuffer::addVertexQuad((GLfloat)m_size.x - 1, (GLfloat)m_size.y - 1);
-			GBuffer::addVertexQuad((GLfloat)m_size.x, (GLfloat)m_size.y - 1);
-		}
-		if (m_border & (Sint8)BorderFlag::LEFT) {
-			GBuffer::addVertexQuad(0, (GLfloat)m_size.y);
-			GBuffer::addVertexQuad(1, (GLfloat)m_size.y);
-			GBuffer::addVertexQuad(1, (GLfloat)m_size.y - 1);
-			GBuffer::addVertexQuad(0, (GLfloat)m_size.y - 1);
-		}
-		*/
+		GBuffer::addVertexQuad(GLfloat(m_size.x) + ((m_border & (Sint8)BorderFlag::RIGHT) ? 1 : 0), GLfloat(m_size.y));
+		GBuffer::addVertexQuad(((m_border & (Sint8)BorderFlag::LEFT) ? -1 : 0), GLfloat(m_size.y));
+		GBuffer::addVertexQuad(((m_border & (Sint8)BorderFlag::LEFT) ? -1 : 0), GLfloat(m_size.y) + 1);
+		GBuffer::addVertexQuad(GLfloat(m_size.x) + ((m_border & (Sint8)BorderFlag::RIGHT) ? 1 : 0), GLfloat(m_size.y) + 1);
 	}
 	if (m_border & static_cast<Sint8>(BorderFlag::LEFT)) {
 		GBuffer::addVertexQuad(0, 0);

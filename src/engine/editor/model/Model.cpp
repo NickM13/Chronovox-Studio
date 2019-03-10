@@ -23,13 +23,10 @@ Model::Model()
 	: TEMode() {
 	m_sModel = new SimpleModel();
 	m_matrixEdit = new EditMatrix();
-	MMesh::init();
 }
 Model::~Model() {
 	delete m_sModel;
 	delete m_matrixEdit;
-	MMesh::terminate();
-	MTool::terminate();
 }
 void Model::init() {
 	m_name = "New Model";
@@ -45,12 +42,11 @@ void Model::init() {
 	m_colorOverlay->setColorRGB(0, 255, 128);
 	m_voxelColor = &m_colorOverlay->getColor();
 	newModel();
+}
+void Model::activate() {
 	Tool::init(m_matrixEdit, &m_subTool);
 	VoxelTool::init(&m_selectedVoxel, &m_selectedVoxelOffset, &m_selectedSide, m_voxelColor);
 	MatrixTool::init(m_sModel->getMatrixList(), &m_scalePos, &m_selectedScale);
-}
-void Model::activate() {
-	MatrixTool::setMatrixList(m_sModel->getMatrixList());
 }
 
 bool Model::hasChanged() {
@@ -70,15 +66,29 @@ void Model::setTool(Sint32 p_tool) {
 	Tool* tool = MTool::getTool(m_tool);
 }
 void Model::setTool(std::string p_toolName) {
-	setSubTool(0);
-	MTool::getTool(m_tool)->disable();
-	for (Sint32 i = 0; i < (Sint32)MTool::getToolList().size(); i++)
-		if (MTool::getToolList()[i]->getName() == p_toolName) {
-			m_tool = i;
+	if (p_toolName == MTool::getTool(m_tool)->getName()) {
+		switch (MTool::getTool(m_tool)->getType()) {
+		case Tool::ToolType::VOXEL:
+			setSubTool((m_subTool + 1) % static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_VOXEL"))->getButtonCount());
 			break;
+		case Tool::ToolType::MATRIX:
+			setSubTool((m_subTool + 1) % static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MATRIX"))->getButtonCount());
+			break;
+		default: break;
 		}
-	ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MAIN")->setSelectedItem(m_tool);
-	MTool::getTool(m_tool)->enable();
+	}
+	else {
+		setSubTool(0);
+		MTool::getTool(m_tool)->disable();
+		for (Sint32 i = 0; i < (Sint32)MTool::getToolList().size(); i++) {
+			if (MTool::getToolList()[i]->getName() == p_toolName) {
+				m_tool = i;
+				break;
+			}
+		}
+		ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MAIN")->setSelectedItem(m_tool);
+		MTool::getTool(m_tool)->enable();
+	}
 }
 void Model::setSubTool(Sint32 p_subTool) {
 	if (p_subTool < 0) return;
@@ -102,9 +112,13 @@ void Model::setSubTool(Sint32 p_subTool) {
 }
 void Model::updateTool() {
 	m_tool = ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MAIN")->getSelectedItem();
-	if (MTool::getTool(m_tool)->getType() == Tool::ToolType::VOXEL)
+	if (MTool::getTool(m_tool)->getType() == Tool::ToolType::VOXEL) {
 		m_subTool = ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_VOXEL")->getSelectedItem();
-	if (MTool::getTool(m_tool)->getType() == Tool::ToolType::MATRIX) hoverMatrix(-1);
+	}
+	if (MTool::getTool(m_tool)->getType() == Tool::ToolType::MATRIX) {
+		m_subTool = ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MATRIX")->getSelectedItem();
+		hoverMatrix(-1);
+	}
 }
 
 void Model::toggleGrid() {
@@ -488,11 +502,9 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 		m_selectedVoxel = m_selectedVoxelOffset = { -1, -1, -1 };
 	}
 
-	if (!EditorOverlay::getContainer()->isPaused() && (p_guiFlags & (Sint8)Component::EventFlag::KEYPRESS)) {
+	if (p_guiFlags & (Sint8)Component::EventFlag::KEYPRESS) {
 		if (GKey::keyPressed(GLFW_KEY_C, GLFW_MOD_CONTROL))       copyMatrix();
 		if (GKey::keyPressed(GLFW_KEY_V, GLFW_MOD_CONTROL))       pasteMatrix();
-		if (GKey::keyPressed(GLFW_KEY_N, GLFW_MOD_CONTROL))       ModelOverlay::getContainer()->setPauseScreen("DIALOG_NEWMATRIX");
-		if (GKey::keyPressed(GLFW_KEY_F2) && getSelectedMatrix()) ModelOverlay::getContainer()->setPauseScreen("DIALOG_PROPERTIES");
 		if (GKey::keyPressed(GLFW_KEY_DELETE))                    deleteSelectedMatrices();
 		if (GKey::keyPressed(GLFW_KEY_T))                         setTool("VTAdd");
 		if (GKey::keyPressed(GLFW_KEY_E))                         setTool("VTErase");
@@ -515,8 +527,9 @@ void Model::updateEditor(GLfloat p_deltaUpdate) {
 	default: break;
 	}
 
-	for (Matrix* m : *m_sModel->getMatrixList())
+	for (Matrix* m : *m_sModel->getMatrixList()) {
 		m->update();
+	}
 
 	Matrix* m = 0;
 	if (getSelectedMatrix()) m = getSelectedMatrix();
@@ -679,28 +692,6 @@ bool Model::autoload() {
 	strcat_s(documents, "\\Voxel Models\\autosave.nvm");
 	return loadOpen(documents);
 }
-void Model::open() {
-	char documents[MAX_PATH];
-	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
-
-	strcat_s(documents, "\\Voxel Models");
-	_mkdir(documents);
-
-	char filename[MAX_PATH];
-	OPENFILENAME ofn;
-
-	ZeroMemory(&filename, sizeof(filename));
-	ZeroMemory(&ofn, sizeof(ofn));
-	ofn.lStructSize = sizeof(ofn);
-	ofn.hwndOwner = NULL;
-	ofn.lpstrFilter = "NVM (*.nvm)\0*.nvm*\0QBCL (*.qbcl)\0*.qbcl*\0QB (*.qb)\0*.qb*\0VOX (*.vox)\0*.vox*\0Any File\0*.*\0";
-	ofn.lpstrFile = filename;
-	if (res == S_OK) ofn.lpstrInitialDir = documents;
-	ofn.nMaxFile = MAX_PATH;
-	ofn.lpstrTitle = "Open Model";
-	if (!GetOpenFileName(&ofn)) return;
-	loadOpen(filename);
-}
 void Model::add() {
 	char documents[MAX_PATH];
 	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
@@ -715,10 +706,10 @@ void Model::add() {
 	ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = NULL;
-	ofn.lpstrFilter = "Model (*.nvm, *.qbcl, *.qb, *.vox)\0"
-		"*.nvm;*.qbcl;*.qb;*.vox*\0"
-		"Animation (*.nva)\0"
-		"*.nva\0"
+	ofn.lpstrFilter = "Model (*.nvm, *.qb)\0"
+		"*.nvm;*.qb*\0"
+		//"Animation (*.nva)\0"
+		//"*.nva\0"
 		"Any File\0"
 		"*.*\0\0";
 	ofn.lpstrFile = filename;
@@ -817,9 +808,6 @@ void Model::fileNew() {
 	m_matrixEdit->setCommandChaining(false);
 	updateMatrixList();
 }
-void Model::fileOpen() {
-	open();
-}
 void Model::fileAdd() {
 	add();
 }
@@ -850,7 +838,7 @@ void Model::editNewMatrix() {
 		}
 		nmd->setActive(false);
 	});
-	EditorOverlay::getContainer()->openDialog(NewModelDialog::getInstance().getDialog());
+	Gui::openDialog(NewModelDialog::getInstance().getDialog());
 }
 void Model::editMatrixProperties() {
 	CDialog* mpd = ModelPropertiesDialog::getInstance().getDialog();
@@ -892,7 +880,7 @@ void Model::editMatrixProperties() {
 		}
 		mpd->setActive(false);
 	});
-	EditorOverlay::getContainer()->openDialog(mpd);
+	Gui::openDialog(mpd);
 }
 void Model::editUndo() {
 	undo();

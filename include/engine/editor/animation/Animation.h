@@ -2,7 +2,7 @@
 #include "keyframe\Keyframe.h"
 #include "..\TEMode.h"
 #include "..\model\SimpleModel.h"
-#include "engine\gfx\LGui.h"
+#include "engine\gfx\gui\LGui.h"
 #include "menu\KeyframeTimeline.h"
 
 class Animation : public TEMode {

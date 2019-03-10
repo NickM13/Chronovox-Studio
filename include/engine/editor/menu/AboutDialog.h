@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine\gfx\LGui.h"
+#include "engine\gfx\gui\LGui.h"
 #include "engine\utils\directory\LDirectory.h"
 
 class AboutDialog : public Singleton<AboutDialog> {

@@ -5,7 +5,7 @@ KeyframeTimeline::KeyframeTimeline(Vector2<Sint32> p_pos, Vector2<Sint32> p_size
 	: Container("TIMELINE_KEYFRAME", p_pos, p_size, true) {
 	m_border = ((Sint8)BorderFlag::TOP | (Sint8)BorderFlag::BOTTOM);
 	m_maxLayer = 0;
-	addComponent(new Panel("RULER_BG", "", { 0, 0 }, { 0, 24 }, Component::Theme::INFO, (Sint8)BorderFlag::ALL), Anchor::NONE, Anchor::TOP_RIGHT);
+	addComponent(new Panel("RULER_BG", "", { 0, 0 }, { 0, 24 }, (Sint8)BorderFlag::ALL), Anchor::NONE, Anchor::TOP_RIGHT);
 	m_translateColor = Color(1, 0.5f, 0);
 	m_rotateColor = Color(1, 0, 0);
 	m_scaleColor = Color(0.5f, 1, 0);
@@ -141,7 +141,7 @@ void KeyframeTimeline::render() {
 		// Time ruler
 		Sint32 lc = 20; // Ruler line count
 		GBuffer::setTexture(0);
-		GBuffer::setColor(m_colorTheme->m_border);
+		GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 		for (Sint32 i = 0; i < lc; i++) {
 			if (i % 5 == 0) {
 				GBuffer::addVertexQuad((GLfloat(i) / lc) * frameArea.x    , 0);
@@ -159,7 +159,7 @@ void KeyframeTimeline::render() {
 			}
 		}
 		GLfloat tl = m_time * m_keyframeArea.w / m_length; // Time line
-		GBuffer::setColor(m_colorTheme->m_borderHighlight);
+		GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 		GBuffer::addVertexQuad(tl    , 12);
 		GBuffer::addVertexQuad(tl + 1, 12);
 		GBuffer::addVertexQuad(tl + 1, frameArea.y);

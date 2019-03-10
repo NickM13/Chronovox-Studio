@@ -1,5 +1,5 @@
 #pragma once
-#include "engine\gfx\LGui.h"
+#include "engine\gfx\gui\LGui.h"
 #include "..\keyframe\Keyframe.h"
 
 class KeyframeTimeline : public Container {

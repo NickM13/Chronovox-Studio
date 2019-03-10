@@ -11,13 +11,13 @@
 // 3d model class
 class ModelObj {
 private:
-	std::string m_name;
-	std::vector<glm::vec3> m_vertices;
-	std::vector<glm::vec4> m_colors;
-	std::vector<glm::vec2> m_texCoords;
-	std::vector<glm::vec3> m_normals;
-	GLuint m_vao;
-	GLuint m_vbo[4];
+	std::string m_name = "";
+	std::vector<glm::vec3> m_vertices = {};
+	std::vector<glm::vec4> m_colors = {};
+	std::vector<glm::vec2> m_texCoords = {};
+	std::vector<glm::vec3> m_normals = {};
+	GLuint m_vao = 0;
+	GLuint m_vbo[4] = {};
 public:
 	ModelObj(std::string p_name = "") 
 		: m_name(p_name) {}

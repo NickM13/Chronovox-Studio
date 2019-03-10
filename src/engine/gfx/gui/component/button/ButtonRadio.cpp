@@ -1,7 +1,7 @@
 #include "engine\gfx\gui\component\button\ButtonRadio.h"
 
 CButtonRadio::CButtonRadio(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_buttonSize, Vector2<Sint32> p_buttonStep)
-	: Component(p_compName, p_title, p_pos, {}, Theme::ACTION) {
+	: Component(p_compName, p_title, p_pos, {}) {
 	m_buttonSize = p_buttonSize;
 	m_buttonStep = p_buttonStep;
 }
@@ -13,6 +13,7 @@ CButtonRadio::~CButtonRadio() {
 
 Component* CButtonRadio::addButton(Texture* p_tex) {
 	CButtonToggle *_button = new CButtonToggle("", p_tex, m_buttonStep * m_buttonList.size() + getPosition(), m_buttonSize);
+	_button->setParent(this);
 	_button->setBorderFlag(0);
 	m_buttonList.push_back(_button);
 	if (m_buttonList.size() > m_selectedButton) {
@@ -24,15 +25,12 @@ Component* CButtonRadio::addButton(Texture* p_tex) {
 
 void CButtonRadio::input(Sint8& p_interactFlags) {
 	Vector2<Sint32> _mousePos = GMouse::getMousePos() - m_pos;
-	if (p_interactFlags & (Sint8)EventFlag::MOUSEOVER) {
-		for (Uint16 i = 0; i < m_buttonList.size(); i++) {
-			if (m_buttonList[i] != 0) {
-				m_buttonList[i]->input(p_interactFlags);
-				if (m_buttonList[i]->getValue() != 0) {
-					m_selectedButton = i;
-					callPressFunction();
-					return;
-				}
+	for (Uint16 i = 0; i < m_buttonList.size(); i++) {
+		if (m_buttonList[i] != 0) {
+			m_buttonList[i]->input(p_interactFlags);
+			if (m_buttonList[i]->getValue() != 0) {
+				m_selectedButton = i;
+				return;
 			}
 		}
 	}
@@ -45,6 +43,9 @@ void CButtonRadio::update(GLfloat p_deltaUpdate) {
 			callPressFunction();
 			m_prevSelectedButton = m_selectedButton;
 		}
+	}
+	for (Uint16 i = 0; i < m_buttonList.size(); i++) {
+		m_buttonList[i]->update(p_deltaUpdate);
 	}
 }
 void CButtonRadio::render() {

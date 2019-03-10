@@ -55,14 +55,6 @@ public:
 		LEFT = 8,
 		ALL = 15
 	};
-	enum class Theme {
-		WINDOW,
-		PRIMARY,
-		MENUBAR,
-		INFO,
-		ACTION,
-		ACTION_LIGHT
-	};
 	enum class TextureStyle {
 		NONE,
 		STRETCH,
@@ -73,24 +65,18 @@ public:
 
 protected:
 	function m_pressFunction = 0, m_holdFunction = 0, m_releaseFunction = 0;
-	struct ColorTheme {
-		Color m_border, m_primary, m_select, m_hover, m_text, m_textLight, m_borderHighlight;
-		ColorTheme(Color p_border = {}, Color p_primary = {}, Color p_select = {}, Color p_hover = {}, Color p_text1 = {}, Color p_text2 = {}, Color p_borderHighlight = {}) {
-			m_border = p_border;
-			m_primary = p_primary;
-			m_select = p_select;
-			m_hover = p_hover;
-			m_text = p_text1;
-			m_textLight = p_text2;
-			m_borderHighlight = p_borderHighlight;
-		}
-	};
 
 	std::string m_compName, m_title;
 	Vector2<Sint32> m_posInit, m_pos, m_sizeInit, m_size;
 	Sint8 m_selected = 0;
 	bool m_hovered = false;
-	ColorTheme* m_colorTheme;
+	GLfloat m_hoverTimer = 0;
+	// Appends to primary to link with ColorTheme color
+	std::string m_primaryPos = "";
+
+	// Type is Component because Container includes Component.h, just use
+	// a static_cast<Container*>
+	Component* m_parentContainer = 0;
 
 	Texture* m_texture;
 	TextureStyle m_textureStyle = TextureStyle::STRETCH;
@@ -99,8 +85,8 @@ protected:
 
 	GLfloat m_numValue = 0;
 
-	// Default color themes
-	static std::map<Theme, ColorTheme*> m_colorThemes;
+	// Default color themes, loaded from res/config/ColorTheme.ini
+	static std::map<std::string, Color> m_colorThemeMap;
 	bool m_visible = true;
 	Sint8 m_moveToFront = 0;
 	Sint8 m_priority = 0;
@@ -109,18 +95,26 @@ protected:
 	GLfloat m_tooltipTime = 0;
 	bool m_tooltipCounted;
 	Vector2<Sint32> m_tooltipMouse;
+
+	void setHovered(bool p_hovered);
 public:
 	Component();
-	Component(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Theme p_colorTheme = Theme::PRIMARY);
+	Component(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size);
 	virtual ~Component();
 
 	static void init();
 	static void loadTheme();
 	static void terminate();
 
+	Component* getParent() const { return m_parentContainer; }
+	void setParent(Component* p_parentContainer) { m_parentContainer = p_parentContainer; }
 	virtual Component* addComponent(Component* p_comp, Anchor p_posAnchor = Anchor::NONE, Anchor p_sizeAnchor = Anchor::NONE);
 	virtual Component* findComponent(std::string p_compName);
 
+	static Color getElementColor(std::string p_element);
+	Color getPrimaryColor();
+	virtual std::string getPrimaryPos();
+	virtual void setPrimaryPos(std::string p_pp);
 	virtual Component* addItem(std::string p_item);
 	virtual Uint16 getItemCount();
 	virtual void setList(std::vector<std::string> p_items);
@@ -148,7 +142,6 @@ public:
 	void resetTooltip();
 
 	virtual void setTitle(std::string p_title);
-	Component* setTheme(Theme p_theme) { m_colorTheme = m_colorThemes[p_theme]; return this; }
 	Component* setBorderFlag(Sint8 p_border) { m_border = p_border; return this; } // Use flags from enum Component::BorderFlag
 	virtual void resize();
 	virtual void setPosition(Vector2<Sint32> p_pos);
@@ -159,7 +152,6 @@ public:
 	Vector2<Sint32> getSize();
 	virtual Vector2<Sint32> getRealPosition();
 	virtual Vector2<Sint32> getRealSize();
-	virtual Component* setPauseScreen(std::string p_screen);
 
 	virtual Component* setVisible(bool p_visible);
 	bool isVisible();

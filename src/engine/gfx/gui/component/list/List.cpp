@@ -1,7 +1,7 @@
 #include "engine\gfx\gui\component\list\List.h"
 
 CList::CList(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Uint16 p_itemHeight)
-	: Component(p_compName, p_title, p_pos, p_size, Theme::ACTION) {
+	: Component(p_compName, p_title, p_pos, p_size) {
 	p_size = p_size - Vector2<Sint32>(0, 1);
 	m_itemHeight = p_itemHeight;
 	m_scroll = m_maxScroll = 0;
@@ -84,9 +84,10 @@ void CList::input(Sint8& p_interactFlags) {
 				m_dragging = false;
 				callPressFunction();
 			}
-			else if (m_itemList[_hoveredItem].state != 2) {
+			else {
 				m_hoveredItem = _hoveredItem;
-				m_itemList[m_hoveredItem].state = 1;
+				if (m_itemList[_hoveredItem].state != 2)
+					m_itemList[m_hoveredItem].state = 1;
 			}
 		}
 		else if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT) || (GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT) && m_dragging)) {
@@ -181,11 +182,26 @@ void CList::input(Sint8& p_interactFlags) {
 	m_mouseBuffer = _mousePos;
 }
 void CList::update(GLfloat p_deltaUpdate) {
+	for (Uint16 y = 0; y <= m_maxVisible; y++) {
+		if (m_scroll / m_itemHeight + y >= Uint16(m_itemList.size())) continue;
 
+		if (m_itemList.at(m_scroll / m_itemHeight + y).state == 1 || m_hoveredItem == m_scroll / m_itemHeight + y) {
+			m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer += p_deltaUpdate * 8;
+			if (m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer > 1) {
+				m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer = 1;
+			}
+		}
+		else {
+			m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer -= p_deltaUpdate * 8;
+			if (m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer < 0) {
+				m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer = 0;
+			}
+		}
+	}
 }
 void CList::renderItems() {
 	Shader::pushMatrixModel();
-	GBuffer::setColor(m_colorTheme->m_text);
+	GBuffer::setColor(m_colorThemeMap.at("textLight"));
 	Font::setAlignment(ALIGN_CENTER);
 	Font::print(m_title, m_size.x / 2, -12);
 
@@ -197,34 +213,31 @@ void CList::renderItems() {
 	for (Uint16 y = 0; y <= m_maxVisible; y++) {
 		if (m_scroll / m_itemHeight + y >= Uint16(m_itemList.size())) continue;
 
-		switch (m_itemList.at(m_scroll / m_itemHeight + y).state) {
-		case 0: GBuffer::setColor(m_colorTheme->m_primary); break;
-		case 1: GBuffer::setColor(m_colorTheme->m_hover); break;
-		case 2: GBuffer::setColor(m_colorTheme->m_select); break;
-		default: GBuffer::setColor(m_colorTheme->m_primary); break;
+		if (m_itemList.at(m_scroll / m_itemHeight + y).state == 2) {
+			if (m_scroll / m_itemHeight + y == m_selectedItem) {
+				GBuffer::setColor(m_colorThemeMap.at("actionHighlight"));
+			}
+			else {
+				GBuffer::setColor(m_colorThemeMap.at("actionPressed").applyScale(Color(1, 1, 1, 0.5f)));
+			}
 		}
-
+		else {
+			GBuffer::setColor(getPrimaryColor());
+		}
 		GBuffer::addVertexQuad(0, (y * m_itemHeight));
 		GBuffer::addVertexQuad(m_size.x, (y * m_itemHeight));
 		GBuffer::addVertexQuad(m_size.x, ((y + 1) * m_itemHeight));
 		GBuffer::addVertexQuad(0, ((y + 1) * m_itemHeight));
+		if (m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer > 0) {
+			GBuffer::setColor(m_colorThemeMap.at("actionHover").applyScale(Color(1, 1, 1, m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer / 2.f)));
+			GBuffer::addVertexQuad(0, (y * m_itemHeight));
+			GBuffer::addVertexQuad(m_size.x, (y * m_itemHeight));
+			GBuffer::addVertexQuad(m_size.x, ((y + 1) * m_itemHeight));
+			GBuffer::addVertexQuad(0, ((y + 1) * m_itemHeight));
+		}
 	}
 
-	if (m_selectedItem != -1) {
-		Shader::pushMatrixModel();
-
-		GBuffer::setColor(m_colorTheme->m_borderHighlight);
-		Shader::translate(glm::vec3(0.f, m_itemHeight * m_selectedItem + GLfloat(m_scroll % m_itemHeight) - m_scroll, 0.f));
-
-		GBuffer::addVertexQuad(1, 0);
-		GBuffer::addVertexQuad(m_size.x, 0);
-		GBuffer::addVertexQuad(m_size.x, (m_itemHeight - 1));
-		GBuffer::addVertexQuad(1, (m_itemHeight - 1));
-
-		Shader::popMatrixModel();
-	}
-
-	GBuffer::setColor(m_colorTheme->m_text);
+	GBuffer::setColor(m_colorThemeMap.at("textLight"));
 	Font::setAlignment(ALIGN_LEFT);
 	std::string _name;
 	for (Uint16 i = 0; i <= m_maxVisible; i++) {
@@ -242,26 +255,27 @@ void CList::render() {
 	GBuffer::setTexture(0);
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 	renderItems();
-	Shader::pushMatrixModel();
 
-	Sint32 _scrollHeight = (Sint32)(powf(m_size.y, 2) / (std::fmaxf(m_maxVisible, m_itemList.size()) * m_itemHeight));
-	Shader::translate(glm::vec3(m_size.x - 12, m_maxScroll > 0 ? ((GLfloat)m_scroll / m_maxScroll) * (m_size.y - _scrollHeight) : 0.f, 0.f));
+	if (m_itemList.size() >= m_maxVisible) {
+		Shader::pushMatrixModel();
+		Sint32 _scrollHeight = (Sint32)(powf(m_size.y, 2) / (std::fmaxf(m_maxVisible, m_itemList.size()) * m_itemHeight));
+		Shader::translate(glm::vec3(m_size.x - 12, m_maxScroll > 0 ? ((GLfloat)m_scroll / m_maxScroll) * (m_size.y - _scrollHeight) : 0.f, 0.f));
 
-	GBuffer::setColor(m_colorTheme->m_border);
-	GBuffer::addVertexQuad(2, 2);
-	GBuffer::addVertexQuad(10, 2);
-	GBuffer::addVertexQuad(10, _scrollHeight - 2);
-	GBuffer::addVertexQuad(2, _scrollHeight - 2);
+		GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+		GBuffer::addVertexQuad(2, 2);
+		GBuffer::addVertexQuad(10, 2);
+		GBuffer::addVertexQuad(10, _scrollHeight - 2);
+		GBuffer::addVertexQuad(2, _scrollHeight - 2);
 
-	GBuffer::setColor(m_colorTheme->m_hover);
-	GBuffer::addVertexQuad(3, 3);
-	GBuffer::addVertexQuad(9, 3);
-	GBuffer::addVertexQuad(9, _scrollHeight - 3);
-	GBuffer::addVertexQuad(3, _scrollHeight - 3);
+		GBuffer::setColor(m_colorThemeMap.at("actionHover"));
+		GBuffer::addVertexQuad(3, 3);
+		GBuffer::addVertexQuad(9, 3);
+		GBuffer::addVertexQuad(9, _scrollHeight - 3);
+		GBuffer::addVertexQuad(3, _scrollHeight - 3);
 
-	Shader::popMatrixModel();
+		Shader::popMatrixModel();
+	}
 	GBuffer::popScissor();
-
 	Shader::popMatrixModel();
 	renderBorder();
 }

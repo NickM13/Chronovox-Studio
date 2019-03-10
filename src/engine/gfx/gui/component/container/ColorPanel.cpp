@@ -1,7 +1,7 @@
 #include "engine\gfx\gui\component\container\ColorPanel.h"
 
 ColorPanel::ColorPanel(Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint32& p_r, Sint32& p_g, Sint32& p_b, Texture p_texture)
-	: Component("", "", p_pos, p_size, Theme::PRIMARY) {
+	: Component("", "", p_pos, p_size) {
 	r = &p_r;
 	g = &p_g;
 	b = &p_b;

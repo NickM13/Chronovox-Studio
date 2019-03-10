@@ -4,7 +4,7 @@
 #include "..\TEMode.h"
 #include "SimpleModel.h"
 
-#include "engine\gfx\LGui.h"
+#include "engine\gfx\gui\LGui.h"
 
 #include "engine\gfx\texture\MTexture.h"
 #include "engine\editor\model\menu\ColorOverlay.h"
@@ -21,42 +21,42 @@ private:
 
 	// Shared variables color
 	static Color* m_voxelColor;
-	ColorOverlay* m_colorOverlay;
+	ColorOverlay* m_colorOverlay = 0;
 
 	// Visual guidelines
-	std::string* m_dataString;	// Info bar at bottom of screen
-	bool m_grid;
-	bool m_outline;
-	bool m_hideOnSelect;	// Visible on select
-	bool m_wireframe;
+	std::string* m_dataString = 0;	// Info bar at bottom of screen
+	bool m_grid = false;
+	bool m_outline = false;
+	bool m_hideOnSelect = false;	// Visible on select
+	bool m_wireframe = false;
 
 	// Matrices
-	SimpleModel* m_sModel;
-	Matrix* m_matrixCopy; // Copy/paste matrix
-	CList* m_nameList;
+	SimpleModel* m_sModel = 0;
+	Matrix* m_matrixCopy = 0; // Copy/paste matrix
+	CList* m_nameList = 0;
 
 	// Editting tool variables
-	glm::vec3 m_point;
-	glm::vec3 m_scalePos; // Point of selection, move/scale drag offsets
+	glm::vec3 m_point = {};
+	glm::vec3 m_scalePos = {}; // Point of selection, move/scale drag offsets
 	static glm::ivec3 m_selectedVoxel; // Selected voxel coord
 	static glm::ivec3 m_selectedVoxelOffset; // Voxel off of selected face
-	Voxel m_boxVoxel; // Voxel filling box area
+	Voxel m_boxVoxel = {}; // Voxel filling box area
 	static Sint8 m_selectedSide; // Face selected
 
-	glm::vec3 m_pos;
-	glm::vec3 m_size;
-	Sint16 m_hoverMatrix;
-	glm::vec3 m_grabStart, m_grabCurrent;
-	GLfloat m_dragDifference;
-	Sint8 m_selectedScale;
-	bool m_voxelPlaneMode;
-	glm::ivec3 m_voxelPlanePos;
-	Sint8 m_voxelPlaneSide;
+	glm::vec3 m_pos = {};
+	glm::vec3 m_size = {};
+	Sint16 m_hoverMatrix = 0;
+	glm::vec3 m_grabStart = {}, m_grabCurrent = {};
+	GLfloat m_dragDifference = 0;
+	Sint8 m_selectedScale = 0;
+	bool m_voxelPlaneMode = false;
+	glm::ivec3 m_voxelPlanePos = {};
+	Sint8 m_voxelPlaneSide = 0;
 
-	EditMatrix *m_matrixEdit;
+	EditMatrix *m_matrixEdit = 0;
 
-	glm::vec3 dir, pos, norm;
-	GLfloat dist, denom, p;
+	glm::vec3 dir = {}, pos = {}, norm = {};
+	GLfloat dist = 0, denom = 0, p = 0;
 
 	void fixSelectedMatrix();
 public:
@@ -127,7 +127,6 @@ public:
 	bool exitSave();
 	void autosave();
 	bool autoload();
-	void open();
 	void add();
 	void newModel();
 
@@ -137,7 +136,6 @@ public:
 	bool loadAdd(std::string p_fileName);
 
 	void fileNew();
-	void fileOpen();
 	void fileAdd();
 	bool fileSave();
 	bool fileSaveAs();

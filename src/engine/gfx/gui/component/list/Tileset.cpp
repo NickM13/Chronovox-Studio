@@ -1,7 +1,7 @@
 #include "engine\gfx\gui\component\list\Tileset.h"
 
-CTileSet::CTileSet(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Uint16 p_tileSize, Texture* p_tileSheet, Theme p_colorTheme)
-	: Component(p_compName, p_title, p_pos, p_size, p_colorTheme) {
+CTileSet::CTileSet(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Uint16 p_tileSize, Texture* p_tileSheet)
+	: Component(p_compName, p_title, p_pos, p_size) {
 	m_tileSize = p_tileSize;
 	m_tileSheet = p_tileSheet;
 	m_transparentTex = MTexture::getTexture("gui\\Transparent.png");
@@ -153,19 +153,19 @@ void CTileSet::render() {
 		GBuffer::setScissorActive(true);
 	}
 
-	GBuffer::setColor(m_colorTheme->m_border);
+	GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 	GBuffer::addVertexQuad(-1, -1 - 20);
 	GBuffer::addVertexQuad((_size.x + 1), -1 - 20);
 	GBuffer::addVertexQuad((_size.x + 1), (_size.y + 1));
 	GBuffer::addVertexQuad(-1, (_size.y + 1));
 
-	GBuffer::setColor(m_colorTheme->m_primary);
+	GBuffer::setColor(getPrimaryColor());
 	GBuffer::addVertexQuad(-1, (_size.y + 1));
 	GBuffer::addVertexQuad((_size.x + 1), (_size.y + 1));
 	GBuffer::addVertexQuad((_size.x + 1), -20 - 1);
 	GBuffer::addVertexQuad(-1, -20 - 1);
 
-	GBuffer::setColor(m_colorTheme->m_text);
+	GBuffer::setColor(m_colorThemeMap.at("textLight"));
 	Font::setAlignment(ALIGN_CENTER);
 	Font::print(m_title, _size.x / 2, -12);
 
@@ -225,7 +225,7 @@ void CTileSet::render() {
 	Shader::translate(glm::vec3((GLfloat)(m_scroll.x % m_tileSize), (GLfloat)(m_scroll.y % m_tileSize), 0.f));
 
 	if (m_hover || m_dragging) {
-		GBuffer::setColor(m_colorTheme->m_border);
+		GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 		GBuffer::addVertexQuad((GLfloat(m_scroll.x) / (m_tileSheet->getSize().x - _size.x + m_tileSize - 1)) * (_size.x - 80) + 4, (_size.y - 12));
 		GBuffer::addVertexQuad((GLfloat(m_scroll.x) / (m_tileSheet->getSize().x - _size.x + m_tileSize - 1)) * (_size.x - 80) + 60, (_size.y - 12));
 		GBuffer::addVertexQuad((GLfloat(m_scroll.x) / (m_tileSheet->getSize().x - _size.x + m_tileSize - 1)) * (_size.x - 80) + 60, (_size.y - 4));
@@ -236,7 +236,7 @@ void CTileSet::render() {
 		GBuffer::addVertexQuad((_size.x - 4), (GLfloat(m_scroll.y) / (m_tileSheet->getSize().y - _size.y + m_tileSize - 1)) * (_size.y - 80) + 60);
 		GBuffer::addVertexQuad((_size.x - 12), (GLfloat(m_scroll.y) / (m_tileSheet->getSize().y - _size.y + m_tileSize - 1)) * (_size.y - 80) + 60);
 
-		GBuffer::setColor(m_colorTheme->m_primary);
+		GBuffer::setColor(getPrimaryColor());
 		GBuffer::addVertexQuad((GLfloat(m_scroll.x) / (m_tileSheet->getSize().x - _size.x + m_tileSize - 1)) * (_size.x - 80) + 5, (_size.y - 11));
 		GBuffer::addVertexQuad((GLfloat(m_scroll.x) / (m_tileSheet->getSize().x - _size.x + m_tileSize - 1)) * (_size.x - 80) + 59, (_size.y - 11));
 		GBuffer::addVertexQuad((GLfloat(m_scroll.x) / (m_tileSheet->getSize().x - _size.x + m_tileSize - 1)) * (_size.x - 80) + 59, (_size.y - 5));

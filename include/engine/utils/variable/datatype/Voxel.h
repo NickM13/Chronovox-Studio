@@ -17,10 +17,9 @@
 // All
 #define FACE_ALL		((2 << 6) - 1)
 
-struct Voxel
-{
-	Sint8 interactionType;
-	Uint16 color;
+struct Voxel {
+	Sint8 interactionType = 0;
+	Uint16 color = 0;
 
 	Voxel() {};
 	Voxel(Sint8 p_interaction, Uint16 p_color) : interactionType(p_interaction), color(p_color) {};

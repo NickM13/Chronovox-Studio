@@ -77,7 +77,7 @@ void Animation::applyMatrixTransformation(Matrix* p_matrix) {
 
 void Animation::inputEditor(Sint8 p_guiFlags) {
 	m_model->input(p_guiFlags);
-	if(!EditorOverlay::getContainer()->isPaused() && (p_guiFlags & (Sint8)Component::EventFlag::KEYPRESS)) {
+	if((p_guiFlags & (Sint8)Component::EventFlag::KEYPRESS)) {
 		if(GKey::keyPressed(GLFW_KEY_SPACE)) toggleAnimationPlaying();
 		else if(GKey::keyPressed(GLFW_KEY_ENTER)) saveKeyframeProperties();
 		//else if((GKey::m_keyStates[GLFW_KEY_BACKSPACE] & GKey::KEY_PRESS) || (GKey::m_keyStates[GLFW_KEY_DELETE] & GKey::KEY_PRESS)) delKeyframe(m_keyframeTimeline->getSelectedKeyframe());

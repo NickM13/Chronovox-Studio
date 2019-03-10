@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine\gfx\LGui.h"
+#include "engine\gfx\gui\LGui.h"
 #include "engine\utils\global\GScreen.h"
 #include "..\model\menu\ColorOverlay.h"
 #include "..\Editor.h"

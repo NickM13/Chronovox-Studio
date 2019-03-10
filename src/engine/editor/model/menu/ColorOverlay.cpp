@@ -1,7 +1,7 @@
 #include "engine\editor\model\menu\ColorOverlay.h"
 
 ColorOverlay::ColorOverlay(Vector2<Sint32> p_pos, Vector2<Sint32> p_size)
-	: Component("OVERLAY_COLOR", "", p_pos, p_size, Theme::PRIMARY) {
+	: Component("OVERLAY_COLOR", "", p_pos, p_size) {
 	m_pos = p_pos;
 	m_size = p_size;
 

@@ -2,6 +2,7 @@
 #include "engine\utils\Utilities.h"
 #include "engine\gfx\gui\buffer\GBuffer.h"
 #include "engine\gfx\shader\Shader.h"
+#include "engine\utils\directory\LDirectory.h"
 
 std::vector<Font::FontType*> Font::m_fontList;
 Font::FontType* Font::m_font = 0;
@@ -25,10 +26,7 @@ void Font::setFont(std::string p_fontName) {
 	}
 }
 Font::FontType* Font::init(std::string p_src, Uint32 p_fontSize) {
-	char result[MAX_PATH];
-	std::string path = std::string(result, GetModuleFileName(NULL, result, MAX_PATH));
-	path = path.substr(0, path.find_last_of('\\') + 1);
-	std::string _src = path + p_src;
+	std::string _src = LDirectory::getProjectPath() + "res\\font\\" + p_src;
 	FontType* _font = new FontType();
 	FT_Library library;
 	if (FT_Init_FreeType(&library)) {
@@ -179,6 +177,7 @@ void Font::print(std::string message, Sint32 x, Sint32 y) {
 				}
 				Shader::translate(glm::vec3((GLfloat)x, (GLfloat)y + h * i, 0.f));
 
+				tpos.x = 0;
 				for (Sint8 c : lines[i]) {
 					ch = m_font->m_characters.at(c);
 					GBuffer::setTexture(ch.textureId, true);

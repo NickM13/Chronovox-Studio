@@ -1,9 +1,8 @@
 #include "engine\gfx\gui\component\container\ContainerPanel.h"
 
-ContainerPanel::ContainerPanel(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Theme p_colorTheme, Sint8 p_borderFlags)
+ContainerPanel::ContainerPanel(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint8 p_borderFlags)
 	: Container(p_compName, p_pos, p_size, true) {
 	m_title = p_title;
-	m_colorTheme = m_colorThemes[p_colorTheme];
 	m_border = p_borderFlags;
 
 	m_scroll = { 0, 0 };
@@ -12,7 +11,8 @@ ContainerPanel::ContainerPanel(std::string p_compName, std::string p_title, Vect
 	m_draggable = false; //currently disabled
 	m_scrollX = m_scrollY = false;
 
-	m_panel = new Panel(p_compName.append("_PANEL"), p_title, p_pos, p_size, p_colorTheme, p_borderFlags);
+	m_panel = new Panel(p_compName.append("_PANEL"), p_title, p_pos, p_size, p_borderFlags);
+	m_panel->setParent(this);
 
 	m_border = 0;
 }
@@ -199,7 +199,7 @@ void ContainerPanel::render() {
 		GBuffer::setScissorActive(false);
 		m_panel->render();
 		GBuffer::setScissorActive(true);
-		GBuffer::pushScissor(Rect(GLfloat(m_pos.x + 1), GLfloat(m_pos.y), GLfloat(m_size.x - 2), GLfloat(m_size.y - 1)));
+		GBuffer::pushScissor(Rect(GLfloat(m_pos.x), GLfloat(m_pos.y), GLfloat(m_size.x), GLfloat(m_size.y - 1)));
 		Shader::pushMatrixModel();
 		Shader::translate(glm::vec3(-GLfloat(m_scroll.x), -GLfloat(m_scroll.y), 0.f));
 		Container::render();
@@ -210,20 +210,20 @@ void ContainerPanel::render() {
 		Vector2<Sint32> _scrollDist = m_maxScroll - m_minScroll;
 		Shader::translate(glm::vec3(GLfloat(m_pos.x), GLfloat(m_pos.y), 0.f));
 		if (m_scrollX) {
-			GBuffer::setColor(m_colorTheme->m_border);
+			GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 			GBuffer::addVertexQuad(0, m_size.y);
 			GBuffer::addVertexQuad(0, m_size.y + 10);
 			GBuffer::addVertexQuad(m_size.x, m_size.y + 10);
 			GBuffer::addVertexQuad(m_size.x, m_size.y);
-			GBuffer::setColor(m_colorTheme->m_primary);
+			GBuffer::setColor(getPrimaryColor());
 		}
 		if (m_scrollY) {
-			GBuffer::setColor(m_colorTheme->m_border);
+			GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 			GBuffer::addVertexQuad(m_size.x, 0);
 			GBuffer::addVertexQuad(m_size.x + 10, 0);
 			GBuffer::addVertexQuad(m_size.x + 10, m_size.y);
 			GBuffer::addVertexQuad(m_size.x, m_size.y);
-			GBuffer::setColor(m_colorTheme->m_primary);
+			GBuffer::setColor(getPrimaryColor());
 			GBuffer::addVertexQuad(m_size.x + 1,
 				((m_scroll.y - m_minScroll.y) / _scrollDist.y) * (m_size.y * _scrollDist.y) / (m_size.y + _scrollDist.y) + 1);
 			GBuffer::addVertexQuad(m_size.x + 9,

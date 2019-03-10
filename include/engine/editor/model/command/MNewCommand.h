@@ -2,7 +2,7 @@
 
 #include "..\..\command\Command.h"
 #include "..\Matrix.h"
-#include "engine\gfx\LGui.h"
+#include "engine\gfx\gui\LGui.h"
 
 struct MNewCommand : public Command
 {

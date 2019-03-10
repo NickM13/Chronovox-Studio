@@ -22,13 +22,22 @@ void VTErase::renderSingle() {
 
 void VTErase::inputBox() {
 	if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
-		m_boxStart = *m_selectedVoxel;
-		m_boxing = true;
+		if (m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel)) {
+			m_boxStart = *m_selectedVoxel;
+			m_boxing = true;
+		}
+		else if (m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxelOffset)) {
+			m_boxStart = *m_selectedVoxelOffset;
+			m_boxing = true;
+		}
 	}
 	if (m_boxing) {
 		if (GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)) {
 			if (m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel)) {
 				box(*m_selectedVoxel, Voxel(0, 0));
+			}
+			else if (m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxelOffset)) {
+				box(*m_selectedVoxelOffset, Voxel(0, 0));
 			}
 		}
 		else {

@@ -131,36 +131,34 @@ void Camera::applyTransformation() {
 }
 
 void Camera::input(Sint8 p_guiFlags) {
-	if (!EditorOverlay::getContainer()->isPaused()) {
-		if ((p_guiFlags & (Sint8)Component::EventFlag::MOUSEOVER)) {
-			if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_RIGHT)) {
-				m_dragging = true;
-			}
+	if ((p_guiFlags & (Sint8)Component::EventFlag::MOUSEOVER)) {
+		if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_RIGHT)) {
+			m_dragging = true;
 		}
-		if (GMouse::mouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
-			m_dragging = false;
+	}
+	if (GMouse::mouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
+		m_dragging = false;
+	}
+	if (m_dragging) {
+		if (GKey::modDown(GLFW_MOD_SHIFT)) {
+			pan(Vector3<GLfloat>(-GMouse::getDeltaMousePos().x, GMouse::getDeltaMousePos().y, 0.f));
 		}
-		if (m_dragging) {
-			if (GKey::modDown(GLFW_MOD_SHIFT)) {
-				pan(Vector3<GLfloat>(-GMouse::getDeltaMousePos().x, GMouse::getDeltaMousePos().y, 0.f));
-			}
-			else {
-				turn(GMouse::getDeltaMousePos());
-			}
+		else {
+			turn(GMouse::getDeltaMousePos());
 		}
-		if ((p_guiFlags & (Sint8)Component::EventFlag::MOUSESCROLL)) {
-			zoom(GMouse::getMouseScroll());
-		}
-		if ((p_guiFlags & (Sint8)Component::EventFlag::KEYPRESS)) {
-			GLfloat speed = 8;
-			if (GKey::keyDown(GLFW_KEY_D, 0)) pan({ speed,  0,      0 });
-			if (GKey::keyDown(GLFW_KEY_A, 0)) pan({ -speed,  0,      0 });
-			if (GKey::keyDown(GLFW_KEY_Q, 0)) pan({ 0,      speed,  0 });
-			if (GKey::keyDown(GLFW_KEY_Z, 0)) pan({ 0,     -speed,  0 });
-			if (GKey::keyDown(GLFW_KEY_W, 0)) pan({ 0,      0,     -speed });
-			if (GKey::keyDown(GLFW_KEY_S, 0)) pan({ 0,      0,      speed });
-			if (GKey::keyPressed(GLFW_KEY_0, GLFW_MOD_CONTROL))				resetZoom();
-		}
+	}
+	if ((p_guiFlags & (Sint8)Component::EventFlag::MOUSESCROLL)) {
+		zoom(GMouse::getMouseScroll());
+	}
+	if ((p_guiFlags & (Sint8)Component::EventFlag::KEYPRESS)) {
+		GLfloat speed = 8;
+		if (GKey::keyDown(GLFW_KEY_D, 0)) pan({ speed,  0,      0 });
+		if (GKey::keyDown(GLFW_KEY_A, 0)) pan({ -speed,  0,      0 });
+		if (GKey::keyDown(GLFW_KEY_Q, 0)) pan({ 0,      speed,  0 });
+		if (GKey::keyDown(GLFW_KEY_Z, 0)) pan({ 0,     -speed,  0 });
+		if (GKey::keyDown(GLFW_KEY_W, 0)) pan({ 0,      0,     -speed });
+		if (GKey::keyDown(GLFW_KEY_S, 0)) pan({ 0,      0,      speed });
+		if (GKey::keyPressed(GLFW_KEY_0, GLFW_MOD_CONTROL))				resetZoom();
 	}
 }
 

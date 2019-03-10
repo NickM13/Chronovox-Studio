@@ -1,7 +1,7 @@
 #pragma once
 #include "engine\editor\model\Model.h"
 #include "engine\editor\Editor.h"
-#include "engine\gfx\LGui.h"
+#include "engine\gfx\gui\LGui.h"
 
 #include "ColorOverlay.h"
 

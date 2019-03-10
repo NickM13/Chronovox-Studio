@@ -25,6 +25,9 @@ std::string LDirectory::getProjectPath() {
 	memset(result, 0, MAX_PATH);
 	GetModuleFileName(NULL, result, MAX_PATH);
 	path = std::string(result, MAX_PATH);
+#ifdef _DEBUG
 	return "C:\\Users\\NickM\\Documents\\GitHub\\Voxel Projects\\Voxel Model Editor\\";
-	//return path.substr(0, path.find_last_of('\\') + 1);
+#else
+	return path.substr(0, path.find_last_of('\\') + 1);
+#endif
 }

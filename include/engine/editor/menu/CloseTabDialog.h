@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine\gfx\LGui.h"
+#include "engine\gfx\gui\LGui.h"
 
 class CloseTabDialog : public Singleton<CloseTabDialog> {
 private:

@@ -3,7 +3,7 @@
 #include "engine\gfx\gui\component\container\ColorPanel.h"
 
 Container::Container(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, bool p_visible)
-	: Component(p_compName, "", p_pos, p_size, Theme::PRIMARY) {
+	: Component(p_compName, "", p_pos, p_size) {
 	m_visible = p_visible;
 	m_contentArea = Vector4<Sint32>();
 	addComponent(new SColorPanel("PAUSE_BACKGROUND", { 0, 0 }, p_size, Color(0, 0, 0, 0.5f)), Anchor::NONE, Anchor::BOTTOM_RIGHT)->setPriorityLayer(99)->setVisible(false);
@@ -65,6 +65,7 @@ void Container::anchorComponent(Component* p_component, Anchor p_posAnchor, Anch
 }
 
 Component* Container::addComponent(Component* p_component, Anchor p_posAnchor, Anchor p_sizeAnchor) {
+	p_component->setParent(this);
 	anchorComponent(p_component, p_posAnchor, p_sizeAnchor);
 	if (m_componentMap.empty()) {
 		m_contentArea = Vector4<Sint32>(p_component->getRealPosition().x
@@ -157,29 +158,6 @@ Component* Container::closeDialog() {
 	return this;
 }
 
-Component* Container::addPauseScreen(Component* p_comp, Anchor p_posAnchor, Anchor p_sizeAnchor) {
-	m_pauseScreens.insert({ p_comp->getName(), addComponent(p_comp, p_posAnchor, p_sizeAnchor) });
-	return p_comp;
-}
-Component* Container::setPauseScreen(std::string p_compName) {
-	if (m_currentPause != "")
-		m_pauseScreens[m_currentPause]->setVisible(false);
-	SColorPanel* p = (SColorPanel*)findComponent("PAUSE_BACKGROUND");
-	if (p_compName != "") {
-		Component *c = m_pauseScreens[p_compName];
-		if (c) {
-			m_currentPause = p_compName;
-			c->setVisible(true);
-			c->callPressFunction();
-			p->setVisible(true);
-			return c;
-		}
-	}
-	p->setVisible(false);
-	m_currentPause = "";
-	return 0;
-}
-
 void Container::updateSize() {
 	m_contentArea = Vector4<Sint32>();
 	for (std::pair<std::string, Comp> comp : m_componentMap) {
@@ -239,7 +217,7 @@ void Container::render() {
 			GBuffer::setTexture(0);
 			Shader::pushMatrixModel();
 			Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
-			GBuffer::setColor(m_colorTheme->m_border);
+			GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 			if (m_border & static_cast<Sint8>(BorderFlag::TOP)) {
 				GBuffer::addVertexQuad(0,						0);
 				GBuffer::addVertexQuad(GLfloat(m_size.x),		0);

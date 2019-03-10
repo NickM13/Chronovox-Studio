@@ -3,17 +3,17 @@
 
 struct Keyframe {
 public:
-	Sint32 id;
-	std::string m_matrix;
-	GLfloat m_start;
-	GLfloat m_length;
+	Sint32 id = 0;
+	std::string m_matrix = "";
+	GLfloat m_start = 0;
+	GLfloat m_length = 0;
 	enum TransformationType {
 		TRANSLATION = 0,
 		ROTATION = 1,
 		SCALE = 2
-	} m_transformationType;
-	Vector3<GLfloat> m_focus;
-	Vector3<GLfloat> m_value;
+	} m_transformationType = {};
+	Vector3<GLfloat> m_focus = {};
+	Vector3<GLfloat> m_value = {};
 
 	Keyframe() {}
 

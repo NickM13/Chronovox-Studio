@@ -1,8 +1,8 @@
 #include "engine\gfx\gui\component\list\DropDown.h"
 #include "engine\gfx\font\Font.h"
 
-CDropDown::CDropDown(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Sint32 p_width, Theme p_colorTheme)
-	: Component(p_compName, p_title, p_pos, { p_width, 24 }, p_colorTheme) {
+CDropDown::CDropDown(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Sint32 p_width)
+	: Component(p_compName, p_title, p_pos, { p_width, 24 }) {
 	m_prevSelectedItem = m_selectedItem = 0;
 	m_hoverItem = -1;
 	setPriorityLayer(4);
@@ -91,13 +91,13 @@ void CDropDown::render() {
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 
 	if (m_selected == 0) {
-		GBuffer::setColor(m_colorTheme->m_border);
+		GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 		GBuffer::addVertexQuad(-1, -1);
 		GBuffer::addVertexQuad((m_size.x + 1), -1);
 		GBuffer::addVertexQuad((m_size.x + 1), (m_size.y + 1));
 		GBuffer::addVertexQuad(-1, (m_size.y + 1));
 
-		GBuffer::setColor(m_colorTheme->m_primary);
+		GBuffer::setColor(getPrimaryColor());
 		GBuffer::addVertexQuad(0, 0);
 		GBuffer::addVertexQuad(m_size.x, 0);
 		GBuffer::addVertexQuad(m_size.x, m_size.y);
@@ -111,13 +111,13 @@ void CDropDown::render() {
 		GBuffer::setTexture(0);
 	}
 	else {
-		GBuffer::setColor(m_colorTheme->m_border);
+		GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 		GBuffer::addVertexQuad(-1, -1);
 		GBuffer::addVertexQuad((m_size.x + 1), -1);
 		GBuffer::addVertexQuad((m_size.x + 1), (m_size.y * (m_itemList.size() + 1) + 1));
 		GBuffer::addVertexQuad(-1, (m_size.y * (m_itemList.size() + 1) + 1));
 
-		GBuffer::setColor(m_colorTheme->m_primary);
+		GBuffer::setColor(getPrimaryColor());
 		GBuffer::addVertexQuad(0, -0);
 		GBuffer::addVertexQuad(m_size.x, -0);
 		GBuffer::addVertexQuad(m_size.x, (m_size.y * (m_itemList.size() + 1)));
@@ -125,15 +125,14 @@ void CDropDown::render() {
 	}
 	if (m_selected != 0) {
 		if (m_hoverItem != -1) {
-			GBuffer::setColor(m_colorTheme->m_select);
-			GBuffer::setColor(m_colorTheme->m_select);
+			GBuffer::setColor(m_colorThemeMap.at("actionPressed"));
 			GBuffer::addVertexQuad(0, (m_hoverItem + 1) * m_size.y);
 			GBuffer::addVertexQuad(m_size.x, (m_hoverItem + 1) * m_size.y);
 			GBuffer::addVertexQuad(m_size.x, (m_hoverItem + 2) * m_size.y);
 			GBuffer::addVertexQuad(0, (m_hoverItem + 2) * m_size.y);
 		}
 		if (m_hoverItem != m_selectedItem) {
-			GBuffer::setColor((m_colorTheme->m_select + m_colorTheme->m_primary) / 2);
+			GBuffer::setColor((m_colorThemeMap.at("actionPressed") + getPrimaryColor()) / 2);
 
 			GBuffer::addVertexQuad(0, (m_selectedItem + 1) * m_size.y);
 			GBuffer::addVertexQuad(m_size.x, (m_selectedItem + 1) * m_size.y);
@@ -141,17 +140,16 @@ void CDropDown::render() {
 			GBuffer::addVertexQuad(0, (m_selectedItem + 2) * m_size.y);
 		}
 	}
-	GBuffer::setColor(m_colorTheme->m_text);
+	GBuffer::setColor(m_colorThemeMap.at("textLight"));
 	Font::setAlignment(ALIGN_CENTER);
 	Font::print(m_title, m_size.x / 2, -(Font::getHeight()));
-	GBuffer::setColor(m_colorTheme->m_text);
 	Font::setAlignment(ALIGN_LEFT);
 	Shader::translate(glm::vec3((GLfloat)(m_size.y / 2), (GLfloat)(m_size.y) / 2, 0.f));
 	if (m_itemList.size() > 0) {
 		Font::print(m_itemList[m_selectedItem], 0, 0);
 		if (m_selected != 0) {
 			for (Uint16 i = 0; i < m_itemList.size(); i++) {
-				GBuffer::setColor(m_colorTheme->m_text.applyScale(m_hoverItem ? Color(1.f, 1.f, 1.f) : Color(0.8f, 0.8f, 0.8f)));
+				GBuffer::setColor(m_colorThemeMap.at("textLight").applyScale(m_hoverItem ? Color(1.f, 1.f, 1.f) : Color(0.8f, 0.8f, 0.8f)));
 				Font::print(m_itemList[i], 0, (i + 1) * m_size.y);
 			}
 		}

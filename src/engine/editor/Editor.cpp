@@ -2,6 +2,7 @@
 
 #include "engine\editor\menu\EditorOverlay.h"
 #include "engine\editor\menu\FreshOverlay.h"
+#include "engine\editor\menu\CloseEditorDialog.h"
 #include "engine\editor\menu\CloseTabDialog.h"
 #include "engine\editor\animation\menu\AnimationOverlay.h"
 #include "engine\editor\model\menu\ModelOverlay.h"
@@ -31,23 +32,27 @@ std::string* Editor::m_dataString = 0;
 Editor::EditorState Editor::m_editorState;
 Editor::EditorMode Editor::m_editorMode;
 
-Container* Editor::m_mainGui;
-
 Editor::Editor() {
+	m_deltaUpdate = 0.f;
+	m_lastUpdate = 0.f;
 	m_editorState = EditorState::STARTING;
 	MTexture::init();
 	MModelObj::init();
-	Font::loadFont("LeelawUI", "res\\font\\leelawui.ttf", 12);
-	Font::loadFont("SegoeUI", "res\\font\\segoeui.ttf", 12);
+	Font::loadFont("LeelawUI", "leelawui.ttf", 12);
+	Font::loadFont("SegoeUI", "segoeui.ttf", 12);
+	Font::setFont("LeelawUI");
 	Sound::getInstance().init();
 	GGui::init(GScreen::m_window);
 	GBuffer::init();
 	MTool::init();
-	m_mainGui = EditorOverlay::init(this);
-	m_mainGui->addComponent(FreshOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)->setVisible(false);
-	m_mainGui->addComponent(ModelOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)->setVisible(false);
-	m_mainGui->addComponent(AnimationOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)->setVisible(false);
-	m_projectTabs = (CTabBar*)m_mainGui->findComponent("TAB_FILES");
+	MMesh::init();
+
+	Gui::init();
+	Gui::getContainer()->addComponent(EditorOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)->setVisible(true)->setPriorityLayer(10);
+	Gui::getContainer()->addComponent(FreshOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)->setVisible(false);
+	Gui::getContainer()->addComponent(ModelOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)->setVisible(false);
+	Gui::getContainer()->addComponent(AnimationOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)->setVisible(false);
+	m_projectTabs = (CTabBar*)Gui::getContainer()->findComponent("GUI_EDITOR\\TAB_FILES");
 
 	setEditorState(EditorState::RUNNING);
 	setEditorMode(EditorMode::NONE);
@@ -81,6 +86,8 @@ Editor::~Editor() {
 	EditorOverlay::terminate();
 	GGui::terminate();
 	GBuffer::terminate();
+	MMesh::terminate();
+	MTool::terminate();
 
 	terminateShadowBuffer();
 }
@@ -116,8 +123,17 @@ void Editor::terminateShadowBuffer() {
 	glDeleteTextures(1, &m_shadowBuffer.renderedTexture);
 }
 bool Editor::attemptClose() {
-	//return getModel()->exitSave();
-	//getModel()->autosave();
+	for (Project* p : m_projects) {
+		if (p->editor->hasChanged()) {
+			Gui::openDialog(CloseEditorDialog::getInstance().getDialog()
+				->setOptionFunc("Exit Without Saving", [&]() {
+				GScreen::m_windowCommand = GScreen::WindowCommand::CLOSE;
+				CloseEditorDialog::getInstance().getDialog()->setActive(false);
+			}));
+			return true;
+		}
+	}
+	GScreen::m_windowCommand = GScreen::WindowCommand::CLOSE;
 	return true;
 }
 
@@ -131,13 +147,13 @@ Editor::EditorState Editor::getEditorState() { return m_editorState; }
 void Editor::setEditorMode(EditorMode p_mode) {
 	switch (m_editorMode) {
 	case NONE:
-		m_mainGui->findComponent("GUI_FRESH")->setVisible(false);
+		Gui::getContainer()->findComponent("GUI_FRESH")->setVisible(false);
 		break;
 	case ANIMATION:
-		m_mainGui->findComponent("GUI_ANIMATION")->setVisible(false);
+		Gui::getContainer()->findComponent("GUI_ANIMATION")->setVisible(false);
 		break;
 	case MODEL:
-		m_mainGui->findComponent("GUI_MODEL")->setVisible(false);
+		Gui::getContainer()->findComponent("GUI_MODEL")->setVisible(false);
 		break;
 	default:
 		break;
@@ -145,13 +161,13 @@ void Editor::setEditorMode(EditorMode p_mode) {
 	m_editorMode = p_mode;
 	switch (m_editorMode) {
 	case NONE:
-		m_mainGui->findComponent("GUI_FRESH")->setVisible(true);
+		Gui::getContainer()->findComponent("GUI_FRESH")->setVisible(true);
 		break;
 	case ANIMATION:
-		m_mainGui->findComponent("GUI_ANIMATION")->setVisible(true);
+		Gui::getContainer()->findComponent("GUI_ANIMATION")->setVisible(true);
 		break;
 	case MODEL:
-		m_mainGui->findComponent("GUI_MODEL")->setVisible(true);
+		Gui::getContainer()->findComponent("GUI_MODEL")->setVisible(true);
 		break;
 	default:
 		return;
@@ -194,7 +210,7 @@ void Editor::setProject(Sint32 p_index) {
 void Editor::closeProject(Sint32 p_index) {
 	m_projectTabs->removeTab(p_index);
 	m_projects.erase(m_projects.begin() + p_index);
-	setProject(m_projectTabs->getSelectedItem());
+	setProject(m_projectTabs->getTabCount() - 1);
 }
 void Editor::closeSelectedProject() {
 	attemptCloseProject(m_projectTabs->getSelectedItem());
@@ -203,13 +219,13 @@ void Editor::attemptCloseProject(Sint32 p_index) {
 	if (p_index >= 0 && p_index < (Sint32)m_projects.size()) {
 		setProject(p_index);
 		if (m_projects.at(p_index)->editor->hasChanged()) {
-			EditorOverlay::getContainer()->openDialog(CloseTabDialog::getInstance().getDialog()->setOptionFunc("Save", [&]() {
+			Gui::openDialog(CloseTabDialog::getInstance().getDialog()
+				->setOptionFunc("Save", [&]() {
 				if (fileSave()) {
 					closeProject(m_projectTabs->getSelectedItem());
 					CloseTabDialog::getInstance().getDialog()->setActive(false);
 				}
-			}));
-			EditorOverlay::getContainer()->openDialog(CloseTabDialog::getInstance().getDialog()->setOptionFunc("Don't Save", [&]() {
+			})->setOptionFunc("Don't Save", [&]() {
 				closeProject(m_projectTabs->getSelectedItem());
 				CloseTabDialog::getInstance().getDialog()->setActive(false);
 			}));
@@ -221,14 +237,7 @@ void Editor::attemptCloseProject(Sint32 p_index) {
 }
 
 void Editor::resize() {
-	if (GScreen::isMaximized()) {
-		m_mainGui->setBorderFlag(static_cast<Sint8>(Component::BorderFlag::NONE));
-	}
-	else {
-		m_mainGui->setBorderFlag(static_cast<Sint8>(Component::BorderFlag::ALL));
-	}
-	m_mainGui->setSize(GScreen::m_screenSize);
-	m_mainGui->resize();
+	Gui::resize();
 }
 
 void Editor::dropFile(const char* path) {
@@ -269,15 +278,16 @@ void Editor::renderMouse() {
 		Shader::pushMatrixModel();
 		Shader::translate(glm::vec3(pos.x, pos.y, 0));
 
+		GBuffer::setTexture(0);
 		// Fill
-		GBuffer::setColor(Color(0.8f, 0.8f, 0.8f));
+		GBuffer::setColor(Color(0.8f, 0.8f, 0.8f, GGui::getTooltipFade()));
 		GBuffer::addVertexQuad(-b1, -b1);
 		GBuffer::addVertexQuad(size.x + b1, -b1);
 		GBuffer::addVertexQuad(size.x + b1, size.y + b1);
 		GBuffer::addVertexQuad(-b1, size.y + b1);
 
 		// Border
-		GBuffer::setColor(Color(0.75f, 0.75f, 0.75f));
+		GBuffer::setColor(Color(0.75f, 0.75f, 0.75f, GGui::getTooltipFade()));
 		GBuffer::addVertexQuad(-b1, -b1);
 		GBuffer::addVertexQuad(size.x + b1, -b1);
 		GBuffer::addVertexQuad(size.x + b1, -b2);
@@ -299,7 +309,7 @@ void Editor::renderMouse() {
 		GBuffer::addVertexQuad(-b2, size.y + b1);
 
 		Font::setAlignment(Alignment::ALIGN_LEFT);
-		GBuffer::setColor(Color(0.1f, 0.1f, 0.1f));
+		GBuffer::setColor(Color(0.1f, 0.1f, 0.1f, GGui::getTooltipFade()));
 		Font::print(tooltip, 0, Font::getHeight() / 2);
 		Shader::popMatrixModel();
 	}
@@ -354,16 +364,12 @@ glm::mat4 Editor::getSunlightMatrix() {
 }
 
 void Editor::input() {
-	Sint8 _interact = (Sint8)Component::EventFlag::ALL;
-
-	m_mainGui->input(_interact);
+	Sint8 _iFlags = (Sint8)Component::EventFlag::ALL;
+	Gui::input(_iFlags);
 
 	if (m_cProj) {
-		m_cProj->editor->input(_interact);
+		m_cProj->editor->input(_iFlags);
 		m_projectTabs->setSelectedState(m_projectTabs->getSelectedItem(), m_cProj->editor->hasChanged());
-	}
-	if (!EditorOverlay::getContainer()->isPaused() && (_interact & (Sint8)Component::EventFlag::KEYPRESS)) {
-
 	}
 
 	if (GKey::keyPressed(GLFW_KEY_O)) {
@@ -383,8 +389,7 @@ void Editor::update() {
 		m_cProj->editor->update(m_deltaUpdate);
 	}
 
-	m_mainGui->update(m_deltaUpdate);
-	GGui::update();
+	Gui::update(m_deltaUpdate);
 }
 
 void Editor::renderShadow() {
@@ -404,7 +409,7 @@ void Editor::render3d() {
 void Editor::render2d() {
 	GBuffer::clean();
 	Font::setAlignment(Alignment::ALIGN_LEFT);
-	m_mainGui->render();
+	Gui::render();
 	renderMouse();
 	GBuffer::rasterize();
 	GBuffer::renderMesh();
@@ -431,19 +436,21 @@ bool Editor::fileOpen() {
 	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
 
 	strcat_s(documents, "\\Voxel Models");
-	_mkdir(documents);
+	if (_mkdir(documents)) {
+		Logger::logDiagnostic("Directory made");
+	}
 
-	char filename[MAX_PATH];
+	char filename[MAX_PATH] = {};
 	OPENFILENAME ofn;
 
 	ZeroMemory(&filename, sizeof(filename));
 	ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = NULL;
-	ofn.lpstrFilter = "Model (*.nvm, *.qbcl, *.qb, *.vox)\0"
-		"*.nvm;*.qbcl;*.qb;*.vox*\0"
-		"Animation (*.nva)\0"
-		"*.nva\0"
+	ofn.lpstrFilter = "Model (*.nvm, *.qb)\0"
+		"*.nvm;*.qb*\0"
+		//"Animation (*.nva)\0"
+		//"*.nva\0"
 		"Any File\0"
 		"*.*\0\0";
 	ofn.lpstrFile = filename;
@@ -452,9 +459,10 @@ bool Editor::fileOpen() {
 	ofn.lpstrTitle = "Open Model";
 	if (!GetOpenFileName(&ofn)) return false;
 
-	Format::FormatType formatType = Format::valid(filename);
+	Format::FormatType formatType;
 	EditorMode mode;
 	TEMode* editor;
+	formatType = Format::valid(filename);
 	switch (formatType) {
 	case Format::FormatType::NVM:
 	case Format::FormatType::QB:

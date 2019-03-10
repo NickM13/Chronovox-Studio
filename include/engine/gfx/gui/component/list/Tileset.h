@@ -20,7 +20,7 @@ private:
 	bool m_hover;
 	bool m_dragging;
 public:
-	CTileSet(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Uint16 p_tileSize, Texture* p_tileSheet, Theme p_colorTheme = Theme::PRIMARY);
+	CTileSet(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Uint16 p_tileSize, Texture* p_tileSheet);
 	void setTileSheet(Texture* p_tileSheet);
 	Vector2<Sint32> getRealPosition();
 	Vector2<Sint32> getRealSize();

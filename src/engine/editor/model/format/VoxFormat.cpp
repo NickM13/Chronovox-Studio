@@ -28,10 +28,10 @@ bool VoxFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 		_data = new char[_length];
 		_file.read(_data, _length);
 
-		Sint32 nvm, version, chunkId, chunkSize, chunkChildren, chunkIndex;
+		Sint32 vox, version, chunkId, chunkSize, chunkChildren, chunkIndex;
 
-		nvm = FileExt::readInt(_data, _index);
-		if(nvm != strToNum("VOX ")) {
+		vox = FileExt::readInt(_data, _index);
+		if(vox != strToNum("VOX ")) {
 			Logger::logError("File type not supported \"" + p_fileName + "\"");
 			return false;
 		}
@@ -43,7 +43,7 @@ bool VoxFormat::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList)
 			chunkChildren = FileExt::readInt(_data, _index);
 			chunkIndex = 0;
 			while(chunkIndex < chunkSize) {
-
+				
 			}
 		}
 

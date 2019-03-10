@@ -1,7 +1,7 @@
 #pragma once
 #include "engine\editor\animation\Animation.h"
 #include "engine\editor\Editor.h"
-#include "engine\gfx\LGui.h"
+#include "engine\gfx\gui\LGui.h"
 #include "KeyframeTimeline.h"
 
 class AnimationOverlay {

@@ -357,8 +357,6 @@ void VoxelTool::renderSingleMesh(bool p_inset) {
 }
 void VoxelTool::renderBoxMesh(bool p_insetVoxel, bool p_insetBox) {
 	glm::ivec3 selected;
-	if (p_insetVoxel) selected = *m_selectedVoxelOffset;
-	else			 selected = *m_selectedVoxel;
 
 	glBindTexture(GL_TEXTURE_2D, 0); // TODO Is this necessary?
 	GLfloat c;
@@ -375,6 +373,14 @@ void VoxelTool::renderBoxMesh(bool p_insetVoxel, bool p_insetBox) {
 		MMesh::renderBoxOutline(pos, size);
 	}
 	else {
+		if (p_insetVoxel || !m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel)) {
+			selected = *m_selectedVoxelOffset;
+			p_insetVoxel = true;
+		}
+		else {
+			selected = *m_selectedVoxel;
+		}
+
 		c = p_insetVoxel ? -SELECT_CORRECTION : SELECT_CORRECTION;
 		matPos = m_editMatrix->getPos();
 		pos = matPos + glm::vec3(selected) - glm::vec3(c);

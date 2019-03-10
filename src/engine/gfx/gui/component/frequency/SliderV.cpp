@@ -1,7 +1,7 @@
 #include "engine\gfx\gui\component\frequency\SliderV.h"
 
 CSliderV::CSliderV(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Sint32 p_length, Sint32 p_maxValue)
-	: Component(p_compName, p_title, p_pos, {}, Theme::ACTION) {
+	: Component(p_compName, p_title, p_pos, {}) {
 	m_length = p_length;
 	m_maxValue = p_maxValue;
 	m_numValue = 0;
@@ -58,6 +58,12 @@ void CSliderV::input(Sint8& p_interactFlags) {
 			addTooltip();
 			p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
 		}
+		else {
+			resetTooltip();
+		}
+	}
+	else {
+		resetTooltip();
 	}
 }
 void CSliderV::update(Vector2<Sint32> p_pos) {
@@ -71,27 +77,27 @@ void CSliderV::render() {
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 
 	//Outline
-	GBuffer::setColor(m_colorTheme->m_border.applyScale(Color(0.5f, 0.5f, 0.5f)));
+	GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 	GBuffer::addVertexQuad(-m_width / 2.f - 1, -m_height - 1);
 	GBuffer::addVertexQuad(m_width / 2.f + 1, -m_height - 1);
 	GBuffer::addVertexQuad(m_width / 2.f + 1, m_length + m_height + 1);
 	GBuffer::addVertexQuad(-m_width / 2.f - 1, m_length + m_height + 1);
 
 	//Background
-	GBuffer::setColor(m_colorTheme->m_primary);
+	GBuffer::setColor(getPrimaryColor());
 	GBuffer::addVertexQuad(-m_width / 2.f, -m_height);
 	GBuffer::addVertexQuad(m_width / 2.f, -m_height);
 	GBuffer::addVertexQuad(m_width / 2.f, m_length + m_height);
 	GBuffer::addVertexQuad(-m_width / 2.f, m_length + m_height);
 
-	GBuffer::setColor(m_colorTheme->m_border);
+	GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 	GBuffer::addVertexQuad(-m_width / 2.f, -m_height);
 	GBuffer::addVertexQuad(m_width / 2.f, -m_height);
 	GBuffer::addVertexQuad(m_width / 2.f, GLfloat(m_length - m_slideValue));
 	GBuffer::addVertexQuad(-m_width / 2.f, GLfloat(m_length - m_slideValue));
 
 	//Slider
-	GBuffer::setColor(m_colorTheme->m_hover);
+	GBuffer::setColor(m_colorThemeMap.at("actionHover"));
 	GBuffer::addVertexQuad(-GLfloat(m_width / 2), GLfloat((m_length - m_slideValue) - m_height));
 	GBuffer::addVertexQuad(GLfloat(m_width / 2), GLfloat((m_length - m_slideValue) - m_height));
 	GBuffer::addVertexQuad(GLfloat(m_width / 2), GLfloat((m_length - m_slideValue) + m_height));

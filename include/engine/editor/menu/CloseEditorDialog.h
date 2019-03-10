@@ -2,11 +2,11 @@
 
 #include "engine\gfx\gui\LGui.h"
 
-class ModelPropertiesDialog : public Singleton<ModelPropertiesDialog> {
+class CloseEditorDialog : public Singleton<CloseEditorDialog> {
 private:
 	CDialog* m_dialog;
 
 public:
-	ModelPropertiesDialog();
+	CloseEditorDialog();
 	CDialog* getDialog();
 };

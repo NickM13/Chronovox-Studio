@@ -2,8 +2,9 @@
 
 #include "..\Matrix.h"
 
-class VoxFormat
-{
+// Avoiding this for now
+
+class VoxFormat {
 private:
 	static Sint32 strToNum(std::string str);
 public:
