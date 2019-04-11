@@ -34,6 +34,35 @@ bool GKey::modDown(Sint32 p_mod) {
 	return false;
 }
 
+std::string GKey::getBindAsText(KeyBind p_keyBind) {
+	std::string text = "";
+	if (p_keyBind.key != -1) {
+		if (p_keyBind.mods > 0) {
+			if (p_keyBind.mods & GLFW_MOD_SUPER) { text += "Super+"; }
+			if (p_keyBind.mods & GLFW_MOD_CONTROL) { text += "Ctrl+"; }
+			if (p_keyBind.mods & GLFW_MOD_ALT) { text += "Alt+"; }
+			if (p_keyBind.mods & GLFW_MOD_SHIFT) { text += "Shift+"; }
+		}
+		switch (p_keyBind.key) {
+		case GLFW_KEY_F1: text += "F1"; break;
+		case GLFW_KEY_F2: text += "F2"; break;
+		case GLFW_KEY_F3: text += "F3"; break;
+		case GLFW_KEY_F4: text += "F4"; break;
+		case GLFW_KEY_F5: text += "F5"; break;
+		case GLFW_KEY_F6: text += "F6"; break;
+		case GLFW_KEY_F7: text += "F7"; break;
+		case GLFW_KEY_F8: text += "F8"; break;
+		case GLFW_KEY_F9: text += "F9"; break;
+		case GLFW_KEY_F10: text += "F10"; break;
+		case GLFW_KEY_F11: text += "F11"; break;
+		case GLFW_KEY_F12: text += "F12"; break;
+		case GLFW_KEY_SPACE: text += "Space"; break;
+		default: text += (char)p_keyBind.key; break;
+		}
+	}
+	return text;
+}
+
 std::vector<GKey::KeyEvent> GKey::getKeyEvents() {
 	return m_keyEvents;
 }

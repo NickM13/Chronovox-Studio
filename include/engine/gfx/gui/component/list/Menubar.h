@@ -47,6 +47,12 @@ public:
 			}
 			return "";
 		}
+		virtual std::string getDirectoryNoSlash() const {
+			if (parent) {
+				return parent->getDirectory();
+			}
+			return "";
+		}
 
 		ElementType getType() const {
 			return etype;
@@ -188,6 +194,12 @@ public:
 			}
 			return (name != "" ? name + "\\" : "");
 		}
+		std::string getDirectoryNoSlash() const {
+			if (parent) {
+				return parent->getDirectory() + name;
+			}
+			return (name != "" ? name + "\\" : "");
+		}
 
 		void update() {
 			MenuElement::update();
@@ -208,29 +220,7 @@ public:
 			func = p_func;
 			etype = ElementType::BUTTON;
 
-			desc = "";
-			if (keyBind.key != -1) {
-				if (keyBind.mods & GLFW_MOD_SUPER) { desc += "Super+"; }
-				if (keyBind.mods & GLFW_MOD_CONTROL) { desc += "Ctrl+"; }
-				if (keyBind.mods & GLFW_MOD_ALT) { desc += "Alt+"; }
-				if (keyBind.mods & GLFW_MOD_SHIFT) { desc += "Shift+"; }
-				switch (keyBind.key) {
-				case GLFW_KEY_F1: desc += "F1"; break;
-				case GLFW_KEY_F2: desc += "F2"; break;
-				case GLFW_KEY_F3: desc += "F3"; break;
-				case GLFW_KEY_F4: desc += "F4"; break;
-				case GLFW_KEY_F5: desc += "F5"; break;
-				case GLFW_KEY_F6: desc += "F6"; break;
-				case GLFW_KEY_F7: desc += "F7"; break;
-				case GLFW_KEY_F8: desc += "F8"; break;
-				case GLFW_KEY_F9: desc += "F9"; break;
-				case GLFW_KEY_F10: desc += "F10"; break;
-				case GLFW_KEY_F11: desc += "F11"; break;
-				case GLFW_KEY_F12: desc += "F12"; break;
-				case GLFW_KEY_SPACE: desc += "Space"; break;
-				default: desc += (char)keyBind.key; break;
-				}
-			}
+			desc = GKey::getBindAsText(p_keyBind);
 		}
 
 		GKey::KeyBind getKeyBind() const {
@@ -283,90 +273,10 @@ public:
 	};
 
 private:
-	/*
-	struct SubList {
-		std::function<bool()> m_visibleFunc = {};
-		std::string m_directory = "";
-		std::string m_name = "", m_desc = "";
-		GLfloat hoverTimer = 0;
-		GKey::KeyBind m_keyBind = {};
-		std::function<bool()> m_isCheckboxFunc = {};
-		bool m_subList = false;
-		std::vector<SubList> m_buttons = {};
-		Uint16 m_width = 0;
-		function m_func = 0;
-		SubList() {};
-		SubList(std::string p_directory, std::string p_name, GKey::KeyBind p_keyBind, function p_func = 0, std::function<bool()> p_isCheckboxFunc = 0) {
-			m_directory = p_directory;
-			m_name = p_name;
-			m_keyBind = p_keyBind;
-			m_desc = "";
-			if (m_keyBind.key != -1) {
-				if (m_keyBind.mods & GLFW_MOD_SUPER)	{ m_desc += "Super+"; }
-				if (m_keyBind.mods & GLFW_MOD_CONTROL)	{ m_desc += "Ctrl+"; }
-				if (m_keyBind.mods & GLFW_MOD_ALT)		{ m_desc += "Alt+"; }
-				if (m_keyBind.mods & GLFW_MOD_SHIFT)	{ m_desc += "Shift+"; }
-				switch (m_keyBind.key) {
-				case GLFW_KEY_F1: m_desc += "F1"; break;
-				case GLFW_KEY_F2: m_desc += "F2"; break;
-				case GLFW_KEY_F3: m_desc += "F3"; break;
-				case GLFW_KEY_F4: m_desc += "F4"; break;
-				case GLFW_KEY_F5: m_desc += "F5"; break;
-				case GLFW_KEY_F6: m_desc += "F6"; break;
-				case GLFW_KEY_F7: m_desc += "F7"; break;
-				case GLFW_KEY_F8: m_desc += "F8"; break;
-				case GLFW_KEY_F9: m_desc += "F9"; break;
-				case GLFW_KEY_F10: m_desc += "F10"; break;
-				case GLFW_KEY_F11: m_desc += "F11"; break;
-				case GLFW_KEY_F12: m_desc += "F12"; break;
-				case GLFW_KEY_SPACE: m_desc += "Space"; break;
-				default: m_desc += (char)m_keyBind.key; break;
-				}
-			}
-			m_subList = false;
-			m_width = 0;
-			m_func = p_func;
-			m_isCheckboxFunc = p_isCheckboxFunc;
-		}
-
-		void setFunction(function p_func) {
-			m_func = p_func;
-		}
-
-		function getFunction() {
-			return m_func;
-		}
-
-		void callPressFunction() {
-			m_func();
-		}
-
-		SubList* find(std::string p_name) {
-			if (m_subList) {
-				for (Uint16 i = 0; i < m_buttons.size(); i++) {
-					if (m_buttons[i].m_name == p_name) {
-						return &m_buttons[i];
-					}
-				}
-			}
-			return 0;
-		}
-
-		void addButton(std::string m_directory, std::string p_name, GKey::KeyBind p_keyBind, function p_func, std::function<bool()> p_isCheckboxFunc) {
-			m_buttons.push_back(SubList(m_directory, p_name, p_keyBind, p_func, p_isCheckboxFunc));
-			m_subList = true;
-			if (p_name.length() > m_width) {
-				m_width = Uint16(p_name.length());
-			}
-		}
-	};
-	*/
-	//SubList m_buttonsMain = {};
-
 	std::vector<std::pair<GKey::KeyBind, function>> m_keyBinds;
 	const Sint32 m_slBuffer = 2;
 
-	Panel* m_panelMain = {}, * m_panelSub = 0;
+	Panel* m_panelMain = {};
 	Submenu m_submenu;
 
 	// Texture for submenu arrow
@@ -374,6 +284,7 @@ private:
 
 	std::string m_currDir = "";
 	std::string m_selected = ""; // Directory to button being hovered over
+
 public:
 	CMenubar() {};
 	CMenubar(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32> p_size);

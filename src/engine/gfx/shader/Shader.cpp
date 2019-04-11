@@ -40,7 +40,7 @@ Shader::Program* Shader::Program::loadShader(GLint p_shaderType, std::string p_s
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 	if(!success) {
 		glGetShaderInfoLog(shader, 512, NULL, infoLog);
-		Logger::logError("Shader compilation failed \"" + p_shaderFile + "\"");
+		Logger::logError("Shader compilation failed \"" + p_shaderFile + "\"\n" + infoLog);
 	}
 
 	glAttachShader(program, shader);
@@ -48,7 +48,7 @@ Shader::Program* Shader::Program::loadShader(GLint p_shaderType, std::string p_s
 	glGetProgramiv(program, GL_LINK_STATUS, &success);
 	if(!success) {
 		glGetProgramInfoLog(program, 512, NULL, infoLog);
-		Logger::logError("Shader program failed to link \"" + p_shaderFile + "\"");
+		Logger::logError("Shader program failed to link \"" + p_shaderFile + "\"" + infoLog);
 	}
 
 	glDeleteShader(shader);
@@ -59,6 +59,7 @@ void Shader::init() {
 	loadIdentityProjection();
 	loadIdentityView();
 	loadIdentityModel();
+	Shader::setTextureCoords(glm::vec4(0, 0, 1, 1));
 }
 void Shader::terminate() {
 
@@ -104,6 +105,9 @@ void Shader::setTexture(GLint p_activeTexture, GLint p_textureId) {
 void Shader::setTexture(GLint p_activeTexture, std::string p_textureName) {
 	glActiveTexture(GL_TEXTURE0 + p_activeTexture);
 	glBindTexture(GL_TEXTURE_2D, MTexture::getTexture(p_textureName)->getGlId());
+}
+void Shader::setTextureCoords(glm::vec4& p_subtexCoords) {
+	glUniform4fv(6, 1, &p_subtexCoords.x);
 }
 
 void Shader::setShadowsEnabled(bool p_enabled) {

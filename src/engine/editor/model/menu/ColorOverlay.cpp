@@ -101,11 +101,8 @@ void ColorOverlay::render() {
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0));
 
 	GBuffer::setTexture(0);
-	GBuffer::setColor(Color(0.f, 0.f, 0.f));
-	GBuffer::addVertexQuad(-1, -1);
-	GBuffer::addVertexQuad(m_size.x + 1, -1);
-	GBuffer::addVertexQuad(m_size.x + 1, m_size.y + 1);
-	GBuffer::addVertexQuad(-1, m_size.y + 1);
+	GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+	GBuffer::addQuadFilled(-1, m_size + 2);
 
 	GBuffer::setTexture(m_background1->getGlId());
 	GBuffer::setColor(Color(1.f, 1.f, 1.f, (sat / 100.f)));

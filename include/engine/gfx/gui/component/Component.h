@@ -55,13 +55,6 @@ public:
 		LEFT = 8,
 		ALL = 15
 	};
-	enum class TextureStyle {
-		NONE,
-		STRETCH,
-		WRAP,
-		SCALE,
-		CENTERED
-	};
 
 protected:
 	function m_pressFunction = 0, m_holdFunction = 0, m_releaseFunction = 0;
@@ -78,8 +71,8 @@ protected:
 	// a static_cast<Container*>
 	Component* m_parentContainer = 0;
 
-	Texture* m_texture;
-	TextureStyle m_textureStyle = TextureStyle::STRETCH;
+	Texture* m_texture = 0;
+	GBuffer::TextureStyle m_textureStyle = GBuffer::TextureStyle::STRETCH;
 
 	Sint8 m_border = (Sint8)BorderFlag::ALL;
 
@@ -88,13 +81,15 @@ protected:
 	// Default color themes, loaded from res/config/ColorTheme.ini
 	static std::map<std::string, Color> m_colorThemeMap;
 	bool m_visible = true;
+	bool m_highlighting = true;
+	GGui::CursorType m_hoverCursor = GGui::CursorType::NONE;
 	Sint8 m_moveToFront = 0;
 	Sint8 m_priority = 0;
 
-	std::string m_tooltip;
+	std::string m_tooltip = "";
 	GLfloat m_tooltipTime = 0;
-	bool m_tooltipCounted;
-	Vector2<Sint32> m_tooltipMouse;
+	bool m_tooltipCounted = false;
+	Vector2<Sint32> m_tooltipMouse = {};
 
 	void setHovered(bool p_hovered);
 public:
@@ -155,10 +150,13 @@ public:
 
 	virtual Component* setVisible(bool p_visible);
 	bool isVisible();
+	Component* setHighlightActive(bool p_highlighting) { m_highlighting = p_highlighting; return this; }
+	Component* setHoverCursor(GGui::CursorType p_cursor) { m_hoverCursor = p_cursor; return this; }
 
 	void renderBack();
 	void renderFill(bool p_setColor = true);
 	void renderBorder();
+	void renderShadow();
 	virtual void render();
 	virtual Sint8 isSelected();
 	virtual void setValue(GLfloat p_value);

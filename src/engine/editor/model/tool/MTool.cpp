@@ -3,11 +3,24 @@
 std::vector<Tool*> MTool::m_tools;
 
 void MTool::init() {
-	addTool(new VTAdd());
-	addTool(new VTReplace());
-	addTool(new VTErase());
-	addTool(new VTEyedrop());
-	addTool(new MTSelect());
+	addTool(new VSTAdd());
+
+	addTool(new VSTErase());
+
+	addTool(new VSTReplace());
+
+	addTool(new VSTEyedrop());
+
+	addTool(new VBTAdd());
+	addTool(new VBTErase());
+	addTool(new VBTReplace());
+
+	addTool(new VFTAdd());
+	addTool(new VFTErase());
+	addTool(new VFTReplace());
+
+	addTool(new MTMove());
+	addTool(new MTResize());
 }
 
 void MTool::terminate() {
@@ -28,4 +41,12 @@ Tool* MTool::getTool(std::string p_toolName) {
 }
 Tool* MTool::getTool(Sint32 p_toolId) {
 	return m_tools[p_toolId];
+}
+Sint32 MTool::getToolId(std::string p_toolName) {
+	for (size_t i = 0; i < m_tools.size(); i++) {
+		if (m_tools.at(i)->getName() == p_toolName) {
+			return i;
+		}
+	}
+	return 0;
 }

@@ -68,7 +68,6 @@ void TextField::input(Sint8& p_interactFlags) {
 			m_cursorPos.x = m_text[row].length();
 			for (Sint32 i = 0; i < (Sint32)m_text[row].length(); i++) {
 				currLength += Font::getCharSize(m_text[row][i]).x;
-				Logger::logMinimal("%i", currLength);
 				if (_mousePos.x < currLength) {
 					m_cursorPos.x = i;
 					break;

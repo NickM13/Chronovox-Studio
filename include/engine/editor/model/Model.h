@@ -17,7 +17,7 @@ private:
 	void renderGrid();
 
 	// Editting tool, tool mode
-	static Sint32 m_tool, m_subTool;
+	static Sint32 m_tool;
 
 	// Shared variables color
 	static Color* m_voxelColor;
@@ -71,7 +71,6 @@ public:
 	void setDataString(std::string* p_dataString);
 	void setTool(Sint32 p_tool);
 	void setTool(std::string p_toolName);
-	void setSubTool(Sint32 p_subTool = 0);
 	void updateTool();
 
 	void toggleGrid();

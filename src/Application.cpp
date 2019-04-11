@@ -12,8 +12,9 @@ bool Application::init(char *p_filePath) {
 
 	Logger::logNormal("Initializing application...");
 
-	GScreen::m_windowTitle = "Nick's Voxel Editor";
-	GScreen::m_appVersion = "1.2.3";
+	GScreen::m_appName = "Nick's Voxel Editor";
+	GScreen::m_windowTitle = GScreen::m_appName;
+	GScreen::m_appVersion = "1.2.4.1";
 	GScreen::m_developer = true;
 	GScreen::m_fps = 0;
 	GScreen::m_exitting = 0;
@@ -82,6 +83,9 @@ bool Application::init(char *p_filePath) {
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	GLua::init();
+	//GLua::loadScriptFile("script.lua");
+
 	m_editor = new Editor();
 
 	return true;
@@ -90,6 +94,7 @@ bool Application::init(char *p_filePath) {
 void Application::terminate() {
 	Logger::logNormal("Terminating application...");
 	Shader::terminate();
+	GLua::terminate();
 	glfwTerminate();
 	delete m_editor;
 }
@@ -263,10 +268,10 @@ GLfloat _last = 0;
 void Application::update() {
 	m_editor->update();
 
-	if (GScreen::m_windowCommand == GScreen::MINIMIZE)	glfwIconifyWindow(m_mainWindow);
-	if (GScreen::m_windowCommand == GScreen::RESIZE)	maximize(false);
-	if (GScreen::m_windowCommand == GScreen::CLOSE)		glfwSetWindowShouldClose(m_mainWindow, true);
-	GScreen::m_windowCommand = GScreen::NONE;
+	if (GScreen::m_windowCommand == GScreen::WindowCommand::MINIMIZE)	glfwIconifyWindow(m_mainWindow);
+	if (GScreen::m_windowCommand == GScreen::WindowCommand::RESIZE)	maximize(false);
+	if (GScreen::m_windowCommand == GScreen::WindowCommand::CLOSE)		glfwSetWindowShouldClose(m_mainWindow, true);
+	GScreen::m_windowCommand = GScreen::WindowCommand::NONE;
 
 	GMouse::update(GScreen::m_deltaTime);
 }

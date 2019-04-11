@@ -3,6 +3,7 @@
 #include "engine\utils\logger\Logger.h"
 
 std::string GScreen::m_windowTitle = "";
+std::string GScreen::m_appName = "";
 std::string GScreen::m_appVersion = "";
 float GScreen::m_fps = 0;
 float GScreen::m_fov = 0;
@@ -27,7 +28,8 @@ bool GScreen::m_resizing = false;
 bool GScreen::m_finishedResize = false;
 bool GScreen::m_shadows = false;
 
-GScreen::WindowCommand GScreen::m_windowCommand = NONE;
+GScreen::WindowCommand GScreen::m_windowCommand = GScreen::WindowCommand::NONE;
+GScreen::ResizeType GScreen::m_resizeType = GScreen::ResizeType::BOTTOM;
 
 void GScreen::initWindow(GLFWwindow *p_window) {
 	m_window = p_window;
@@ -56,7 +58,6 @@ void GScreen::windowFocusCallback(GLFWwindow* p_window, int focus) {
 void GScreen::startWindowDrag() {
 	m_draggingWindow = true;
 	m_dragStart = GMouse::getMousePos();
-
 }
 bool GScreen::isDraggingWindow() {
 	return m_draggingWindow;
@@ -80,10 +81,12 @@ void GScreen::endWindowDrag() {
 	}
 }
 
-void GScreen::startResizing() {
+void GScreen::startResizing(ResizeType p_resizeType) {
 	m_initWindowSize = m_screenSize;
 	m_resizeMousePos = GMouse::getMousePos();
 	m_resizing = true;
+	m_resizeType = p_resizeType;
+	m_dragStart = GMouse::getMousePos();
 }
 void GScreen::stopResizing() {
 	m_resizing = false;
@@ -96,13 +99,77 @@ void GScreen::updateWindow() {
 		glfwSetWindowPos(m_window, m_windowPos.x, m_windowPos.y);
 		m_dragStart = GMouse::getMousePos() + m_dragDistance;
 	}
-	if (m_finishedResize) {
+	else if (m_finishedResize) {
 		m_finishedResize = false;
 	}
-	if (m_resizing) {
+	else if (m_resizing) {
 		Vector2<Sint32> _size = m_screenSize;
-		m_screenSize.x = (Sint32)std::fmaxf(600.f, (GLfloat)(m_initWindowSize.x - (m_resizeMousePos.x - GMouse::getMousePos().x)));
-		m_screenSize.y = (Sint32)std::fmaxf(400.f, (GLfloat)(m_initWindowSize.y - (m_resizeMousePos.y - GMouse::getMousePos().y)));
+		switch (m_resizeType) {
+		case ResizeType::TOP:
+			m_dragDistance.y = m_dragStart.y - GMouse::getMousePos().y;
+			m_dragDistance.y = (Sint32)((std::fmaxf(400.f, m_screenSize.y + m_dragDistance.y / 2.f) - m_screenSize.y) * 2);
+			m_screenSize.y = (Sint32)std::fmaxf(400.f, m_screenSize.y + m_dragDistance.y / 2.f);
+			m_windowPos.y = m_windowPos.y - m_dragDistance.y / 2;
+			glfwSetWindowPos(m_window, m_windowPos.x, m_windowPos.y);
+			m_dragStart.y = GMouse::getMousePos().y + m_dragDistance.y;
+			break;
+		case ResizeType::RIGHT:
+			m_screenSize.x = (Sint32)std::fmaxf(600.f, (GLfloat)(m_initWindowSize.x - (m_resizeMousePos.x - GMouse::getMousePos().x)));
+			break;
+		case ResizeType::BOTTOM:
+			m_screenSize.y = (Sint32)std::fmaxf(400.f, (GLfloat)(m_initWindowSize.y - (m_resizeMousePos.y - GMouse::getMousePos().y)));
+			break;
+		case ResizeType::LEFT:
+			m_dragDistance.x = m_dragStart.x - GMouse::getMousePos().x;
+			m_dragDistance.x = (Sint32)((std::fmaxf(600.f, m_screenSize.x + m_dragDistance.x / 2.f) - m_screenSize.x) * 2);
+			m_windowPos.x = m_windowPos.x - m_dragDistance.x / 2;
+			glfwSetWindowPos(m_window, m_windowPos.x, m_windowPos.y);
+			m_dragStart.x = GMouse::getMousePos().x + m_dragDistance.x;
+			m_screenSize.x = (Sint32)std::fmaxf(600.f, m_screenSize.x + m_dragDistance.x / 2.f);
+			break;
+		case ResizeType::TOP_RIGHT:
+			m_screenSize.x = (Sint32)std::fmaxf(600.f, (GLfloat)(m_initWindowSize.x - (m_resizeMousePos.x - GMouse::getMousePos().x)));
+
+			m_dragDistance.y = m_dragStart.y - GMouse::getMousePos().y;
+			m_dragDistance.y = (Sint32)((std::fmaxf(400.f, m_screenSize.y + m_dragDistance.y / 2.f) - m_screenSize.y) * 2);
+			m_windowPos.y = m_windowPos.y - m_dragDistance.y / 2;
+			glfwSetWindowPos(m_window, m_windowPos.x, m_windowPos.y);
+			m_dragStart.y = GMouse::getMousePos().y + m_dragDistance.y;
+			m_screenSize.y = (Sint32)std::fmaxf(400.f, m_screenSize.y + m_dragDistance.y / 2.f);
+			break;
+		case ResizeType::BOTTOM_RIGHT:
+			m_screenSize.x = (Sint32)std::fmaxf(600.f, (GLfloat)(m_initWindowSize.x - (m_resizeMousePos.x - GMouse::getMousePos().x)));
+
+			m_screenSize.y = (Sint32)std::fmaxf(400.f, (GLfloat)(m_initWindowSize.y - (m_resizeMousePos.y - GMouse::getMousePos().y)));
+			break;
+		case ResizeType::BOTTOM_LEFT:
+			m_dragDistance.x = m_dragStart.x - GMouse::getMousePos().x;
+			m_dragDistance.x = (Sint32)((std::fmaxf(600.f, m_screenSize.x + m_dragDistance.x / 2.f) - m_screenSize.x) * 2);
+			m_windowPos.x = m_windowPos.x - m_dragDistance.x / 2;
+			glfwSetWindowPos(m_window, m_windowPos.x, m_windowPos.y);
+			m_dragStart.x = GMouse::getMousePos().x + m_dragDistance.x;
+			m_screenSize.x = (Sint32)std::fmaxf(600.f, m_screenSize.x + m_dragDistance.x / 2.f);
+
+			m_screenSize.y = (Sint32)std::fmaxf(400.f, (GLfloat)(m_initWindowSize.y - (m_resizeMousePos.y - GMouse::getMousePos().y)));
+			break;
+		case ResizeType::TOP_LEFT:
+			m_dragDistance.x = m_dragStart.x - GMouse::getMousePos().x;
+			m_dragDistance.x = (Sint32)((std::fmaxf(600.f, m_screenSize.x + m_dragDistance.x / 2.f) - m_screenSize.x) * 2);
+			m_windowPos.x = m_windowPos.x - m_dragDistance.x / 2;
+			glfwSetWindowPos(m_window, m_windowPos.x, m_windowPos.y);
+			m_dragStart.x = GMouse::getMousePos().x + m_dragDistance.x;
+			m_screenSize.x = (Sint32)std::fmaxf(600.f, m_screenSize.x + m_dragDistance.x / 2.f);
+
+			m_dragDistance.y = m_dragStart.y - GMouse::getMousePos().y;
+			m_dragDistance.y = (Sint32)((std::fmaxf(400.f, m_screenSize.y + m_dragDistance.y / 2.f) - m_screenSize.y) * 2);
+			m_windowPos.y = m_windowPos.y - m_dragDistance.y / 2;
+			glfwSetWindowPos(m_window, m_windowPos.x, m_windowPos.y);
+			m_dragStart.y = GMouse::getMousePos().y + m_dragDistance.y;
+			m_screenSize.y = (Sint32)std::fmaxf(400.f, m_screenSize.y + m_dragDistance.y / 2.f);
+			break;
+		default:
+			break;
+		}
 		if (!(_size == m_screenSize))
 			m_finishedResize = true;
 	}

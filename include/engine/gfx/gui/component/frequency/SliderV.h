@@ -6,14 +6,14 @@
 #include "..\Component.h"
 #include "engine\gfx\font\Font.h"
 
-struct CSliderV : public Component
-{
+struct CSliderV : public Component {
 private:
+	static Sint32 m_height;
+	static Sint32 m_width;
+
 	Sint32 m_length;
 	Sint32 m_maxValue;
 	Sint32 m_slideValue;
-	Sint32 m_height;
-	Sint8 m_width;
 
 	bool m_held = false;
 	Vector2<Sint32> m_holdPos;

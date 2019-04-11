@@ -52,6 +52,7 @@ Editor::Editor() {
 	Gui::getContainer()->addComponent(FreshOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)->setVisible(false);
 	Gui::getContainer()->addComponent(ModelOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)->setVisible(false);
 	Gui::getContainer()->addComponent(AnimationOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)->setVisible(false);
+	Gui::getContainer()->resize();
 	m_projectTabs = (CTabBar*)Gui::getContainer()->findComponent("GUI_EDITOR\\TAB_FILES");
 
 	setEditorState(EditorState::RUNNING);
@@ -179,10 +180,10 @@ Editor::EditorMode Editor::getEditorMode() {
 }
 
 void Editor::newProject(Project* p_project) {
-	m_projects.push_back(p_project);
+	m_projects.insert(m_projects.begin(), p_project);
 	m_cProj = p_project;
 	m_projectTabs->addItem(m_cProj->editor->getName(), m_cProj->editor->getPath());
-	setProject(m_projects.size() - 1);
+	setProject(0);
 }
 void Editor::setProject(Sint32 p_index) {
 	if (p_index >= 0 && p_index < (Sint32)m_projects.size()) {
@@ -271,9 +272,14 @@ void Editor::renderMouse() {
 	if (tooltip != "") {
 		Sint32 b1 = 5, b2 = b1 - 1;
 		Vector2<Sint32> size = Font::getMessageWidth(tooltip);
-		Vector2<Sint32> pos = Vector2<Sint32>(GGui::getTooltipPos().x + b2, GGui::getTooltipPos().y + 21 + b2);
+		Vector2<Sint32> pos = Vector2<Sint32>(GGui::getTooltipPos().x + 16 + b2, GGui::getTooltipPos().y + 21 + b2);
 		pos.x = std::fminf(GScreen::m_screenSize.x - size.x - b2, std::fmaxf(b2, pos.x));
-		pos.y = std::fminf(GScreen::m_screenSize.y - size.y - b2, std::fmaxf(b2, pos.y));
+		if (pos.y > GScreen::m_screenSize.y - size.y - b2 - 26) {
+			pos.y = GScreen::m_screenSize.y - size.y - b2 - 56;
+		}
+		else {
+			pos.y = std::fmaxf(b2, pos.y);
+		}
 
 		Shader::pushMatrixModel();
 		Shader::translate(glm::vec3(pos.x, pos.y, 0));

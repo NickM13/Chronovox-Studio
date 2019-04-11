@@ -60,23 +60,23 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)log\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)lib\devil\include;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)lib;$(ProjectDir)lib\devil\include;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)lib\LuaBridge;$(ProjectDir)lib\Lua\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
     <ReferencePath>$(ProjectDir)res;$(ReferencePath)</ReferencePath>
-    <LibraryPath>$(ProjectDir)lib\devil\lib\Debug;$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Debug;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\OpenAL\lib;$(ProjectDir)lib\tinyobjloader\lib\Debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)lib\devil\lib\Debug;$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Debug;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\Lua\lib;$(ProjectDir)lib\OpenAL\lib;$(ProjectDir)lib\tinyobjloader\lib\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)log\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)lib\devil\include;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)lib;$(ProjectDir)lib\devil\include;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)lib\LuaBridge;$(ProjectDir)lib\Lua\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
     <ReferencePath>$(ProjectDir)res;$(ProjectDir)dll\Release;$(ReferencePath)</ReferencePath>
-    <LibraryPath>$(ProjectDir)lib\devil\lib\Release;$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Release;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\OpenAL\lib;$(ProjectDir)lib\tinyobjloader\lib\Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)lib\devil\lib\Release;$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Release;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\Lua\lib;$(ProjectDir)lib\OpenAL\lib;$(ProjectDir)lib\tinyobjloader\lib\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseConsole|Win32'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)log\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)lib\devil\include;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)lib;$(ProjectDir)lib\devil\include;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)lib\LuaBridge;$(ProjectDir)lib\Lua\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
     <ReferencePath>$(ProjectDir)res;$(ProjectDir)dll\Release;$(ReferencePath)</ReferencePath>
-    <LibraryPath>$(ProjectDir)lib\devil\lib\Release;$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Release;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\OpenAL\lib;$(ProjectDir)lib\tinyobjloader\lib\Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)lib\devil\lib\Release;$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Release;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\Lua\lib;$(ProjectDir)lib\OpenAL\lib;$(ProjectDir)lib\tinyobjloader\lib\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -86,7 +86,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;OpenAL32.lib;DevIL.lib;ILU.lib;ILUT.lib;alut.lib;freetyped.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;lua51.lib;OpenAL32.lib;DevIL.lib;ILU.lib;ILUT.lib;alut.lib;freetyped.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -102,7 +102,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;DevIL.lib;ILU.lib;ILUT.lib;OpenAL32.lib;alut.lib;freetype.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;lua51.lib;DevIL.lib;ILU.lib;ILUT.lib;OpenAL32.lib;alut.lib;freetype.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>
       </EntryPointSymbol>
@@ -120,7 +120,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;DevIL.lib;ILU.lib;ILUT.lib;OpenAL32.lib;alut.lib;freetype.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;lua51.lib;DevIL.lib;ILU.lib;ILUT.lib;OpenAL32.lib;alut.lib;freetype.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <EntryPointSymbol>
       </EntryPointSymbol>
@@ -147,7 +147,8 @@
     <ClCompile Include="src\engine\editor\model\menu\NewModelDialog.cpp" />
     <ClCompile Include="src\engine\editor\model\SimpleModel.cpp" />
     <ClCompile Include="src\engine\editor\model\tool\matrix\MatrixTool.cpp" />
-    <ClCompile Include="src\engine\editor\model\tool\matrix\MTSelect.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\matrix\MTMove.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\matrix\MTResize.cpp" />
     <ClCompile Include="src\engine\editor\model\tool\MTool.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\engine\editor\Editor.cpp" />
@@ -155,14 +156,24 @@
     <ClCompile Include="src\engine\editor\model\format\NvmFormat.cpp" />
     <ClCompile Include="src\engine\editor\model\Matrix.cpp" />
     <ClCompile Include="src\engine\editor\model\Model.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\box\VBTErase.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\box\VBTReplace.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\box\VoxelBoxTool.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\box\VBTAdd.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\fill\VFTErase.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\fill\VFTReplace.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\fill\VoxelFillTool.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\fill\VFTAdd.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\single\VoxelSingleTool.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\single\VSTAdd.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\single\VSTErase.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\single\VSTEyedrop.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\voxel\single\VSTReplace.cpp" />
     <ClCompile Include="src\engine\gfx\gui\LGui.cpp" />
+    <ClCompile Include="src\engine\utils\global\GLua.cpp" />
     <ClCompile Include="src\engine\utils\math\ModelMath.cpp" />
     <ClCompile Include="src\engine\editor\model\tool\Tool.cpp" />
     <ClCompile Include="src\engine\editor\model\tool\voxel\VoxelTool.cpp" />
-    <ClCompile Include="src\engine\editor\model\tool\voxel\VTAdd.cpp" />
-    <ClCompile Include="src\engine\editor\model\tool\voxel\VTErase.cpp" />
-    <ClCompile Include="src\engine\editor\model\tool\voxel\VTEyedrop.cpp" />
-    <ClCompile Include="src\engine\editor\model\tool\voxel\VTReplace.cpp" />
     <ClCompile Include="src\engine\editor\TEMode.cpp" />
     <ClCompile Include="src\engine\gfx\font\Font.cpp" />
     <ClCompile Include="src\engine\gfx\gui\buffer\GBuffer.cpp" />
@@ -243,16 +254,27 @@
     <ClInclude Include="include\engine\editor\model\Model.h" />
     <ClInclude Include="include\engine\editor\model\SimpleModel.h" />
     <ClInclude Include="include\engine\editor\model\tool\LTool.h" />
+    <ClInclude Include="include\engine\editor\model\tool\matrix\MTMove.h" />
+    <ClInclude Include="include\engine\editor\model\tool\matrix\MTResize.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\box\VBTReplace.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\box\VoxelBoxTool.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\box\VBTAdd.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\box\VBTErase.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\fill\VFTReplace.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\fill\VoxelFillTool.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\fill\VFTAdd.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\fill\VFTErase.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\single\VoxelSingleTool.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\single\VSTAdd.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\single\VSTErase.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\single\VSTEyedrop.h" />
+    <ClInclude Include="include\engine\editor\model\tool\voxel\single\VSTReplace.h" />
+    <ClInclude Include="include\engine\utils\global\GLua.h" />
     <ClInclude Include="include\engine\utils\math\ModelMath.h" />
     <ClInclude Include="include\engine\editor\model\tool\matrix\MatrixTool.h" />
-    <ClInclude Include="include\engine\editor\model\tool\matrix\MTSelect.h" />
     <ClInclude Include="include\engine\editor\model\tool\MTool.h" />
     <ClInclude Include="include\engine\editor\model\tool\Tool.h" />
     <ClInclude Include="include\engine\editor\model\tool\voxel\VoxelTool.h" />
-    <ClInclude Include="include\engine\editor\model\tool\voxel\VTAdd.h" />
-    <ClInclude Include="include\engine\editor\model\tool\voxel\VTErase.h" />
-    <ClInclude Include="include\engine\editor\model\tool\voxel\VTEyedrop.h" />
-    <ClInclude Include="include\engine\editor\model\tool\voxel\VTReplace.h" />
     <ClInclude Include="include\engine\editor\TEMode.h" />
     <ClInclude Include="include\engine\gfx\font\Font.h" />
     <ClInclude Include="include\engine\gfx\gui\buffer\GBuffer.h" />

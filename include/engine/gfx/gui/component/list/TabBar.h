@@ -27,10 +27,13 @@ private:
 	struct ExtendedList {
 		Texture* texArrow = 0;
 		bool hovered = false;
+		Sint32 hoveredItem = -1;
 		GLfloat hoverTimer = 0;
+		Sint32 shown = 0;
 		Sint32 maxShown = 4;
 		Sint32 width = 0;
 		Sint32 scroll = 0;
+		Sint32 maxScroll = 0;
 		bool open = false;
 	} m_extList;
 	glm::vec2 m_elPos = {};

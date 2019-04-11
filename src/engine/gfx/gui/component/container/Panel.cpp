@@ -36,39 +36,36 @@ void Panel::update(GLfloat p_updateTime) {
 }
 void Panel::render() {
 	if (m_visible) {
+		Shader::pushMatrixModel();
 		if (m_title != "") {
 			Sint8 _ignore = m_selected;
 			m_selected = 0;
 			Component::render();
 			m_selected = _ignore;
+			Shader::translate(glm::vec3(m_pos.x, m_pos.y - 24, 0));
+			GBuffer::renderShadow(Vector2<Sint32>(0, 0), Vector2<Sint32>(m_size.x, m_size.y + 24));
+			GBuffer::setTexture(0);
 		}
 		else {
 			Sint8 _ignore = m_selected;
 			m_selected = 0;
 			Component::render();
 			m_selected = _ignore;
+			Shader::translate(glm::vec3(m_pos.x, m_pos.y, 0));
+			GBuffer::renderShadow(Vector2<Sint32>(0, 0), Vector2<Sint32>(m_size.x, m_size.y));
+			GBuffer::setTexture(0);
 		}
 		if (m_title != "") {
-			Shader::pushMatrixModel();
-			Shader::translate(glm::vec3(m_pos.x, m_pos.y - 24, 0));
-			GBuffer::setTexture(0);
-			GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
-			GBuffer::addVertexQuad(-1, -1);
-			GBuffer::addVertexQuad((GLfloat)m_size.x + 1, -1);
-			GBuffer::addVertexQuad((GLfloat)m_size.x + 1, 24);
-			GBuffer::addVertexQuad(-1, 24);
-
 			GBuffer::setColor(getPrimaryColor());
-			GBuffer::addVertexQuad(0, 0);
-			GBuffer::addVertexQuad((GLfloat)m_size.x, 0);
-			GBuffer::addVertexQuad((GLfloat)m_size.x, 23);
-			GBuffer::addVertexQuad(0, 23);
+			GBuffer::addQuadFilled(Vector2<Sint32>(0, 0), Vector2<Sint32>(m_size.x, 25));
+			GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+			GBuffer::addQuadOutlined(Vector2<Sint32>(0, 0), Vector2<Sint32>(m_size.x, 25));
 
 			GBuffer::setColor(m_colorThemeMap.at("textLight"));
 			Font::setAlignment(ALIGN_CENTER);
 			Font::print(m_title, m_size.x / 2, 12);
 			GBuffer::setTexture(0);
-			Shader::popMatrixModel();
 		}
+		Shader::popMatrixModel();
 	}
 }

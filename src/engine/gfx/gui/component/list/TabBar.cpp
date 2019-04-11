@@ -38,6 +38,7 @@ void CTabBar::refreshSize() {
 			m_extList.width = width;
 		}
 	}
+	m_extList.shown = static_cast<Sint32>(std::fmin(m_tabList.size(), m_extList.maxShown));
 }
 
 Uint16 CTabBar::getTabCount() {
@@ -63,7 +64,7 @@ Sint16 CTabBar::getClosedItem() {
 }
 
 Component* CTabBar::addItem(std::string p_name, std::string p_desc) {
-	m_tabList.push_back({ p_name, p_desc });
+	m_tabList.insert(m_tabList.begin(), { p_name, p_desc });
 	m_pressFunction();
 	refreshSize();
 	return this;
@@ -80,13 +81,20 @@ void CTabBar::input(Sint8& p_interactFlags) {
 	m_pHovered = m_hovered;
 	m_hovered = m_cHovered = -1;
 	m_extList.hovered = false;
+	m_extList.hoveredItem = -1;
 
 	if ((p_interactFlags & (Sint8)EventFlag::MOUSEOVER)) {
 		if (m_extList.open) {
-			std::cout << m_extList.width << std::endl;
-			if (_mousePos.x > m_size.x - m_extList.width
-				&& _mousePos.y > m_size.y && _mousePos.y < (m_extList.maxShown + 1) * m_size.y) {
+			if (_mousePos.x > m_size.x - m_extList.width - 1
+				&& _mousePos.y > m_size.y && _mousePos.y < (m_extList.shown + 1) * m_size.y) {
+				m_extList.hoveredItem = (_mousePos.y + m_extList.scroll) / m_size.y - 1;
+				if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
+					
+				}
 				p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
+			}
+			else if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
+				m_extList.open = false;
 			}
 		}
 	}
@@ -179,8 +187,6 @@ void CTabBar::update(GLfloat p_deltaUpdate) {
 void CTabBar::render() {
 	Font::setAlignment(ALIGN_CENTER);
 	Shader::pushMatrixModel();
-	GBuffer::setTexture(0);
-	Component::render();
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 
 	Shader::pushMatrixModel();
@@ -203,7 +209,7 @@ void CTabBar::render() {
 
 		if (m_selected == i || m_tabList[i].hoverTimer > 0) {
 			if (m_selected == i)	GBuffer::setColor(m_colorThemeMap.at("actionHighlight"));
-			else					GBuffer::setColor(m_colorThemeMap.at("actionHover").applyScale(Color(1, 1, 1, m_tabList[i].hoverTimer / 2.f)));
+			else					GBuffer::setColor(m_colorThemeMap.at("actionHovered").applyScale(Color(1, 1, 1, m_tabList[i].hoverTimer)));
 			GBuffer::addVertexQuad(0, 0);
 			GBuffer::addVertexQuad(size.x, 0);
 			GBuffer::addVertexQuad(size.x, size.y);
@@ -239,7 +245,43 @@ void CTabBar::render() {
 		Shader::translate(glm::vec3((GLfloat)size.x, 0.f, 0.f));
 	}
 	Shader::popMatrixModel();
-	Shader::translate(glm::vec3(m_size.x, 0, 0));
+	Shader::translate(glm::vec3(m_size.x - 1, 0, 0));
+
+	Shader::pushMatrixModel();
+	GBuffer::setScissorActive(false);
+	Shader::translate(glm::vec3(-m_extList.width, m_size.y, 0));
+	GBuffer::setTexture(0);
+	if (m_extList.open) {
+		GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+		GBuffer::addQuadFilled(Vector2<Sint32>(-1, -1), Vector2<Sint32>(m_extList.width, m_extList.shown * m_size.y) + 2);
+		GBuffer::setColor(m_colorThemeMap.at("actionPressed"));
+		GBuffer::addQuadFilled(Vector2<Sint32>(), Vector2<Sint32>(m_extList.width, m_extList.shown * m_size.y));
+
+		if (m_extList.hoveredItem >= 0 && m_extList.hoveredItem < m_extList.shown) {
+			GBuffer::setColor(m_colorThemeMap.at("actionHovered"));
+			GBuffer::addQuadFilled(Vector2<Sint32>(0, m_size.y * m_extList.hoveredItem), Vector2<Sint32>(m_extList.width, m_size.y));
+		}
+
+		GBuffer::setColor(m_colorThemeMap.at("textLight"));
+		for (size_t i = 0; i < m_extList.shown; i++) {
+			Font::print(m_tabList.at(i).title, 4, m_size.y * (i + 0.5f));
+		}
+	}
+	GBuffer::setScissorActive(true);
+	Shader::popMatrixModel();
+
+	GBuffer::setTexture(0);
+	if (m_extList.open || m_extList.hoverTimer > 0) {
+		if (m_extList.open) {
+			GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+			GBuffer::addQuadFilled(Vector2<Sint32>(-m_extList.texArrow->getSize().x - 1, -1), Vector2<Sint32>(m_extList.texArrow->getSize().x + 2, m_size.y + 1));
+			GBuffer::setColor(m_colorThemeMap.at("actionPressed"));
+		}
+		else {
+			GBuffer::setColor(m_colorThemeMap.at("actionHovered").applyScale(Color(1, 1, 1, m_extList.hoverTimer)));
+		}
+		GBuffer::addQuadFilled(Vector2<Sint32>(-m_extList.texArrow->getSize().x, 0), Vector2<Sint32>(m_extList.texArrow->getSize().x, m_size.y));
+	}
 
 	GBuffer::setTexture(m_extList.texArrow->getGlId());
 	GBuffer::setColor(Color());
@@ -247,27 +289,6 @@ void CTabBar::render() {
 	GBuffer::setUV(1, 1); GBuffer::addVertexQuad(-m_extList.texArrow->getSize().x,	0);
 	GBuffer::setUV(1, 0); GBuffer::addVertexQuad(-m_extList.texArrow->getSize().x,	m_extList.texArrow->getSize().y);
 	GBuffer::setUV(0, 0); GBuffer::addVertexQuad(0,									m_extList.texArrow->getSize().y);
-
-	GBuffer::setTexture(0);
-	if (m_extList.open || m_extList.hoverTimer > 0) {
-		if (m_extList.open)		GBuffer::setColor(m_colorThemeMap.at("actionPressed").applyScale(Color(1, 1, 1, 0.5f)));
-		else					GBuffer::setColor(m_colorThemeMap.at("actionHover").applyScale(Color(1, 1, 1, m_extList.hoverTimer / 2.f)));
-		GBuffer::addVertexQuad(0,									0);
-		GBuffer::addVertexQuad(-m_extList.texArrow->getSize().x,	0);
-		GBuffer::addVertexQuad(-m_extList.texArrow->getSize().x,	m_extList.texArrow->getSize().y);
-		GBuffer::addVertexQuad(0,									m_extList.texArrow->getSize().y);
-	}
-
-	GBuffer::setScissorActive(false);
-	Shader::translate(glm::vec3(-m_extList.width, m_size.y, 0));
-	if (m_extList.open) {
-		GBuffer::setColor(getPrimaryColor());
-		GBuffer::addVertexQuad(0, 0);
-		GBuffer::addVertexQuad(m_extList.width, 0);
-		GBuffer::addVertexQuad(m_extList.width, m_extList.maxShown * m_size.y);
-		GBuffer::addVertexQuad(0, m_extList.maxShown * m_size.y);
-	}
-	GBuffer::setScissorActive(true);
 
 	Shader::popMatrixModel();
 }

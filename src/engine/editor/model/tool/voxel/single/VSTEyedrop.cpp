@@ -1,0 +1,22 @@
+#include "engine\editor\model\tool\voxel\single\VSTEyedrop.h"
+
+VSTEyedrop::VSTEyedrop()
+	: VoxelSingleTool() {
+	m_parent = "Eyedropper";
+	m_toolName = "Eyedropper Tool";
+	m_toolDesc = "Eyedropper - K";
+	m_toolIcon = MTexture::getTexture("gui\\icon\\tool\\VoxelEyedrop.png");
+	m_keyBind = GKey::KeyBind(GLFW_KEY_K);
+}
+
+void VSTEyedrop::inputTool() {
+	if(GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT) && m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel)) {
+		*m_color = MColor::getInstance().getUnit(m_editMatrix->getMatrix()->getVoxel(*m_selectedVoxel).color);
+	}
+}
+void VSTEyedrop::updateTool() {
+
+}
+void VSTEyedrop::renderTool() {
+	renderSingleMesh(false);
+}

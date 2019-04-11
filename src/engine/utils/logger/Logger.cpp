@@ -5,12 +5,12 @@
 #include <iomanip>
 #include <chrono>
 
-Logger::Verbosity Logger::m_verbosity = Logger::Verbosity::DIAGNOSTIC;
+Sint8 Logger::m_verbosity = 5;
 bool Logger::m_consoleOutput = false;
 std::string Logger::m_logFile = "";
 long long Logger::m_logTime = 0;
 
-void Logger::init(Verbosity p_verbosity) {
+void Logger::init(Sint8 p_verbosity) {
 	m_logTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	m_consoleOutput = GetConsoleWindow() != NULL;
 	m_verbosity = p_verbosity;
@@ -39,11 +39,11 @@ void Logger::init(Verbosity p_verbosity) {
 	m_logFile = filePrefix + std::to_string(i) + fileExt;
 	logQuiet("Logger initialized");
 	switch (p_verbosity) {
-	case Verbosity::QUIET:		logQuiet("Logger verbosity set to quiet"); break;
-	case Verbosity::MINIMAL:	logQuiet("Logger verbosity set to minimal"); break;
-	case Verbosity::NORMAL:		logQuiet("Logger verbosity set to normal"); break;
-	case Verbosity::DETAILED:	logQuiet("Logger verbosity set to detailed"); break;
-	case Verbosity::DIAGNOSTIC: logQuiet("Logger verbosity set to diagnostic"); break;
+	case 1:	logQuiet("Logger verbosity set to quiet"); break;
+	case 2:	logQuiet("Logger verbosity set to minimal"); break;
+	case 3:	logQuiet("Logger verbosity set to normal"); break;
+	case 4:	logQuiet("Logger verbosity set to detailed"); break;
+	case 5: logQuiet("Logger verbosity set to diagnostic"); break;
 	}
 
 }
@@ -66,15 +66,15 @@ std::string Logger::getTimeFormatted() {
 	return oss.str();
 }
 
-void Logger::log(Verbosity p_verbosity, Type p_type, std::string p_msg) {
+void Logger::log(Sint8 p_verbosity, Sint8 p_type, std::string p_msg) {
 	if (static_cast<Sint32>(p_verbosity) <= static_cast<Sint32>(m_verbosity)) {
 		std::string msg = std::string("[")
 			+ getTimeFormatted() + " ";
 		switch (p_type) {
-		case Type::NONE: break;
-		case Type::INFO: msg += "INFO"; break;
-		case Type::WARN: msg += "WARN"; break;
-		case Type::ERR: msg += "ERROR"; break;
+		case 0: break;
+		case 1: msg += "INFO"; break;
+		case 2: msg += "WARN"; break;
+		case 3: msg += "ERROR"; break;
 		default: break;
 		}
 		msg += "]: " + p_msg + "\n";
@@ -89,8 +89,8 @@ void Logger::log(Verbosity p_verbosity, Type p_type, std::string p_msg) {
 	}
 }
 
-void Logger::log(Verbosity p_verbosity, Type p_type, std::string p_msg, va_list p_list) {
-	if (static_cast<Sint32>(p_verbosity) <= static_cast<Sint32>(m_verbosity)) {
+void Logger::logf(Sint8 p_verbosity, Sint8 p_type, std::string p_msg, va_list p_list) {
+	if (p_verbosity <= m_verbosity) {
 		std::string msg = "";
 		char c0, c1;
 		for (Sint32 i = 0; i < (Sint32)p_msg.length(); i++) {
@@ -131,69 +131,59 @@ void Logger::log(Verbosity p_verbosity, Type p_type, std::string p_msg, va_list 
 void Logger::logMissingFile(std::string p_msg, ...) {
 	va_list list;
 	va_start(list, p_msg);
-	log(Logger::Verbosity::QUIET, Logger::Type::ERR, "Could not find file: \"" + p_msg + "\"", list);
+	logf(static_cast<Sint8>(Verbosity::QUIET), 3, "Could not find file: \"" + p_msg + "\"", list);
 	va_end(list);
 }
 
 void Logger::logLoadedFile(std::string p_msg, ...) {
 	va_list list;
 	va_start(list, p_msg);
-	log(Logger::Verbosity::NORMAL, Logger::Type::INFO, "Loaded file: \"" + p_msg + "\"", list);
+	logf(static_cast<Sint8>(Verbosity::NORMAL), static_cast<Sint8>(Logger::Type::INFO), "Loaded file: \"" + p_msg + "\"", list);
 	va_end(list);
 }
 
 void Logger::logSavedFile(std::string p_msg, ...) {
 	va_list list;
 	va_start(list, p_msg);
-	log(Logger::Verbosity::NORMAL, Logger::Type::INFO, "Saved file: \"" + p_msg + "\"", list);
+	logf(static_cast<Sint8>(Verbosity::NORMAL), static_cast<Sint8>(Logger::Type::INFO), "Saved file: \"" + p_msg + "\"", list);
 	va_end(list);
 }
 
 void Logger::logError(std::string p_msg, ...) {
 	va_list list;
 	va_start(list, p_msg);
-	log(Logger::Verbosity::QUIET, Logger::Type::ERR, p_msg, list);
+	logf(static_cast<Sint8>(Verbosity::QUIET), static_cast<Sint8>(Logger::Type::ERR), p_msg, list);
 	va_end(list);
 }
 
 void Logger::logWarning(std::string p_msg, ...) {
 	va_list list;
 	va_start(list, p_msg);
-	log(Logger::Verbosity::MINIMAL, Logger::Type::WARN, p_msg, list);
+	logf(static_cast<Sint8>(Verbosity::NORMAL), static_cast<Sint8>(Logger::Type::WARN), p_msg, list);
 	va_end(list);
 }
 
 void Logger::logQuiet(std::string p_msg, ...) {
 	va_list list;
 	va_start(list, p_msg);
-	log(Logger::Verbosity::QUIET, Logger::Type::INFO, p_msg, list);
-	va_end(list);
-}
-
-void Logger::logMinimal(std::string p_msg, ...) {
-	va_list list;
-	va_start(list, p_msg);
-	log(Logger::Verbosity::MINIMAL, Logger::Type::INFO, p_msg, list);
+	logf(static_cast<Sint8>(Verbosity::QUIET), static_cast<Sint8>(Logger::Type::INFO), p_msg, list);
 	va_end(list);
 }
 
 void Logger::logNormal(std::string p_msg, ...) {
 	va_list list;
 	va_start(list, p_msg);
-	log(Logger::Verbosity::NORMAL, Logger::Type::INFO, p_msg, list);
-	va_end(list);
-}
-
-void Logger::logDetailed(std::string p_msg, ...) {
-	va_list list;
-	va_start(list, p_msg);
-	log(Logger::Verbosity::DETAILED, Logger::Type::INFO, p_msg, list);
+	logf(static_cast<Sint8>(Logger::Verbosity::NORMAL), static_cast<Sint8>(Logger::Type::INFO), p_msg, list);
 	va_end(list);
 }
 
 void Logger::logDiagnostic(std::string p_msg, ...) {
 	va_list list;
 	va_start(list, p_msg);
-	log(Logger::Verbosity::DIAGNOSTIC, Logger::Type::INFO, p_msg, list);
+	logf(static_cast<Sint8>(Logger::Verbosity::DIAGNOSTIC), static_cast<Sint8>(Logger::Type::INFO), p_msg, list);
 	va_end(list);
+}
+
+void Logger::logLua(const char* p_msg) {
+	log(static_cast<Sint8>(Logger::Verbosity::QUIET), static_cast<Sint8>(Logger::Type::INFO), std::string(p_msg));
 }

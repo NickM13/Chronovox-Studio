@@ -21,11 +21,13 @@ class GBuffer {
 protected:
 	struct TextureBuffer {
 		Sint32 textureId;
+		glm::vec4 subtexCoords;
 		Sint32 quadCount, lineCount;
 		bool font;
 		Rect scissor;
-		TextureBuffer(Sint32 p_textureId, bool p_font, Rect p_scissor) {
+		TextureBuffer(Sint32 p_textureId, glm::vec4 p_subtexCoords, bool p_font, Rect p_scissor) {
 			textureId = p_textureId;
+			subtexCoords = p_subtexCoords;
 			quadCount = lineCount = 0;
 			font = p_font;
 			scissor = p_scissor;
@@ -36,12 +38,14 @@ private:
 	static GLuint m_currTexture;
 	static bool m_font;
 	static glm::vec2 m_currUV;
+	static glm::vec4 m_currSubtexUV;
+	static Texture* m_texShadow;
 
 	static bool m_scissorEnabled;
 	static std::vector<Rect> m_scissorList;
 	static Rect m_currScissor;
 	
-	static GLuint m_quadVaoId, m_quadVboId[3];
+	static GLuint m_quadVaoId, m_quadVboId[4];
 
 	// How many vertices go to current bound texture/scissor
 	static std::vector<TextureBuffer> m_textureBuffers;
@@ -56,6 +60,13 @@ public:
 		HALF = 1,
 		FULL = 2
 	};
+	enum class TextureStyle {
+		NONE = 0,
+		STRETCH = 1,
+		WRAP = 2,
+		SCALE = 3,
+		CENTERED = 4
+	};
 
 	static void init();
 	static void terminate();
@@ -66,8 +77,12 @@ public:
 	static void setTexture(GLuint p_textureId, bool p_font = false);
 	static void setColor(Color p_color);
 	static void setUV(GLfloat u, GLfloat v);
+	static void setSubtexUV(GLfloat s, GLfloat t, GLfloat p, GLfloat q);
 
-	static void renderTexture(Texture* p_texture, TextureAnchor p_xAnchor = TextureAnchor::NONE, TextureAnchor p_yAnchor = TextureAnchor::NONE);
+	static void renderTexture(Texture* p_texture, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, TextureStyle p_texStyle = TextureStyle::STRETCH);
+	static void renderShadow(Vector2<Sint32> p_pos, Vector2<Sint32> p_size);
+	static void addQuadFilled(Vector2<Sint32> p_pos, Vector2<Sint32> p_size);
+	static void addQuadOutlined(Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint32 b = 1);
 
 	static void pushScissor(Rect p_scissor);
 	static void popScissor();

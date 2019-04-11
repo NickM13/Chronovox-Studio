@@ -89,6 +89,7 @@ void CList::input(Sint8& p_interactFlags) {
 				if (m_itemList[_hoveredItem].state != 2)
 					m_itemList[m_hoveredItem].state = 1;
 			}
+			GGui::setCursorType(GGui::CursorType::HAND);
 		}
 		else if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT) || (GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT) && m_dragging)) {
 			m_dragging = true;
@@ -213,28 +214,29 @@ void CList::renderItems() {
 	for (Uint16 y = 0; y <= m_maxVisible; y++) {
 		if (m_scroll / m_itemHeight + y >= Uint16(m_itemList.size())) continue;
 
+		Shader::pushMatrixModel();
+		Shader::translate(glm::vec3(0, y * m_itemHeight, 0));
+
 		if (m_itemList.at(m_scroll / m_itemHeight + y).state == 2) {
-			if (m_scroll / m_itemHeight + y == m_selectedItem) {
-				GBuffer::setColor(m_colorThemeMap.at("actionHighlight"));
-			}
-			else {
-				GBuffer::setColor(m_colorThemeMap.at("actionPressed").applyScale(Color(1, 1, 1, 0.5f)));
-			}
+			GBuffer::setColor(m_colorThemeMap.at("actionHighlight"));
+			GBuffer::addQuadFilled({ 0, 1 }, { m_size.x, m_itemHeight - 1 });
 		}
 		else {
 			GBuffer::setColor(getPrimaryColor());
+			if (m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer > 0) {
+				GBuffer::setColor(m_colorThemeMap.at("actionHovered").applyScale(Color(1, 1, 1, m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer)));
+				GBuffer::addQuadFilled({ 0, 1 }, { m_size.x, m_itemHeight - 1 });
+			}
 		}
-		GBuffer::addVertexQuad(0, (y * m_itemHeight));
-		GBuffer::addVertexQuad(m_size.x, (y * m_itemHeight));
-		GBuffer::addVertexQuad(m_size.x, ((y + 1) * m_itemHeight));
-		GBuffer::addVertexQuad(0, ((y + 1) * m_itemHeight));
-		if (m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer > 0) {
-			GBuffer::setColor(m_colorThemeMap.at("actionHover").applyScale(Color(1, 1, 1, m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer / 2.f)));
-			GBuffer::addVertexQuad(0, (y * m_itemHeight));
-			GBuffer::addVertexQuad(m_size.x, (y * m_itemHeight));
-			GBuffer::addVertexQuad(m_size.x, ((y + 1) * m_itemHeight));
-			GBuffer::addVertexQuad(0, ((y + 1) * m_itemHeight));
+		if (m_scroll / m_itemHeight + y == m_selectedItem) {
+			GBuffer::setColor(m_colorThemeMap.at("actionHighlight"));
+			GBuffer::addQuadOutlined({ 0, 1 }, { m_size.x, m_itemHeight - 1 });
 		}
+		
+		GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+		GBuffer::addQuadFilled({ 0, m_itemHeight }, { m_size.x, 1 });
+
+		Shader::popMatrixModel();
 	}
 
 	GBuffer::setColor(m_colorThemeMap.at("textLight"));
@@ -267,7 +269,7 @@ void CList::render() {
 		GBuffer::addVertexQuad(10, _scrollHeight - 2);
 		GBuffer::addVertexQuad(2, _scrollHeight - 2);
 
-		GBuffer::setColor(m_colorThemeMap.at("actionHover"));
+		GBuffer::setColor(m_colorThemeMap.at("actionHovered"));
 		GBuffer::addVertexQuad(3, 3);
 		GBuffer::addVertexQuad(9, 3);
 		GBuffer::addVertexQuad(9, _scrollHeight - 3);

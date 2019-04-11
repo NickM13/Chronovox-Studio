@@ -10,6 +10,10 @@ protected:
 	static Sint8* m_selectedScale;
 	bool m_scaling;
 
+	virtual void inputTool();
+	virtual void updateTool();
+	virtual void renderTool();
+
 	virtual void inputSelect();
 	virtual void updateSelect();
 	virtual void renderSelect();

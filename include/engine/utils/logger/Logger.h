@@ -4,19 +4,18 @@
 #include <string>
 #include <fstream>
 #include <Windows.h>
+#include "engine\utils\variable\datatype\Macros.h"
 
 // Logger class - prints to console (if available) and writes to log file (named by date)
 class Logger {
 public:
-	enum class Verbosity {
+	enum class Verbosity : Sint8 {
 		NONE = 0,
 		QUIET = 1,
-		MINIMAL = 2,
-		NORMAL = 3,
-		DETAILED = 4,
-		DIAGNOSTIC = 5
+		NORMAL = 2,
+		DIAGNOSTIC = 3
 	};
-	enum class Type {
+	enum class Type : Sint8 {
 		NONE = 0,
 		INFO = 1,
 		WARN = 2,
@@ -24,7 +23,7 @@ public:
 	};
 
 private:
-	static Verbosity m_verbosity;
+	static Sint8 m_verbosity;
 	static bool m_consoleOutput;
 	static std::string m_logFile;
 	static long long m_logTime;
@@ -32,11 +31,11 @@ private:
 	static std::string getTimeFormatted();
 
 public:
-	static void init(Verbosity p_verbosity);
+	static void init(Sint8 p_verbosity);
 	static void terminate();
 
-	static void log(Verbosity p_verbosity, Type p_type, std::string p_msg);
-	static void log(Verbosity p_verbosity, Type p_type, std::string p_msg, va_list p_list);
+	static void log(Sint8 p_verbosity, Sint8 p_type, std::string p_msg);
+	static void logf(Sint8 p_verbosity, Sint8 p_type, std::string p_msg, va_list p_list);
 
 	// Most common uses of log for ease of use
 
@@ -52,12 +51,10 @@ public:
 	static void logWarning(std::string p_msg, ...);
 	// Log as an info quiet message
 	static void logQuiet(std::string p_msg, ...);
-	// Log as an info minimal message
-	static void logMinimal(std::string p_msg, ...);
 	// Log as an info normal message
 	static void logNormal(std::string p_msg, ...);
-	// Log as an info detailed message
-	static void logDetailed(std::string p_msg, ...);
 	// Log as an info diagnostic message
 	static void logDiagnostic(std::string p_msg, ...);
+
+	static void logLua(const char* p_msg);
 };

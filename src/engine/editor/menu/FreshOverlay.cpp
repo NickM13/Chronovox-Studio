@@ -14,12 +14,12 @@ Container* FreshOverlay::init(Editor* p_editor) {
 	m_container->setBorderFlag(static_cast<Sint8>(Component::BorderFlag::NONE));
 
 
-	m_container->addComponent(new ContainerPanel("GUI_TOOLBAR", "", { 0, 69 }, { 60, -25 },
-		(Sint8)Component::BorderFlag::RIGHT + (Sint8)Component::BorderFlag::TOP), Component::Anchor::TOP_LEFT, Component::Anchor::BOTTOM_LEFT)
+	m_container->addComponent(new ContainerPanel("GUI_TOOLBAR", "", { 0, 68 }, { 60, -24 },
+		(Sint8)Component::BorderFlag::RIGHT), Component::Anchor::TOP_LEFT, Component::Anchor::BOTTOM_LEFT)
 		->setPrimaryPos("Middle");
 
-	m_container->addComponent(new ContainerPanel("GUI_DETAILS", "", { -256, 69 }, { 0, -25 },
-		(Sint8)Component::BorderFlag::LEFT + (Sint8)Component::BorderFlag::TOP), Component::Anchor::TOP_RIGHT, Component::Anchor::BOTTOM_RIGHT)
+	m_container->addComponent(new ContainerPanel("GUI_DETAILS", "", { -256, 68 }, { 0, -24 },
+		(Sint8)Component::BorderFlag::LEFT), Component::Anchor::TOP_RIGHT, Component::Anchor::BOTTOM_RIGHT)
 		->setPrimaryPos("Middle");
 
 	return m_container;
