@@ -84,7 +84,7 @@ bool Application::init(char *p_filePath) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	GLua::init();
-	//GLua::loadScriptFile("script.lua");
+	GLua::loadScriptFile("script.lua");
 
 	m_editor = new Editor();
 

@@ -70,11 +70,30 @@ void Logger::log(Sint8 p_verbosity, Sint8 p_type, std::string p_msg) {
 	if (static_cast<Sint32>(p_verbosity) <= static_cast<Sint32>(m_verbosity)) {
 		std::string msg = std::string("[")
 			+ getTimeFormatted() + " ";
+		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 		switch (p_type) {
-		case 0: break;
-		case 1: msg += "INFO"; break;
-		case 2: msg += "WARN"; break;
-		case 3: msg += "ERROR"; break;
+		case 0:
+			SetConsoleTextAttribute(hConsole, 15); 
+			break;
+		case 1:
+			// 7 is gray 15 is white
+			msg += "INFO";
+			SetConsoleTextAttribute(hConsole, 7);
+			break;
+		case 2:
+			msg += "WARN";
+			// 6 is gold
+			SetConsoleTextAttribute(hConsole, 14);
+			break;
+		case 3:
+			msg += "ERROR";
+			// 4 is dark red 12 is light red
+			SetConsoleTextAttribute(hConsole, 12);
+			break;
+		case 4:
+			msg += "SUCCESS";
+			SetConsoleTextAttribute(hConsole, 10);
+			break;
 		default: break;
 		}
 		msg += "]: " + p_msg + "\n";

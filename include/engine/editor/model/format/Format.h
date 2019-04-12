@@ -10,7 +10,7 @@ class Format {
 private:
 	static Sint32 strToNum(std::string str);
 public:
-	enum FormatType {
+	enum class FormatType {
 		NONE,
 		NVM,
 		NVA,
@@ -18,7 +18,12 @@ public:
 		QB,
 		VOX
 	};
+	enum class ExportType {
+		NONE,
+		OBJ
+	};
 	static FormatType valid(std::string p_fileName);
 	static bool load(std::string p_fileName, std::vector<Matrix*>& p_matrixList, FormatType p_formatType);
 	static bool save(std::string p_fileName, std::vector<Matrix*>& p_matrixList);
+	static bool exportFile(std::string p_fileName, std::vector<Matrix*>& p_matrixList, ExportType p_exportType);
 };

@@ -5,28 +5,32 @@ CList::CList(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos,
 	p_size = p_size - Vector2<Sint32>(0, 1);
 	m_itemHeight = p_itemHeight;
 	m_scroll = m_maxScroll = 0;
-	m_maxVisible = (GLfloat)m_size.y / m_itemHeight;
 	m_selectedItem = m_hoveredItem = m_selectedItemCtrl = -1;
+	resize();
 }
 
 void CList::resize() {
 	m_maxVisible = (GLfloat)m_size.y / m_itemHeight;
 	m_maxScroll = std::fmaxf(0, Sint16((m_itemList.size() - m_maxVisible) * m_itemHeight));
+	m_scrollBarHeight = (Sint32)(powf(m_size.y, 2) / (m_itemList.size() * m_itemHeight));
 }
 
 Component* CList::addItem(std::string p_itemName) {
 	m_itemList.push_back(ListItem(p_itemName, 0));
 	m_maxScroll = std::fmaxf(0, Sint16((m_itemList.size() - m_maxVisible) * m_itemHeight));
+	resize();
 	return this;
 }
 Component* CList::insertItem(Uint16 p_index, std::string p_itemName) {
 	m_itemList.insert(m_itemList.begin() + p_index, ListItem(p_itemName, 0));
 	m_maxScroll = m_maxScroll = std::fmaxf(0, Sint16((m_itemList.size() - m_maxVisible) * m_itemHeight));
+	resize();
 	return this;
 }
 void CList::removeItem(Uint16 p_index) {
 	if (m_itemList.size() > p_index) {
 		m_itemList.erase(m_itemList.begin() + p_index);
+		resize();
 	}
 }
 Uint16 CList::getItemCount() {
@@ -38,6 +42,7 @@ CList::ListItem &CList::getItem(Uint16 p_index) {
 void CList::clear() {
 	m_itemList.clear();
 	m_selectedItem = m_hoveredItem = m_selectedItemCtrl = -1;
+	resize();
 }
 
 void CList::selectItem(Sint16 id) {
@@ -74,25 +79,34 @@ void CList::input(Sint8& p_interactFlags) {
 	if ((p_interactFlags & (Sint8)EventFlag::MOUSEOVER) &&
 		_mousePos.x >= 0 && _mousePos.x <= m_size.x &&
 		_mousePos.y >= 0 && _mousePos.y <= m_size.y) {
-		if (Sint32((_mousePos.y + (GLfloat(m_scroll) / m_itemHeight) * m_itemHeight) / m_itemHeight) < Sint32(m_itemList.size())) {
-			Uint16 _hoveredItem = Uint16((_mousePos.y + (GLfloat(m_scroll) / m_itemHeight) * m_itemHeight) / m_itemHeight);
-			if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
-				selectItem(_hoveredItem);
-				if (m_itemList[_hoveredItem].state == 0) {
-					m_itemList[_hoveredItem].state = 1;
+		if (_mousePos.x < m_size.x - 12) {
+			if (Sint32((_mousePos.y + (GLfloat(m_scroll) / m_itemHeight) * m_itemHeight) / m_itemHeight) < Sint32(m_itemList.size())) {
+				Uint16 _hoveredItem = Uint16((_mousePos.y + (GLfloat(m_scroll) / m_itemHeight) * m_itemHeight) / m_itemHeight);
+				if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
+					selectItem(_hoveredItem);
+					if (m_itemList[_hoveredItem].state == 0) {
+						m_itemList[_hoveredItem].state = 1;
+					}
+					callPressFunction();
 				}
-				m_dragging = false;
-				callPressFunction();
+				else {
+					m_hoveredItem = _hoveredItem;
+					if (m_itemList[_hoveredItem].state != 2)
+						m_itemList[m_hoveredItem].state = 1;
+				}
+				GGui::setCursorType(GGui::CursorType::HAND);
 			}
-			else {
-				m_hoveredItem = _hoveredItem;
-				if (m_itemList[_hoveredItem].state != 2)
-					m_itemList[m_hoveredItem].state = 1;
-			}
-			GGui::setCursorType(GGui::CursorType::HAND);
 		}
-		else if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT) || (GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT) && m_dragging)) {
-			m_dragging = true;
+		else {
+			if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
+				if (_mousePos.y < ((GLfloat)m_scroll / m_maxScroll) * (m_size.y - m_scrollBarHeight)) {
+					m_scroll -= 24;
+				}
+				else if (_mousePos.y > ((GLfloat)m_scroll / m_maxScroll) * (m_size.y - m_scrollBarHeight) + m_scrollBarHeight) {
+					m_scroll += 24;
+				}
+				m_dragging = true;
+			}
 		}
 		p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
 	}
@@ -162,10 +176,11 @@ void CList::input(Sint8& p_interactFlags) {
 	}
 
 	if (m_dragging) {
-		if (!GMouse::mouseDown(GLFW_MOUSE_BUTTON_RIGHT) || GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
+		if (!GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)) {
 			m_dragging = false;
+		}
 		else {
-			m_scroll = m_scroll - (_mousePos.y - m_mouseBuffer.y);
+			m_scroll += static_cast<Sint16>((GLfloat(_mousePos.y - m_mouseBuffer.y) / (m_size.y - m_scrollBarHeight)) * m_maxScroll);
 			if (p_interactFlags & (Sint8)EventFlag::MOUSEOVER)
 				p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
 		}
@@ -175,10 +190,8 @@ void CList::input(Sint8& p_interactFlags) {
 		p_interactFlags -= (Sint8)EventFlag::MOUSESCROLL;
 	}
 
-	if (m_scroll > m_maxScroll)
-		m_scroll = m_maxScroll;
-	if (m_scroll < 0)
-		m_scroll = 0;
+	if (m_scroll > m_maxScroll)	m_scroll = m_maxScroll;
+	if (m_scroll < 0)			m_scroll = 0;
 
 	m_mouseBuffer = _mousePos;
 }
@@ -258,22 +271,21 @@ void CList::render() {
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 	renderItems();
 
-	if (m_itemList.size() >= m_maxVisible) {
+	if (m_maxScroll > 0) {
 		Shader::pushMatrixModel();
-		Sint32 _scrollHeight = (Sint32)(powf(m_size.y, 2) / (std::fmaxf(m_maxVisible, m_itemList.size()) * m_itemHeight));
-		Shader::translate(glm::vec3(m_size.x - 12, m_maxScroll > 0 ? ((GLfloat)m_scroll / m_maxScroll) * (m_size.y - _scrollHeight) : 0.f, 0.f));
+		Shader::translate(glm::vec3(m_size.x - 12, ((GLfloat)m_scroll / m_maxScroll) * (m_size.y - m_scrollBarHeight), 0.f));
 
 		GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 		GBuffer::addVertexQuad(2, 2);
 		GBuffer::addVertexQuad(10, 2);
-		GBuffer::addVertexQuad(10, _scrollHeight - 2);
-		GBuffer::addVertexQuad(2, _scrollHeight - 2);
+		GBuffer::addVertexQuad(10, m_scrollBarHeight - 2);
+		GBuffer::addVertexQuad(2, m_scrollBarHeight - 2);
 
 		GBuffer::setColor(m_colorThemeMap.at("actionHovered"));
 		GBuffer::addVertexQuad(3, 3);
 		GBuffer::addVertexQuad(9, 3);
-		GBuffer::addVertexQuad(9, _scrollHeight - 3);
-		GBuffer::addVertexQuad(3, _scrollHeight - 3);
+		GBuffer::addVertexQuad(9, m_scrollBarHeight - 3);
+		GBuffer::addVertexQuad(3, m_scrollBarHeight - 3);
 
 		Shader::popMatrixModel();
 	}

@@ -10,8 +10,9 @@ protected:
 	Uint16 m_itemHeight = 0;
 	GLfloat m_maxVisible = 0; // Max items visible, more efficient rendering but not necessarily needed?
 	Sint16 m_scroll = 0, m_maxScroll = 0;
+	Sint32 m_scrollBarHeight = 0;
 	Sint16 m_hoveredItem = -1, m_selectedItem = -1, m_selectedItemCtrl = -1;
-	Vector2<Uint16> m_mouseBuffer = {};
+	Vector2<Sint32> m_mouseBuffer = {};
 	bool m_hover = false, m_dragging = false;
 	struct ListItem {
 		std::string name;

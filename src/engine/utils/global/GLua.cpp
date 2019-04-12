@@ -8,10 +8,8 @@ void GLua::init() {
 	L = luaL_newstate();
 	luaL_openlibs(L);
 
-	Namespace Ln = getGlobalNamespace(L).beginNamespace("app");
-	Ln.addFunction("logger", &Logger::logLua);
-	Ln.addFunction("getAppName", &GScreen::getAppName);
-	Ln.addFunction("getAppVersion", &GScreen::getAppVersion);
+	Namespace nGlob = getGlobalNamespace(L);
+	nGlob.addFunction("logger", &Logger::logLua);
 }
 
 void GLua::terminate() {
