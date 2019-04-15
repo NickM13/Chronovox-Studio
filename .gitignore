@@ -17,6 +17,11 @@
 log/
 logs/
 /bin/*/res/
+/bin/*.rar
+/bin/*/examples/
+/bin/*/models/
+*.iobj
+*.ipdb
 
 # Precompiled Headers
 *.gch
