@@ -14,9 +14,9 @@ Container* EditorOverlay::init(Editor* p_editor) {
 	m_container->setPrimaryPos("Top");
 	m_container->setBorderFlag(static_cast<Sint8>(Component::BorderFlag::NONE));
 
-	Container* titleBar = (Container*)m_container->addComponent(new Container("TITLE", { 0, 0 }, { 0, 28 }, true), Component::Anchor::NONE, Component::Anchor::TOP_RIGHT)
+	Container* titleBar = (Container*)m_container->addComponent(new Container("TITLE", { 0, 0 }, { 0, 68 }, true), Component::Anchor::NONE, Component::Anchor::TOP_RIGHT)
 		->setPriorityLayer(4);
-	titleBar->addComponent(new Panel("DRAGBAR", "", { 0, 0 }, { 0, 32 }, (Sint8)Component::BorderFlag::NONE), Component::Anchor::NONE, Component::Anchor::TOP_RIGHT)
+	titleBar->addComponent(new Panel("DRAGBAR", "", { 0, 0 }, { 0, 0 }, (Sint8)Component::BorderFlag::BOTTOM), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)
 		->setPressFunction([]() { GScreen::startWindowDrag(); })->setReleaseFunction([]() { GScreen::endWindowDrag(); }); // NOT DROGBAR
 	titleBar->addComponent(new CIcon("WINDOW_ICON", MTexture::getTexture("gui\\icon\\window\\Logo.png"), { 12, 4 }, { 24, 24 }));
 	titleBar->addComponent(new CText("WINDOW_TITLE", GScreen::m_windowTitle, { 48, 16 }, { 0, 0 }, Alignment::ALIGN_LEFT, Color(1, 1, 1)));
@@ -28,6 +28,7 @@ Container* EditorOverlay::init(Editor* p_editor) {
 		{ 0, 0 }, { 34, 28 }, CButton::RenderStyle::FILL, []() { m_editor->attemptClose(); }), Component::Anchor::TOP_RIGHT);
 
 	CMenubar* menuBar = new CMenubar("MENUBAR_MAIN", { 0, 32 }, { 0, 18 });
+	menuBar->setPriorityLayer(16);
 	CMenubar::Submenu* submenu = 0;
 
 	submenu = new CMenubar::Submenu("File");
@@ -51,15 +52,16 @@ Container* EditorOverlay::init(Editor* p_editor) {
 	menuBar->addElement("", submenu);
 	menuBar->addElement("Help", new CMenubar::MenuButton("About Voxel Model Editor", GKey::KeyBind(), []() { Gui::openDialog(AboutDialog::getInstance().getDialog()); }));
 
-	m_container->addComponent(menuBar, Component::Anchor::TOP_LEFT, Component::Anchor::TOP_RIGHT)->setPriorityLayer(16);
+	m_container->addComponent(menuBar, Component::Anchor::TOP_LEFT, Component::Anchor::TOP_RIGHT);
 
-	m_container->addComponent(new CTabBar("TAB_FILES", { 0, 50 }, { 0, 18 }), Component::Anchor::TOP_LEFT, Component::Anchor::TOP_RIGHT)
-		->setPressFunction([]() { m_editor->setProject(m_container->findComponent("TAB_FILES")->getSelectedItem()); })
-		->setReleaseFunction([]() { m_editor->attemptCloseProject(((CTabBar*)m_container->findComponent("TAB_FILES"))->getClosedItem()); })
-		->setBorderFlag((Sint8)Component::BorderFlag::BOTTOM)
-		->setPriorityLayer(-4);
+	CTabBar* tabbar = new CTabBar("TAB_FILES", { 0, 49 }, { 0, 18 });
+	tabbar->setPriorityLayer(15);
+	tabbar->setPressFunction([]() { m_editor->setProject(m_container->findComponent("TAB_FILES")->getSelectedItem()); });
+	tabbar->setReleaseFunction([]() { m_editor->attemptCloseProject(((CTabBar*)m_container->findComponent("TAB_FILES"))->getClosedItem()); });
+	tabbar->setBorderFlag((Sint8)Component::BorderFlag::BOTTOM);
+	m_container->addComponent(tabbar, Component::Anchor::TOP_LEFT, Component::Anchor::TOP_RIGHT);
 
-	m_container->addComponent((new ContainerPanel("PANEL_INFOBAR", "", { 0, -24 }, { 0, 0 }, (Sint8)Component::BorderFlag::TOP))
+	m_container->addComponent((new ContainerPanel("PANEL_INFOBAR", "", { 0, -24 }, { 0, 0 }, (Sint8)Component::BorderFlag::NONE))
 		->setPriorityLayer(4), Component::Anchor::BOTTOM_LEFT, Component::Anchor::BOTTOM_RIGHT)
 		->setPrimaryPos("Bottom");
 
@@ -67,10 +69,43 @@ Container* EditorOverlay::init(Editor* p_editor) {
 	m_editor->setDataString(_matrixData);
 	m_container->findComponent("PANEL_INFOBAR")->addComponent(new DataField("DATA_MATRIX", _matrixData, { 6, 0 }, { 0, 24 }), Component::Anchor::MIDDLE_LEFT);
 
-	m_container->findComponent("PANEL_INFOBAR")->addComponent((new CButton("BUTTON_RESIZE_WINDOW_DRAG", "", MTexture::getTexture("gui\\icon\\tool\\ResizeWindow.png"), { 0, 0 }, { 24, 24 },
-		CButton::RenderStyle::EMPTY)), Component::Anchor::MIDDLE_RIGHT)
-		->setPriorityLayer(120)
-		->setPressFunction([]() { GScreen::startResizing(); })
+	m_container->addComponent((new CButton("BUTTON_RESIZE_WINDOW_DRAG_BOTTOM_RIGHT", "", MTexture::getTexture("gui\\icon\\tool\\ResizeWindow.png"), { -24, -24 }, { 0, 0 },
+		CButton::RenderStyle::EMPTY))->setPriorityLayer(120), Component::Anchor::BOTTOM_RIGHT, Component::Anchor::BOTTOM_RIGHT)
+		->setHighlightActive(false)
+		->setHoverCursor(GGui::CursorType::HRESIZE)
+		->setPressFunction([]() { GScreen::startResizing(GScreen::ResizeType::BOTTOM_RIGHT); })
 		->setReleaseFunction([]() { GScreen::stopResizing(); });
+	m_container->addComponent((new CButton("BUTTON_RESIZE_WINDOW_DRAG_TOP", "", 0, { 0, 0 }, { 0, 2 },
+		CButton::RenderStyle::EMPTY))->setPriorityLayer(120), Component::Anchor::TOP_LEFT, Component::Anchor::TOP_RIGHT)
+		->setHighlightActive(false)
+		->setHoverCursor(GGui::CursorType::VRESIZE)
+		->setPressFunction([]() { GScreen::startResizing(GScreen::ResizeType::TOP); })
+		->setReleaseFunction([]() { GScreen::stopResizing(); });
+	m_container->addComponent((new CButton("BUTTON_RESIZE_WINDOW_DRAG_RIGHT", "", 0, { -2, 0 }, { 0, -24 },
+		CButton::RenderStyle::EMPTY))->setPriorityLayer(120), Component::Anchor::TOP_RIGHT, Component::Anchor::BOTTOM_RIGHT)
+		->setHighlightActive(false)
+		->setHoverCursor(GGui::CursorType::HRESIZE)
+		->setPressFunction([]() { GScreen::startResizing(GScreen::ResizeType::RIGHT); })
+		->setReleaseFunction([]() { GScreen::stopResizing(); });
+	m_container->addComponent((new CButton("BUTTON_RESIZE_WINDOW_DRAG_BOTTOM", "", 0, { 0, -2 }, { -24, 0 },
+		CButton::RenderStyle::EMPTY))->setPriorityLayer(120), Component::Anchor::BOTTOM_LEFT, Component::Anchor::BOTTOM_RIGHT)
+		->setHighlightActive(false)
+		->setHoverCursor(GGui::CursorType::VRESIZE)
+		->setPressFunction([]() { GScreen::startResizing(GScreen::ResizeType::BOTTOM); })
+		->setReleaseFunction([]() { GScreen::stopResizing(); });
+	m_container->addComponent((new CButton("BUTTON_RESIZE_WINDOW_DRAG_LEFT", "", 0, { 0, 0 }, { 2, 0 },
+		CButton::RenderStyle::EMPTY))->setPriorityLayer(120), Component::Anchor::TOP_LEFT, Component::Anchor::BOTTOM_LEFT)
+		->setHighlightActive(false)
+		->setHoverCursor(GGui::CursorType::HRESIZE)
+		->setPressFunction([]() { GScreen::startResizing(GScreen::ResizeType::LEFT); })
+		->setReleaseFunction([]() { GScreen::stopResizing(); });
+	/*
+	m_container->addComponent((new CButton("BUTTON_RESIZE_WINDOW_DRAG_TOP_LEFT", "", 0, { 0, 0 }, { 2, 2 },
+		CButton::RenderStyle::EMPTY))->setPriorityLayer(120), Component::Anchor::TOP_LEFT, Component::Anchor::TOP_LEFT)
+		->setHighlightActive(false)
+		->setHoverCursor(GGui::CursorType::VRESIZE)
+		->setPressFunction([]() { GScreen::startResizing(GScreen::ResizeType::TOP_LEFT); })
+		->setReleaseFunction([]() { GScreen::stopResizing(); });
+		*/
 	return m_container;
 }

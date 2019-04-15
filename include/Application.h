@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine\utils\global\GScreen.h"
+#include "engine\utils\global\GLua.h"
 #include "engine\utils\LOpenGL.h"
 #include "engine\utils\Singleton.h"
 #include "engine\utils\Utilities.h"

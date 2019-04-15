@@ -11,6 +11,7 @@
 class GScreen {
 public:
 	static std::string m_windowTitle;
+	static std::string m_appName;
 	static std::string m_appVersion;
 	static GLfloat m_fps;
 	static GLfloat m_fov;
@@ -35,13 +36,26 @@ public:
 	static bool m_finishedResize;
 	static bool m_shadows;
 
-	static enum WindowCommand
-	{
+	static enum class WindowCommand {
 		NONE = 0,
 		CLOSE,
 		RESIZE,
 		MINIMIZE
 	} m_windowCommand;
+
+	static enum class ResizeType {
+		TOP_LEFT,
+		TOP,
+		TOP_RIGHT,
+		LEFT,
+		RIGHT,
+		BOTTOM_LEFT,
+		BOTTOM,
+		BOTTOM_RIGHT
+	} m_resizeType;
+	
+	static std::string getAppName() { return m_appName; }
+	static std::string getAppVersion() { return m_appVersion; }
 
 	static void initWindow(GLFWwindow *p_window);
 
@@ -53,7 +67,7 @@ public:
 	static bool isDraggingWindow();
 	static void endWindowDrag();
 
-	static void startResizing();
+	static void startResizing(ResizeType p_resizeType);
 	static bool finishedResize() { return m_finishedResize; }
 	static void stopResizing();
 

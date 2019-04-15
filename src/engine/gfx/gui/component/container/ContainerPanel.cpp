@@ -107,13 +107,16 @@ void ContainerPanel::input(Sint8& p_interactFlags) {
 
 	m_moveToFront = (m_lHeld != 0);
 
-	// Scroll window
+	// Scroll window TODO: Re-enable when container size thing is fixed
+	/*
 	if ((p_interactFlags & (Sint8)EventFlag::MOUSESCROLL) &&
+		GMouse::getMouseScroll() != 0 &&
 		_mousePos.x - m_pos.x >= 0 && _mousePos.x - m_pos.x <= m_size.x + 10 &&
 		_mousePos.y - m_pos.y >= 0 && _mousePos.y - m_pos.y <= m_size.y) {
 		m_scroll.y -= GMouse::getMouseScroll() * 8;
 		p_interactFlags -= (Sint8)EventFlag::MOUSESCROLL;
 	}
+	*/
 	if (m_rHeld != 0) {
 		if (m_minScroll.x != 0 || m_maxScroll.x != 0)
 			m_scroll.x += _mousePos.x - m_mousePos.x;

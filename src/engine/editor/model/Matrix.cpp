@@ -474,6 +474,7 @@ void Matrix::renderOutline(OutlineType p_outline) {
 	case OutlineType::SELECTED: Shader::setColor(glm::vec4(1.f,  1.f,   1.f,  1.f)); break;
 	}
 	MMesh::renderBoxOutline(m_pos, s);
+	Shader::setColor(glm::vec4(1, 1, 1, 1));
 }
 
 void Matrix::rasterize() {

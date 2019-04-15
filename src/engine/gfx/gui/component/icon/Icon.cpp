@@ -6,16 +6,5 @@ CIcon::CIcon(std::string p_compName, Texture* p_icon, Vector2<Sint32> p_pos, Vec
 }
 
 void CIcon::render() {
-	Shader::pushMatrixModel();
-
-	GBuffer::setTexture(m_texture->getGlId());
-	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
-	GBuffer::setColor(Color(1.f, 1.f, 1.f));
-
-	GBuffer::setUV(0.f, 1.f);	GBuffer::addVertexQuad(0, 0);
-	GBuffer::setUV(1.f, 1.f);	GBuffer::addVertexQuad(m_size.x, 0);
-	GBuffer::setUV(1.f, 0.f);	GBuffer::addVertexQuad(m_size.x, m_size.y);
-	GBuffer::setUV(0.f, 0.f);	GBuffer::addVertexQuad(0, m_size.y);
-
-	Shader::popMatrixModel();
+	GBuffer::renderTexture(m_texture, m_pos, m_size, GBuffer::TextureStyle::STRETCH);
 }

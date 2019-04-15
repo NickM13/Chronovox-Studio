@@ -1,5 +1,4 @@
 #version 430
-// Shader for GUI (excluding font)
 
 layout(location=0) uniform mat4 Projection;
 layout(location=1) uniform mat4 View;
@@ -17,6 +16,6 @@ void main() {
 	gl_Position = Projection * View * Model * vec4(position, 0.0, 1.0);
 
 	ex_color = color * colorScalar;
-
+	
 	uvInter = uv;
 }

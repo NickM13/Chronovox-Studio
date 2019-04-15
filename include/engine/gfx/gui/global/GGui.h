@@ -9,6 +9,7 @@
 class GGui {
 public:
 	enum class CursorType {
+		NONE = 0,
 		ARROW =		GLFW_ARROW_CURSOR,
 		IBEAM =		GLFW_IBEAM_CURSOR,
 		CROSSHAIR =	GLFW_CROSSHAIR_CURSOR,

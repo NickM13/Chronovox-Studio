@@ -12,7 +12,7 @@
 #include <shlobj.h>
 #include <iostream>
 
-Sint32 Model::m_tool, Model::m_subTool;
+Sint32 Model::m_tool;
 
 glm::ivec3 Model::m_selectedVoxel;
 glm::ivec3 Model::m_selectedVoxelOffset;
@@ -44,7 +44,7 @@ void Model::init() {
 	newModel();
 }
 void Model::activate() {
-	Tool::init(m_matrixEdit, &m_subTool);
+	Tool::init(m_matrixEdit);
 	VoxelTool::init(&m_selectedVoxel, &m_selectedVoxelOffset, &m_selectedSide, m_voxelColor);
 	MatrixTool::init(m_sModel->getMatrixList(), &m_scalePos, &m_selectedScale);
 }
@@ -60,7 +60,6 @@ void Model::setDataString(std::string* p_dataString) {
 	m_dataString = p_dataString;
 }
 void Model::setTool(Sint32 p_tool) {
-	setSubTool(0);
 	m_tool = p_tool;
 	ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MAIN")->setSelectedItem(p_tool);
 	Tool* tool = MTool::getTool(m_tool);
@@ -69,16 +68,13 @@ void Model::setTool(std::string p_toolName) {
 	if (p_toolName == MTool::getTool(m_tool)->getName()) {
 		switch (MTool::getTool(m_tool)->getType()) {
 		case Tool::ToolType::VOXEL:
-			setSubTool((m_subTool + 1) % static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_VOXEL"))->getButtonCount());
 			break;
 		case Tool::ToolType::MATRIX:
-			setSubTool((m_subTool + 1) % static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MATRIX"))->getButtonCount());
 			break;
 		default: break;
 		}
 	}
 	else {
-		setSubTool(0);
 		MTool::getTool(m_tool)->disable();
 		for (Sint32 i = 0; i < (Sint32)MTool::getToolList().size(); i++) {
 			if (MTool::getToolList()[i]->getName() == p_toolName) {
@@ -90,33 +86,11 @@ void Model::setTool(std::string p_toolName) {
 		MTool::getTool(m_tool)->enable();
 	}
 }
-void Model::setSubTool(Sint32 p_subTool) {
-	if (p_subTool < 0) return;
-	Tool* tool = MTool::getTool(m_tool);
-	if (tool->hasSubmenu()) {
-		bool success = false;
-		switch (tool->getType()) {
-		case Tool::ToolType::VOXEL:
-			success = (p_subTool < static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_VOXEL"))->getButtonCount());
-			ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_VOXEL")->setSelectedItem(p_subTool);
-			break;
-		case Tool::ToolType::MATRIX:
-			success = (p_subTool < static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MATRIX"))->getButtonCount());
-			ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MATRIX")->setSelectedItem(p_subTool);
-			break;
-		default: break;
-		}
-		if (success) m_subTool = p_subTool;
-	}
-	else m_subTool = 0;
-}
 void Model::updateTool() {
-	m_tool = ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MAIN")->getSelectedItem();
+	m_tool = MTool::getToolId(static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MAIN"))->getSelectedRadio());
 	if (MTool::getTool(m_tool)->getType() == Tool::ToolType::VOXEL) {
-		m_subTool = ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_VOXEL")->getSelectedItem();
 	}
 	if (MTool::getTool(m_tool)->getType() == Tool::ToolType::MATRIX) {
-		m_subTool = ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MATRIX")->getSelectedItem();
 		hoverMatrix(-1);
 	}
 }
@@ -218,7 +192,7 @@ Uint16 Model::getVoxelId(Uint16 p_matrix, glm::ivec3 p_pos) {
 }
 
 void Model::resize(Uint16 p_matrixId, glm::ivec3 p_offset, glm::ivec3 p_size) {
-	if (p_size.x <= p_offset.x || p_size.x <= p_offset.x || p_size.x <= p_offset.x) return;
+	if (p_size.x <= p_offset.x || p_size.y <= p_offset.y || p_size.z <= p_offset.z) return;
 	Sint32 id = m_matrixEdit->getId();
 	m_matrixEdit->clearMatrix();
 	Matrix* prev = new Matrix(*m_sModel->getMatrix(p_matrixId));
@@ -506,14 +480,6 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 		if (GKey::keyPressed(GLFW_KEY_C, GLFW_MOD_CONTROL))       copyMatrix();
 		if (GKey::keyPressed(GLFW_KEY_V, GLFW_MOD_CONTROL))       pasteMatrix();
 		if (GKey::keyPressed(GLFW_KEY_DELETE))                    deleteSelectedMatrices();
-		if (GKey::keyPressed(GLFW_KEY_T))                         setTool("VTAdd");
-		if (GKey::keyPressed(GLFW_KEY_E))                         setTool("VTErase");
-		if (GKey::keyPressed(GLFW_KEY_R))                         setTool("VTReplace");
-		if (GKey::keyPressed(GLFW_KEY_K))                         setTool("VTEyedrop");
-		if (GKey::keyPressed(GLFW_KEY_M))                         setTool("MTSelect");
-		if (GKey::keyPressed(GLFW_KEY_1))                         setSubTool(0);
-		if (GKey::keyPressed(GLFW_KEY_2))                         setSubTool(1);
-		if (GKey::keyPressed(GLFW_KEY_3))                         setSubTool(2);
 	}
 }
 void Model::updateEditor(GLfloat p_deltaUpdate) {
@@ -657,13 +623,13 @@ glm::vec3 Model::getSelectedMatricesCenter() {
 }
 
 bool Model::exitSave() {
-	char documents[MAX_PATH];
+	char documents[MAX_PATH] = "\0";
 	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
 
 	strcat_s(documents, "\\Voxel Models");
-	_mkdir(documents);
+	int success = _mkdir(documents);
 
-	char filename[MAX_PATH];
+	char filename[MAX_PATH] = "\0";
 	OPENFILENAME ofn;
 
 	ZeroMemory(&filename, sizeof(filename));
@@ -693,13 +659,13 @@ bool Model::autoload() {
 	return loadOpen(documents);
 }
 void Model::add() {
-	char documents[MAX_PATH];
+	char documents[MAX_PATH] = "\0";
 	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
 
 	strcat_s(documents, "\\Voxel Models");
-	_mkdir(documents);
+	int success = _mkdir(documents);
 
-	char filename[MAX_PATH];
+	char filename[MAX_PATH] = "\0";
 	OPENFILENAME ofn;
 
 	ZeroMemory(&filename, sizeof(filename));
@@ -746,13 +712,13 @@ bool Model::save() {
 	return false;
 }
 bool Model::saveAs() {
-	char documents[MAX_PATH];
+	char documents[MAX_PATH] = "\0";
 	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
 
 	strcat_s(documents, "\\Voxel Models");
-	_mkdir(documents);
+	int success = _mkdir(documents);
 
-	char filename[MAX_PATH];
+	char filename[MAX_PATH] = "\0";
 	OPENFILENAME ofn;
 
 	ZeroMemory(&filename, sizeof(filename));
@@ -842,10 +808,10 @@ void Model::editNewMatrix() {
 }
 void Model::editMatrixProperties() {
 	CDialog* mpd = ModelPropertiesDialog::getInstance().getDialog();
-	Matrix* m = getSelectedMatrix();
-	if (!m) {
-		return;
-	}
+
+	Matrix* m = m_matrixEdit->getMatrix();
+	if (!m) return;
+
 	mpd->findComponent("WINDOW")->setTitle("Matrix Properties: " + m->getName());
 	mpd->findComponent("MATRIXNAME")->setTitle(m->getName());
 	mpd->findComponent("PARENTNAME")->setTitle(m->getParent());
@@ -856,11 +822,9 @@ void Model::editMatrixProperties() {
 	mpd->findComponent("HEIGHT")->setValue(m->getSize().y);
 	mpd->findComponent("DEPTH")->setValue(m->getSize().z);
 
-
 	ModelPropertiesDialog::getInstance().getDialog()->setOptionFunc("Update", [&]() {
 		CDialog* mpd = ModelPropertiesDialog::getInstance().getDialog();
-		Matrix* m = 0;
-		m = getSelectedMatrix();
+		Matrix* m = m_matrixEdit->getMatrix();
 		if (!m) {
 			mpd->setActive(false);
 			return;
@@ -869,14 +833,28 @@ void Model::editMatrixProperties() {
 			&& mpd->findComponent("WIDTH")->getValue() > 0
 			&& mpd->findComponent("HEIGHT")->getValue() > 0
 			&& mpd->findComponent("DEPTH")->getValue() > 0) {
-			renameMatrix(m->getId(), mpd->findComponent("MATRIXNAME")->getTitle());
-			m->setParent(mpd->findComponent("PARENTNAME")->getTitle());
-			m->setPosition(glm::vec3(mpd->findComponent("OFFX")->getValue(),
-				mpd->findComponent("OFFY")->getValue(),
-				mpd->findComponent("OFFZ")->getValue()));
-			m->setSize(glm::ivec3(mpd->findComponent("WIDTH")->getValue(),
-				mpd->findComponent("HEIGHT")->getValue(),
-				mpd->findComponent("DEPTH")->getValue()));
+			m_matrixEdit->reset(true);
+			
+			if (m->getName() != mpd->findComponent("MATRIXNAME")->getTitle()
+				|| m->getParent() != mpd->findComponent("PARENTNAME")->getTitle()
+				|| m->getPos() != glm::vec3(mpd->findComponent("OFFX")->getValue(),
+					mpd->findComponent("OFFY")->getValue(),
+					mpd->findComponent("OFFZ")->getValue())
+				|| m->getSize() != glm::ivec3(mpd->findComponent("WIDTH")->getValue(),
+					mpd->findComponent("HEIGHT")->getValue(),
+					mpd->findComponent("DEPTH")->getValue())) {
+				renameMatrix(m->getId(), mpd->findComponent("MATRIXNAME")->getTitle());
+				m->setParent(mpd->findComponent("PARENTNAME")->getTitle());
+				m->setPosition(glm::vec3(mpd->findComponent("OFFX")->getValue(),
+					mpd->findComponent("OFFY")->getValue(),
+					mpd->findComponent("OFFZ")->getValue()));
+				m->setSize(glm::ivec3(mpd->findComponent("WIDTH")->getValue(),
+					mpd->findComponent("HEIGHT")->getValue(),
+					mpd->findComponent("DEPTH")->getValue()));
+				m_matrixEdit->addCommand(new MResizeCommand(m_matrixEdit->getMatrix(), m_matrixEdit->getInitMatrix()));
+			}
+
+			m_matrixEdit->reset(false);
 		}
 		mpd->setActive(false);
 	});

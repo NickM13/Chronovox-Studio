@@ -180,148 +180,22 @@ void Component::renderBack() {
 void Component::renderFill(bool p_setColor) {
 	Shader::pushMatrixModel();
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
-	GBuffer::setColor(getPrimaryColor());
+	if (p_setColor) GBuffer::setColor(getPrimaryColor());
 	GBuffer::setTexture(0);
 	GBuffer::addVertexQuad(0, 0);
 	GBuffer::addVertexQuad(m_size.x, 0);
 	GBuffer::addVertexQuad(m_size.x, m_size.y);
 	GBuffer::addVertexQuad(0, m_size.y);
-	if (isSelected() || m_hoverTimer > 0) {
+	if (m_highlighting && (isSelected() || m_hoverTimer > 0)) {
 		if (isSelected())			GBuffer::setColor(m_colorThemeMap.at("actionPressed").applyScale(Color(1.f, 1.f, 1.f, 0.5f)));
-		else if (m_hoverTimer > 0)	GBuffer::setColor(m_colorThemeMap.at("actionHover").applyScale(Color(1.f, 1.f, 1.f, m_hoverTimer / 2.f)));
+		else if (m_hoverTimer > 0)	GBuffer::setColor(m_colorThemeMap.at("actionHovered").applyScale(Color(1.f, 1.f, 1.f, m_hoverTimer)));
 		GBuffer::addVertexQuad(0, 0);
 		GBuffer::addVertexQuad(m_size.x, 0);
 		GBuffer::addVertexQuad(m_size.x, m_size.y);
 		GBuffer::addVertexQuad(0, m_size.y);
 	}
 	if (m_texture) {
-		GBuffer::setColor(Color(1.f, 1.f, 1.f, 1.f));
-		GBuffer::setTexture(m_texture->getGlId());
-		Vector2<Sint32> _texSize = m_texture->getSize();
-		GLfloat _height, _heightF, _width, _widthF;
-		switch (m_textureStyle) {
-		case TextureStyle::STRETCH:
-			GBuffer::setUV(0, 0); GBuffer::addVertexQuad(0, 0);
-			GBuffer::setUV(1, 0); GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
-			GBuffer::setUV(1, 1); GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y));
-			GBuffer::setUV(0, 1); GBuffer::addVertexQuad(0, GLfloat(m_size.y));
-			break;
-		case TextureStyle::WRAP:
-			GBuffer::setUV(0, 0);															GBuffer::addVertexQuad(0, 0);
-			GBuffer::setUV(GLfloat(m_size.x) / _texSize.x, 0);								GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
-			GBuffer::setUV(GLfloat(m_size.x) / _texSize.x, GLfloat(m_size.y) / _texSize.y);	GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y));
-			GBuffer::setUV(0, GLfloat(m_size.y) / _texSize.y);								GBuffer::addVertexQuad(0, GLfloat(m_size.y));
-			break;
-		case TextureStyle::SCALE:
-			// Top Left corner
-			GBuffer::setUV(0, 1);			GBuffer::addVertexQuad(0, 0);
-			GBuffer::setUV(0.25f, 1);		GBuffer::addVertexQuad(_texSize.x / 4.f, 0);
-			GBuffer::setUV(0.25f, 0.75f);	GBuffer::addVertexQuad(_texSize.x / 4.f, _texSize.y / 4.f);
-			GBuffer::setUV(0, 0.75f);		GBuffer::addVertexQuad(0, _texSize.y / 4.f);
-
-			// Top Right corner
-			GBuffer::setUV(0.75f, 1);		GBuffer::addVertexQuad(GLfloat(m_size.x) - _texSize.x / 4.f, 0);
-			GBuffer::setUV(1, 1);			GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
-			GBuffer::setUV(1, 0.75f);		GBuffer::addVertexQuad(GLfloat(m_size.x), _texSize.y / 4.f);
-			GBuffer::setUV(0.75f, 0.75f);	GBuffer::addVertexQuad(GLfloat(m_size.x) - _texSize.x / 4.f, _texSize.y / 4.f);
-
-			// Bottom Left corner
-			GBuffer::setUV(0, 0.25f);		GBuffer::addVertexQuad(0, GLfloat(m_size.y) - _texSize.y / 4.f);
-			GBuffer::setUV(0.25f, 0.25f);	GBuffer::addVertexQuad(_texSize.x / 4.f, GLfloat(m_size.y) - _texSize.y / 4.f);
-			GBuffer::setUV(0.25f, 0);		GBuffer::addVertexQuad(_texSize.x / 4.f, GLfloat(m_size.y));
-			GBuffer::setUV(0, 0);			GBuffer::addVertexQuad(0, GLfloat(m_size.y));
-
-			// Bottom Right corner
-			GBuffer::setUV(0.75f, 0.25f);	GBuffer::addVertexQuad(GLfloat(m_size.x) - _texSize.x / 4.f, GLfloat(m_size.y) - _texSize.y / 4.f);
-			GBuffer::setUV(1, 0.25f);		GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y) - _texSize.y / 4.f);
-			GBuffer::setUV(1, 0);			GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y));
-			GBuffer::setUV(0.75f, 0);		GBuffer::addVertexQuad(GLfloat(m_size.x) - _texSize.x / 4.f, GLfloat(m_size.y));
-
-			_width = floor((GLfloat(m_size.x) - _texSize.x / 2.f) / (_texSize.x / 2.f));
-			_widthF = ((GLfloat(m_size.x) - _texSize.x / 2.f) / (_texSize.x / 2.f));
-
-			// Top and Bottom side
-			for (Uint16 i = 0; i < _width; i++) {
-				GBuffer::setUV(0.25f, 1);		GBuffer::addVertexQuad(_texSize.x / 4.f + (i * _texSize.x / 2.f), 0);
-				GBuffer::setUV(0.75f, 1);		GBuffer::addVertexQuad(_texSize.x / 4.f + ((i + 1) * _texSize.x / 2.f), 0);
-				GBuffer::setUV(0.75f, 0.75f);	GBuffer::addVertexQuad(_texSize.x / 4.f + ((i + 1) * _texSize.x / 2.f), _texSize.y / 4.f);
-				GBuffer::setUV(0.25f, 0.75f);	GBuffer::addVertexQuad(_texSize.x / 4.f + (i * _texSize.x / 2.f), _texSize.y / 4.f);
-
-				GBuffer::setUV(0.25f, 0.25f);	GBuffer::addVertexQuad(_texSize.x / 4.f + (i * _texSize.x / 2.f), GLfloat(m_size.y) - _texSize.y / 4.f);
-				GBuffer::setUV(0.75f, 0.25f);	GBuffer::addVertexQuad(_texSize.x / 4.f + ((i + 1) * _texSize.x / 2.f), GLfloat(m_size.y) - _texSize.y / 4.f);
-				GBuffer::setUV(0.75f, 0);		GBuffer::addVertexQuad(_texSize.x / 4.f + ((i + 1) * _texSize.x / 2.f), GLfloat(m_size.y));
-				GBuffer::setUV(0.25f, 0);		GBuffer::addVertexQuad(_texSize.x / 4.f + (i * _texSize.x / 2.f), GLfloat(m_size.y));
-			}
-			GBuffer::setUV(0.25f, 1);									GBuffer::addVertexQuad(_texSize.x / 4.f + (_width * _texSize.x / 2.f), 0);
-			GBuffer::setUV(0.25f + 0.5f * (_widthF - _width), 1);		GBuffer::addVertexQuad(_texSize.x / 4.f + ((_width + (_widthF - _width)) * _texSize.x / 2.f), 0);
-			GBuffer::setUV(0.25f + 0.5f * (_widthF - _width), 0.75f);	GBuffer::addVertexQuad(_texSize.x / 4.f + ((_width + (_widthF - _width)) * _texSize.x / 2.f), _texSize.y / 4.f);
-			GBuffer::setUV(0.25f, 0.75f);								GBuffer::addVertexQuad(_texSize.x / 4.f + (_width * _texSize.x / 2.f), _texSize.y / 4.f);
-
-			GBuffer::setUV(0.25f, 0.25f);								GBuffer::addVertexQuad(_texSize.x / 4.f + (_width * _texSize.x / 2.f), GLfloat(m_size.y) - _texSize.y / 4.f);
-			GBuffer::setUV(0.25f + 0.5f * (_widthF - _width), 0.25f);	GBuffer::addVertexQuad(_texSize.x / 4.f + ((_width + (_widthF - _width)) * _texSize.x / 2.f), GLfloat(m_size.y) - _texSize.y / 4.f);
-			GBuffer::setUV(0.25f + 0.5f * (_widthF - _width), 0);		GBuffer::addVertexQuad(_texSize.x / 4.f + ((_width + (_widthF - _width)) * _texSize.x / 2.f), GLfloat(m_size.y));
-			GBuffer::setUV(0.25f, 0);									GBuffer::addVertexQuad(_texSize.x / 4.f + (_width * _texSize.x / 2.f), GLfloat(m_size.y));
-
-			_height = floor((GLfloat(m_size.y) - _texSize.y / 2.f) / (_texSize.y / 2.f));
-			_heightF = ((GLfloat(m_size.y) - _texSize.y / 2.f) / (_texSize.y / 2.f));
-
-			// Left and Right side
-			for (Uint16 i = 0; i < _height; i++) {
-				GBuffer::setUV(0, 0.75f);		GBuffer::addVertexQuad(0, _texSize.y / 4.f + (i * _texSize.y / 2.f));
-				GBuffer::setUV(0, 0.25f);		GBuffer::addVertexQuad(0, (_texSize.y / 4.f + ((i + 1) * _texSize.y / 2.f)));
-				GBuffer::setUV(0.25f, 0.25f);	GBuffer::addVertexQuad(_texSize.x / 4.f, (_texSize.y / 4.f + ((i + 1) * _texSize.y / 2.f)));
-				GBuffer::setUV(0.25f, 0.75f);	GBuffer::addVertexQuad(_texSize.x / 4.f, _texSize.y / 4.f + (i * _texSize.y / 2.f));
-
-				GBuffer::setUV(0.75f, 0.75f);	GBuffer::addVertexQuad(GLfloat(m_size.x) - _texSize.y / 4.f, _texSize.y / 4.f + (i * _texSize.y / 2.f));
-				GBuffer::setUV(0.75f, 0.25f);	GBuffer::addVertexQuad(GLfloat(m_size.x) - _texSize.y / 4.f, _texSize.y / 4.f + ((i + 1) * _texSize.y / 2.f));
-				GBuffer::setUV(1, 0.25f);		GBuffer::addVertexQuad(GLfloat(m_size.x), _texSize.y / 4.f + ((i + 1) * _texSize.y / 2.f));
-				GBuffer::setUV(1, 0.75f);		GBuffer::addVertexQuad(GLfloat(m_size.x), _texSize.y / 4.f + (i * _texSize.y / 2.f));
-			}
-			GBuffer::setUV(0, 0.75f);									GBuffer::addVertexQuad(0, _texSize.y / 4.f + (_height * _texSize.y / 2.f));
-			GBuffer::setUV(0, 0.75f - 0.5f * (_heightF - _height));		GBuffer::addVertexQuad(0, _texSize.y / 4.f + ((_height + (_heightF - _height)) * _texSize.y / 2.f));
-			GBuffer::setUV(0.25f, 0.75f - 0.5f * (_heightF - _height));	GBuffer::addVertexQuad(_texSize.x / 4.f, _texSize.y / 4.f + ((_height + (_heightF - _height)) * _texSize.y / 2.f));
-			GBuffer::setUV(0.25f, 0.75f);								GBuffer::addVertexQuad(_texSize.x / 4.f, _texSize.y / 4.f + (_height * _texSize.y / 2.f));
-
-			GBuffer::setUV(0.75f, 0.75f);								GBuffer::addVertexQuad(GLfloat(m_size.x) - _texSize.x / 4.f, _texSize.y / 4.f + (_height * _texSize.y / 2.f));
-			GBuffer::setUV(0.75f, 0.75f - 0.5f * (_heightF - _height));	GBuffer::addVertexQuad(GLfloat(m_size.x) - _texSize.x / 4.f, _texSize.y / 4.f + ((_height + (_heightF - _height)) * _texSize.y / 2.f));
-			GBuffer::setUV(1, 0.75f - 0.5f * (_heightF - _height));		GBuffer::addVertexQuad(GLfloat(m_size.x), _texSize.y / 4.f + ((_height + (_heightF - _height)) * _texSize.y / 2.f));
-			GBuffer::setUV(1, 0.75f);									GBuffer::addVertexQuad(GLfloat(m_size.x), _texSize.y / 4.f + (_height * _texSize.y / 2.f));
-
-			// Center
-			for (Uint16 x = 0; x < _width; x++) {
-				for (Uint16 y = 0; y < _height; y++) {
-					GBuffer::setUV(0.25f, 0.75f);	GBuffer::addVertexQuad(_texSize.x / 4.f + (x * _texSize.x / 2.f), _texSize.y / 4.f + (y * _texSize.y / 2.f));
-					GBuffer::setUV(0.75f, 0.75f);	GBuffer::addVertexQuad(_texSize.x / 4.f + ((x + 1) * _texSize.x / 2.f), _texSize.y / 4.f + (y * _texSize.y / 2.f));
-					GBuffer::setUV(0.75f, 0.25f);	GBuffer::addVertexQuad(_texSize.x / 4.f + ((x + 1) * _texSize.x / 2.f), _texSize.y / 4.f + ((y + 1) * _texSize.y / 2.f));
-					GBuffer::setUV(0.25f, 0.25f);	GBuffer::addVertexQuad(_texSize.x / 4.f + (x * _texSize.x / 2.f), _texSize.y / 4.f + ((y + 1) * _texSize.y / 2.f));
-
-				}
-			}
-			for (Uint16 x = 0; x < _width; x++) {
-				GBuffer::setUV(0.25f, 0.75f);								GBuffer::addVertexQuad(_texSize.x / 4.f + (x * _texSize.x / 2.f), _texSize.y / 4.f + (_height * _texSize.y / 2.f));
-				GBuffer::setUV(0.75f, 0.75f);								GBuffer::addVertexQuad(_texSize.x / 4.f + ((x + 1) * _texSize.x / 2.f), _texSize.y / 4.f + (_height * _texSize.y / 2.f));
-				GBuffer::setUV(0.75f, 0.75f - 0.5f * (_heightF - _height));	GBuffer::addVertexQuad(_texSize.x / 4.f + ((x + 1) * _texSize.x / 2.f), _texSize.y / 4.f + ((_height + (_heightF - _height)) * _texSize.y / 2.f));
-				GBuffer::setUV(0.25f, 0.75f - 0.5f * (_heightF - _height));	GBuffer::addVertexQuad(_texSize.x / 4.f + (x * _texSize.x / 2.f), _texSize.y / 4.f + ((_height + (_heightF - _height)) * _texSize.y / 2.f));
-			}
-			for (Uint16 y = 0; y < _height; y++) {
-				GBuffer::setUV(0.25f, 0.75f);								GBuffer::addVertexQuad(_texSize.x / 4.f + (_width * _texSize.y / 2.f), _texSize.y / 4.f + (y * _texSize.y / 2.f));
-				GBuffer::setUV(0.25f + 0.5f * (_widthF - _width), 0.75f);	GBuffer::addVertexQuad(_texSize.x / 4.f + (_width * _texSize.y / 2.f), _texSize.y / 4.f + ((y + 1) * _texSize.y / 2.f));
-				GBuffer::setUV(0.25f + 0.5f * (_widthF - _width), 0.25f);	GBuffer::addVertexQuad(_texSize.x / 4.f + ((_width + (_widthF - _width)) * _texSize.y / 2.f), _texSize.y / 4.f + ((y + 1) * _texSize.y / 2.f));
-				GBuffer::setUV(0.25f, 0.25f);								GBuffer::addVertexQuad(_texSize.x / 4.f + ((_width + (_widthF - _width)) * _texSize.y / 2.f), _texSize.y / 4.f + (y * _texSize.y / 2.f));
-			}
-			GBuffer::setUV(0.25f, 0.75f);															GBuffer::addVertexQuad(_texSize.x / 4.f + (_width * _texSize.x / 2.f), _texSize.y / 4.f + (_height * _texSize.y / 2.f));
-			GBuffer::setUV(0.25f + 0.5f * (_widthF - _width), 0.75f);								GBuffer::addVertexQuad(_texSize.x / 4.f + ((_width + (_widthF - _width)) * _texSize.x / 2.f), _texSize.y / 4.f + (_height * _texSize.y / 2.f));
-			GBuffer::setUV(0.25f + 0.5f * (_widthF - _width), 0.75f - 0.5f * (_heightF - _height));	GBuffer::addVertexQuad(_texSize.x / 4.f + ((_width + (_widthF - _width)) * _texSize.x / 2.f), _texSize.y / 4.f + ((_height + (_heightF - _height)) * _texSize.y / 2.f));
-			GBuffer::setUV(0.25f, 0.75f - 0.5f * (_heightF - _height));								GBuffer::addVertexQuad(_texSize.x / 4.f + (_width * _texSize.x / 2.f), _texSize.y / 4.f + ((_height + (_heightF - _height)) * _texSize.y / 2.f));
-			break;
-		case TextureStyle::CENTERED:
-		default:
-			GBuffer::setUV(0, 0); GBuffer::addVertexQuad(std::floor(_texSize.x / -2.f) + m_size.x / 2, std::floor(_texSize.y / 2.f) + m_size.y / 2);
-			GBuffer::setUV(1, 0); GBuffer::addVertexQuad(std::floor(_texSize.x / 2.f) + m_size.x / 2, std::floor(_texSize.y / 2.f) + m_size.y / 2);
-			GBuffer::setUV(1, 1); GBuffer::addVertexQuad(std::floor(_texSize.x / 2.f) + m_size.x / 2, std::floor(_texSize.y / -2.f) + m_size.y / 2);
-			GBuffer::setUV(0, 1); GBuffer::addVertexQuad(std::floor(_texSize.x / -2.f) + m_size.x / 2, std::floor(_texSize.y / -2.f) + m_size.y / 2);
-			break;
-		}
+		GBuffer::renderTexture(m_texture, {}, m_size, m_textureStyle);
 	}
 	Shader::popMatrixModel();
 }
@@ -332,31 +206,34 @@ void Component::renderBorder() {
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 	GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 	if (m_border & static_cast<Sint8>(BorderFlag::TOP)) {
-		GBuffer::addVertexQuad((m_border & (Sint8)BorderFlag::LEFT) ? -1 : 0, 0);
-		GBuffer::addVertexQuad(GLfloat(m_size.x) + ((m_border & (Sint8)BorderFlag::RIGHT) ? 1 : 0), 0);
-		GBuffer::addVertexQuad(GLfloat(m_size.x) + ((m_border & (Sint8)BorderFlag::RIGHT) ? 1 : 0), -1);
-		GBuffer::addVertexQuad((m_border & (Sint8)BorderFlag::LEFT) ? -1 : 0, -1);
+		GBuffer::addVertexQuad(0, 0);
+		GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
+		GBuffer::addVertexQuad(GLfloat(m_size.x), 1);
+		GBuffer::addVertexQuad(0, 1);
 
 	}
 	if (m_border & static_cast<Sint8>(BorderFlag::RIGHT)) {
 		GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
 		GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y));
-		GBuffer::addVertexQuad(GLfloat(m_size.x) + 1, GLfloat(m_size.y));
-		GBuffer::addVertexQuad(GLfloat(m_size.x) + 1, 0);
+		GBuffer::addVertexQuad(GLfloat(m_size.x) - 1, GLfloat(m_size.y));
+		GBuffer::addVertexQuad(GLfloat(m_size.x) - 1, 0);
 	}
 	if (m_border & static_cast<Sint8>(BorderFlag::BOTTOM)) {
-		GBuffer::addVertexQuad(GLfloat(m_size.x) + ((m_border & (Sint8)BorderFlag::RIGHT) ? 1 : 0), GLfloat(m_size.y));
-		GBuffer::addVertexQuad(((m_border & (Sint8)BorderFlag::LEFT) ? -1 : 0), GLfloat(m_size.y));
-		GBuffer::addVertexQuad(((m_border & (Sint8)BorderFlag::LEFT) ? -1 : 0), GLfloat(m_size.y) + 1);
-		GBuffer::addVertexQuad(GLfloat(m_size.x) + ((m_border & (Sint8)BorderFlag::RIGHT) ? 1 : 0), GLfloat(m_size.y) + 1);
+		GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y));
+		GBuffer::addVertexQuad(0, GLfloat(m_size.y));
+		GBuffer::addVertexQuad(0, GLfloat(m_size.y) - 1);
+		GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y) - 1);
 	}
 	if (m_border & static_cast<Sint8>(BorderFlag::LEFT)) {
 		GBuffer::addVertexQuad(0, 0);
 		GBuffer::addVertexQuad(0, GLfloat(m_size.y));
-		GBuffer::addVertexQuad(-1, GLfloat(m_size.y));
-		GBuffer::addVertexQuad(-1, 0);
+		GBuffer::addVertexQuad(1, GLfloat(m_size.y));
+		GBuffer::addVertexQuad(1, 0);
 	}
 	Shader::popMatrixModel();
+}
+void Component::renderShadow() {
+
 }
 void Component::render() {
 	//renderBack();

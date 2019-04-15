@@ -24,6 +24,10 @@ void MatrixTool::disable() {
 	m_editMatrix->reset();
 }
 
+void MatrixTool::inputTool() {}
+void MatrixTool::updateTool() {}
+void MatrixTool::renderTool() {}
+
 void MatrixTool::inputSelect() {}
 void MatrixTool::updateSelect() {}
 void MatrixTool::renderSelect() {}
@@ -38,27 +42,15 @@ void MatrixTool::renderResize() {}
 
 void MatrixTool::input() {
 	if(m_editMatrix->getId() == -1) return;
-	switch(*m_subTool) {
-	case 0: inputSelect(); break;
-	case 1: inputMove(); break;
-	case 2: inputResize(); break;
-	}
+	inputTool();
 }
 
 void MatrixTool::update() {
 	if(m_editMatrix->getId() == -1) return;
-	switch(*m_subTool) {
-	case 0: updateSelect(); break;
-	case 1: updateMove(); break;
-	case 2: updateResize(); break;
-	}
+	updateTool();
 }
 
 void MatrixTool::render() {
 	if(m_editMatrix->getId() == -1) return;
-	switch(*m_subTool) {
-	case 0: renderSelect(); break;
-	case 1: renderMove(); break;
-	case 2: renderResize(); break;
-	}
+	renderTool();
 }

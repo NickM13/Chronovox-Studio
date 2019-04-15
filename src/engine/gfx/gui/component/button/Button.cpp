@@ -14,7 +14,7 @@ CButton::CButton(std::string p_compName, std::string p_title, Texture* p_buttonT
 	m_releaseFunction = p_func;
 
 	m_texture = p_buttonTex;
-	m_textureStyle = TextureStyle::CENTERED;
+	m_textureStyle = GBuffer::TextureStyle::CENTERED;
 }
 void CButton::input(Sint8& p_interactFlags) {
 	Vector2<Sint32> _mousePos = GMouse::getMousePos();
@@ -22,7 +22,9 @@ void CButton::input(Sint8& p_interactFlags) {
 		_mousePos.x >= m_pos.x && _mousePos.x < m_pos.x + m_size.x &&
 		_mousePos.y >= m_pos.y && _mousePos.y < m_pos.y + m_size.y) {
 		setHovered(true);
+		GGui::setCursorType(m_hoverCursor);
 		addTooltip();
+		p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
 	}
 	else {
 		setHovered(false);
@@ -65,7 +67,7 @@ void CButton::update(GLfloat p_deltaUpdate) {
 }
 void CButton::render() {
 	if (m_renderStyle & RenderStyle::FILL) {
-		Component::renderFill(false);
+		Component::renderFill();
 	}
 	else {
 		GBuffer::setColor(Color(0.f, 0.f, 0.f, 0.f));

@@ -47,7 +47,9 @@ GGui::CursorType GGui::getCursorType() {
 	return m_cursorType;
 }
 void GGui::setCursorType(CursorType p_cursorType) {
-	m_cursorType = p_cursorType;
+	if (p_cursorType != CursorType::NONE) {
+		m_cursorType = p_cursorType;
+	}
 }
 
 void GGui::update() {

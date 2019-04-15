@@ -17,9 +17,9 @@
 
 int main(int argc, char* argv[]) {
 	//_crtBreakAlloc;
-	Logger::init(Logger::Verbosity::MINIMAL);
-	Logger::logMinimal("Program launched using main");
-	Logger::logMinimal("Initializing...");
+	Logger::init(static_cast<Sint8>(Logger::Verbosity::QUIET));
+	Logger::logQuiet("Program launched using main");
+	Logger::logQuiet("Initializing...");
 	bool _success;
 	if (argc > 1) {
 		_success = Application::getInstance().init(argv[1]);
@@ -28,10 +28,10 @@ int main(int argc, char* argv[]) {
 		_success = Application::getInstance().init();
 	}
 	if (_success) {
-		Logger::logMinimal("Program initialized");
+		Logger::logQuiet("Program initialized");
 		Application::getInstance().run();
 		Application::getInstance().terminate();
-		Logger::logMinimal("Program closing...");
+		Logger::logQuiet("Program closing...");
 		//_CrtDumpMemoryLeaks();
 		return 0;
 	}
@@ -41,14 +41,14 @@ int main(int argc, char* argv[]) {
 }
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow) {
-	Logger::init(Logger::Verbosity::MINIMAL);
-	Logger::logMinimal("Program launched using WinMain");
-	Logger::logMinimal("Initializing...");
+	Logger::init(static_cast<Sint8>(Logger::Verbosity::QUIET));
+	Logger::logQuiet("Program launched using WinMain");
+	Logger::logQuiet("Initializing...");
 	if (Application::getInstance().init()) {
-		Logger::logMinimal("Program initialized");
+		Logger::logQuiet("Program initialized");
 		Application::getInstance().run();
 		Application::getInstance().terminate();
-		Logger::logMinimal("Program closing...");
+		Logger::logQuiet("Program closing...");
 		return 0;
 	}
 	Logger::logError("Failed to start program, exitting...");

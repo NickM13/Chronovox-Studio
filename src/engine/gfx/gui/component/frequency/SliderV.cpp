@@ -1,12 +1,13 @@
 #include "engine\gfx\gui\component\frequency\SliderV.h"
 
+Sint32 CSliderV::m_height = 0;
+Sint32 CSliderV::m_width = 12;
+
 CSliderV::CSliderV(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Sint32 p_length, Sint32 p_maxValue)
-	: Component(p_compName, p_title, p_pos, {}) {
-	m_length = p_length;
+	: Component(p_compName, p_title, p_pos + Vector2<Sint32>(0, m_height), {}) {
 	m_maxValue = p_maxValue;
 	m_numValue = 0;
-	m_height = 4;
-	m_width = 8;
+	m_length = p_length - m_height * 2;
 	m_size = { m_width, m_length };
 };
 
@@ -34,14 +35,20 @@ void CSliderV::setValue(Sint32 p_value) {
 
 void CSliderV::addValue(Sint16 p_value) {
 	m_numValue += p_value;
+	if (m_numValue > m_maxValue) {
+		m_numValue = m_maxValue;
+	}
+	if (m_numValue < 0) {
+		m_numValue = 0;
+	}
 }
 
 void CSliderV::input(Sint8& p_interactFlags) {
 	Vector2<Sint32> _mousePos = GMouse::getMousePos();
 	if ((p_interactFlags & (Sint8)EventFlag::MOUSEOVER) || m_held) {
-		if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT) &&
-			_mousePos.x >= m_pos.x - m_width / 2 && _mousePos.x < m_pos.x + m_width / 2 &&
-			_mousePos.y >= m_pos.y - m_height && _mousePos.y < m_pos.y + m_length + m_height) {
+		m_hovered = (_mousePos.x >= m_pos.x - m_width / 2 && _mousePos.x < m_pos.x + m_width / 2 &&
+			_mousePos.y >= m_pos.y - m_height && _mousePos.y < m_pos.y + m_length + m_height);
+		if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT) && m_hovered) {
 			m_held = true;
 		}
 
@@ -53,13 +60,16 @@ void CSliderV::input(Sint8& p_interactFlags) {
 			m_held = false;
 		}
 
-		if ((p_interactFlags & (Sint8)EventFlag::MOUSEOVER) && (m_held || (_mousePos.x >= m_pos.x - m_width / 2 && _mousePos.x < m_pos.x + m_width / 2 &&
-			_mousePos.y >= m_pos.y - m_height && _mousePos.y < m_pos.y + m_length + m_height))) {
+		if ((p_interactFlags & (Sint8)EventFlag::MOUSEOVER) && m_hovered) {
 			addTooltip();
 			p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
 		}
 		else {
 			resetTooltip();
+		}
+		if ((p_interactFlags & (Sint8)EventFlag::MOUSESCROLL) && m_hovered) {
+			addValue(GMouse::getMouseScroll());
+			p_interactFlags -= (Sint8)EventFlag::MOUSESCROLL;
 		}
 	}
 	else {
@@ -78,30 +88,18 @@ void CSliderV::render() {
 
 	//Outline
 	GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
-	GBuffer::addVertexQuad(-m_width / 2.f - 1, -m_height - 1);
-	GBuffer::addVertexQuad(m_width / 2.f + 1, -m_height - 1);
-	GBuffer::addVertexQuad(m_width / 2.f + 1, m_length + m_height + 1);
-	GBuffer::addVertexQuad(-m_width / 2.f - 1, m_length + m_height + 1);
+	GBuffer::addQuadFilled(Vector2<Sint32>(-m_width / 2.f - 1, -m_height - 1), Vector2<Sint32>(m_width + 2, m_length + m_height * 2 + 2));
 
 	//Background
 	GBuffer::setColor(getPrimaryColor());
-	GBuffer::addVertexQuad(-m_width / 2.f, -m_height);
-	GBuffer::addVertexQuad(m_width / 2.f, -m_height);
-	GBuffer::addVertexQuad(m_width / 2.f, m_length + m_height);
-	GBuffer::addVertexQuad(-m_width / 2.f, m_length + m_height);
+	GBuffer::addQuadFilled(Vector2<Sint32>(-m_width / 2.f, -m_height), Vector2<Sint32>(m_width, m_length + m_height * 2));
 
-	GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
-	GBuffer::addVertexQuad(-m_width / 2.f, -m_height);
-	GBuffer::addVertexQuad(m_width / 2.f, -m_height);
-	GBuffer::addVertexQuad(m_width / 2.f, GLfloat(m_length - m_slideValue));
-	GBuffer::addVertexQuad(-m_width / 2.f, GLfloat(m_length - m_slideValue));
+	GBuffer::setColor(m_colorThemeMap.at("actionHighlight"));
+	GBuffer::addQuadFilled(Vector2<Sint32>(-m_width / 2.f, m_length - m_slideValue + m_height), Vector2<Sint32>(m_width, m_slideValue));
 
 	//Slider
-	GBuffer::setColor(m_colorThemeMap.at("actionHover"));
-	GBuffer::addVertexQuad(-GLfloat(m_width / 2), GLfloat((m_length - m_slideValue) - m_height));
-	GBuffer::addVertexQuad(GLfloat(m_width / 2), GLfloat((m_length - m_slideValue) - m_height));
-	GBuffer::addVertexQuad(GLfloat(m_width / 2), GLfloat((m_length - m_slideValue) + m_height));
-	GBuffer::addVertexQuad(-GLfloat(m_width / 2), GLfloat((m_length - m_slideValue) + m_height));
+	GBuffer::setColor(m_colorThemeMap.at("actionHovered"));
+	GBuffer::addQuadFilled(Vector2<Sint32>(-m_width / 2.f, (m_length - m_slideValue) - m_height), Vector2<Sint32>(m_width, m_height * 2));
 
 	Shader::popMatrixModel();
 }

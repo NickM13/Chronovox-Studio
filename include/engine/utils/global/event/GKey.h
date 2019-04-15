@@ -2,6 +2,7 @@
 #include "engine\utils\variable\datatype\Macros.h"
 #include "engine\utils\LOpenGL.h"
 #include <vector>
+#include <string>
 
 // Global class for Key events
 class GKey {
@@ -32,6 +33,8 @@ public:
 	static bool keyDown(Sint32 p_key, Sint32 p_mods = -1);
 	static bool keyRelease(Sint32 p_key);
 	static bool modDown(Sint32 p_mod);
+
+	static std::string getBindAsText(KeyBind p_keyBind);
 
 	static std::vector<KeyEvent> getKeyEvents();
 

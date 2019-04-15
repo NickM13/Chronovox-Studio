@@ -18,7 +18,7 @@ Format::FormatType Format::valid(std::string p_fileName) {
 	{
 		Logger::logMissingFile(p_fileName);
 		_file.close();
-		return NONE;
+		return FormatType::NONE;
 	}
 	_index = 0;
 	_file.seekg(0, _file.end);
@@ -31,29 +31,32 @@ Format::FormatType Format::valid(std::string p_fileName) {
 	_file.close();
 
 	std::string typeStr = p_fileName.substr(p_fileName.find_last_of('.'));
-	if (typeStr == ".nvm") return NVM;
-	else if (typeStr == ".nva") return NVA;
-	else if (typeStr == ".qbcl") return QBCL;
-	else if (typeStr == ".qb") return QB;
-	else if (typeStr == ".vox") return VOX;
-	else if (typeInt == strToNum(".NVM")) return NVM;
-	else if (typeInt == strToNum(".NVA")) return NVA;
-	else if (typeInt == strToNum("QBCL")) return QBCL;
-	else if (typeInt == strToNum("VOX ")) return VOX;
+	if (typeStr == ".nvm") return FormatType::NVM;
+	else if (typeStr == ".nva") return FormatType::NVA;
+	else if (typeStr == ".qbcl") return FormatType::QBCL;
+	else if (typeStr == ".qb") return FormatType::QB;
+	else if (typeStr == ".vox") return FormatType::VOX;
+	else if (typeInt == strToNum(".NVM")) return FormatType::NVM;
+	else if (typeInt == strToNum(".NVA")) return FormatType::NVA;
+	else if (typeInt == strToNum("QBCL")) return FormatType::QBCL;
+	else if (typeInt == strToNum("VOX ")) return FormatType::VOX;
 	Logger::logError("File type not supported");
-	return NONE;
+	return FormatType::NONE;
 }
 
 bool Format::load(std::string p_fileName, std::vector<Matrix*>& p_matrixList, FormatType p_formatType) {
 	switch (p_formatType) {
-	case NVM: NvmFormat::load(p_fileName, p_matrixList); break;
-	case QBCL: break;
-	case QB: QbFormat::load(p_fileName, p_matrixList); break;
-	case VOX: break;
+	case FormatType::NVM: NvmFormat::load(p_fileName, p_matrixList); break;
+	case FormatType::QBCL: break;
+	case FormatType::QB: QbFormat::load(p_fileName, p_matrixList); break;
+	case FormatType::VOX: break;
 	default: return false;
 	}
 	return true;
 }
 bool Format::save(std::string p_fileName, std::vector<Matrix*>& p_matrixList) {
+	return NvmFormat::save(p_fileName, p_matrixList);
+}
+bool Format::exportFile(std::string p_fileName, std::vector<Matrix*>& p_matrixList, ExportType p_exportType) {
 	return NvmFormat::save(p_fileName, p_matrixList);
 }

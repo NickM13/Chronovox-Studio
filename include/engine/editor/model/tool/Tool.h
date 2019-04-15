@@ -4,6 +4,7 @@
 #include "engine\gfx\texture\MTexture.h"
 #include "engine\gfx\mesh\MMesh.h"
 #include "engine\utils\math\ModelMath.h"
+#include <functional>
 
 class Tool {
 public:
@@ -13,22 +14,23 @@ public:
 	};
 protected:
 	static EditMatrix* m_editMatrix;
-	static Sint32* m_subTool;
 	static glm::vec4 m_colorSelect, m_colorError;
 
-	ToolType m_toolType;
-	std::string m_toolName, m_toolDesc;
-	Texture* m_toolIcon;
-	bool m_hasSubmenu = true;
+	ToolType m_toolType = ToolType::VOXEL; // VOXEL or MATRIX
+	std::string m_parent = ""; // For Radio sublists
+	std::string m_toolName = "", m_toolDesc = "";
+	Texture* m_toolIcon = 0;
+	GKey::KeyBind m_keyBind = {};
 public:
-	static void init(EditMatrix* p_editMatrix, Sint32* p_subTool);
+	static void init(EditMatrix* p_editMatrix);
 
 	virtual void enable();
 	virtual void disable();
 
-	std::string getName() const			{ return m_toolName; }
-	std::string getDescription() const	{ return m_toolDesc; }
-	ToolType getType() const			{ return m_toolType; }
-	Texture* getIcon() const			{ return m_toolIcon; }
-	bool hasSubmenu() const				{ return m_hasSubmenu; }
+	std::string getParent() const				{ return m_parent; }
+	std::string getName() const					{ return m_toolName; }
+	std::string getDescription() const			{ return m_toolDesc; }
+	ToolType getType() const					{ return m_toolType; }
+	Texture* getIcon() const					{ return m_toolIcon; }
+	GKey::KeyBind getKeyBind() const			{ return m_keyBind; }
 };
