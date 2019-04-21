@@ -3,7 +3,7 @@
 
 # Custom for Visual Studio
 *.cs     diff=csharp
-*.h      linguist-language=cpp
+*.h      linguist-language=c++
 
 # Standard to msysgit
 *.doc	 diff=astextplain
