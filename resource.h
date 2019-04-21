@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by Voxel Model Editor.rc
+// Used by Chronovox Studio.rc
 //
 #define IDB_PNG1                        111
 

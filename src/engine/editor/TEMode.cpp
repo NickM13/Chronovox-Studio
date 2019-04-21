@@ -43,7 +43,7 @@ void TEMode::render() {
 	//Camera::renderSkybox();
 
 	renderEditor();
-	Camera::renderFocus();
+	//Camera::renderFocus();
 	Shader::popMatrixView();
 }
 void TEMode::renderShadow() {

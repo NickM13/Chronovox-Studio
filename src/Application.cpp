@@ -12,7 +12,7 @@ bool Application::init(char *p_filePath) {
 
 	Logger::logNormal("Initializing application...");
 
-	GScreen::m_appName = "Nick's Voxel Editor";
+	GScreen::m_appName = "Chronovox Studio";
 	GScreen::m_windowTitle = GScreen::m_appName;
 	GScreen::m_appVersion = "1.2.4.1";
 	GScreen::m_developer = true;
@@ -84,7 +84,7 @@ bool Application::init(char *p_filePath) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	GLua::init();
-	GLua::loadScriptFile("script.lua");
+	//GLua::loadScriptFile("script.lua");
 
 	m_editor = new Editor();
 
@@ -269,7 +269,7 @@ void Application::update() {
 	m_editor->update();
 
 	if (GScreen::m_windowCommand == GScreen::WindowCommand::MINIMIZE)	glfwIconifyWindow(m_mainWindow);
-	if (GScreen::m_windowCommand == GScreen::WindowCommand::RESIZE)	maximize(false);
+	if (GScreen::m_windowCommand == GScreen::WindowCommand::RESIZE)		maximize(false);
 	if (GScreen::m_windowCommand == GScreen::WindowCommand::CLOSE)		glfwSetWindowShouldClose(m_mainWindow, true);
 	GScreen::m_windowCommand = GScreen::WindowCommand::NONE;
 
@@ -295,7 +295,7 @@ void Application::render() {
 		0.5, 0.5, 0.5, 1.0
 	};
 	glm::mat4 depthBiasMVP = biasMatrix * Shader::getMVP();
-
+	
 	Shader::useProgram("shadowmap");
 	Shader::setLightEnabled(false);
 	init3dPersp();

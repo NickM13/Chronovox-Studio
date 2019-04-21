@@ -73,3 +73,8 @@ Texture* MTexture::getTextureById(GLuint p_texId) {
 	Logger::logWarning("Texture ID not found: " + p_texId);
 	return m_textures.at("NULL");
 }
+
+void MTexture::saveTexturePNG(std::string p_filePath, Texture* p_tex) {
+	ilBindImage(p_tex->getIlId());
+	ilSave(IL_PNG, p_filePath.c_str());
+}

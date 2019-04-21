@@ -9,7 +9,7 @@ Container* EditorOverlay::m_container = 0;
 Container* EditorOverlay::init(Editor* p_editor) {
 	if (m_container) return 0;
 	m_editor = p_editor;
-
+	
 	m_container = new Container("GUI_EDITOR", { 0, 0 }, { 0, 0 }, true);
 	m_container->setPrimaryPos("Top");
 	m_container->setBorderFlag(static_cast<Sint8>(Component::BorderFlag::NONE));
@@ -19,7 +19,7 @@ Container* EditorOverlay::init(Editor* p_editor) {
 	titleBar->addComponent(new Panel("DRAGBAR", "", { 0, 0 }, { 0, 0 }, (Sint8)Component::BorderFlag::BOTTOM), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)
 		->setPressFunction([]() { GScreen::startWindowDrag(); })->setReleaseFunction([]() { GScreen::endWindowDrag(); }); // NOT DROGBAR
 	titleBar->addComponent(new CIcon("WINDOW_ICON", MTexture::getTexture("gui\\icon\\window\\Logo.png"), { 12, 4 }, { 24, 24 }));
-	titleBar->addComponent(new CText("WINDOW_TITLE", GScreen::m_windowTitle, { 48, 16 }, { 0, 0 }, Alignment::ALIGN_LEFT, Color(1, 1, 1)));
+	titleBar->addComponent(new CText("WINDOW_TITLE", GScreen::m_windowTitle, { 0, 16 }, { 0, 0 }, Alignment::ALIGN_CENTER, Color(1, 1, 1)), Component::Anchor::NONE, Component::Anchor::TOP_RIGHT);
 	titleBar->addComponent(new CButton("BUTTON_MINIMIZE_WINDOW", "", MTexture::getTexture("gui\\icon\\window\\Minimize.png"),
 		{ -68, 0 }, { 34, 28 }, CButton::RenderStyle::FILL, []() { GScreen::m_windowCommand = GScreen::WindowCommand::MINIMIZE; }), Component::Anchor::TOP_RIGHT);
 	titleBar->addComponent(new CButton("BUTTON_RESIZE_WINDOW", "", MTexture::getTexture("gui\\icon\\window\\Resize.png"),
@@ -50,7 +50,7 @@ Container* EditorOverlay::init(Editor* p_editor) {
 	submenu = new CMenubar::Submenu("Help");
 	submenu->setPriority(10);
 	menuBar->addElement("", submenu);
-	menuBar->addElement("Help", new CMenubar::MenuButton("About Voxel Model Editor", GKey::KeyBind(), []() { Gui::openDialog(AboutDialog::getInstance().getDialog()); }));
+	menuBar->addElement("Help", new CMenubar::MenuButton("About Chronovox Studio", GKey::KeyBind(), []() { Gui::openDialog(AboutDialog::getInstance().getDialog()); }));
 
 	m_container->addComponent(menuBar, Component::Anchor::TOP_LEFT, Component::Anchor::TOP_RIGHT);
 

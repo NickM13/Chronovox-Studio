@@ -628,7 +628,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Voxel Model Editor.rc">
+    <ResourceCompile Include="Chronovox Studio.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

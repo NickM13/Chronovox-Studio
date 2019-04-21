@@ -14,4 +14,5 @@ public:
 	static void terminate();
 	static Texture* getTexture(std::string p_texturePath);
 	static Texture* getTextureById(GLuint p_texId);
+	static void saveTexturePNG(std::string p_filePath, Texture* p_tex);
 };

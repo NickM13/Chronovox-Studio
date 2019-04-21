@@ -31,7 +31,6 @@ void main(){
 	if(useLight) {
 		visibility = visibility * (cosThetaNorm * 0.5f + 0.5f);
 	}
-	/*
 	if(useShadows) {
 		if(visibility > 0) {
 			float currentDepth = ShadowCoord.z;
@@ -51,7 +50,6 @@ void main(){
 		visibility = visibility * 0.25f + 0.75f;
 		visibility = visibility * (cosThetaNorm * 0.5f + 0.5f);
 	}
-	*/
 	_color *= (LightColor * visibility);
 	color = vec4(_color, ex_color.a);
 }

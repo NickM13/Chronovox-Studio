@@ -90,6 +90,7 @@ void CTabBar::input(Sint8& p_interactFlags) {
 				m_extList.hoveredItem = (_mousePos.y + m_extList.scroll) / m_size.y - 1;
 				if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
 					
+					m_extList.open = false;
 				}
 				p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
 			}

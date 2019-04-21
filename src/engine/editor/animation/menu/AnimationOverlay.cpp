@@ -38,7 +38,7 @@ Container* AnimationOverlay::init(Editor* p_editor) {
 	menuBar->addButton("", "View")
 		->addButton("View", "Load Model", GKey::KeyBind(), []() { if (m_editor->getAnimation()) m_editor->getAnimation()->viewLoadModel(); });
 	menuBar->addButton("", "Help")
-		->addButton("Help", "About Voxel Model Editor", GKey::KeyBind(), []() {  });
+		->addButton("Help", "About Chronovox Studio", GKey::KeyBind(), []() {  });
 	m_container->addComponent(menuBar, Component::Anchor::TOP_LEFT, Component::Anchor::TOP_RIGHT)->setPriorityLayer(4);
 	*/
 

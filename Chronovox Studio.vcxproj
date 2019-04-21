@@ -17,9 +17,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}</ProjectGuid>
-    <RootNamespace>Voxel Model Editor</RootNamespace>
+    <RootNamespace>Chronovox Studio</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Voxel Model Editor</ProjectName>
+    <ProjectName>Chronovox Studio</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -334,7 +334,7 @@
     <ClInclude Include="include\engine\gfx\gui\component\frequency\SliderV.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Voxel Model Editor.rc" />
+    <ResourceCompile Include="Chronovox Studio.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\texture\gui\Icon.ico" />
