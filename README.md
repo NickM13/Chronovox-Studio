@@ -16,4 +16,4 @@ This project was made using C++ Visual Studio 2017, later updated to VS 2019 (ju
 
 **Test Features:** Change the colors of the GUI by editting the file "res\ColorTheme.ini" (press 'o' to reload with the editor open, do Step 1 if running Release or Release-Console)
 
-**Bugs:** If you run into any bugs or other issues during use, or have suggestions, please create a new issue on the project GitHub (https://github.com/NickM13/Voxel-Model-Editor)
+**Bugs:** If you run into any bugs or other issues during use, or have suggestions, please create a new issue on the project GitHub (https://github.com/NickM13/Chronovox-Studio)
