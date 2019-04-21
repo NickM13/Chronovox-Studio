@@ -1,5 +1,5 @@
-# Voxel-Model-Editor
-Open sourced Voxel Model Editor, written by Nick Mead
+# Chronovox Studio
+Open sourced Voxel Editor, written by Nick Mead
 
 ***This project has only been tested on Windows 10, a port to Linux will come later***
 
