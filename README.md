@@ -5,7 +5,7 @@ Open sourced Voxel Editor, written by Nick Mead
 
 This project was made using C++ Visual Studio 2017, later updated to VS 2019 (just launch in VS 2017 if that's what you have)
 
-**Summary:** Voxel Model Editor (name WIP) is a model editor for voxels, or cubes, that offers a quick and easy way to create voxel models.  Useful keybinds can be found by mousing over elements or by checking the menubar buttons, excluding some debug ones mentioned in Test Features below.  This is an ongoing project, and aspects may change in future updates such as file formats, though they should be backwards compatible.
+**Summary:** Chronovox Studio is an editor for voxels, or cubes, that offers a quick and easy way to create voxel models.  Useful keybinds can be found by mousing over elements or by checking the menubar buttons, excluding some debug ones mentioned in Test Features below.  This is an ongoing project, and aspects may change in future updates such as file formats, though they should be backwards compatible.
 
 **How to Compile:**
 
