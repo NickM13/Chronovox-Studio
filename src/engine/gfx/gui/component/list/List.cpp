@@ -17,9 +17,10 @@ void CList::resize() {
 	m_scrollBarHeight = (Sint32)(powf(m_size.y, 2) / (m_itemList.size() * m_itemHeight));
 }
 
-Component* CList::addItem(std::string p_itemName, bool p_isVisible) {
+Component* CList::addItem(std::string p_itemName, bool p_isVisible, bool p_selected) {
 	m_itemList.push_back(ListItem(p_itemName, 0, p_isVisible));
 	m_maxScroll = std::fmaxf(0, Sint16((m_itemList.size() - m_maxVisible) * m_itemHeight));
+	m_itemList.back().state = p_selected ? 2 : 0;
 	resize();
 	return this;
 }

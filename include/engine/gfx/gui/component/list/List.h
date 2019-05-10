@@ -30,7 +30,7 @@ public:
 
 	void resize();
 
-	Component* addItem(std::string p_itemName, bool p_isVisible);
+	Component* addItem(std::string p_itemName, bool p_isVisible, bool p_selected);
 	Component* insertItem(Uint16 p_index, std::string p_itemName);
 	void removeItem(Uint16 p_itemName);
 	Uint16 getItemCount();

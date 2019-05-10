@@ -11,6 +11,7 @@
 #include <direct.h>
 #include <shlobj.h>
 #include <iostream>
+#include <set>
 
 Sint32 Model::m_tool;
 
@@ -377,11 +378,16 @@ void Model::selectMatrix(Sint16 id) {
 }
 
 void Model::updateMatrixList() {
+	std::set<std::string> selectSet;
+	for (auto li : m_nameList->getItemList()) {
+		if (li.state == 2)
+			selectSet.insert(li.name);
+	}
 	m_nameList->clear();
 	Sint32 id = 0;
 	for (Matrix* m : *m_sModel->getMatrixList()) {
 		m->setId(id);
-		m_nameList->addItem(m->getName(), m->isVisible());
+		m_nameList->addItem(m->getName(), m->isVisible(), selectSet.find(m->getName()) != selectSet.end());
 		id++;
 	}
 }
