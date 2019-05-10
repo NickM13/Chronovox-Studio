@@ -5,10 +5,10 @@ MTMove::MTMove()
 	: MatrixTool() {
 	m_parent = "MatrixTransform";
 	m_toolName = "Move Matrix Tool";
-	m_toolDesc = "Edit Matrix - V";
-	m_toolIcon = MTexture::getTexture("gui\\icon\\tool\\MatrixMove.png");
+	m_toolDesc = "Edit Matrix - Shift + V";
+	m_toolIcon = MTexture::getTexture("gui\\icon\\toolbar\\MatrixMove.png");
 	m_scaling = false;
-	m_keyBind = GKey::KeyBind(GLFW_KEY_V);
+	m_keyBind = GKey::KeyBind(GLFW_KEY_V, GLFW_MOD_SHIFT);
 }
 
 void MTMove::inputTool() {
@@ -36,7 +36,18 @@ void MTMove::updateTool() {
 				dist = glm::dot(m_startPos - Camera::getPosition(), norm) / denom;
 				if (dist >= 0.0001f) {
 					dragDiff = (Camera::getPosition() + Camera::getMouseDirection() * dist).x - m_startPos.x;
-					m_editMatrix->getMatrix()->setPosition(m_editMatrix->getInitMatrix()->getPos() + glm::vec3(dragDiff, 0, 0));
+					if (GKey::modDown(GLFW_MOD_SHIFT)) {
+						m_editMatrix->getMatrix()->setPosition(glm::vec3(
+							std::roundf(m_editMatrix->getInitMatrix()->getPos().x + dragDiff),
+										m_editMatrix->getInitMatrix()->getPos().y,
+										m_editMatrix->getInitMatrix()->getPos().z));
+					}
+					else {
+						m_editMatrix->getMatrix()->setPosition(glm::vec3(
+							m_editMatrix->getInitMatrix()->getPos().x + dragDiff,
+							m_editMatrix->getInitMatrix()->getPos().y,
+							m_editMatrix->getInitMatrix()->getPos().z));
+					}
 				}
 			}
 			break;
@@ -51,6 +62,17 @@ void MTMove::updateTool() {
 				if (dist >= 0.0001f) {
 					dragDiff = (Camera::getPosition() + Camera::getMouseDirection() * dist).y - m_startPos.y;
 					m_editMatrix->getMatrix()->setPosition(m_editMatrix->getInitMatrix()->getPos() + glm::vec3(0, dragDiff, 0));
+					if (GKey::modDown(GLFW_MOD_SHIFT)) {
+						m_editMatrix->getMatrix()->setPosition(glm::vec3(
+										m_editMatrix->getInitMatrix()->getPos().x,
+							std::roundf(m_editMatrix->getInitMatrix()->getPos().y + dragDiff),
+										m_editMatrix->getInitMatrix()->getPos().z));
+					} else {
+						m_editMatrix->getMatrix()->setPosition(glm::vec3(
+							m_editMatrix->getInitMatrix()->getPos().x,
+							m_editMatrix->getInitMatrix()->getPos().y + dragDiff,
+							m_editMatrix->getInitMatrix()->getPos().z));
+					}
 				}
 			}
 			break;
@@ -65,6 +87,17 @@ void MTMove::updateTool() {
 				if (dist >= 0.0001f) {
 					dragDiff = (Camera::getPosition() + Camera::getMouseDirection() * dist).z - m_startPos.z;
 					m_editMatrix->getMatrix()->setPosition(m_editMatrix->getInitMatrix()->getPos() + glm::vec3(0, 0, dragDiff));
+					if (GKey::modDown(GLFW_MOD_SHIFT)) {
+						m_editMatrix->getMatrix()->setPosition(glm::vec3(
+										m_editMatrix->getInitMatrix()->getPos().x,
+										m_editMatrix->getInitMatrix()->getPos().y,
+							std::roundf(m_editMatrix->getInitMatrix()->getPos().z + dragDiff)));
+					} else {
+						m_editMatrix->getMatrix()->setPosition(glm::vec3(
+							m_editMatrix->getInitMatrix()->getPos().x,
+							m_editMatrix->getInitMatrix()->getPos().y,
+							m_editMatrix->getInitMatrix()->getPos().z + dragDiff));
+					}
 				}
 			}
 			break;

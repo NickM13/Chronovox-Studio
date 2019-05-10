@@ -12,13 +12,15 @@ protected:
 	Sint16 m_scroll = 0, m_maxScroll = 0;
 	Sint32 m_scrollBarHeight = 0;
 	Sint16 m_hoveredItem = -1, m_selectedItem = -1, m_selectedItemCtrl = -1;
+	Texture* m_visibleTexture = 0, * m_invisibleTexture = 0;
 	Vector2<Sint32> m_mouseBuffer = {};
 	bool m_hover = false, m_dragging = false;
 	struct ListItem {
 		std::string name;
+		bool visible = true;
 		GLfloat hoverTimer = 0;
 		Sint8 state; // 0=Unselected, 1=Hovered, 2=Selected
-		ListItem(std::string name = "", Sint8 state = 0) : name(name), state(state) {};
+		ListItem(std::string name = "", Sint8 state = 0, bool visible = true) : name(name), state(state), visible(visible) {};
 	};
 	std::vector<ListItem> m_itemList;
 
@@ -28,7 +30,7 @@ public:
 
 	void resize();
 
-	Component* addItem(std::string p_itemName);
+	Component* addItem(std::string p_itemName, bool p_isVisible);
 	Component* insertItem(Uint16 p_index, std::string p_itemName);
 	void removeItem(Uint16 p_itemName);
 	Uint16 getItemCount();
@@ -37,6 +39,7 @@ public:
 	void clear();
 
 	void selectItem(Sint16 id);
+	void toggleVisiblity(Sint16 id);
 	void setSelectedItem(Sint16 id) { m_selectedItem = id; }
 	Sint16 getSelectedItem() { return m_selectedItem; }
 

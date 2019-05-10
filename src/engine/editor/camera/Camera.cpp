@@ -83,14 +83,14 @@ glm::vec3 Camera::getRotation() {
 }
 glm::vec3 Camera::getMouseDirection() {
 	glm::vec4 lRayStart_NDC(
-		((GLfloat)GMouse::getMousePos().x / GScreen::m_screenSize.x - 0.5f) * 2.0f, // [0,1024] -> [-1,1]
-		((GLfloat)GMouse::getMousePos().y / GScreen::m_screenSize.y - 0.5f) * -2.0f, // [0, 768] -> [-1,1]
+		((GLfloat)GMouse::getMousePos().x / GScreen::getScreenSize().x - 0.5f) * 2.0f, // [0,1024] -> [-1,1]
+		((GLfloat)GMouse::getMousePos().y / GScreen::getScreenSize().y - 0.5f) * -2.0f, // [0, 768] -> [-1,1]
 		-1.0, // The near plane maps to Z=-1 in Normalized Device Coordinates
 		1.0f
 	);
 	glm::vec4 lRayEnd_NDC(
-		((GLfloat)GMouse::getMousePos().x / GScreen::m_screenSize.x - 0.5f) * 2.0f,
-		((GLfloat)GMouse::getMousePos().y / GScreen::m_screenSize.y - 0.5f) * -2.0f,
+		((GLfloat)GMouse::getMousePos().x / GScreen::getScreenSize().x - 0.5f) * 2.0f,
+		((GLfloat)GMouse::getMousePos().y / GScreen::getScreenSize().y - 0.5f) * -2.0f,
 		0.0,
 		1.0f
 	);
@@ -117,7 +117,7 @@ glm::mat4 Camera::getViewMatrix() {
 	return view;
 }
 glm::mat4 Camera::getModelViewProjection() {
-	glm::mat4 projection = glm::perspective((GLfloat)glm::radians(70.f), (GLfloat)GScreen::m_screenSize.x / GScreen::m_screenSize.y, 0.1f, 100.0f);
+	glm::mat4 projection = glm::perspective(static_cast<GLfloat>(glm::radians(70.f)), static_cast<GLfloat>(GScreen::getScreenSize().x) / GScreen::getScreenSize().y, 0.1f, 100.0f);
 	glm::mat4 view = getViewMatrix();
 	return projection * getViewMatrix();
 }
@@ -152,13 +152,12 @@ void Camera::input(Sint8 p_guiFlags) {
 	}
 	if ((p_guiFlags & (Sint8)Component::EventFlag::KEYPRESS)) {
 		GLfloat speed = 8;
-		if (GKey::keyDown(GLFW_KEY_D, 0)) pan({ speed,  0,      0 });
-		if (GKey::keyDown(GLFW_KEY_A, 0)) pan({ -speed,  0,      0 });
-		if (GKey::keyDown(GLFW_KEY_Q, 0)) pan({ 0,      speed,  0 });
-		if (GKey::keyDown(GLFW_KEY_Z, 0)) pan({ 0,     -speed,  0 });
-		if (GKey::keyDown(GLFW_KEY_W, 0)) pan({ 0,      0,     -speed });
-		if (GKey::keyDown(GLFW_KEY_S, 0)) pan({ 0,      0,      speed });
-		if (GKey::keyPressed(GLFW_KEY_0, GLFW_MOD_CONTROL))				resetZoom();
+		if (GKey::keyDown(GLFW_KEY_D, 0))	pan({ speed,	0,      0		});
+		if (GKey::keyDown(GLFW_KEY_A, 0))	pan({ -speed,	0,      0		});
+		if (GKey::keyDown(GLFW_KEY_Q, 0))	pan({ 0,		speed,  0		});
+		if (GKey::keyDown(GLFW_KEY_Z, 0))	pan({ 0,		-speed, 0		});
+		if (GKey::keyDown(GLFW_KEY_W, 0))	pan({ 0,		0,		-speed	});
+		if (GKey::keyDown(GLFW_KEY_S, 0))	pan({ 0,		0,      speed	});
 	}
 }
 

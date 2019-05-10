@@ -298,7 +298,7 @@ void CMenubar::update(GLfloat p_deltaUpdate) {
 
 				for (Uint16 k = 0; k < _submenu->getElements().size(); k++) {
 					if ((Uint16)_splitSelect.size() > j + 1 && _splitSelect[j + 1] == _submenu->getElements()[k]->getName()) {
-						_submenu->getElements()[k]->addHoverTimer(GScreen::m_deltaTime * 8);
+						_submenu->getElements()[k]->addHoverTimer(GScreen::getDeltaUpdate() * 8);
 						if (_submenu->getElements()[k]->isHoverPopped()) {
 							if (_submenu->getElements()[k]->getType() == ElementType::SUBMENU) {
 								m_currDir = _submenu->getElements()[k]->getPath();
@@ -310,10 +310,10 @@ void CMenubar::update(GLfloat p_deltaUpdate) {
 					}
 					else if (j >= _splitDir.size() - 1
 						|| _splitDir[j + 1] != _submenu->getElements().at(k)->getName()) {
-						_submenu->getElements()[k]->addHoverTimer(-GScreen::m_deltaTime * 8);
+						_submenu->getElements()[k]->addHoverTimer(-GScreen::getDeltaUpdate() * 8);
 					}
 					else {
-						_submenu->getElements()[k]->addHoverTimer(GScreen::m_deltaTime * 8);
+						_submenu->getElements()[k]->addHoverTimer(GScreen::getDeltaUpdate() * 8);
 					}
 				}
 				_subWidthTotal += _subWidth + _descWidth + 36 + _iconWidth;
@@ -322,10 +322,10 @@ void CMenubar::update(GLfloat p_deltaUpdate) {
 		}
 		if (_splitDir[0] != m_submenu.getElements()[i]->getName()) {
 			if (m_selected == m_submenu.getElements()[i]->getName()) {
-				m_submenu.getElements()[i]->addHoverTimer(GScreen::m_deltaTime * 8);
+				m_submenu.getElements()[i]->addHoverTimer(GScreen::getDeltaUpdate() * 8);
 			}
 			else {
-				m_submenu.getElements()[i]->addHoverTimer(-GScreen::m_deltaTime * 8);
+				m_submenu.getElements()[i]->addHoverTimer(-GScreen::getDeltaUpdate() * 8);
 			}
 		}
 	}
@@ -418,7 +418,7 @@ void CMenubar::render() {
 				Shader::pushMatrixModel();
 
 				Shader::translate(glm::vec3((GLfloat)_subWidthTotal, (Sint32)(m_size.y + _selectHeight), 0.f));
-				GBuffer::renderShadow(Vector2<Sint32>(), Vector2<Sint32>(Sint32(_subWidth + _descWidth + _iconWidth), _submenu->getSubHeight()) + (m_slBuffer * 2) + 2);
+				GBuffer::renderShadow(-1, Vector2<Sint32>(Sint32(_subWidth + _descWidth + _iconWidth), _submenu->getSubHeight()) + (m_slBuffer * 2) + 2);
 				GBuffer::setTexture(0);
 				GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 				GBuffer::addQuadFilled(Vector2<Sint32>(-1, -1), Vector2<Sint32>(Sint32(_subWidth + _descWidth + _iconWidth), _submenu->getSubHeight()) + (m_slBuffer * 2) + 2);
@@ -465,7 +465,7 @@ void CMenubar::render() {
 							Shader::pushMatrixModel();
 							Shader::translate(glm::vec3(_iconWidth + _subWidth + _descWidth - 10, Sint32(_height + _eHeight / 2), 0));
 							GBuffer::renderTexture(m_texHasSubmenu, m_texHasSubmenu->getSize() / -2, m_texHasSubmenu->getSize());
-							GBuffer::setTexture(m_texHasSubmenu->getGlId());
+							GBuffer::setTexture(m_texHasSubmenu->getTexId());
 							Shader::popMatrixModel();
 						}
 					}

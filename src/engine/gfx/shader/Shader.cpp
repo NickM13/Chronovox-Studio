@@ -104,7 +104,7 @@ void Shader::setTexture(GLint p_activeTexture, GLint p_textureId) {
 }
 void Shader::setTexture(GLint p_activeTexture, std::string p_textureName) {
 	glActiveTexture(GL_TEXTURE0 + p_activeTexture);
-	glBindTexture(GL_TEXTURE_2D, MTexture::getTexture(p_textureName)->getGlId());
+	glBindTexture(GL_TEXTURE_2D, MTexture::getTexture(p_textureName)->getTexId());
 }
 void Shader::setTextureCoords(glm::vec4& p_subtexCoords) {
 	glUniform4fv(6, 1, &p_subtexCoords.x);

@@ -2,7 +2,7 @@
 #include "engine\utils\variable\manager\ColorManager.h"
 #include "engine\gfx\mesh\MMesh.h"
 #include "engine\gfx\model\MModelObj.h"
-#include "engine\gfx\shader\Shader.h"
+#include "engine\gfx\gui\component\Component.h"
 
 Matrix::Matrix(Sint16 p_id, std::string p_name, std::string p_parent, glm::vec3 p_pos, glm::ivec3 p_size) {
 	m_id = p_id;
@@ -117,6 +117,25 @@ void Matrix::operator=(Matrix& m) {
 				setVoxel({x, y, z}, m.getVoxel({x, y, z}));
 
 	m_mesh = new VoxelMesh();
+}
+
+void Matrix::merge(Matrix& m) {
+	glm::vec3 pos1 = (glm::min(m_pos, m.getPos()));
+	glm::vec3 pos2 = (glm::max(m_pos + glm::vec3(m_size), m.getPos() + glm::vec3(m.getSize())));
+	glm::vec3 size = pos2 - pos1;
+
+	setSize(size);
+	shiftVoxels(m_pos - pos1);
+	setPosition(pos1);
+	
+	for (Sint32 x = 0; x < m.getSize().x; x++) {
+		for (Sint32 y = 0; y < m.getSize().y; y++) {
+			for (Sint32 z = 0; z < m.getSize().z; z++) {
+				if (m.getVoxel(glm::ivec3(x, y, z)).interactionType != 0)
+					setVoxel(glm::ivec3(m.getPos() - pos1) + glm::ivec3(x, y, z), m.getVoxel(glm::ivec3(x, y, z)));
+			}
+		}
+	}
 }
 
 void Matrix::setSize(glm::ivec3 p_size) {
@@ -407,7 +426,109 @@ void Matrix::rotate(Sint8 p_axes, glm::vec3 p_focus) {
 
 		addPosition(glm::vec3(center.x - center.y, center.y + center.x, 0));
 	}
+}
+void Matrix::scale (Sint8 p_axes, glm::vec3 p_focus, GLfloat p_power) {
+	// These are not initialized because they're reused when
+	// multiple axis flags are used
+	glm::ivec3 _size;
+	Voxel*** _data;
+	glm::vec3 center;
+	if (p_axes & AXIS_X) {
+		_size = m_size;
+		_data = new Voxel * *[_size.x];
+		center = p_focus - getCenter();
+		for (Sint32 x = 0; x < _size.x; x++) {
+			_data[x] = new Voxel * [_size.y];
+			for (Sint32 y = 0; y < _size.y; y++) {
+				_data[x][y] = new Voxel[_size.z];
+				for (Sint32 z = 0; z < _size.z; z++) {
+					_data[x][y][z] = getVoxel({ x, y, z });
+				}
+			}
+		}
 
+		setSize({ m_size.x * p_power, m_size.y, m_size.z });
+		addPosition(glm::vec3((_size.x - m_size.x) / 2, 0, 0));
+
+		for (Sint32 x = 0; x < m_size.x; x++)
+			for (Sint32 y = 0; y < m_size.y; y++)
+				for (Sint32 z = 0; z < m_size.z; z++)
+					setVoxel({ x, y, z }, _data[static_cast<Sint32>(std::floorf(x / p_power))][y][z]);
+
+		for (Uint16 x = 0; x < _size.x; x++) {
+			for (Uint16 y = 0; y < _size.y; y++) {
+				delete[] _data[x][y];
+			}
+			delete[] _data[x];
+		}
+		delete[] _data;
+
+		addPosition(glm::vec3(center.x - center.x * p_power, 0, 0));
+	}
+	if (p_axes & AXIS_Y) {
+		_size = m_size;
+		_data = new Voxel * *[_size.x];
+		center = p_focus - getCenter();
+		for (Sint32 x = 0; x < _size.x; x++) {
+			_data[x] = new Voxel * [_size.y];
+			for (Sint32 y = 0; y < _size.y; y++) {
+				_data[x][y] = new Voxel[_size.z];
+				for (Sint32 z = 0; z < _size.z; z++) {
+					_data[x][y][z] = getVoxel({ x, y, z });
+				}
+			}
+		}
+
+		setSize({ m_size.x, m_size.y * p_power, m_size.z });
+		addPosition(glm::vec3(0, (_size.y - m_size.y) / 2, 0));
+
+		for (Sint32 x = 0; x < m_size.x; x++)
+			for (Sint32 y = 0; y < m_size.y; y++)
+				for (Sint32 z = 0; z < m_size.z; z++)
+					setVoxel({ x, y, z }, _data[x][static_cast<Sint32>(std::floorf(y / p_power))][z]);
+
+		for (Uint16 x = 0; x < _size.x; x++) {
+			for (Uint16 y = 0; y < _size.y; y++) {
+				delete[] _data[x][y];
+			}
+			delete[] _data[x];
+		}
+		delete[] _data;
+
+		addPosition(glm::vec3(0, center.y - center.y * p_power, 0));
+	}
+	if (p_axes & AXIS_Z) {
+		_size = m_size;
+		_data = new Voxel * *[_size.x];
+		center = p_focus - getCenter();
+		for (Sint32 x = 0; x < _size.x; x++) {
+			_data[x] = new Voxel * [_size.y];
+			for (Sint32 y = 0; y < _size.y; y++) {
+				_data[x][y] = new Voxel[_size.z];
+				for (Sint32 z = 0; z < _size.z; z++) {
+					_data[x][y][z] = getVoxel({ x, y, z });
+				}
+			}
+		}
+
+		setSize({ m_size.x, m_size.y, m_size.z * p_power });
+		addPosition(glm::vec3(0, 0, (_size.z - m_size.z) / 2));
+
+		for (Sint32 x = 0; x < m_size.x; x++)
+			for (Sint32 y = 0; y < m_size.y; y++)
+				for (Sint32 z = 0; z < m_size.z; z++)
+					setVoxel({ x, y, z }, _data[x][y][static_cast<Sint32>(std::floorf(z / p_power))]);
+
+		for (Uint16 x = 0; x < _size.x; x++) {
+			for (Uint16 y = 0; y < _size.y; y++) {
+				delete[] _data[x][y];
+			}
+			delete[] _data[x];
+		}
+		delete[] _data;
+
+		addPosition(glm::vec3(0, 0, center.z - center.z * p_power));
+	}
 }
 void Matrix::addKeyframe(Keyframe* p_keyframe) {
 	m_keyframes.push_back(p_keyframe);
@@ -467,12 +588,14 @@ void Matrix::renderShadow() {
 void Matrix::renderOutline(OutlineType p_outline) {
 	GLfloat w1 = 0.05f, w2 = w1 / 2.5f;
 	glm::vec3 s = glm::vec3(m_size);
+	Color outline;
 	switch(p_outline) {
 	case OutlineType::NONE: return;
-	case OutlineType::OUTLINE:  Shader::setColor(glm::vec4(0.6f, 0.6f,  0.6f, 1.f)); break;
-	case OutlineType::HOVERED:  Shader::setColor(glm::vec4(0.7f, 0.85f, 1.0f, 1.f)); break;
-	case OutlineType::SELECTED: Shader::setColor(glm::vec4(1.f,  1.f,   1.f,  1.f)); break;
+	case OutlineType::OUTLINE:	outline = Component::getElementColor("matrixOutline"); break;
+	case OutlineType::HOVERED:	outline = Component::getElementColor("matrixHovered"); break;
+	case OutlineType::SELECTED:	outline = Component::getElementColor("matrixSelected"); break;
 	}
+	Shader::setColor(glm::vec4(outline.r, outline.g, outline.b, outline.a));
 	MMesh::renderBoxOutline(m_pos, s);
 	Shader::setColor(glm::vec4(1, 1, 1, 1));
 }

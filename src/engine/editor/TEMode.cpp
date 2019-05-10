@@ -3,6 +3,7 @@
 
 TEMode::TEMode() {
 	Camera::init();
+	m_focus = true;
 }
 
 bool TEMode::hasChanged() {
@@ -16,6 +17,13 @@ void TEMode::setPath(std::string p_path) {
 	m_directory = p_path.substr(0, p_path.find_last_of('\\') + 1);
 	m_name = p_path.substr(p_path.find_last_of('\\') + 1);
 }
+void TEMode::setDirectory(std::string p_dir) {
+	m_directory = p_dir;
+}
+void TEMode::setName(std::string p_name) {
+	m_name = p_name;
+}
+
 std::string TEMode::getName() {
 	return m_name;
 }
@@ -43,7 +51,7 @@ void TEMode::render() {
 	//Camera::renderSkybox();
 
 	renderEditor();
-	//Camera::renderFocus();
+	if (m_focus) Camera::renderFocus();
 	Shader::popMatrixView();
 }
 void TEMode::renderShadow() {

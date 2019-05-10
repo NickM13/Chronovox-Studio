@@ -1,7 +1,7 @@
 #include "engine\gfx\gui\component\container\ContainerPanel.h"
 
 ContainerPanel::ContainerPanel(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint8 p_borderFlags)
-	: Container(p_compName, p_pos, p_size, true) {
+	: Container(p_compName, p_pos, p_size, []() { return true; }) {
 	m_title = p_title;
 	m_border = p_borderFlags;
 
@@ -151,12 +151,12 @@ void ContainerPanel::input(Sint8& p_interactFlags) {
 				m_lHeld = 0;
 				if (m_pos.x < 0)
 					m_pos.x = 0;
-				else if (m_pos.x > Sint32(GScreen::m_screenSize.x - m_size.x))
-					m_pos.x = Sint32(GScreen::m_screenSize.x - m_size.x);
+				else if (m_pos.x > Sint32(GScreen::getScreenSize().x - m_size.x))
+					m_pos.x = Sint32(GScreen::getScreenSize().x - m_size.x);
 				if (m_pos.y > 0)
 					m_pos.y = 0;
-				else if (m_pos.y < -Sint32(GScreen::m_screenSize.y - m_size.y) + 24)
-					m_pos.y = -Sint32(GScreen::m_screenSize.y - m_size.y) + 24;
+				else if (m_pos.y < -Sint32(GScreen::getScreenSize().y - m_size.y) + 24)
+					m_pos.y = -Sint32(GScreen::getScreenSize().y - m_size.y) + 24;
 			}
 		}
 		else {
@@ -164,12 +164,12 @@ void ContainerPanel::input(Sint8& p_interactFlags) {
 				m_lHeld = 0;
 				if (m_pos.x < 0)
 					m_pos.x = 0;
-				else if (m_pos.x > Sint32(GScreen::m_screenSize.x - m_size.x))
-					m_pos.x = Sint32(GScreen::m_screenSize.x - m_size.x);
+				else if (m_pos.x > Sint32(GScreen::getScreenSize().x - m_size.x))
+					m_pos.x = Sint32(GScreen::getScreenSize().x - m_size.x);
 				if (m_pos.y > 0)
 					m_pos.y = 0;
-				else if (m_pos.y < -Sint32(GScreen::m_screenSize.x - m_size.x) + 24)
-					m_pos.y = -Sint32(GScreen::m_screenSize.x - m_size.x) + 24;
+				else if (m_pos.y < -Sint32(GScreen::getScreenSize().x - m_size.x) + 24)
+					m_pos.y = -Sint32(GScreen::getScreenSize().x - m_size.x) + 24;
 			}
 		}
 	}

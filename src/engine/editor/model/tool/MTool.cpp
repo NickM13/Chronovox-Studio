@@ -1,8 +1,12 @@
 #include "engine\editor\model\tool\MTool.h"
 
+#include <set>
+
 std::vector<Tool*> MTool::m_tools;
 
 void MTool::init() {
+	addTool(new MTSelect());
+
 	addTool(new VSTAdd());
 
 	addTool(new VSTErase());
@@ -49,4 +53,12 @@ Sint32 MTool::getToolId(std::string p_toolName) {
 		}
 	}
 	return 0;
+}
+
+Sint32 MTool::getParentCount() {
+	std::set<std::string> parents;
+	for (Tool* t : m_tools) {
+		parents.insert(t->getParent());
+	}
+	return parents.size();
 }

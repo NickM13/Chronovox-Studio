@@ -48,7 +48,7 @@ void CButton::input(Sint8& p_interactFlags) {
 		}
 		else if (m_selected == 3) {
 			m_selected = 0;
-			if (m_releaseFunction) m_releaseFunction();
+			if (m_releaseFunction && m_hovered) m_releaseFunction();
 		}
 	}
 }

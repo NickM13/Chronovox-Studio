@@ -7,7 +7,7 @@ CTabBar::CTabBar(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32> 
 	m_texClose = MTexture::getTexture("gui\\icon\\tool\\Close.png");
 	m_visibleItems = 0;
 	m_extList.texArrow = MTexture::getTexture("gui\\icon\\tool\\DropdownArrow.png");
-	m_extList.maxShown = 4;
+	m_extList.maxShown = 16;
 	m_extList.width = 10;
 }
 
@@ -89,13 +89,14 @@ void CTabBar::input(Sint8& p_interactFlags) {
 				&& _mousePos.y > m_size.y && _mousePos.y < (m_extList.shown + 1) * m_size.y) {
 				m_extList.hoveredItem = (_mousePos.y + m_extList.scroll) / m_size.y - 1;
 				if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
-					
+					m_selected = m_extList.hoveredItem;
+					if (m_selected > m_visibleItems) {
+						
+					}
+
 					m_extList.open = false;
 				}
 				p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
-			}
-			else if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
-				m_extList.open = false;
 			}
 		}
 	}
@@ -105,7 +106,7 @@ void CTabBar::input(Sint8& p_interactFlags) {
 			if (_mousePos.x >= m_size.x - m_extList.texArrow->getSize().x) {
 				m_extList.hovered = true;
 				if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
-					m_extList.open = true;
+					m_extList.open = !m_extList.open;
 				}
 			}
 			else {
@@ -222,7 +223,7 @@ void CTabBar::render() {
 		closePos2 = Vector2<Sint32>(size.x - buffer / 2, m_size.y - buffer / 2);
 
 		if (m_selected == i || m_hovered == i) {
-			GBuffer::setTexture(m_texClose->getGlId());
+			GBuffer::setTexture(m_texClose->getTexId());
 			GBuffer::setColor(Color());
 			GBuffer::setUV(0, 0); GBuffer::addVertexQuad(closePos1.x, closePos1.y);
 			GBuffer::setUV(1, 0); GBuffer::addVertexQuad(closePos2.x, closePos1.y);
@@ -264,7 +265,7 @@ void CTabBar::render() {
 		}
 
 		GBuffer::setColor(m_colorThemeMap.at("textLight"));
-		for (size_t i = 0; i < m_extList.shown; i++) {
+		for (size_t i = 0; i < (size_t)m_extList.shown; i++) {
 			Font::print(m_tabList.at(i).title, 4, m_size.y * (i + 0.5f));
 		}
 	}
@@ -284,12 +285,12 @@ void CTabBar::render() {
 		GBuffer::addQuadFilled(Vector2<Sint32>(-m_extList.texArrow->getSize().x, 0), Vector2<Sint32>(m_extList.texArrow->getSize().x, m_size.y));
 	}
 
-	GBuffer::setTexture(m_extList.texArrow->getGlId());
+	GBuffer::setTexture(m_extList.texArrow->getTexId());
 	GBuffer::setColor(Color());
-	GBuffer::setUV(0, 1); GBuffer::addVertexQuad(0,									0);
-	GBuffer::setUV(1, 1); GBuffer::addVertexQuad(-m_extList.texArrow->getSize().x,	0);
-	GBuffer::setUV(1, 0); GBuffer::addVertexQuad(-m_extList.texArrow->getSize().x,	m_extList.texArrow->getSize().y);
-	GBuffer::setUV(0, 0); GBuffer::addVertexQuad(0,									m_extList.texArrow->getSize().y);
+	GBuffer::setUV(0, 0); GBuffer::addVertexQuad(0,									0);
+	GBuffer::setUV(1, 0); GBuffer::addVertexQuad(-m_extList.texArrow->getSize().x,	0);
+	GBuffer::setUV(1, 1); GBuffer::addVertexQuad(-m_extList.texArrow->getSize().x,	m_extList.texArrow->getSize().y);
+	GBuffer::setUV(0, 1); GBuffer::addVertexQuad(0,									m_extList.texArrow->getSize().y);
 
 	Shader::popMatrixModel();
 }

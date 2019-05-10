@@ -4,7 +4,7 @@
 #include "engine\gfx\gui\component\container\Panel.h"
 
 CDialog::CDialog(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size)
-	: Container(p_compName, p_pos, p_size, true) {
+	: Container(p_compName, p_pos, p_size, []() { return true; }) {
 	setPriorityLayer(100);
 	m_optionBorder = 10;
 	addComponent(new Panel("WINDOW", p_title, { 0, 0 }, { 0, 0 }, (Sint8)Component::BorderFlag::ALL), Anchor::TOP_LEFT, Component::Anchor::BOTTOM_RIGHT);
@@ -12,7 +12,7 @@ CDialog::CDialog(std::string p_compName, std::string p_title, Vector2<Sint32> p_
 }
 
 void CDialog::setActive(bool p_active) {
-	setPosition(GScreen::m_screenSize / 2 - (getSize() / 2));
+	setPosition(GScreen::getScreenSize() / 2 - (getSize() / 2));
 	resize();
 	m_active = p_active;
 }

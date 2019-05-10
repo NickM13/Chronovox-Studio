@@ -5,7 +5,7 @@ VSTAdd::VSTAdd()
 	m_parent = "Add";
 	m_toolName = "Voxel Append Tool";
 	m_toolDesc = "Add a Single Voxel (T)";
-	m_toolIcon = MTexture::getTexture("gui\\icon\\tool\\SingleAdd.png");
+	m_toolIcon = MTexture::getTexture("gui\\icon\\toolbar\\SingleAdd.png");
 	m_keyBind = GKey::KeyBind(GLFW_KEY_T);
 }
 

@@ -60,23 +60,23 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)log\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)lib;$(ProjectDir)lib\devil\include;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)lib\LuaBridge;$(ProjectDir)lib\Lua\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)lib;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\lodepng\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)lib\LuaBridge;$(ProjectDir)lib\Lua\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
     <ReferencePath>$(ProjectDir)res;$(ReferencePath)</ReferencePath>
-    <LibraryPath>$(ProjectDir)lib\devil\lib\Debug;$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Debug;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\Lua\lib;$(ProjectDir)lib\OpenAL\lib;$(ProjectDir)lib\tinyobjloader\lib\Debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Debug;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\Lua\lib;$(ProjectDir)lib\OpenAL\lib;$(ProjectDir)lib\tinyobjloader\lib\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)log\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)lib;$(ProjectDir)lib\devil\include;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)lib\LuaBridge;$(ProjectDir)lib\Lua\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)lib;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\lodepng\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)lib\LuaBridge;$(ProjectDir)lib\Lua\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
     <ReferencePath>$(ProjectDir)res;$(ProjectDir)dll\Release;$(ReferencePath)</ReferencePath>
-    <LibraryPath>$(ProjectDir)lib\devil\lib\Release;$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Release;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\Lua\lib;$(ProjectDir)lib\OpenAL\lib;$(ProjectDir)lib\tinyobjloader\lib\Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Release;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\Lua\lib;$(ProjectDir)lib\OpenAL\lib;$(ProjectDir)lib\tinyobjloader\lib\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseConsole|Win32'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)log\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)lib;$(ProjectDir)lib\devil\include;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)lib\LuaBridge;$(ProjectDir)lib\Lua\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)lib;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\lodepng\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)lib\LuaBridge;$(ProjectDir)lib\Lua\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
     <ReferencePath>$(ProjectDir)res;$(ProjectDir)dll\Release;$(ReferencePath)</ReferencePath>
-    <LibraryPath>$(ProjectDir)lib\devil\lib\Release;$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Release;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\Lua\lib;$(ProjectDir)lib\OpenAL\lib;$(ProjectDir)lib\tinyobjloader\lib\Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Release;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\Lua\lib;$(ProjectDir)lib\OpenAL\lib;$(ProjectDir)lib\tinyobjloader\lib\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -86,7 +86,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;lua51.lib;OpenAL32.lib;DevIL.lib;ILU.lib;ILUT.lib;alut.lib;freetyped.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;lua51.lib;OpenAL32.lib;alut.lib;freetyped.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -102,7 +102,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;lua51.lib;DevIL.lib;ILU.lib;ILUT.lib;OpenAL32.lib;alut.lib;freetype.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;lua51.lib;OpenAL32.lib;alut.lib;freetype.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>
       </EntryPointSymbol>
@@ -120,13 +120,14 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;lua51.lib;DevIL.lib;ILU.lib;ILUT.lib;OpenAL32.lib;alut.lib;freetype.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;lua51.lib;OpenAL32.lib;alut.lib;freetype.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="lib\lodepng\include\lodepng.cpp" />
     <ClCompile Include="src\engine\editor\animation\Animation.cpp" />
     <ClCompile Include="src\engine\editor\animation\keyframe\Keyframe.cpp" />
     <ClCompile Include="src\engine\editor\animation\menu\AnimationOverlay.cpp" />
@@ -137,6 +138,7 @@
     <ClCompile Include="src\engine\editor\menu\CloseEditorDialog.cpp" />
     <ClCompile Include="src\engine\editor\menu\FreshOverlay.cpp" />
     <ClCompile Include="src\engine\editor\model\EditMatrix.cpp" />
+    <ClCompile Include="src\engine\editor\model\format\CsmFormat.cpp" />
     <ClCompile Include="src\engine\editor\model\format\Format.cpp" />
     <ClCompile Include="src\engine\editor\model\format\QbclFormat.cpp" />
     <ClCompile Include="src\engine\editor\model\format\QbFormat.cpp" />
@@ -149,6 +151,7 @@
     <ClCompile Include="src\engine\editor\model\tool\matrix\MatrixTool.cpp" />
     <ClCompile Include="src\engine\editor\model\tool\matrix\MTMove.cpp" />
     <ClCompile Include="src\engine\editor\model\tool\matrix\MTResize.cpp" />
+    <ClCompile Include="src\engine\editor\model\tool\matrix\MTSelect.cpp" />
     <ClCompile Include="src\engine\editor\model\tool\MTool.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\engine\editor\Editor.cpp" />
@@ -215,6 +218,7 @@
     <ClCompile Include="src\engine\utils\logger\Logger.cpp" />
     <ClCompile Include="src\engine\utils\Utilities.cpp" />
     <ClCompile Include="src\engine\gfx\texture\MTexture.cpp" />
+    <ClCompile Include="src\engine\utils\variable\datatype\Color.cpp" />
     <ClCompile Include="src\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -239,6 +243,7 @@
     <ClInclude Include="include\engine\editor\model\command\MPasteCommand.h" />
     <ClInclude Include="include\engine\editor\model\command\MResizeCommand.h" />
     <ClInclude Include="include\engine\editor\Editor.h" />
+    <ClInclude Include="include\engine\editor\model\format\CsmFormat.h" />
     <ClInclude Include="include\engine\editor\model\menu\ColorOverlay.h" />
     <ClInclude Include="include\engine\editor\menu\EditorOverlay.h" />
     <ClInclude Include="include\engine\editor\model\menu\ModelOverlay.h" />
@@ -256,6 +261,7 @@
     <ClInclude Include="include\engine\editor\model\tool\LTool.h" />
     <ClInclude Include="include\engine\editor\model\tool\matrix\MTMove.h" />
     <ClInclude Include="include\engine\editor\model\tool\matrix\MTResize.h" />
+    <ClInclude Include="include\engine\editor\model\tool\matrix\MTSelect.h" />
     <ClInclude Include="include\engine\editor\model\tool\voxel\box\VBTReplace.h" />
     <ClInclude Include="include\engine\editor\model\tool\voxel\box\VoxelBoxTool.h" />
     <ClInclude Include="include\engine\editor\model\tool\voxel\box\VBTAdd.h" />
@@ -332,6 +338,97 @@
     <ClInclude Include="include\engine\gfx\texture\MTexture.h" />
     <ClInclude Include="include\engine\utils\variable\manager\VoxelManager.h" />
     <ClInclude Include="include\engine\gfx\gui\component\frequency\SliderV.h" />
+    <ClInclude Include="lib\freetype\include\freetype\config\ftconfig.h" />
+    <ClInclude Include="lib\freetype\include\freetype\config\ftheader.h" />
+    <ClInclude Include="lib\freetype\include\freetype\config\ftmodule.h" />
+    <ClInclude Include="lib\freetype\include\freetype\config\ftoption.h" />
+    <ClInclude Include="lib\freetype\include\freetype\config\ftstdlib.h" />
+    <ClInclude Include="lib\freetype\include\freetype\freetype.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftadvanc.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftautoh.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftbbox.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftbdf.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftbitmap.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftbzip2.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftcache.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftcffdrv.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftchapters.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftcid.h" />
+    <ClInclude Include="lib\freetype\include\freetype\fterrdef.h" />
+    <ClInclude Include="lib\freetype\include\freetype\fterrors.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftfntfmt.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftgasp.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftglyph.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftgxval.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftgzip.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftimage.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftincrem.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftlcdfil.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftlist.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftlzw.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftmac.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftmm.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftmodapi.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftmoderr.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftotval.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftoutln.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftpfr.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftrender.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftsizes.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftsnames.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftstroke.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftsynth.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftsystem.h" />
+    <ClInclude Include="lib\freetype\include\freetype\fttrigon.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftttdrv.h" />
+    <ClInclude Include="lib\freetype\include\freetype\fttypes.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ftwinfnt.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\autohint.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\ftcalc.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\ftdebug.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\ftdriver.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\ftgloadr.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\fthash.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\ftmemory.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\ftobjs.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\ftpic.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\ftrfork.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\ftserv.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\ftstream.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\fttrace.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\ftvalid.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\internal.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\psaux.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\pshints.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svbdf.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svcid.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svfntfmt.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svgldict.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svgxval.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svkern.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svmm.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svotval.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svpfr.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svpostnm.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svprop.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svpscmap.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svpsinfo.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svsfnt.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svttcmap.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svtteng.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svttglyf.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\services\svwinfnt.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\sfnt.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\t1types.h" />
+    <ClInclude Include="lib\freetype\include\freetype\internal\tttypes.h" />
+    <ClInclude Include="lib\freetype\include\freetype\t1tables.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ttnameid.h" />
+    <ClInclude Include="lib\freetype\include\freetype\tttables.h" />
+    <ClInclude Include="lib\freetype\include\freetype\tttags.h" />
+    <ClInclude Include="lib\freetype\include\freetype\ttunpat.h" />
+    <ClInclude Include="lib\freetype\include\ft2build.h" />
+    <ClInclude Include="lib\lodepng\include\lodepng.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Chronovox Studio.rc" />
@@ -346,6 +443,20 @@
     <Image Include="res\texture\gui\IconSmall.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\cursor\aero_arrow.cur" />
+    <None Include="res\cursor\aero_ew.cur" />
+    <None Include="res\cursor\aero_helpsel.cur" />
+    <None Include="res\cursor\aero_link.cur" />
+    <None Include="res\cursor\aero_move.cur" />
+    <None Include="res\cursor\aero_nesw.cur" />
+    <None Include="res\cursor\aero_ns.cur" />
+    <None Include="res\cursor\aero_nwse.cur" />
+    <None Include="res\cursor\aero_pen.cur" />
+    <None Include="res\cursor\aero_unavail.cur" />
+    <None Include="res\cursor\arrow.cur">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="res\cursor\beam.cur" />
     <None Include="res\shader\depthRTT.frag" />
     <None Include="res\shader\depthRTT.vert" />
     <None Include="res\shader\gui.frag" />
@@ -354,6 +465,7 @@
     <None Include="res\shader\shadowmap.vert" />
     <None Include="res\shader\simple.frag" />
     <None Include="res\shader\simple.vert" />
+    <None Include="res\texture\gui\Logo.svg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

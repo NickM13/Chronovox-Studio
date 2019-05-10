@@ -5,12 +5,6 @@
 #include "engine\utils\Utilities.h"
 #include "engine\utils\Singleton.h"
 
-#include <ft2build.h>
-#include <freetype/freetype.h>
-#include <freetype/ftglyph.h>
-#include <freetype/ftoutln.h>
-#include <freetype/fttrigon.h>
-
 enum Alignment {
 	ALIGN_LEFT = 0,
 	ALIGN_CENTER = 1,
@@ -21,14 +15,16 @@ class Font {
 private:
 	struct FontType {
 		struct Character {
-			GLuint textureId = 0;
-			glm::ivec2 size = {};
-			glm::ivec2 bearing = {};
-			GLuint advance = 0;
+			glm::vec2 advance;		// Glyph advance
+			glm::vec2 size = {};	// Glyph size
+			glm::vec2 bearing = {}; // Top left glyph coordinates
+			GLfloat tx;				// Texture x offset
 		};
 		std::string m_fontName = "";
-		std::map<Sint8, Character> m_characters = {};
-		Sint16 m_height = 0;
+		Character m_characters[256];
+		Sint32 m_height = 0;
+		Sint32 m_atlasWidth, m_atlasHeight;
+		GLuint m_texture;
 		//GLuint* m_textures;
 		//GLuint* m_charWidth;
 		//GLuint m_listBase;

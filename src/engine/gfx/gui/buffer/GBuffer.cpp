@@ -90,6 +90,9 @@ void GBuffer::setColor(Color p_color) {
 	m_currColor = p_color;
 }
 void GBuffer::setUV(GLfloat u, GLfloat v) {
+	// Flips vertically after switching from 
+	// DevIL to lodpng, way too many calls 
+	// to this function to fix
 	m_currUV = glm::vec2(u, v);
 }
 void GBuffer::setSubtexUV(GLfloat s, GLfloat t, GLfloat p, GLfloat q) {
@@ -109,16 +112,16 @@ void GBuffer::renderTexture(Texture* p_texture, Vector2<Sint32> p_pos, Vector2<S
 	Shader::pushMatrixModel();
 	Shader::translate(glm::vec3(p_pos.x, p_pos.y, 0));
 	setColor(Color(1.f, 1.f, 1.f, 1.f));
-	setTexture(p_texture->getGlId());
+	setTexture(p_texture->getTexId());
 	Vector2<Sint32> _texSize = p_texture->getSize();
 	GLfloat _height, _width;
 	switch (p_texStyle) {
 	case TextureStyle::NONE:
 	case TextureStyle::STRETCH:
-		setUV(0, 1); addVertexQuad(0, 0);
-		setUV(1, 1); addVertexQuad((GLfloat)p_size.x, 0);
-		setUV(1, 0); addVertexQuad((GLfloat)p_size.x, (GLfloat)p_size.y);
-		setUV(0, 0); addVertexQuad(0, (GLfloat)p_size.y);
+		setUV(0, 0); addVertexQuad(0, 0);
+		setUV(1, 0); addVertexQuad((GLfloat)p_size.x, 0);
+		setUV(1, 1); addVertexQuad((GLfloat)p_size.x, (GLfloat)p_size.y);
+		setUV(0, 1); addVertexQuad(0, (GLfloat)p_size.y);
 		break;
 	case TextureStyle::WRAP:
 		setUV(0, 0);															addVertexQuad(0, 0);
@@ -128,48 +131,48 @@ void GBuffer::renderTexture(Texture* p_texture, Vector2<Sint32> p_pos, Vector2<S
 		break;
 	case TextureStyle::SCALE:
 		// Top Left corner
-		setSubtexUV(0, 0.75f, 0.25f, 1);
-		setUV(0, 1);		addVertexQuad(0, 0);
-		setUV(1, 1);		addVertexQuad(_texSize.x / 4.f, 0);
-		setUV(1, 0);		addVertexQuad(_texSize.x / 4.f, _texSize.y / 4.f);
-		setUV(0, 0);		addVertexQuad(0, _texSize.y / 4.f);
+		setSubtexUV(0, 0, 0.25f, 0.25f);
+		setUV(0, 0);		addVertexQuad(0, 0);
+		setUV(1, 0);		addVertexQuad(_texSize.x / 4.f, 0);
+		setUV(1, 1);		addVertexQuad(_texSize.x / 4.f, _texSize.y / 4.f);
+		setUV(0, 1);		addVertexQuad(0, _texSize.y / 4.f);
 
 		// Top Right corner
-		setSubtexUV(0.75f, 0.75f, 1, 1);
-		setUV(0, 1);		addVertexQuad((GLfloat)p_size.x - _texSize.x / 4.f, 0);
-		setUV(1, 1);		addVertexQuad((GLfloat)p_size.x, 0);
-		setUV(1, 0);		addVertexQuad((GLfloat)p_size.x, _texSize.y / 4.f);
-		setUV(0, 0);		addVertexQuad((GLfloat)p_size.x - _texSize.x / 4.f, _texSize.y / 4.f);
+		setSubtexUV(0.75f, 0, 1, 0.25f);
+		setUV(0, 0);		addVertexQuad((GLfloat)p_size.x - _texSize.x / 4.f, 0);
+		setUV(1, 0);		addVertexQuad((GLfloat)p_size.x, 0);
+		setUV(1, 1);		addVertexQuad((GLfloat)p_size.x, _texSize.y / 4.f);
+		setUV(0, 1);		addVertexQuad((GLfloat)p_size.x - _texSize.x / 4.f, _texSize.y / 4.f);
 
 		// Bottom Left corner
-		setSubtexUV(0, 0, 0.25f, 0.25f);
-		setUV(0, 1);		addVertexQuad(0, (GLfloat)p_size.y - _texSize.y / 4.f);
-		setUV(1, 1);		addVertexQuad(_texSize.x / 4.f, (GLfloat)p_size.y - _texSize.y / 4.f);
-		setUV(1, 0);		addVertexQuad(_texSize.x / 4.f, (GLfloat)p_size.y);
-		setUV(0, 0);		addVertexQuad(0, (GLfloat)p_size.y);
+		setSubtexUV(0, 0.75f, 0.25f, 1);
+		setUV(0, 0);		addVertexQuad(0, (GLfloat)p_size.y - _texSize.y / 4.f);
+		setUV(1, 0);		addVertexQuad(_texSize.x / 4.f, (GLfloat)p_size.y - _texSize.y / 4.f);
+		setUV(1, 1);		addVertexQuad(_texSize.x / 4.f, (GLfloat)p_size.y);
+		setUV(0, 1);		addVertexQuad(0, (GLfloat)p_size.y);
 
 		// Bottom Right corner
-		setSubtexUV(0.75f, 0, 1, 0.25f);
-		setUV(0, 1);		addVertexQuad((GLfloat)p_size.x - _texSize.x / 4.f, (GLfloat)p_size.y - _texSize.y / 4.f);
-		setUV(1, 1);		addVertexQuad((GLfloat)p_size.x, (GLfloat)p_size.y - _texSize.y / 4.f);
-		setUV(1, 0);		addVertexQuad((GLfloat)p_size.x, (GLfloat)p_size.y);
-		setUV(0, 0);		addVertexQuad((GLfloat)p_size.x - _texSize.x / 4.f, (GLfloat)p_size.y);
+		setSubtexUV(0.75f, 0.75f, 1, 1);
+		setUV(0, 0);		addVertexQuad((GLfloat)p_size.x - _texSize.x / 4.f, (GLfloat)p_size.y - _texSize.y / 4.f);
+		setUV(1, 0);		addVertexQuad((GLfloat)p_size.x, (GLfloat)p_size.y - _texSize.y / 4.f);
+		setUV(1, 1);		addVertexQuad((GLfloat)p_size.x, (GLfloat)p_size.y);
+		setUV(0, 1);		addVertexQuad((GLfloat)p_size.x - _texSize.x / 4.f, (GLfloat)p_size.y);
 
 		_width = ((GLfloat)p_size.x - _texSize.x / 2.f) / (_texSize.x / 2.f);
 		_height = (((GLfloat)p_size.y - _texSize.y / 2.f) / (_texSize.y / 2.f));
 		// Top side
-		setSubtexUV(0.25f, 0.75f, 0.75f, 1);
-		setUV(0, 0);			addVertexQuad(_texSize.x / 4.f,						_texSize.y / 4.f);
-		setUV(_width, 0);		addVertexQuad((GLfloat)p_size.x - _texSize.x / 4.f, _texSize.y / 4.f);
-		setUV(_width, 1);		addVertexQuad((GLfloat)p_size.x - _texSize.x / 4.f, 0);
-		setUV(0, 1);			addVertexQuad(_texSize.x / 4.f,						0);
+		setSubtexUV(0.25f, 0, 0.75f, 0.25f);
+		setUV(0, 0);			addVertexQuad(_texSize.x / 4.f,						0);
+		setUV(_width, 0);		addVertexQuad((GLfloat)p_size.x - _texSize.x / 4.f, 0);
+		setUV(_width, 1);		addVertexQuad((GLfloat)p_size.x - _texSize.x / 4.f, _texSize.y / 4.f);
+		setUV(0, 1);			addVertexQuad(_texSize.x / 4.f,						_texSize.y / 4.f);
 
 		// Bottom side
-		setSubtexUV(0.25f, 0, 0.75f, 0.25f);
-		setUV(0, 0);			addVertexQuad(_texSize.x / 4.f,						(GLfloat)p_size.y);
-		setUV(_width, 0);		addVertexQuad((GLfloat)p_size.x - _texSize.x / 4.f, (GLfloat)p_size.y);
-		setUV(_width, 1);		addVertexQuad((GLfloat)p_size.x - _texSize.x / 4.f, (GLfloat)p_size.y - _texSize.y / 4.f);
-		setUV(0, 1);			addVertexQuad(_texSize.x / 4.f,						(GLfloat)p_size.y - _texSize.y / 4.f);
+		setSubtexUV(0.25f, 0.75f, 0.75f, 1);
+		setUV(0, 0);			addVertexQuad(_texSize.x / 4.f,						(GLfloat)p_size.y - _texSize.y / 4.f);
+		setUV(_width, 0);		addVertexQuad((GLfloat)p_size.x - _texSize.x / 4.f, (GLfloat)p_size.y - _texSize.y / 4.f);
+		setUV(_width, 1);		addVertexQuad((GLfloat)p_size.x - _texSize.x / 4.f, (GLfloat)p_size.y);
+		setUV(0, 1);			addVertexQuad(_texSize.x / 4.f,						(GLfloat)p_size.y);
 
 		// Left side
 		setSubtexUV(0, 0.25f, 0.25f, 0.75f);
@@ -268,10 +271,10 @@ void GBuffer::renderTexture(Texture* p_texture, Vector2<Sint32> p_pos, Vector2<S
 		break;
 	case TextureStyle::CENTERED:
 	default:
-		setUV(0, 0); addVertexQuad(std::floor(_texSize.x / -2.f) + p_size.x / 2, std::floor(_texSize.y / 2.f) + p_size.y / 2);
-		setUV(1, 0); addVertexQuad(std::floor(_texSize.x / 2.f) + p_size.x / 2, std::floor(_texSize.y / 2.f) + p_size.y / 2);
-		setUV(1, 1); addVertexQuad(std::floor(_texSize.x / 2.f) + p_size.x / 2, std::floor(_texSize.y / -2.f) + p_size.y / 2);
-		setUV(0, 1); addVertexQuad(std::floor(_texSize.x / -2.f) + p_size.x / 2, std::floor(_texSize.y / -2.f) + p_size.y / 2);
+		setUV(0, 0); addVertexQuad(std::floor(_texSize.x / -2.f) + p_size.x / 2, std::floor(_texSize.y / -2.f) + p_size.y / 2);
+		setUV(1, 0); addVertexQuad(std::floor(_texSize.x / 2.f) + p_size.x / 2, std::floor(_texSize.y / -2.f) + p_size.y / 2);
+		setUV(1, 1); addVertexQuad(std::floor(_texSize.x / 2.f) + p_size.x / 2, std::floor(_texSize.y / 2.f) + p_size.y / 2);
+		setUV(0, 1); addVertexQuad(std::floor(_texSize.x / -2.f) + p_size.x / 2, std::floor(_texSize.y / 2.f) + p_size.y / 2);
 		break;
 	}
 	Shader::popMatrixModel();
@@ -320,24 +323,24 @@ void GBuffer::pushScissor(Rect p_scissor) {
 	if (m_scissorList.empty()) {
 		_rect = p_scissor;
 		_rect.x += modelMatrix[3][0];
-		_rect.y = GScreen::m_screenSize.y - (p_scissor.y + modelMatrix[3][1] + p_scissor.h);
+		_rect.y = GScreen::getScreenSize().y - (p_scissor.y + modelMatrix[3][1] + p_scissor.h);
 		m_scissorEnabled = true;
 	}
 	else {
 		Rect cScissor = m_scissorList.back();
 		_rect.x = GLfloat(std::fmaxf(GLint(modelMatrix[3][0] + p_scissor.x), cScissor.x));
-		_rect.y = GLfloat(std::fmaxf(GLint(GScreen::m_screenSize.y - (p_scissor.y + modelMatrix[3][1] + p_scissor.h)), cScissor.y));
+		_rect.y = GLfloat(std::fmaxf(GLint(GScreen::getScreenSize().y - (p_scissor.y + modelMatrix[3][1] + p_scissor.h)), cScissor.y));
 		if ((modelMatrix[3][0] + p_scissor.x) + p_scissor.w <= cScissor.x + cScissor.w) {
 			_rect.w = p_scissor.w;
 		}
 		else {
 			_rect.w = std::fmaxf(0, p_scissor.w - (((modelMatrix[3][0] + p_scissor.x) + p_scissor.w) - (cScissor.x + cScissor.w)));
 		}
-		if ((GScreen::m_screenSize.y - (p_scissor.y + modelMatrix[3][1] + p_scissor.h)) + p_scissor.h < cScissor.y + cScissor.h) {
+		if ((GScreen::getScreenSize().y - (p_scissor.y + modelMatrix[3][1] + p_scissor.h)) + p_scissor.h < cScissor.y + cScissor.h) {
 			_rect.h = p_scissor.h;
 		}
 		else {
-			_rect.h = std::fmaxf(0, p_scissor.h - (((GScreen::m_screenSize.y - (p_scissor.y + modelMatrix[3][1] + p_scissor.h)) + p_scissor.h) - (cScissor.y + cScissor.h)));
+			_rect.h = std::fmaxf(0, p_scissor.h - (((GScreen::getScreenSize().y - (p_scissor.y + modelMatrix[3][1] + p_scissor.h)) + p_scissor.h) - (cScissor.y + cScissor.h)));
 		}
 	}
 	m_currScissor = _rect;

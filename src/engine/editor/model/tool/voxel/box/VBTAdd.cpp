@@ -5,7 +5,7 @@ VBTAdd::VBTAdd()
 	m_parent = "Box";
 	m_toolName = "Box Append Tool";
 	m_toolDesc = "Add a Box of Voxels";
-	m_toolIcon = MTexture::getTexture("gui\\icon\\tool\\BoxAdd.png");
+	m_toolIcon = MTexture::getTexture("gui\\icon\\toolbar\\BoxAdd.png");
 	m_boxReplace = false;
 	m_keyBind = GKey::KeyBind(GLFW_KEY_B);
 }

@@ -27,7 +27,6 @@ private:
 	std::string* m_dataString = 0;	// Info bar at bottom of screen
 	bool m_grid = false;
 	bool m_outline = false;
-	bool m_hideOnSelect = false;	// Visible on select
 	bool m_wireframe = false;
 
 	// Matrices
@@ -77,8 +76,6 @@ public:
 	bool isGridVisible();
 	void toggleOutline();
 	bool isOutlineVisible();
-	void toggleHideOnSelect();
-	bool isHideOnSelect();
 	void toggleWireframe();
 
 	void focus();
@@ -97,6 +94,7 @@ public:
 	void shiftMatrix(glm::ivec3 p_direction);
 	void flipMatrix(Sint8 p_axesFlags);
 	void rotateMatrix(Sint8 p_axesFlags);
+	void scaleMatrix(Sint8 p_axesFlags, GLfloat p_power);
 	void addMatrix(std::string p_name, glm::vec3 p_pos, glm::ivec3 p_size);
 	void renameMatrix(Uint16 id, std::string p_name);
 	void deleteSelectedMatrices();
@@ -109,6 +107,10 @@ public:
 	glm::vec3 getSize() { return m_size; }
 
 	void updateMatrixList();
+	// Sync visibility of matrices using the CList's values
+	void updateVisibilityLtoM();
+	// Sync visibility of matrices using the Model's values
+	void updateVisibilityMtoL();
 
 	void inputEditor(Sint8 p_guiFlags);
 	void updateEditor(GLfloat p_deltaUpdate);
@@ -119,6 +121,7 @@ public:
 	Matrix* getMatrix(Sint16 id);
 	Matrix* getMatrix(std::string p_name);
 	std::vector<Matrix*> getMatrixList() { return *m_sModel->getMatrixList(); }
+	std::vector<Matrix*> getVisibleMatrices();
 	Matrix* getSelectedMatrix();
 	std::vector<Matrix*> getSelectedMatrices();
 	glm::vec3 getSelectedMatricesCenter();
@@ -140,8 +143,11 @@ public:
 	bool fileSaveAs();
 	void fileExit();
 
+	void editMergeMatrix();
 	void editNewMatrix();
 	void editMatrixProperties();
+	void editCopy();
+	void editPaste();
 	void editUndo();
 	void editRedo();
 };

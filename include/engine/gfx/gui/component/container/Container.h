@@ -27,14 +27,14 @@ protected:
 	void anchorComponent(Component* p_component, Anchor p_posAnchor = Anchor::NONE, Anchor p_sizeAnchor = Anchor::NONE);
 public:
 	Container() {};
-	Container(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, bool p_visible);
+	Container(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, std::function<bool()> p_visible);
 	virtual ~Container();
 
 	virtual Component* addComponent(Component* p_component, Anchor p_posAnchor = Anchor::NONE, Anchor p_sizeAnchor = Anchor::NONE);
 	Component* findComponent(std::string p_compName);
 	void removeComponent(std::string p_compName);
 
-	Component* setVisible(bool p_visible);
+	Component* setVisible(std::function<bool()> p_visible);
 
 	virtual void resize();
 	Vector2<Sint32> getRealPosition();

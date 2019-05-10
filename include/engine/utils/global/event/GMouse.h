@@ -25,6 +25,7 @@ private:
 	static MouseCommand m_mouseCommands[32];
 	static Sint8 m_mouseScroll;
 	static bool m_mouseMoved;
+	static bool m_mouseActive;
 	static std::vector<MouseEvent> m_mouseEvents;
 public:
 	static void mousePressCallback(GLFWwindow* p_window, Sint32 p_button, Sint32 p_state, Sint32 p_mods);
@@ -36,6 +37,8 @@ public:
 	static bool mouseMoved();
 	static Sint8 getMouseScroll();
 
+	static void setMouseActive(bool p_active);
+	static bool isMouseActive() { return m_mouseActive; }
 	static bool mousePressed(Sint32 p_mouse, Sint32 p_mods = -1);
 	static bool mouseDoubleClicked(Sint32 p_mouse, Sint32 p_mods = -1);
 	static bool mouseDown(Sint32 p_mouse, Sint32 p_mods = -1);

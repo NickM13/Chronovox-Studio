@@ -102,7 +102,7 @@ void CDropDown::render() {
 		GBuffer::addVertexQuad(m_size.x, 0);
 		GBuffer::addVertexQuad(m_size.x, m_size.y);
 		GBuffer::addVertexQuad(0, m_size.y);
-		GBuffer::setTexture(m_arrow->getGlId());
+		GBuffer::setTexture(m_arrow->getTexId());
 		GBuffer::setColor(Color(1.f, 1.f, 1.f));
 		GBuffer::setUV(0.f, 1.f); GBuffer::addVertexQuad(m_size.x - 24, 0);
 		GBuffer::setUV(1.f, 1.f); GBuffer::addVertexQuad(m_size.x, 0);

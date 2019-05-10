@@ -294,7 +294,7 @@ void FileField::render() {
 	Font::setAlignment(ALIGN_LEFT);
 	if (m_title != "" || m_text[0] != "" || m_text.size() > 1) {
 		for (Uint16 i = 0; i < m_text.size(); i++) {
-			GBuffer::pushScissor(Rect(GLfloat(GScreen::m_screenSize.x / 2 - m_pos.x - m_size.x / 2 + 2), -GLfloat(GScreen::m_screenSize.y / 2), GLfloat(m_size.x - 2), GLfloat(GScreen::m_screenSize.y)));
+			GBuffer::pushScissor(Rect(GLfloat(GScreen::getScreenSize().x / 2 - m_pos.x - m_size.x / 2 + 2), -GLfloat(GScreen::getScreenSize().y / 2), GLfloat(m_size.x - 2), GLfloat(GScreen::getScreenSize().y)));
 			Font::print(m_text[i],
 				2 - std::fmaxf(0, Font::getMessageWidth(m_text[i]).x - m_size.x + 4),
 				Sint32((i + 0.5f) * Font::getSpacingHeight()));

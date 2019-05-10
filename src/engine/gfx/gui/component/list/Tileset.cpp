@@ -180,7 +180,7 @@ void CTileSet::render() {
 
 	GBuffer::pushScissor(Rect(0, 0, GLfloat(_size.x), GLfloat(_size.y)));
 
-	GBuffer::setTexture(m_transparentTex->getGlId());
+	GBuffer::setTexture(m_transparentTex->getTexId());
 	GBuffer::setUV(0, 0);
 	GBuffer::addVertexQuad(0, 0);
 	GBuffer::setUV(GLfloat(ceil(GLfloat(_size.x) / m_tileSize)), 0);
@@ -195,7 +195,7 @@ void CTileSet::render() {
 	Shader::pushMatrixModel();
 	Shader::translate(glm::vec3(-(GLfloat)m_scroll.x, -(GLfloat)m_scroll.y, 0.f));
 
-	GBuffer::setTexture(m_tileSheet->getGlId());
+	GBuffer::setTexture(m_tileSheet->getTexId());
 	GBuffer::setUV(0, 0);
 	GBuffer::addVertexQuad(0, GLfloat(m_tileSheet->getSize().y));
 	GBuffer::setUV(1, 0);
@@ -207,7 +207,7 @@ void CTileSet::render() {
 	Shader::popMatrixModel();
 
 	Shader::translate(glm::vec3(-(GLfloat)(m_scroll.x % m_tileSize), -(GLfloat)(m_scroll.y % m_tileSize), 0.f));
-	GBuffer::setTexture(m_selectTex->getGlId());
+	GBuffer::setTexture(m_selectTex->getTexId());
 	if (m_selectedTile.x >= floor(m_scroll.x / m_tileSize) && m_selectedTile.x <= ceil(m_scroll.x / m_tileSize) + ceil(GLfloat(_size.x) / m_tileSize)
 		&& m_selectedTile.y >= floor(m_scroll.y / m_tileSize) && m_selectedTile.y <= ceil(m_scroll.y / m_tileSize) + ceil(GLfloat(_size.y) / m_tileSize)) {
 		GBuffer::setUV(0, 0);
@@ -253,7 +253,7 @@ void CTileSet::render() {
 }
 
 void CTileSet::setSelectedTile(Uint16 p_index) {
-	if (m_tileSheet->getGlId() > 0 && m_tileCount.x > 0) {
+	if (m_tileSheet->getTexId() > 0 && m_tileCount.x > 0) {
 		m_selectedTile.x = p_index % m_tileCount.x;
 		m_selectedTile.y = Sint16(floor(GLfloat(p_index) / m_tileCount.x));
 	}

@@ -5,7 +5,7 @@ VBTErase::VBTErase()
 	m_parent = "Box";
 	m_toolName = "Box Erase Tool";
 	m_toolDesc = "Erase a Box of Voxels";
-	m_toolIcon = MTexture::getTexture("gui\\icon\\tool\\BoxErase.png");
+	m_toolIcon = MTexture::getTexture("gui\\icon\\toolbar\\BoxErase.png");
 	m_boxReplace = false;
 	m_keyBind = GKey::KeyBind(GLFW_KEY_B);
 }

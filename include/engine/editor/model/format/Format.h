@@ -1,6 +1,7 @@
 #pragma once
 
 #include "..\Matrix.h"
+#include "CsmFormat.h"
 #include "NvmFormat.h"
 #include "QbclFormat.h"
 #include "QbFormat.h"
@@ -12,8 +13,9 @@ private:
 public:
 	enum class FormatType {
 		NONE,
-		NVM,
-		NVA,
+		CSM,
+		NVM, // OBSELETE
+		NVA, // OBSELETE
 		QBCL,
 		QB,
 		VOX

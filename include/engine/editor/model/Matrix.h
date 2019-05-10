@@ -13,6 +13,7 @@ struct Matrix {
 private:
 	std::string m_name;
 	Sint16 m_id;
+	bool m_visible;
 
 	glm::vec3 m_pos;
 	glm::ivec3 m_size;
@@ -40,8 +41,11 @@ public:
 	~Matrix();
 	void operator=(Matrix&);
 
+	void merge(Matrix&);
+
 	void setId(Sint16 p_id) { m_id = p_id; }
 	void setName(std::string p_name) { m_name = p_name; }
+	void setVisible(bool p_visible) { m_visible = p_visible; }
 
 	void setSize(glm::ivec3 p_size);
 	void setPosition(glm::vec3 p_pos);
@@ -53,9 +57,11 @@ public:
 	void shiftVoxels(glm::ivec3 p_direction);
 	void flip(Sint8 p_axes, glm::vec3 p_focus);
 	void rotate(Sint8 p_axes, glm::vec3 p_focus);
+	void scale(Sint8 p_axes, glm::vec3 p_focus, GLfloat p_power);
 
 	Sint16 getId() { return m_id; }
 	std::string &getName() { return m_name; }
+	bool isVisible() { return m_visible; }
 	glm::vec3 getPos() { return m_pos; }
 	glm::ivec3 getSize() { return m_size; }
 	glm::vec3 getCenter() { return (m_pos + (glm::vec3(m_size) / glm::vec3(2))); }

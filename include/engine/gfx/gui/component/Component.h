@@ -80,7 +80,7 @@ protected:
 
 	// Default color themes, loaded from res/config/ColorTheme.ini
 	static std::map<std::string, Color> m_colorThemeMap;
-	bool m_visible = true;
+	std::function<bool()> m_visible = [](){ return true; };
 	bool m_highlighting = true;
 	GGui::CursorType m_hoverCursor = GGui::CursorType::NONE;
 	Sint8 m_moveToFront = 0;
@@ -106,8 +106,8 @@ public:
 	virtual Component* addComponent(Component* p_comp, Anchor p_posAnchor = Anchor::NONE, Anchor p_sizeAnchor = Anchor::NONE);
 	virtual Component* findComponent(std::string p_compName);
 
-	static Color getElementColor(std::string p_element);
-	Color getPrimaryColor();
+	static Color& getElementColor(std::string p_element);
+	Color& getPrimaryColor();
 	virtual std::string getPrimaryPos();
 	virtual void setPrimaryPos(std::string p_pp);
 	virtual Component* addItem(std::string p_item);
@@ -148,7 +148,7 @@ public:
 	virtual Vector2<Sint32> getRealPosition();
 	virtual Vector2<Sint32> getRealSize();
 
-	virtual Component* setVisible(bool p_visible);
+	virtual Component* setVisibleFunction(std::function<bool()> p_visible);
 	bool isVisible();
 	Component* setHighlightActive(bool p_highlighting) { m_highlighting = p_highlighting; return this; }
 	Component* setHoverCursor(GGui::CursorType p_cursor) { m_hoverCursor = p_cursor; return this; }

@@ -10,7 +10,7 @@ public:
 	void render()
 	{
 		Shader::pushMatrixModel();
-		Shader::scale(glm::vec3(GScreen::m_screenSize.x / 2, GScreen::m_screenSize.y / 2, 0));
+		Shader::scale(glm::vec3(GScreen::getScreenSize().x / 2, GScreen::getScreenSize().y / 2, 0));
 		GBuffer::setColor(color);
 		GBuffer::addVertexQuad(-1, -1);
 		GBuffer::addVertexQuad(1, -1);

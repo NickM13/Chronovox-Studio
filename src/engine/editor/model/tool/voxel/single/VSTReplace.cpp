@@ -5,7 +5,7 @@ VSTReplace::VSTReplace()
 	m_parent = "Replace";
 	m_toolName = "Voxel Replace Tool";
 	m_toolDesc = "Replace a Single Voxel - R";
-	m_toolIcon = MTexture::getTexture("gui\\icon\\tool\\SingleReplace.png");
+	m_toolIcon = MTexture::getTexture("gui\\icon\\toolbar\\SingleReplace.png");
 	m_keyBind = GKey::KeyBind(GLFW_KEY_R);
 }
 

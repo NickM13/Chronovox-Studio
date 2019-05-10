@@ -5,7 +5,7 @@ VSTErase::VSTErase()
 	m_parent = "Erase";
 	m_toolName = "Voxel Erase Tool";
 	m_toolDesc = "Erase a Single Voxel - E";
-	m_toolIcon = MTexture::getTexture("gui\\icon\\tool\\SingleErase.png");
+	m_toolIcon = MTexture::getTexture("gui\\icon\\toolbar\\SingleErase.png");
 	m_keyBind = GKey::KeyBind(GLFW_KEY_E);
 }
 

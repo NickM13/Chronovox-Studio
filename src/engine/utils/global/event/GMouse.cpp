@@ -5,6 +5,7 @@ Vector2<Sint32> GMouse::m_mousePos, GMouse::m_dMousePos, GMouse::m_bMousePos;
 bool GMouse::m_mouseMoved = false;
 GMouse::MouseCommand GMouse::m_mouseCommands[32];
 std::vector<GMouse::MouseEvent> GMouse::m_mouseEvents;
+bool GMouse::m_mouseActive = false;
 Sint8 GMouse::m_mouseScroll = 0;
 
 void GMouse::mousePressCallback(GLFWwindow* p_window, Sint32 p_button, Sint32 p_state, Sint32 p_mods) {
@@ -45,6 +46,10 @@ bool GMouse::mouseMoved() {
 }
 Sint8 GMouse::getMouseScroll() {
 	return m_mouseScroll;
+}
+
+void GMouse::setMouseActive(bool p_active) {
+	m_mouseActive = p_active;
 }
 
 bool GMouse::mousePressed(Sint32 p_mouse, Sint32 p_mods) {

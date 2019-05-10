@@ -2,7 +2,7 @@
 
 AboutDialog::AboutDialog() {
 	CTextFile* aboutFile = new CTextFile("TEXTFILE_ABOUT", LDirectory::getProjectPath() + "res\\doc\\ABOUT", { 20, 0 }, { 0, 0 }, Alignment::ALIGN_LEFT, Color(1, 1, 1));
-	aboutFile->addInputString(GScreen::m_appVersion);
+	aboutFile->addInputString(GScreen::getAppVersion());
 	m_dialog = new CDialog("DIALOG_ABOUT", "About Chronovox Studio", {}, { aboutFile->getSize().x + 80, aboutFile->getSize().y + 20 });
 	m_dialog->addComponent(aboutFile, Component::Anchor::MIDDLE_LEFT);
 	m_dialog->addOption("Close", "", [&]() {

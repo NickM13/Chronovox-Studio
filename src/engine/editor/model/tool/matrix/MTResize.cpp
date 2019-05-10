@@ -5,10 +5,10 @@ MTResize::MTResize()
 	: MatrixTool() {
 	m_parent = "MatrixTransform";
 	m_toolName = "Resize Matrix Tool";
-	m_toolDesc = "Edit Matrix - V";
-	m_toolIcon = MTexture::getTexture("gui\\icon\\tool\\MatrixResize.png");
+	m_toolDesc = "Edit Matrix - Shift + V";
+	m_toolIcon = MTexture::getTexture("gui\\icon\\toolbar\\MatrixResize.png");
 	m_scaling = false;
-	m_keyBind = GKey::KeyBind(GLFW_KEY_V);
+	m_keyBind = GKey::KeyBind(GLFW_KEY_V, GLFW_MOD_SHIFT);
 }
 
 void MTResize::inputTool() {

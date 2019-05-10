@@ -3,7 +3,7 @@
 Panel::Panel(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Sint8 p_borderFlags)
 	: Component(p_compName, p_title, p_pos, p_size) {
 	m_border = p_borderFlags;
-	m_visible = true;
+	m_visible = []() { return true; };
 }
 
 void Panel::input(Sint8& p_interactFlags) {

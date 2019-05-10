@@ -267,7 +267,7 @@ public:
 	public:
 		MenuDivider() {
 			name = "Divider";
-			height = 11;
+			height = 3;
 			etype = ElementType::DIVIDER;
 		}
 	};

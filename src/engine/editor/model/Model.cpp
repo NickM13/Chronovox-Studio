@@ -35,10 +35,9 @@ void Model::init() {
 	m_hoverMatrix = -1;
 	m_grid = true;
 	m_outline = true;
-	m_hideOnSelect = false;
 	m_wireframe = false;
-	m_nameList = (CList*)ModelOverlay::getContainer()->findComponent("GUI_DETAILS\\GUI_MATRICES\\LIST_MATRICES");
-	m_colorOverlay = (ColorOverlay*)ModelOverlay::getContainer()->findComponent("GUI_DETAILS\\GUI_COLOR\\OVERLAY_COLOR");
+	m_nameList = (CList*)ModelOverlay::getContainer()->findComponent("GUI_WORKSPACE\\GUI_MATRICES\\LIST_MATRICES");
+	m_colorOverlay = (ColorOverlay*)ModelOverlay::getContainer()->findComponent("GUI_WORKSPACE\\GUI_COLOR\\OVERLAY_COLOR");
 	m_colorOverlay->setColorRGB(0, 255, 128);
 	m_voxelColor = &m_colorOverlay->getColor();
 	newModel();
@@ -61,7 +60,7 @@ void Model::setDataString(std::string* p_dataString) {
 }
 void Model::setTool(Sint32 p_tool) {
 	m_tool = p_tool;
-	ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MAIN")->setSelectedItem(p_tool);
+	ModelOverlay::getContainer()->findComponent("GUI_WORKSPACE\\GUI_TOOLBAR\\TOOLBAR_MAIN")->setSelectedItem(p_tool);
 	Tool* tool = MTool::getTool(m_tool);
 }
 void Model::setTool(std::string p_toolName) {
@@ -82,12 +81,12 @@ void Model::setTool(std::string p_toolName) {
 				break;
 			}
 		}
-		ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MAIN")->setSelectedItem(m_tool);
+		ModelOverlay::getContainer()->findComponent("GUI_WORKSPACE\\GUI_TOOLBAR\\TOOLBAR_MAIN")->setSelectedItem(m_tool);
 		MTool::getTool(m_tool)->enable();
 	}
 }
 void Model::updateTool() {
-	m_tool = MTool::getToolId(static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_TOOLBAR\\TOOLBAR_MAIN"))->getSelectedRadio());
+	m_tool = MTool::getToolId(static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_WORKSPACE\\GUI_TOOLBAR\\TOOLBAR_MAIN"))->getSelectedRadio());
 	if (MTool::getTool(m_tool)->getType() == Tool::ToolType::VOXEL) {
 	}
 	if (MTool::getTool(m_tool)->getType() == Tool::ToolType::MATRIX) {
@@ -106,12 +105,6 @@ void Model::toggleOutline() {
 }
 bool Model::isOutlineVisible() {
 	return m_outline;
-}
-void Model::toggleHideOnSelect() {
-	m_hideOnSelect = !m_hideOnSelect;
-}
-bool Model::isHideOnSelect() {
-	return m_hideOnSelect;
 }
 void Model::toggleWireframe() {
 	m_wireframe = !m_wireframe;
@@ -148,10 +141,12 @@ void Model::fixSelectedMatrix() {
 
 void Model::undo() {
 	m_matrixEdit->undo();
+	updateMatrixList();
 	fixSelectedMatrix();
 }
 void Model::redo() {
 	m_matrixEdit->redo();
+	updateMatrixList();
 	fixSelectedMatrix();
 }
 
@@ -234,6 +229,17 @@ void Model::rotateMatrix(Sint8 p_axesFlags) {
 	m_matrixEdit->setCommandChaining(false);
 	fixSelectedMatrix();
 }
+void Model::scaleMatrix(Sint8 p_axesFlags, GLfloat p_power) {
+	glm::vec3 center = getSelectedMatricesCenter();
+	m_matrixEdit->setCommandChaining(true);
+	for (Matrix* m : getSelectedMatrices()) {
+		m_matrixEdit->setMatrix(m, m->getId());
+		m->scale(p_axesFlags, center, p_power);
+		m_matrixEdit->clearMatrix();
+	}
+	m_matrixEdit->setCommandChaining(false);
+	fixSelectedMatrix();
+}
 void Model::addMatrix(std::string p_name, glm::vec3 p_pos, glm::ivec3 p_size) {
 	bool validName;
 	Uint16 i = 0;
@@ -269,12 +275,17 @@ void Model::addMatrix(std::string p_name, glm::vec3 p_pos, glm::ivec3 p_size) {
 	updateMatrixList();
 }
 void Model::renameMatrix(Uint16 id, std::string p_name) {
+	for (Matrix* m : *m_sModel->getMatrixList()) {
+		if (m->getId() != id && m->getName() == p_name) {
+			Logger::logQuiet("Could not rename matrix: Name already taken");
+			return;
+		}
+	}
 	m_sModel->getMatrix(id)->setName(p_name);
 	m_nameList->getItem(id).name = p_name;
 	updateMatrixList();
 }
 void Model::deleteSelectedMatrices() {
-	std::vector<MDeleteCommand*> _cmd;
 	m_matrixEdit->clearMatrix();
 	m_matrixEdit->setCommandChaining(true);
 	for (Sint16 i = m_nameList->getItemCount() - 1; i >= 0; i--) {
@@ -370,9 +381,19 @@ void Model::updateMatrixList() {
 	Sint32 id = 0;
 	for (Matrix* m : *m_sModel->getMatrixList()) {
 		m->setId(id);
-		m_nameList->addItem(m->getName());
+		m_nameList->addItem(m->getName(), m->isVisible());
 		id++;
 	}
+}
+void Model::updateVisibilityLtoM() {
+	Matrix* m = 0;
+	for (auto item : m_nameList->getItemList()) {
+		m = m_sModel->getMatrix(item.name);
+		if (m)	m->setVisible(item.visible);
+	}
+}
+void Model::updateVisibilityMtoL() {
+	updateMatrixList();
 }
 
 void Model::inputEditor(Sint8 p_guiFlags) {
@@ -410,14 +431,14 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 				m_voxelPlaneMode = false;
 				std::vector<Matrix*> matrices = getSelectedMatrices();
 				if (matrices.empty()) {
-					matrices = getMatrixList();
+					matrices = getVisibleMatrices();
 				}
 				ModelMath::castRayMatrices(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), matrices, m_hoverMatrix, _near, _far);
 			}
 		}
 	}
 	else {
-		ModelMath::castRayMatrices(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), *m_sModel->getMatrixList(), m_hoverMatrix, _near, _far);
+		ModelMath::castRayMatrices(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), getVisibleMatrices(), m_hoverMatrix, _near, _far);
 	}
 
 	if (!mouseOnGui) {
@@ -475,12 +496,6 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 	else {
 		m_selectedVoxel = m_selectedVoxelOffset = { -1, -1, -1 };
 	}
-
-	if (p_guiFlags & (Sint8)Component::EventFlag::KEYPRESS) {
-		if (GKey::keyPressed(GLFW_KEY_C, GLFW_MOD_CONTROL))       copyMatrix();
-		if (GKey::keyPressed(GLFW_KEY_V, GLFW_MOD_CONTROL))       pasteMatrix();
-		if (GKey::keyPressed(GLFW_KEY_DELETE))                    deleteSelectedMatrices();
-	}
 }
 void Model::updateEditor(GLfloat p_deltaUpdate) {
 	switch (MTool::getTool(m_tool)->getType()) {
@@ -503,9 +518,9 @@ void Model::updateEditor(GLfloat p_deltaUpdate) {
 	if (m) {
 		*m_dataString = std::string(Util::numToStringInt(m->getId()) +
 			": " + m->getName() +
-			", {" + Util::numToStringFloat(m->getPos().x + m->getSize().x / 2.f, 1) +
-			", " + Util::numToStringFloat(m->getPos().y + m->getSize().y / 2.f, 1) +
-			", " + Util::numToStringFloat(m->getPos().z + m->getSize().z / 2.f, 1) +
+			", {" + Util::numToStringFloat(m->getPos().x, 1) +
+			", " + Util::numToStringFloat(m->getPos().y, 1) +
+			", " + Util::numToStringFloat(m->getPos().z, 1) +
 			"} : {" + Util::numToStringInt(m->getSize().x) +
 			", " + Util::numToStringInt(m->getSize().y) +
 			", " + Util::numToStringInt(m->getSize().z) + "}");
@@ -517,9 +532,7 @@ void Model::updateEditor(GLfloat p_deltaUpdate) {
 void Model::renderEditor() {
 	Shader::setLightEnabled(!m_wireframe);
 	for (Matrix* m : *m_sModel->getMatrixList()) {
-		if (!m_hideOnSelect
-			|| m_nameList->getItem(m->getId()).state > 1
-			|| m_nameList->getSelectedItem() == -1) {
+		if (m->isVisible()) {
 			m->renderMatrix();
 		}
 	}
@@ -528,7 +541,8 @@ void Model::renderEditor() {
 	if (m_grid) renderGrid();
 
 	for (Uint16 i = 0; i < m_sModel->getMatrixList()->size(); i++) {
-		m_sModel->getMatrix(i)->renderOutline(m_outline ? static_cast<Matrix::OutlineType>(m_nameList->getItem(i).state + 1) : Matrix::OutlineType::NONE);
+		if (getMatrix(i)->isVisible())
+			m_sModel->getMatrix(i)->renderOutline(m_outline ? static_cast<Matrix::OutlineType>(m_nameList->getItem(i).state + 1) : Matrix::OutlineType::NONE);
 	}
 
 	switch (MTool::getTool(m_tool)->getType()) {
@@ -552,7 +566,8 @@ void Model::renderGrid() {
 	Shader::pushMatrixModel();
 	Shader::transformModel(glm::translate(glm::mat4(), glm::vec3(0.f, -0.025f, 0.f)));
 	Shader::applyModel();
-	Shader::setColor(glm::vec4(1.f, 1.f, 1.f, 1.f));
+	Color& gridColor = Component::getElementColor("primaryGrid");
+	Shader::setColor(glm::vec4(gridColor.r, gridColor.g, gridColor.b, 1.f));
 	for (Sint16 i = -gc; i <= gc; i++) {
 		if (i == 0) {
 			MMesh::renderLine(glm::vec3(-gc, 0, 0), glm::vec3(0, 0, 0), glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
@@ -588,6 +603,15 @@ Matrix* Model::getMatrix(std::string p_name) {
 		if (m->getName() == p_name) return m;
 	}
 	return 0;
+}
+std::vector<Matrix*> Model::getVisibleMatrices() {
+	std::vector<Matrix*> matrices;
+	for (auto li : m_nameList->getItemList()) {
+		if (li.visible) {
+			matrices.push_back(getMatrix(li.name));
+		}
+	}
+	return matrices;
 }
 Matrix* Model::getSelectedMatrix() {
 	if (m_nameList->getSelectedItem() != -1) {
@@ -636,7 +660,7 @@ bool Model::exitSave() {
 	ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = NULL;
-	ofn.lpstrFilter = "Nick's Voxel Model\0*.nvm*\0Any File\0*.*\0";
+	ofn.lpstrFilter = "Model (*.csm)\0*.csm*\0Any File\0*.*\0";
 	ofn.lpstrFile = filename;
 	if (res == S_OK) ofn.lpstrInitialDir = documents;
 	ofn.nMaxFile = MAX_PATH;
@@ -649,13 +673,13 @@ bool Model::exitSave() {
 void Model::autosave() {
 	char documents[MAX_PATH];
 	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
-	strcat_s(documents, "\\Voxel Models\\autosave.nvm");
-	NvmFormat::save(documents, *m_sModel->getMatrixList());
+	strcat_s(documents, "\\Voxel Models\\autosave.csm");
+	CsmFormat::save(documents, *m_sModel->getMatrixList());
 }
 bool Model::autoload() {
 	char documents[MAX_PATH];
 	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
-	strcat_s(documents, "\\Voxel Models\\autosave.nvm");
+	strcat_s(documents, "\\Voxel Models\\autosave.csm");
 	return loadOpen(documents);
 }
 void Model::add() {
@@ -672,8 +696,8 @@ void Model::add() {
 	ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = NULL;
-	ofn.lpstrFilter = "Model (*.nvm, *.qb)\0"
-		"*.nvm;*.qb*\0"
+	ofn.lpstrFilter = "Model (*.csm, *.nvm, *.qb)\0"
+		"*.csm;*.nvm;*.qb*\0"
 		//"Animation (*.nva)\0"
 		//"*.nva\0"
 		"Any File\0"
@@ -683,7 +707,6 @@ void Model::add() {
 	ofn.nMaxFile = MAX_PATH;
 	ofn.lpstrTitle = "Add Model";
 	if (!GetOpenFileName(&ofn)) return;
-	setPath(filename);
 	loadAdd(m_name);
 	updateMatrixList();
 }
@@ -718,22 +741,31 @@ bool Model::saveAs() {
 	strcat_s(documents, "\\Voxel Models");
 	int success = _mkdir(documents);
 
+	char filepath[MAX_PATH] = "\0";
 	char filename[MAX_PATH] = "\0";
 	OPENFILENAME ofn;
 
+	ZeroMemory(&filepath, sizeof(filepath));
 	ZeroMemory(&filename, sizeof(filename));
 	ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = NULL;
-	ofn.lpstrFilter = "NVM (*.nvm)\0*.nvm*\0Any File\0*.*\0";
-	ofn.lpstrFile = filename;
-	if (res == S_OK) ofn.lpstrInitialDir = documents;
+	ofn.lpstrFilter = "CSM (*.csm)\0*.csm*\0Any File\0*.*\0";
+	ofn.lpstrFile = filepath;
 	ofn.nMaxFile = MAX_PATH;
+	ofn.lpstrFileTitle = filename;
+	ofn.nMaxFileTitle = MAX_PATH;
+	if (res == S_OK) ofn.lpstrInitialDir = documents;
 	ofn.lpstrTitle = "Save As";
+	ofn.Flags = ofn.Flags | OFN_OVERWRITEPROMPT | OFN_EXTENSIONDIFFERENT;
+	ofn.lpstrDefExt = "csm\0";
 	if (!GetSaveFileName(&ofn)) return false;
 
-	Format::save(filename, *m_sModel->getMatrixList());
-	setPath(filename);
+	Format::save(filepath, *m_sModel->getMatrixList());
+	std::string fp = filepath;
+	setDirectory(fp.substr(0, fp.find_last_of('\\') + 1));
+	setName(filename);
+	Logger::logQuiet(filename);
 	m_matrixEdit->setChanged(false);
 	return true;
 }
@@ -763,7 +795,6 @@ bool Model::loadAdd(std::string p_fileName) {
 }
 
 void Model::fileNew() {
-	std::vector<MDeleteCommand*> _cmd;
 	m_matrixEdit->clearMatrix();
 	m_matrixEdit->setCommandChaining(true);
 	for (Sint16 i = m_nameList->getItemCount() - 1; i >= 0; i--) {
@@ -787,6 +818,35 @@ void Model::fileExit() {
 
 }
 
+void Model::editMergeMatrix() {
+	std::vector<Matrix*> matrices = getSelectedMatrices();
+	if (matrices.size() > 1) {
+		m_matrixEdit->setCommandChaining(true);
+		m_matrixEdit->reset(false);
+		Matrix* selected = new Matrix(*m_sModel->getMatrix(matrices[0]->getId()));
+		for (Sint16 i = m_nameList->getItemCount() - 1; i >= 0; i--) {
+			if (m_nameList->getItem(i).state == 2 && i != matrices[0]->getId()) {
+				m_sModel->getMatrix(matrices[0]->getId())->merge(*m_sModel->getMatrix(i));
+			}
+		}
+		m_matrixEdit->addCommand(new MResizeCommand(m_sModel->getMatrix(matrices[0]->getId()), selected));
+		for (Sint16 i = m_nameList->getItemCount() - 1; i >= 0; i--) {
+			if (m_nameList->getItem(i).state == 2 && i != matrices[0]->getId()) {
+				m_matrixEdit->addCommand(new MDeleteCommand(m_sModel->getMatrix(i), *m_sModel->getMatrixList(), i, m_nameList));
+				m_nameList->removeItem(i);
+				m_sModel->getMatrixList()->erase(m_sModel->getMatrixList()->begin() + i);
+			}
+		}
+		m_matrixEdit->setCommandChaining(false);
+		m_matrixEdit->reset(false);
+		updateMatrixList();
+		selectMatrix(matrices[0]->getId());
+		Logger::logNormal("Merged matrices");
+	}
+	else {
+		Logger::logNormal("Must select more than one matrices to merge");
+	}
+}
 void Model::editNewMatrix() {
 	NewModelDialog::getInstance().getDialog()->setOptionFunc("Create", [&]() {
 		CDialog* nmd = NewModelDialog::getInstance().getDialog();
@@ -860,11 +920,17 @@ void Model::editMatrixProperties() {
 	});
 	Gui::openDialog(mpd);
 }
+void Model::editCopy() {
+	copyMatrix();
+}
+void Model::editPaste() {
+	pasteMatrix();
+}
 void Model::editUndo() {
 	undo();
-	updateMatrixList();
+	//updateMatrixList();
 }
 void Model::editRedo() {
 	redo();
-	updateMatrixList();
+	//updateMatrixList();
 }

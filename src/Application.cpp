@@ -6,19 +6,18 @@ Vector2<Uint16> Application::m_screenSize = {};
 GLFWwindow* Application::m_mainWindow = 0;
 
 bool Application::init(char *p_filePath) {
-	GScreen::m_fov = 70;
+	GScreen::setFov(70);
 	m_focusFps = 60;
-	m_unfocusFps = 60;
+	m_unfocusFps = 30;
 
 	Logger::logNormal("Initializing application...");
 
-	GScreen::m_appName = "Chronovox Studio";
-	GScreen::m_windowTitle = GScreen::m_appName;
-	GScreen::m_appVersion = "1.2.4.1";
-	GScreen::m_developer = true;
-	GScreen::m_fps = 0;
-	GScreen::m_exitting = 0;
-	GScreen::m_shadows = false;
+	GScreen::setAppName("Chronovox Studio");
+	GScreen::setAppVersion("1.2.4.1");
+	GScreen::setWindowTitle("Chronovox Studio");
+	GScreen::setDeveloper(true);
+	GScreen::enableShadows(false);
+	GScreen::setMinScreenSize(Vector2<Sint32>(600.f, 600.f));
 
 	if (!glfwInit()) {
 		Logger::logError("glfw failed to initialize");
@@ -37,7 +36,7 @@ bool Application::init(char *p_filePath) {
 	glfwGetMonitorPos(monitor, &monx, &mony);
 	const GLFWvidmode *mode = glfwGetVideoMode(monitor);
 	m_screenSize = Vector2<Uint16>(std::fminf(1280, mode->width - 128), std::fminf(768, mode->height - 128));
-	m_mainWindow = glfwCreateWindow(std::fminf(m_screenSize.x, mode->width), std::fminf(m_screenSize.y, mode->height), GScreen::m_windowTitle.c_str(), 0, 0);
+	m_mainWindow = glfwCreateWindow(std::fminf(m_screenSize.x, mode->width), std::fminf(m_screenSize.y, mode->height), GScreen::getWindowTitle().c_str(), 0, 0);
 	if (!m_mainWindow) {
 		Logger::logError("glfwWindow failed to initialize");
 		glfwTerminate();
@@ -79,8 +78,8 @@ bool Application::init(char *p_filePath) {
 		->loadShader(GL_VERTEX_SHADER, "gui.vert")
 		->loadShader(GL_FRAGMENT_SHADER, "gui.frag");
 
-	glClearColor(0.2f, 0.2f, 0.2f, 1);
-
+	glClearColor(0.1f, 0.1f, 0.1f, 1.f);
+	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	GLua::init();
@@ -100,7 +99,7 @@ void Application::terminate() {
 }
 
 void Application::windowResizeCallback(GLFWwindow* p_window, int p_x, int p_y) {
-	GScreen::m_screenSize = Vector2< Uint16 >(p_x, p_y);
+	GScreen::setScreenSize(Vector2< Uint16 >(p_x, p_y));
 	m_screenSize = Vector2< Uint16 >(p_x, p_y);
 
 	glViewport(0, 0, m_screenSize.x, m_screenSize.y);
@@ -108,7 +107,9 @@ void Application::windowResizeCallback(GLFWwindow* p_window, int p_x, int p_y) {
 	init2d();
 }
 
-void Application::mouseEnterCallback(GLFWwindow* p_window, int p_action) {}
+void Application::mouseEnterCallback(GLFWwindow* p_window, int p_action) {
+	GMouse::setMouseActive(p_action);
+}
 
 void Application::dropFileCallback(GLFWwindow* p_window, int count, const char** paths) {
 	m_editor->dropFile(paths[0]);
@@ -116,30 +117,31 @@ void Application::dropFileCallback(GLFWwindow* p_window, int count, const char**
 }
 
 void Application::maximize(bool p_maximizedByDrag) {
-	GScreen::m_maximized = !GScreen::m_maximized;
+	GScreen::setMaximized(!GScreen::isMaximized());
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-	if (GScreen::m_maximized) {
+	if (GScreen::isMaximized()) {
 		Vector2<Sint32> wpos, wsize;
-		glfwGetWindowPos(GScreen::m_window, &wpos.x, &wpos.y);
-		glfwGetWindowSize(GScreen::m_window, &wsize.x, &wsize.y);
+		glfwGetWindowPos(GScreen::getGLFWWindow(), &wpos.x, &wpos.y);
+		glfwGetWindowSize(GScreen::getGLFWWindow(), &wsize.x, &wsize.y);
 		HMONITOR hMon = MonitorFromPoint({ wpos.x + wsize.x / 2, wpos.y + wsize.y / 2 }, MONITOR_DEFAULTTOPRIMARY);
 		MONITORINFO info;
 		info.cbSize = sizeof(MONITORINFO);
 		GetMonitorInfo(hMon, &info);
-		GScreen::m_smallScreen = m_screenSize;
+		GScreen::setSmallScreenSize(m_screenSize);
 		glfwSetWindowMonitor(m_mainWindow, 0, info.rcWork.left, info.rcWork.top, info.rcWork.right - info.rcWork.left, info.rcWork.bottom - info.rcWork.top, mode->refreshRate);
-		GScreen::m_screenSize = m_screenSize = Vector2<Uint16>(Uint16(info.rcWork.right - info.rcWork.left), Uint16(info.rcWork.bottom - info.rcWork.top));
+		GScreen::setScreenSize(m_screenSize = Vector2<Uint16>(Uint16(info.rcWork.right - info.rcWork.left), Uint16(info.rcWork.bottom - info.rcWork.top)));
 	}
 	else {
-		GScreen::m_screenSize = m_screenSize = GScreen::m_smallScreen;
+		m_screenSize = GScreen::getSmallScreenSize();
+		GScreen::setScreenSize(m_screenSize);
 		glfwSetWindowMonitor(m_mainWindow, 0, (mode->width - m_screenSize.x) / 2, (mode->height - m_screenSize.y) / 2, m_screenSize.x, m_screenSize.y, mode->refreshRate);
 	}
 
 	m_editor->resize();
 }
 void Application::resize() {
-	if (GScreen::m_maximized) GScreen::m_maximized = false;
-	m_screenSize = GScreen::m_screenSize;
+	if (GScreen::isMaximized()) GScreen::setMaximized(false);
+	m_screenSize = GScreen::getScreenSize();
 	glfwSetWindowSize(m_mainWindow, m_screenSize.x, m_screenSize.y);
 	m_editor->resize();
 }
@@ -182,7 +184,7 @@ void Application::init3dPersp() {
 	Shader::loadIdentityView();
 	Shader::loadIdentityProjection();
 
-	glm::mat4 projection = glm::perspective((GLfloat)glm::radians(GScreen::m_fov), (GLfloat)GScreen::m_screenSize.x / GScreen::m_screenSize.y, 0.1f, 2000.0f);
+	glm::mat4 projection = glm::perspective((GLfloat)glm::radians(GScreen::getFov()), (GLfloat)GScreen::getScreenSize().x / GScreen::getScreenSize().y, 0.1f, 2000.0f);
 	Shader::transformProjection(projection);
 	Shader::applyProjection();
 	Camera::setProjectionMatrix(projection);
@@ -217,14 +219,14 @@ void Application::init3dOrtho() {
 
 void Application::run() {
 	GLdouble i;
-	while (GScreen::m_exitting != 2) {
+	while (GScreen::isExitting() != 2) {
 		i = glfwGetTime();
 
 		input();
 		update();
 		render();
 
-		if (GScreen::m_focused) {
+		if (GScreen::isFocused()) {
 			m_sleepTime = DWORD(std::fmaxf(1000 / m_focusFps - ((glfwGetTime() - i) * 1000), 0));
 		}
 		else {
@@ -233,14 +235,14 @@ void Application::run() {
 		if (m_sleepTime > 0) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepTime));
 		}
-		GScreen::m_fps = 1.f / GLfloat(glfwGetTime() - i);
+		GScreen::setFps(1.f / GLfloat(glfwGetTime() - i));
 
-		if (GScreen::m_exitting == 1) {
+		if (GScreen::isExitting() == 1) {
 			if (m_editor->attemptClose()) {
-				GScreen::m_exitting = 2;
+				GScreen::setExitting(2);
 			}
 			else {
-				GScreen::m_exitting = 0;
+				GScreen::setExitting(0);
 				glfwSetWindowShouldClose(m_mainWindow, false);
 			}
 		}
@@ -251,13 +253,13 @@ void Application::run() {
 
 void Application::input() {
 	if (glfwWindowShouldClose(m_mainWindow)) {
-		GScreen::m_exitting = 1;
+		GScreen::setExitting(1);
 	}
 	GMouse::reset();
 	GKey::reset();
 	glfwPollEvents();
 	m_editor->input();
-	if (GScreen::isMaximized() && GScreen::isDraggingWindow() && GScreen::m_dragStart.y < GMouse::getMousePos().y) {
+	if (GScreen::isMaximized() && GScreen::isDraggingWindow() && GScreen::getDragStart().y < GMouse::getMousePos().y) {
 		maximize(true);
 	}
 	if (GScreen::finishedResize()) resize();
@@ -268,18 +270,18 @@ GLfloat _last = 0;
 void Application::update() {
 	m_editor->update();
 
-	if (GScreen::m_windowCommand == GScreen::WindowCommand::MINIMIZE)	glfwIconifyWindow(m_mainWindow);
-	if (GScreen::m_windowCommand == GScreen::WindowCommand::RESIZE)		maximize(false);
-	if (GScreen::m_windowCommand == GScreen::WindowCommand::CLOSE)		glfwSetWindowShouldClose(m_mainWindow, true);
-	GScreen::m_windowCommand = GScreen::WindowCommand::NONE;
+	if (GScreen::getWindowCommand() == GScreen::WindowCommand::MINIMIZE)	glfwIconifyWindow(m_mainWindow);
+	if (GScreen::getWindowCommand() == GScreen::WindowCommand::RESIZE)		maximize(false);
+	if (GScreen::getWindowCommand() == GScreen::WindowCommand::CLOSE)		glfwSetWindowShouldClose(m_mainWindow, true);
+	GScreen::setWindowCommand(GScreen::WindowCommand::NONE);
 
-	GMouse::update(GScreen::m_deltaTime);
+	GMouse::update(GScreen::getDeltaUpdate());
 }
 
 void Application::render() {
-	if (GScreen::m_iconified) return;
+	if (GScreen::isIconified()) return;
 
-	if (GScreen::m_shadows) {
+	if (GScreen::hasShadows()) {
 		m_editor->bindShadowBuffer();
 		Shader::useProgram("depthRTT");
 		m_editor->bindShadowTexture();

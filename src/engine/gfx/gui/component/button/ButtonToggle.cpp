@@ -63,10 +63,10 @@ void CButtonToggle::render() {
 	if (m_texType != 0) {
 		GBuffer::setColor(Color(1.f, 1.f, 1.f));
 		if (m_selected != 0 || m_texType == 1) {
-			GBuffer::setTexture(m_buttonTex[0]->getGlId());
+			GBuffer::setTexture(m_buttonTex[0]->getTexId());
 		}
 		else {
-			GBuffer::setTexture(m_buttonTex[1]->getGlId());
+			GBuffer::setTexture(m_buttonTex[1]->getTexId());
 		}
 		GBuffer::setUV(0.f, 1.f);
 		if (m_selected != 0 || m_texType == 1)	GBuffer::addVertexQuad(-GLfloat(m_buttonTex[0]->getSize().x) / 2, -GLfloat(m_buttonTex[0]->getSize().y) / 2);

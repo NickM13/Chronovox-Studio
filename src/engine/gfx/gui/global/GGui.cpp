@@ -3,7 +3,7 @@
 #include "engine\gfx\gui\component\Component.h"
 
 GLFWwindow* GGui::m_mainWindow = 0;
-GGui::CursorType GGui::m_cursorType = GGui::CursorType::ARROW;
+GGui::CursorType GGui::m_cursorType = GGui::CursorType::NONE;
 std::map<GGui::CursorType, GLFWcursor*> GGui::m_cursors;
 std::string GGui::m_tooltip = "";
 Vector2<Sint32> GGui::m_tooltipPos = {};
@@ -13,12 +13,31 @@ GLfloat GGui::m_tooltipMaxLife = 0.1f;
 
 void GGui::init(GLFWwindow* p_mainWindow) {
 	m_mainWindow = p_mainWindow;
-	m_cursors.emplace(CursorType::ARROW,		glfwCreateStandardCursor(static_cast<int>(CursorType::ARROW)));
-	m_cursors.emplace(CursorType::IBEAM,		glfwCreateStandardCursor(static_cast<int>(CursorType::IBEAM)));
-	m_cursors.emplace(CursorType::CROSSHAIR,	glfwCreateStandardCursor(static_cast<int>(CursorType::CROSSHAIR)));
-	m_cursors.emplace(CursorType::HAND,			glfwCreateStandardCursor(static_cast<int>(CursorType::HAND)));
-	m_cursors.emplace(CursorType::HRESIZE,		glfwCreateStandardCursor(static_cast<int>(CursorType::HRESIZE)));
-	m_cursors.emplace(CursorType::VRESIZE,		glfwCreateStandardCursor(static_cast<int>(CursorType::VRESIZE)));
+
+	glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+	glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
+	glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+	glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
+	glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
+	glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
+
+	Texture* cursor;
+	m_cursors.emplace(CursorType::NONE,				glfwCreateStandardCursor(GLFW_ARROW_CURSOR));
+	m_cursors.emplace(CursorType::IBEAM,			glfwCreateStandardCursor(GLFW_IBEAM_CURSOR));
+	m_cursors.emplace(CursorType::LINK,				glfwCreateStandardCursor(GLFW_HAND_CURSOR));
+	m_cursors.emplace(CursorType::EWRESIZE,			glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR));
+	m_cursors.emplace(CursorType::NSRESIZE,			glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR));
+	cursor = MTexture::getTexture("cursor\\aero_nesw.png");
+	m_cursors.emplace(CursorType::NESWRESIZE,		glfwCreateCursor(cursor->getGlfwImage(), cursor->getSize().x / 2, cursor->getSize().y / 2));
+	cursor = MTexture::getTexture("cursor\\aero_nwse.png");
+	m_cursors.emplace(CursorType::NWSERESIZE,		glfwCreateCursor(cursor->getGlfwImage(), cursor->getSize().x / 2, cursor->getSize().y / 2));
+
+	/*m_cursors.emplace(CursorType::IBEAM,		LoadCursorA(hInstance, MAKEINTRESOURCE(CursorType::IBEAM)));
+	m_cursors.emplace(CursorType::LINK,			LoadCursorA(hInstance, MAKEINTRESOURCE(CursorType::LINK)));
+	m_cursors.emplace(CursorType::EWRESIZE,		LoadCursorA(hInstance, MAKEINTRESOURCE(CursorType::EWRESIZE)));
+	m_cursors.emplace(CursorType::NSRESIZE,		LoadCursorA(hInstance, MAKEINTRESOURCE(CursorType::NSRESIZE)));
+	m_cursors.emplace(CursorType::NESWRESIZE,	LoadCursorA(hInstance, MAKEINTRESOURCE(CursorType::NESWRESIZE)));
+	m_cursors.emplace(CursorType::NWSERESIZE,	LoadCursorA(hInstance, MAKEINTRESOURCE(CursorType::NWSERESIZE)));*/
 
 	Component::init();
 }
@@ -47,22 +66,23 @@ GGui::CursorType GGui::getCursorType() {
 	return m_cursorType;
 }
 void GGui::setCursorType(CursorType p_cursorType) {
-	if (p_cursorType != CursorType::NONE) {
-		m_cursorType = p_cursorType;
-	}
+	m_cursorType = p_cursorType;
 }
 
 void GGui::update() {
 	glfwSetCursor(m_mainWindow, m_cursors.at(m_cursorType));
-	m_cursorType = CursorType::ARROW;
+	if (m_cursorType != CursorType::NONE) {
+		//SetCursor(m_cursors.at(m_cursorType));
+		m_cursorType = CursorType::NONE;
+	}
 	if (m_tooltipFading) {
-		m_tooltipLife += GScreen::m_deltaTime;
+		m_tooltipLife += GScreen::getDeltaUpdate();
 		if (m_tooltipLife >= m_tooltipMaxLife) {
 			m_tooltipLife = m_tooltipMaxLife;
 		}
 	}
 	else if (m_tooltipLife > 0) {
-		m_tooltipLife -= GScreen::m_deltaTime;
+		m_tooltipLife -= GScreen::getDeltaUpdate();
 		if (m_tooltipLife <= 0) {
 			m_tooltipLife = 0;
 			m_tooltip = "";

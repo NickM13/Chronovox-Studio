@@ -2,7 +2,7 @@
 #include "engine\editor\animation\Animation.h"
 
 KeyframeTimeline::KeyframeTimeline(Vector2<Sint32> p_pos, Vector2<Sint32> p_size)
-	: Container("TIMELINE_KEYFRAME", p_pos, p_size, true) {
+	: Container("TIMELINE_KEYFRAME", p_pos, p_size, []() { return true; }) {
 	m_border = ((Sint8)BorderFlag::TOP | (Sint8)BorderFlag::BOTTOM);
 	m_maxLayer = 0;
 	addComponent(new Panel("RULER_BG", "", { 0, 0 }, { 0, 24 }, (Sint8)BorderFlag::ALL), Anchor::NONE, Anchor::TOP_RIGHT);
@@ -119,7 +119,7 @@ void KeyframeTimeline::render() {
 		GBuffer::addVertexQuad(kl, l0 + s);
 
 		if (m_selectedKeyframe == i)		GBuffer::setColor(Color(1, 1, 1, 0.5f));
-		else if (m_hoveredKeyframe == i)	GBuffer::setColor(Color(0xAADDFF40));
+		else if (m_hoveredKeyframe == i)	GBuffer::setColor(Color("0xAADDFF40"));
 		else								GBuffer::setColor(Color(0, 0, 0, 0.5f));
 		GBuffer::addVertexQuad(ks + 6 + b, l0 + s + b);
 		GBuffer::addVertexQuad(ks + 6 + b, l1 - s - b);

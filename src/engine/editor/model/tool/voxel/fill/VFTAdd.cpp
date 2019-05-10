@@ -5,7 +5,7 @@ VFTAdd::VFTAdd()
 	m_parent = "Fill";
 	m_toolName = "Fill Append Tool";
 	m_toolDesc = "Fill Area with Voxels";
-	m_toolIcon = MTexture::getTexture("gui\\icon\\tool\\FillAdd.png");
+	m_toolIcon = MTexture::getTexture("gui\\icon\\toolbar\\FillAdd.png");
 	m_keyBind = GKey::KeyBind(GLFW_KEY_F);
 }
 

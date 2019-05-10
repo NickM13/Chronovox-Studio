@@ -16,7 +16,7 @@ void ColorPanel::input(Sint8& p_interactFlags) {
 }
 void ColorPanel::render() {
 	Shader::pushMatrixModel();
-	GBuffer::setTexture(m_texture.getGlId());
+	GBuffer::setTexture(m_texture.getTexId());
 	GBuffer::setColor(Color(*r / 255.f, *g / 255.f, *b / 255.f));
 	Shader::translate(glm::vec3(GLfloat(m_pos.x), GLfloat(m_pos.y), 0.f));
 	GBuffer::setUV(0, 1); GBuffer::addVertexQuad(0, 0);
@@ -52,7 +52,7 @@ void SColorPanel::input(Sint8& p_interactFlags) {
 }
 void SColorPanel::render() {
 	Shader::pushMatrixModel();
-	GBuffer::setTexture(m_texture.getGlId());
+	GBuffer::setTexture(m_texture.getTexId());
 	GBuffer::setColor(m_color);
 	Shader::translate(glm::vec3(GLfloat(m_pos.x), GLfloat(m_pos.y), 0));
 	GBuffer::setUV(0, 1); GBuffer::addVertexQuad(0, 0);

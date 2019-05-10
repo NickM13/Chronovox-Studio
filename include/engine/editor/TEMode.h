@@ -9,6 +9,8 @@ protected:
 	std::string m_directory;
 	std::string m_name;
 
+	bool m_focus;
+
 	virtual void inputEditor(Sint8 p_guiFlags);
 	virtual void updateEditor(GLfloat p_deltaUpdate);
 	virtual void renderEditor();
@@ -19,6 +21,11 @@ public:
 	virtual bool hasChanged();
 	virtual void setChanged(bool p_changed);
 
+	bool isFocusVisible() const { return m_focus; }
+	void toggleFocus() { m_focus = !m_focus; }
+
+	void setName(std::string p_name);
+	void setDirectory(std::string p_dir);
 	void setPath(std::string p_path);
 	std::string getName();
 	std::string getDirectory();

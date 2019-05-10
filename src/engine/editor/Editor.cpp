@@ -38,22 +38,26 @@ Editor::Editor() {
 	m_editorState = EditorState::STARTING;
 	MTexture::init();
 	MModelObj::init();
-	Font::loadFont("LeelawUI", "leelawui.ttf", 12);
-	Font::loadFont("SegoeUI", "segoeui.ttf", 12);
-	Font::setFont("LeelawUI");
+	Font::loadFont("Leelaw", "leelawui.ttf", 12);
+	Font::loadFont("Segoe", "segoeui.ttf", 12);
+	Font::setFont("Segoe");
 	Sound::getInstance().init();
-	GGui::init(GScreen::m_window);
+	GGui::init(GScreen::getGLFWWindow());
 	GBuffer::init();
 	MTool::init();
 	MMesh::init();
 
 	Gui::init();
-	Gui::getContainer()->addComponent(EditorOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)->setVisible(true)->setPriorityLayer(10);
-	Gui::getContainer()->addComponent(FreshOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)->setVisible(false);
-	Gui::getContainer()->addComponent(ModelOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)->setVisible(false);
-	Gui::getContainer()->addComponent(AnimationOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)->setVisible(false);
+	Gui::getContainer()->addComponent(EditorOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)
+		->setVisibleFunction([]() { return true; })->setPriorityLayer(10);
+	Gui::getContainer()->addComponent(FreshOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)
+		->setVisibleFunction([]() { return false; });
+	Gui::getContainer()->addComponent(ModelOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)
+		->setVisibleFunction([]() { return false; });
+	Gui::getContainer()->addComponent(AnimationOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)
+		->setVisibleFunction([]() { return false; });
 	Gui::getContainer()->resize();
-	m_projectTabs = (CTabBar*)Gui::getContainer()->findComponent("GUI_EDITOR\\TAB_FILES");
+	m_projectTabs = (CTabBar*)Gui::getContainer()->findComponent("GUI_EDITOR\\GUI_TOP\\TAB_FILES");
 
 	setEditorState(EditorState::RUNNING);
 	setEditorMode(EditorMode::NONE);
@@ -66,10 +70,10 @@ Editor::Editor() {
 		while (!m_autosaveCv.wait_until(lock, time + std::chrono::seconds(m_autosavePeriod), [&]() {
 			time = std::chrono::system_clock::now();
 			return m_editorState == EditorState::STOPPING;
-		})) {
+			})) {
 			//getModel()->autosave();
 		}
-	});
+		});
 
 	initShadowBuffer();
 
@@ -128,13 +132,13 @@ bool Editor::attemptClose() {
 		if (p->editor->hasChanged()) {
 			Gui::openDialog(CloseEditorDialog::getInstance().getDialog()
 				->setOptionFunc("Exit Without Saving", [&]() {
-				GScreen::m_windowCommand = GScreen::WindowCommand::CLOSE;
-				CloseEditorDialog::getInstance().getDialog()->setActive(false);
-			}));
+					GScreen::setWindowCommand(GScreen::WindowCommand::CLOSE);
+					CloseEditorDialog::getInstance().getDialog()->setActive(false);
+					}));
 			return true;
 		}
 	}
-	GScreen::m_windowCommand = GScreen::WindowCommand::CLOSE;
+	GScreen::setWindowCommand(GScreen::WindowCommand::CLOSE);
 	return true;
 }
 
@@ -148,13 +152,13 @@ Editor::EditorState Editor::getEditorState() { return m_editorState; }
 void Editor::setEditorMode(EditorMode p_mode) {
 	switch (m_editorMode) {
 	case NONE:
-		Gui::getContainer()->findComponent("GUI_FRESH")->setVisible(false);
+		Gui::getContainer()->findComponent("GUI_FRESH")->setVisibleFunction([]() { return false; });
 		break;
 	case ANIMATION:
-		Gui::getContainer()->findComponent("GUI_ANIMATION")->setVisible(false);
+		Gui::getContainer()->findComponent("GUI_ANIMATION")->setVisibleFunction([]() { return false; });
 		break;
 	case MODEL:
-		Gui::getContainer()->findComponent("GUI_MODEL")->setVisible(false);
+		Gui::getContainer()->findComponent("GUI_MODEL")->setVisibleFunction([]() { return false; });
 		break;
 	default:
 		break;
@@ -162,13 +166,13 @@ void Editor::setEditorMode(EditorMode p_mode) {
 	m_editorMode = p_mode;
 	switch (m_editorMode) {
 	case NONE:
-		Gui::getContainer()->findComponent("GUI_FRESH")->setVisible(true);
+		Gui::getContainer()->findComponent("GUI_FRESH")->setVisibleFunction([]() { return true; });
 		break;
 	case ANIMATION:
-		Gui::getContainer()->findComponent("GUI_ANIMATION")->setVisible(true);
+		Gui::getContainer()->findComponent("GUI_ANIMATION")->setVisibleFunction([]() { return true; });
 		break;
 	case MODEL:
-		Gui::getContainer()->findComponent("GUI_MODEL")->setVisible(true);
+		Gui::getContainer()->findComponent("GUI_MODEL")->setVisibleFunction([]() { return true; });
 		break;
 	default:
 		return;
@@ -202,8 +206,7 @@ void Editor::setProject(Sint32 p_index) {
 			break;
 		}
 		m_projectTabs->setSelectedItem(p_index);
-	}
-	else {
+	} else {
 		m_cProj = 0;
 		setEditorMode(EditorMode::NONE);
 	}
@@ -222,16 +225,15 @@ void Editor::attemptCloseProject(Sint32 p_index) {
 		if (m_projects.at(p_index)->editor->hasChanged()) {
 			Gui::openDialog(CloseTabDialog::getInstance().getDialog()
 				->setOptionFunc("Save", [&]() {
-				if (fileSave()) {
-					closeProject(m_projectTabs->getSelectedItem());
-					CloseTabDialog::getInstance().getDialog()->setActive(false);
-				}
-			})->setOptionFunc("Don't Save", [&]() {
-				closeProject(m_projectTabs->getSelectedItem());
-				CloseTabDialog::getInstance().getDialog()->setActive(false);
-			}));
-		}
-		else {
+					if (fileSave()) {
+						closeProject(m_projectTabs->getSelectedItem());
+						CloseTabDialog::getInstance().getDialog()->setActive(false);
+					}
+					})->setOptionFunc("Don't Save", [&]() {
+						closeProject(m_projectTabs->getSelectedItem());
+						CloseTabDialog::getInstance().getDialog()->setActive(false);
+						}));
+		} else {
 			closeProject(m_projectTabs->getSelectedItem());
 		}
 	}
@@ -273,11 +275,10 @@ void Editor::renderMouse() {
 		Sint32 b1 = 5, b2 = b1 - 1;
 		Vector2<Sint32> size = Font::getMessageWidth(tooltip);
 		Vector2<Sint32> pos = Vector2<Sint32>(GGui::getTooltipPos().x + 16 + b2, GGui::getTooltipPos().y + 21 + b2);
-		pos.x = std::fminf(GScreen::m_screenSize.x - size.x - b2, std::fmaxf(b2, pos.x));
-		if (pos.y > GScreen::m_screenSize.y - size.y - b2 - 26) {
-			pos.y = GScreen::m_screenSize.y - size.y - b2 - 56;
-		}
-		else {
+		pos.x = std::fminf(GScreen::getScreenSize().x - size.x - b2, std::fmaxf(b2, pos.x));
+		if (pos.y > GScreen::getScreenSize().y - size.y - b2 - 26) {
+			pos.y = GScreen::getScreenSize().y - size.y - b2 - 56;
+		} else {
 			pos.y = std::fmaxf(b2, pos.y);
 		}
 
@@ -332,16 +333,16 @@ void Editor::bindShadowTexture() {
 }
 void Editor::unbindShadowBuffer() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, GScreen::m_screenSize.x, GScreen::m_screenSize.y);
+	glViewport(0, 0, GScreen::getScreenSize().x, GScreen::getScreenSize().y);
 }
 void Editor::renderShadowTexture() {
 	glBindTexture(GL_TEXTURE_2D, m_shadowBuffer.renderedTexture);
 	glBegin(GL_QUADS);
 	{
 		glTexCoord2f(0, 0); glVertex2f(0, 0);
-		glTexCoord2f(1, 0); glVertex2f(GScreen::m_screenSize.x, 0);
-		glTexCoord2f(1, 1); glVertex2f(GScreen::m_screenSize.x, GScreen::m_screenSize.y);
-		glTexCoord2f(0, 1); glVertex2f(0, GScreen::m_screenSize.y);
+		glTexCoord2f(1, 0); glVertex2f(GScreen::getScreenSize().x, 0);
+		glTexCoord2f(1, 1); glVertex2f(GScreen::getScreenSize().x, GScreen::getScreenSize().y);
+		glTexCoord2f(0, 1); glVertex2f(0, GScreen::getScreenSize().y);
 	}
 	glEnd();
 }
@@ -371,6 +372,8 @@ glm::mat4 Editor::getSunlightMatrix() {
 
 void Editor::input() {
 	Sint8 _iFlags = (Sint8)Component::EventFlag::ALL;
+	if (!GMouse::isMouseActive())
+		_iFlags -= static_cast<Sint8>(Component::EventFlag::MOUSEOVER);
 	Gui::input(_iFlags);
 
 	if (m_cProj) {
@@ -389,7 +392,7 @@ void Editor::update() {
 	m_deltaUpdate = std::fminf(0.5f, GLfloat(glfwGetTime() - m_lastUpdate));
 	m_lastUpdate = GLfloat(glfwGetTime());
 
-	GScreen::m_deltaTime = m_deltaUpdate;
+	GScreen::setDeltaUpdate(m_deltaUpdate);
 
 	if (m_cProj) {
 		m_cProj->editor->update(m_deltaUpdate);
@@ -439,7 +442,7 @@ bool Editor::fileNewAnimation() {
 }
 bool Editor::fileOpen() {
 	char documents[MAX_PATH];
-	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
+	HRESULT res = SHGetFolderPathA(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
 
 	strcat_s(documents, "\\Voxel Models");
 	if (_mkdir(documents)) {
@@ -449,12 +452,12 @@ bool Editor::fileOpen() {
 	char filename[MAX_PATH] = {};
 	OPENFILENAME ofn;
 
-	ZeroMemory(&filename, sizeof(filename));
-	ZeroMemory(&ofn, sizeof(ofn));
+	memset(&filename, 0, sizeof(filename));
+	memset(&ofn, 0, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = NULL;
-	ofn.lpstrFilter = "Model (*.nvm, *.qb)\0"
-		"*.nvm;*.qb*\0"
+	ofn.lpstrFilter = "Model (*.csm, *.nvm, *.qb)\0"
+		"*.csm;*.nvm;*.qb*\0"
 		//"Animation (*.nva)\0"
 		//"*.nva\0"
 		"Any File\0"
@@ -463,13 +466,14 @@ bool Editor::fileOpen() {
 	if (res == S_OK) ofn.lpstrInitialDir = documents;
 	ofn.nMaxFile = MAX_PATH;
 	ofn.lpstrTitle = "Open Model";
-	if (!GetOpenFileName(&ofn)) return false;
+	if (!GetOpenFileNameA(&ofn)) return false;
 
 	Format::FormatType formatType;
 	EditorMode mode;
 	TEMode* editor;
 	formatType = Format::valid(filename);
 	switch (formatType) {
+	case Format::FormatType::CSM:
 	case Format::FormatType::NVM:
 	case Format::FormatType::QB:
 	case Format::FormatType::QBCL:
@@ -511,7 +515,7 @@ bool Editor::fileSaveAs() {
 	return false;
 }
 bool Editor::fileExit() {
-	GScreen::m_exitting = 1;
+	GScreen::setExitting(1);
 	//if (m_tMode) m_tMode->fileExit();
 	return true;
 }

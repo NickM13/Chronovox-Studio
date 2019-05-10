@@ -20,16 +20,16 @@ Component::~Component() {
 }
 
 void Component::init() {
-	loadTheme();
+	loadTheme(); 
 }
 void Component::loadTheme() {
-	std::ifstream themefile(LDirectory::getProjectPath() + "res\\config\\ColorTheme.ini");
+	std::ifstream themefile(LDirectory::getProjectPath() + "res\\config\\ColorThemeDark.ini");
 	if (themefile.good()) {
 		m_colorThemeMap.clear();
+		m_colorThemeMap.insert({ "NULL", Color() });
 		std::string line = "";
 		std::string first, second;
 		std::stringstream ss;
-		Sint32 colorhex;
 		size_t equalPos;
 		while (!themefile.eof()) {
 			std::getline(themefile, line);
@@ -38,16 +38,15 @@ void Component::loadTheme() {
 			first = line.substr(0, equalPos);
 			second = line.substr(equalPos + 1);
 
-			ss.clear();
-			ss << std::hex << second;
-			ss >> colorhex;
-
-			m_colorThemeMap.insert({ first, Color(colorhex) });
+			m_colorThemeMap.insert({ first, Color(second) });
 
 			line = "";
 		}
 	}
 	themefile.close();
+
+	Color& bg = m_colorThemeMap.at("primaryBackground");
+	glClearColor(bg.r, bg.g, bg.b, 1.f);
 }
 void Component::terminate() {
 	m_colorThemeMap.clear();
@@ -56,17 +55,17 @@ void Component::terminate() {
 Component* Component::addComponent(Component* p_comp, Anchor p_posAnchor, Anchor p_sizeAnchor) { return this; }
 Component* Component::findComponent(std::string p_compName) { return this; }
 
-Color Component::getElementColor(std::string p_element) {
+Color& Component::getElementColor(std::string p_element) {
 	return m_colorThemeMap.at(p_element);
 }
-Color Component::getPrimaryColor() {
+Color& Component::getPrimaryColor() {
 	if (getPrimaryPos() != "") {
 		return m_colorThemeMap.at("primary" + getPrimaryPos());
 	}
 	if (m_parentContainer) {
 		return m_colorThemeMap.at("primary" + m_parentContainer->getPrimaryPos());
 	}
-	return Color(1, 0, 0);
+	return m_colorThemeMap.at("NULL");
 }
 std::string Component::getPrimaryPos() {
 	if (m_parentContainer != 0 && m_primaryPos == "") {
@@ -120,7 +119,7 @@ void Component::setTooltip(std::string p_tooltip) { m_tooltip = p_tooltip; }
 void Component::addTooltip() {
 	if (!GMouse::mouseMoved() || m_tooltipTime > 0) {
 		m_tooltipCounted = true;
-		m_tooltipTime += GScreen::m_deltaTime;
+		m_tooltipTime += GScreen::getDeltaUpdate();
 	}
 	else {
 		m_tooltipTime = 0;
@@ -152,11 +151,11 @@ void Component::setHovered(bool p_hovered) {
 	m_hovered = p_hovered;
 }
 
-Component* Component::setVisible(bool p_visible) {
+Component* Component::setVisibleFunction(std::function<bool()> p_visible) {
 	m_visible = p_visible;
 	return this;
 }
-bool Component::isVisible() { return m_visible; }
+bool Component::isVisible() { return m_visible(); }
 
 void Component::input() { }
 void Component::input(Sint8& p_interactFlags) { }

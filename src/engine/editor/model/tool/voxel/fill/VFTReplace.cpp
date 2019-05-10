@@ -5,7 +5,7 @@ VFTReplace::VFTReplace()
 	m_parent = "Fill";
 	m_toolName = "Fill Replace Tool";
 	m_toolDesc = "Replace Voxel - R";
-	m_toolIcon = MTexture::getTexture("gui\\icon\\tool\\FillReplace.png");
+	m_toolIcon = MTexture::getTexture("gui\\icon\\toolbar\\FillReplace.png");
 	m_keyBind = GKey::KeyBind(GLFW_KEY_F);
 }
 

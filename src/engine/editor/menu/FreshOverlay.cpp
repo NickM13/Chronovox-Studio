@@ -9,7 +9,7 @@ Container* FreshOverlay::init(Editor* p_editor) {
 	if (m_container) return 0;
 	m_editor = p_editor;
 
-	m_container = new Container("GUI_FRESH", { 0, 0 }, { 0, 0 }, true);
+	m_container = new Container("GUI_FRESH", { 0, 0 }, { 0, 0 }, []() { return true; });
 	m_container->setPrimaryPos("Top");
 	m_container->setBorderFlag(static_cast<Sint8>(Component::BorderFlag::NONE));
 

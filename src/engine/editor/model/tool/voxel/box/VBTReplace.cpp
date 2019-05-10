@@ -5,7 +5,7 @@ VBTReplace::VBTReplace()
 	m_parent = "Box";
 	m_toolName = "Box Replace Tool";
 	m_toolDesc = "Replace a Box of Voxels";
-	m_toolIcon = MTexture::getTexture("gui\\icon\\tool\\BoxReplace.png");
+	m_toolIcon = MTexture::getTexture("gui\\icon\\toolbar\\BoxReplace.png");
 	m_boxReplace = false;
 	m_keyBind = GKey::KeyBind(GLFW_KEY_B);
 }

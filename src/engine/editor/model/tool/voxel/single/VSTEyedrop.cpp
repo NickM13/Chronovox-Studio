@@ -5,7 +5,7 @@ VSTEyedrop::VSTEyedrop()
 	m_parent = "Eyedropper";
 	m_toolName = "Eyedropper Tool";
 	m_toolDesc = "Eyedropper - K";
-	m_toolIcon = MTexture::getTexture("gui\\icon\\tool\\VoxelEyedrop.png");
+	m_toolIcon = MTexture::getTexture("gui\\icon\\toolbar\\VoxelEyedrop.png");
 	m_keyBind = GKey::KeyBind(GLFW_KEY_K);
 }
 

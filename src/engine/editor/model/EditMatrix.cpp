@@ -131,7 +131,7 @@ void EditMatrix::saveChanges() {
 	if (!(m_matrix->getPos() == m_initMatrix->getPos())) {
 		addCommand(new MMoveCommand(m_matrix, m_initMatrix->getPos(), m_matrix->getPos()));
 	}
-	if (!(m_matrix->getSize() == m_initMatrix->getSize())) {
+	if (!(m_matrix->getSize() == m_initMatrix->getSize()) || (m_matrix->getName() != m_initMatrix->getName())) {
 		addCommand(new MResizeCommand(m_matrix, m_initMatrix));
 	}
 	else {

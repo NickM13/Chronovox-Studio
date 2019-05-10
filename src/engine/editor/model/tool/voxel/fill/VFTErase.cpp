@@ -5,7 +5,7 @@ VFTErase::VFTErase()
 	m_parent = "Fill";
 	m_toolName = "Fill Erase Tool";
 	m_toolDesc = "Erase Voxel - E";
-	m_toolIcon = MTexture::getTexture("gui\\icon\\tool\\FillErase.png");
+	m_toolIcon = MTexture::getTexture("gui\\icon\\toolbar\\FillErase.png");
 	m_keyBind = GKey::KeyBind(GLFW_KEY_F);
 }
 

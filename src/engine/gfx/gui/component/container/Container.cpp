@@ -2,11 +2,11 @@
 #include "engine\gfx\gui\component\dialog\Dialog.h"
 #include "engine\gfx\gui\component\container\ColorPanel.h"
 
-Container::Container(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, bool p_visible)
+Container::Container(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, std::function<bool()> p_visible)
 	: Component(p_compName, "", p_pos, p_size) {
 	m_visible = p_visible;
 	m_contentArea = Vector4<Sint32>();
-	addComponent(new SColorPanel("PAUSE_BACKGROUND", { 0, 0 }, p_size, Color(0, 0, 0, 0.5f)), Anchor::NONE, Anchor::BOTTOM_RIGHT)->setPriorityLayer(99)->setVisible(false);
+	addComponent(new SColorPanel("PAUSE_BACKGROUND", { 0, 0 }, p_size, Color(0, 0, 0, 0.5f)), Anchor::NONE, Anchor::BOTTOM_RIGHT)->setPriorityLayer(99)->setVisibleFunction([]() {return false;});
 	m_border = 0;
 }
 
@@ -24,25 +24,20 @@ void Container::anchorComponent(Component* p_component, Anchor p_posAnchor, Anch
 	Vector2<Sint32> pos, size;
 	if ((Sint8)p_posAnchor & (Sint8)BAnchor::RIGHT) {
 		pos.x = p_component->getInitialPosition().x + (m_size.x - p_component->getInitialSize().x);
-	}
-	else if ((Sint8)p_posAnchor & (Sint8)BAnchor::CENTER) {
+	} else if ((Sint8)p_posAnchor & (Sint8)BAnchor::CENTER) {
 		pos.x = p_component->getInitialPosition().x + (m_size.x - p_component->getInitialSize().x) / 2;
-	}
-	else {
+	} else {
 		pos.x = p_component->getInitialPosition().x;
 	}
 	if ((Sint8)p_posAnchor & (Sint8)BAnchor::BOTTOM) {
 		if ((Sint8)p_sizeAnchor & (Sint8)BAnchor::BOTTOM) {
 			pos.y = p_component->getInitialPosition().y + m_size.y;
-		}
-		else {
+		} else {
 			pos.y = p_component->getInitialPosition().y + (m_size.y - p_component->getInitialSize().y);
 		}
-	}
-	else if ((Sint8)p_posAnchor & (Sint8)BAnchor::MIDDLE) {
+	} else if ((Sint8)p_posAnchor & (Sint8)BAnchor::MIDDLE) {
 		pos.y = p_component->getInitialPosition().y + (m_size.y - p_component->getInitialSize().y) / 2;
-	}
-	else {
+	} else {
 		pos.y = p_component->getInitialPosition().y;
 	}
 	p_component->setPosition(pos);
@@ -72,8 +67,7 @@ Component* Container::addComponent(Component* p_component, Anchor p_posAnchor, A
 			, p_component->getRealPosition().y
 			, p_component->getRealPosition().x + p_component->getSize().x
 			, p_component->getRealPosition().y + p_component->getSize().y);
-	}
-	else if (p_component->isVisible()) {
+	} else if (p_component->isVisible()) {
 		m_contentArea = Vector4<Sint32>(std::fminf(p_component->getRealPosition().x, m_contentArea.x1)
 			, std::fminf(p_component->getRealPosition().y, m_contentArea.y1)
 			, std::fmaxf(p_component->getRealPosition().x + p_component->getRealSize().x, m_contentArea.x2)
@@ -97,8 +91,7 @@ Container::Component* Container::findComponent(std::string p_compName) {
 	Comp _comp = m_componentMap[_compName];
 	if (_loc < p_compName.length() && _comp.m_component) {
 		return _comp.m_component->findComponent(p_compName.substr(_loc + 1));
-	}
-	else {
+	} else {
 		return _comp.m_component;
 	}
 }
@@ -115,7 +108,7 @@ void Container::removeComponent(std::string p_compName) {
 	}
 }
 
-Component* Container::setVisible(bool p_visible) {
+Component* Container::setVisible(std::function<bool()> p_visible) {
 	m_visible = p_visible;
 	if (!m_visible) {
 		for (std::pair<std::string, Comp> comp : m_componentMap) {
@@ -133,8 +126,7 @@ void Container::resize() {
 		anchorComponent(component, comp.m_posAnchor, comp.m_sizeAnchor);
 		if (m_componentMap.empty()) {
 			m_contentArea = Vector4<Sint32>(component->getRealPosition().x, component->getRealPosition().y, component->getRealPosition().x + component->getSize().x, component->getRealPosition().y + component->getSize().y);
-		}
-		else if (component->isVisible()) {
+		} else if (component->isVisible()) {
 			m_contentArea = Vector4<Sint32>(std::fminf(component->getRealPosition().x, m_contentArea.x1), std::fminf(component->getRealPosition().y, m_contentArea.y1), std::fmaxf(component->getRealPosition().x + component->getRealSize().x, m_contentArea.x2), std::fmaxf(component->getRealPosition().y + component->getRealSize().y, m_contentArea.y2));
 		}
 	}
@@ -147,14 +139,14 @@ Component* Container::openDialog(Component* p_dialog) {
 		m_currDialog = p_dialog;
 		((CDialog*)m_currDialog)->setActive(true);
 		m_currDialog->callPressFunction();
-		findComponent("PAUSE_BACKGROUND")->setVisible(true);
+		findComponent("PAUSE_BACKGROUND")->setVisibleFunction([]() {return true;});
 	}
 	return this;
 }
 Component* Container::closeDialog() {
 	m_currDialog->callReleaseFunction();
 	m_currDialog = 0;
-	findComponent("PAUSE_BACKGROUND")->setVisible(false);
+	findComponent("PAUSE_BACKGROUND")->setVisibleFunction([]() {return false;});
 	return this;
 }
 
@@ -177,7 +169,7 @@ void Container::input(Sint8& p_interactFlags) {
 			m_currDialog->input(p_interactFlags);
 			p_interactFlags = 0;
 		}
-		Component *_comp;
+		Component* _comp;
 		for (Sint32 i = m_componentOrder.size() - 1; i >= 0; i--) {
 			_comp = m_componentMap[m_componentOrder[i]].m_component;
 			if (_comp->isVisible()) {
@@ -194,7 +186,7 @@ void Container::update(GLfloat p_updateTime) {
 				closeDialog();
 			}
 		}
-		Component *_comp;
+		Component* _comp;
 		for (Sint32 i = 0; i < (Sint32)m_componentOrder.size(); i++) {
 			_comp = m_componentMap[m_componentOrder[i]].m_component;
 			if (_comp->isVisible()) {
@@ -206,7 +198,7 @@ void Container::update(GLfloat p_updateTime) {
 }
 void Container::render() {
 	if (m_visible) {
-		Component *_comp;
+		Component* _comp;
 		for (Sint32 i = 0; i < (Sint32)m_componentOrder.size(); i++) {
 			_comp = m_componentMap[m_componentOrder[i]].m_component;
 			if (_comp->isVisible()) {
@@ -219,28 +211,28 @@ void Container::render() {
 			Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 			GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
 			if (m_border & static_cast<Sint8>(BorderFlag::TOP)) {
-				GBuffer::addVertexQuad(0,						0);
-				GBuffer::addVertexQuad(GLfloat(m_size.x),		0);
-				GBuffer::addVertexQuad(GLfloat(m_size.x),		1);
-				GBuffer::addVertexQuad(0,						1);
+				GBuffer::addVertexQuad(0, 0);
+				GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
+				GBuffer::addVertexQuad(GLfloat(m_size.x), 1);
+				GBuffer::addVertexQuad(0, 1);
 			}
 			if (m_border & static_cast<Sint8>(BorderFlag::RIGHT)) {
-				GBuffer::addVertexQuad(GLfloat(m_size.x),		0);
-				GBuffer::addVertexQuad(GLfloat(m_size.x),		GLfloat(m_size.y));
-				GBuffer::addVertexQuad(GLfloat(m_size.x) - 1,	GLfloat(m_size.y));
-				GBuffer::addVertexQuad(GLfloat(m_size.x) - 1,	0);
+				GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
+				GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y));
+				GBuffer::addVertexQuad(GLfloat(m_size.x) - 1, GLfloat(m_size.y));
+				GBuffer::addVertexQuad(GLfloat(m_size.x) - 1, 0);
 			}
 			if (m_border & static_cast<Sint8>(BorderFlag::BOTTOM)) {
-				GBuffer::addVertexQuad(GLfloat(m_size.x),		GLfloat(m_size.y));
-				GBuffer::addVertexQuad(0,						GLfloat(m_size.y));
-				GBuffer::addVertexQuad(0,						GLfloat(m_size.y) - 1);
-				GBuffer::addVertexQuad(GLfloat(m_size.x),		GLfloat(m_size.y) - 1);
+				GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y));
+				GBuffer::addVertexQuad(0, GLfloat(m_size.y));
+				GBuffer::addVertexQuad(0, GLfloat(m_size.y) - 1);
+				GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y) - 1);
 			}
 			if (m_border & static_cast<Sint8>(BorderFlag::LEFT)) {
-				GBuffer::addVertexQuad(0,						0);
-				GBuffer::addVertexQuad(0,						GLfloat(m_size.y));
-				GBuffer::addVertexQuad(1,						GLfloat(m_size.y));
-				GBuffer::addVertexQuad(1,						0);
+				GBuffer::addVertexQuad(0, 0);
+				GBuffer::addVertexQuad(0, GLfloat(m_size.y));
+				GBuffer::addVertexQuad(1, GLfloat(m_size.y));
+				GBuffer::addVertexQuad(1, 0);
 			}
 			Shader::popMatrixModel();
 		}

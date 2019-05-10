@@ -15,3 +15,4 @@
 #include "matrix\MatrixTool.h"
 #include "matrix\MTMove.h"
 #include "matrix\MTResize.h"
+#include "matrix\MTSelect.h"
