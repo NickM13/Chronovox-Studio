@@ -707,7 +707,7 @@ void Model::add() {
 	ofn.nMaxFile = MAX_PATH;
 	ofn.lpstrTitle = "Add Model";
 	if (!GetOpenFileName(&ofn)) return;
-	loadAdd(m_name);
+	loadAdd(filename);
 	updateMatrixList();
 }
 void Model::newModel() {

@@ -47,6 +47,8 @@ Editor::Editor() {
 	MTool::init();
 	MMesh::init();
 
+	glfwSetWindowIcon(GScreen::getGLFWWindow(), 1, MTexture::getTexture("gui\\icon\\window\\Logo.png")->getGlfwImage());
+
 	Gui::init();
 	Gui::getContainer()->addComponent(EditorOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)
 		->setVisibleFunction([]() { return true; })->setPriorityLayer(10);
