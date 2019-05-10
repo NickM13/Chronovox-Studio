@@ -250,6 +250,7 @@ void Editor::dropFile(const char* path) {
 	EditorMode mode;
 	TEMode* editor;
 	switch (formatType) {
+	case Format::FormatType::CSM:
 	case Format::FormatType::NVM:
 	case Format::FormatType::QB:
 	case Format::FormatType::QBCL:

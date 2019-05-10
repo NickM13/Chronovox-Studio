@@ -10,6 +10,7 @@ Matrix::Matrix(Sint16 p_id, std::string p_name, std::string p_parent, glm::vec3 
 	m_parent = p_parent;
 	m_size = p_size;
 	m_pos = p_pos;
+	m_visible = true;
 
 	Uint16 noVoxel = MVoxel::getInstance().getUnitID(Voxel(0, MColor::getInstance().getUnitID(Color())));
 
@@ -35,6 +36,7 @@ Matrix::Matrix(Matrix& m) {
 	m_parent = m.getParent();
 	m_size = m.getSize();
 	m_pos = m.getPos();
+	m_visible = true;
 
 	Uint16 noVoxel = MVoxel::getInstance().getUnitID(Voxel(0, MColor::getInstance().getUnitID(Color())));
 
@@ -93,6 +95,7 @@ void Matrix::operator=(Matrix& m) {
 	m_name = m.getName();
 	m_size = m.getSize();
 	m_pos = m.getPos();
+	m_visible = true;
 
 	Uint16 noVoxel = MVoxel::getInstance().getUnitID(Voxel(0, MColor::getInstance().getUnitID(Color())));
 
