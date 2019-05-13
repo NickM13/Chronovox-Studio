@@ -142,22 +142,31 @@ void MTResize::updateTool() {
 	}
 }
 void MTResize::renderTool() {
+	glUniform1f(8, 0.001f);
 	glm::vec3 s = glm::vec3((*m_matrices)[m_editMatrix->getId()]->getSize()) / 2.f;
 	glm::vec3 _offset = (*m_matrices)[m_editMatrix->getId()]->getPos() + s;
 
 	Shader::pushMatrixModel();
 	Shader::translate(glm::vec3(_offset));
 
+	auto camp = Camera::getPosition();
+	Logger::logQuiet("%d %d %d", camp.x, camp.y, camp.z);
+	glm::vec3 dist = glm::vec3(glm::inverse(Shader::getMVP())[3]) / 5.f;
+	GLfloat dlen = sqrt(dist.x * dist.x + dist.y * dist.y + dist.z * dist.z) / 25.f + 1;
+	glm::vec3 scalar = glm::vec3(dlen, dlen, dlen);
+
 	Shader::setColor(((*m_selectedScale == FACE_SOUTH || *m_selectedScale == FACE_NORTH) ? glm::vec4(1.0f, 0.25f, 0.25f, 1.0f) : glm::vec4(0.75f, 0.0f, 0.0f, 1.f)));
 	Shader::pushMatrixModel();
 	Shader::translate(glm::vec3(s.x, 0, 0));
 	Shader::rotate(-90, glm::vec3(0, 0, 1));
+	Shader::scale(scalar);
 	MModelObj::get("Scale.obj")->renderObj();
 	Shader::popMatrixModel();
 
 	Shader::pushMatrixModel();
 	Shader::translate(glm::vec3(-s.x, 0, 0));
 	Shader::rotate(90, glm::vec3(0, 0, 1));
+	Shader::scale(scalar);
 	MModelObj::get("Scale.obj")->renderObj();
 	Shader::popMatrixModel();
 
@@ -165,12 +174,14 @@ void MTResize::renderTool() {
 	Shader::pushMatrixModel();
 	Shader::translate(glm::vec3(0, s.y, 0));
 	//Shader::rotate(0, glm::vec3(0, 0, 1));
+	Shader::scale(scalar);
 	MModelObj::get("Scale.obj")->renderObj();
 	Shader::popMatrixModel();
 
 	Shader::pushMatrixModel();
 	Shader::translate(glm::vec3(0, -s.y, 0));
 	Shader::rotate(180, glm::vec3(0, 0, 1));
+	Shader::scale(scalar);
 	MModelObj::get("Scale.obj")->renderObj();
 	Shader::popMatrixModel();
 
@@ -178,14 +189,17 @@ void MTResize::renderTool() {
 	Shader::pushMatrixModel();
 	Shader::translate(glm::vec3(0, 0, s.z));
 	Shader::rotate(90, glm::vec3(1, 0, 0));
+	Shader::scale(scalar);
 	MModelObj::get("Scale.obj")->renderObj();
 	Shader::popMatrixModel();
 
 	Shader::pushMatrixModel();
 	Shader::translate(glm::vec3(0, 0, -s.z));
 	Shader::rotate(-90, glm::vec3(1, 0, 0));
+	Shader::scale(scalar);
 	MModelObj::get("Scale.obj")->renderObj();
 	Shader::popMatrixModel();
 
 	Shader::popMatrixModel();
+	glUniform1f(8, 1.f);
 }

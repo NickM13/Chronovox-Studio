@@ -29,6 +29,7 @@ public:
 		Sint32 getHeight() { return height; }
 		Sint32 getWidth() const { return width; }
 		std::string getName() const { return name; }
+		virtual std::string getDisplayName() const { return name; }
 		std::string getDesc() const { return desc; }
 
 		MenuElement* setParent(MenuElement* p_parent) {
@@ -109,11 +110,17 @@ public:
 		std::vector<MenuElement*> elements = {};
 		std::vector<MenuElement*> visElements = {};
 		Sint32 subHeight = 0;
+		std::string displayName = "";
 
 	public:
-		Submenu(std::string p_name = "") {
+		Submenu(std::string p_name = "", std::string p_displayName = "") {
 			name = p_name;
+			displayName = p_displayName;
 			etype = ElementType::SUBMENU;
+		}
+
+		std::string getDisplayName() const {
+			return displayName;
 		}
 
 		GLfloat getSubHeight() {
@@ -130,7 +137,7 @@ public:
 				case ElementType::SUBMENU:
 				case ElementType::BUTTON:
 				case ElementType::CHECKBOX:
-					width = (Sint32)std::fmax(width, Font::getMessageWidth(e->getName()).x);
+					width = (Sint32)std::fmax(width, Font::getMessageWidth(e->getDisplayName()).x);
 					break;
 				default: break;
 				}

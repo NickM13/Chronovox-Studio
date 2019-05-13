@@ -45,85 +45,85 @@ Container* ModelOverlay::init(Editor* p_editor) {
 		->setVisibleFunction([&]() -> bool { return p_editor->getModel() != 0; })
 		->setPriority(5);
 
-	submenu = new CMenubar::Submenu("Edit");
+	submenu = new CMenubar::Submenu("Model_Edit", "Edit");
 	submenu->setVisibleFunction([]() -> bool { return (m_editor->getModel() != 0); });
 	submenu->setPriority(1);
 	menuBar->addElement("", submenu);
-	menuBar->addElement("Edit", new CMenubar::MenuButton("New Matrix",
+	menuBar->addElement("Model_Edit", new CMenubar::MenuButton("New Matrix",
 		GKey::KeyBind(GLFW_KEY_N, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editNewMatrix(); }));
-	menuBar->addElement("Edit", new CMenubar::MenuButton("Properties",
+	menuBar->addElement("Model_Edit", new CMenubar::MenuButton("Properties",
 		GKey::KeyBind(GLFW_KEY_F2, 0), []() { m_editor->getModel()->editMatrixProperties(); }));
-	menuBar->addElement("Edit", new CMenubar::MenuButton("Delete Matrices",
+	menuBar->addElement("Model_Edit", new CMenubar::MenuButton("Delete Matrices",
 		GKey::KeyBind(GLFW_KEY_DELETE), []() { m_editor->getModel()->deleteSelectedMatrices(); }));
-	menuBar->addElement("Edit", new CMenubar::MenuDivider());
-	menuBar->addElement("Edit", new CMenubar::MenuButton("Copy",
+	menuBar->addElement("Model_Edit", new CMenubar::MenuDivider());
+	menuBar->addElement("Model_Edit", new CMenubar::MenuButton("Copy",
 		GKey::KeyBind(GLFW_KEY_C, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editCopy(); }));
-	menuBar->addElement("Edit", new CMenubar::MenuButton("Paste",
+	menuBar->addElement("Model_Edit", new CMenubar::MenuButton("Paste",
 		GKey::KeyBind(GLFW_KEY_V, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editPaste(); }));
-	menuBar->addElement("Edit", new CMenubar::MenuDivider());
-	menuBar->addElement("Edit", new CMenubar::MenuButton("Undo Changes",
+	menuBar->addElement("Model_Edit", new CMenubar::MenuDivider());
+	menuBar->addElement("Model_Edit", new CMenubar::MenuButton("Undo Changes",
 		GKey::KeyBind(GLFW_KEY_Z, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editUndo(); }));
-	menuBar->addElement("Edit", new CMenubar::MenuButton("Redo Changes",
+	menuBar->addElement("Model_Edit", new CMenubar::MenuButton("Redo Changes",
 		GKey::KeyBind(GLFW_KEY_Y, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editRedo(); }));
-	menuBar->addElement("Edit", new CMenubar::MenuDivider());
-	menuBar->addElement("Edit", new CMenubar::Submenu("Transform"));
-	menuBar->addElement("Edit\\Transform", new CMenubar::Submenu("Flip"));
-	menuBar->addElement("Edit\\Transform\\Flip", new CMenubar::MenuButton("X-Axis",
+	menuBar->addElement("Model_Edit", new CMenubar::MenuDivider());
+	menuBar->addElement("Model_Edit", new CMenubar::Submenu("Model_Transform", "Transform"));
+	menuBar->addElement("Model_Edit\\Model_Transform", new CMenubar::Submenu("Model_Flip", "Flip"));
+	menuBar->addElement("Model_Edit\\Model_Transform\\Model_Flip", new CMenubar::MenuButton("X-Axis",
 		GKey::KeyBind(), []() { m_editor->getModel()->flipMatrix(AXIS_X); }));
-	menuBar->addElement("Edit\\Transform\\Flip", new CMenubar::MenuButton("Y-Axis",
+	menuBar->addElement("Model_Edit\\Model_Transform\\Model_Flip", new CMenubar::MenuButton("Y-Axis",
 		GKey::KeyBind(), []() { m_editor->getModel()->flipMatrix(AXIS_Y); }));
-	menuBar->addElement("Edit\\Transform\\Flip", new CMenubar::MenuButton("Z-Axis",
+	menuBar->addElement("Model_Edit\\Model_Transform\\Model_Flip", new CMenubar::MenuButton("Z-Axis",
 		GKey::KeyBind(), []() { m_editor->getModel()->flipMatrix(AXIS_Z); }));
-	menuBar->addElement("Edit\\Transform", new CMenubar::Submenu("Rotate"));
-	menuBar->addElement("Edit\\Transform\\Rotate", new CMenubar::MenuButton("90° X-Axis",
+	menuBar->addElement("Model_Edit\\Model_Transform", new CMenubar::Submenu("Model_Rotate", "Rotate"));
+	menuBar->addElement("Model_Edit\\Model_Transform\\Model_Rotate", new CMenubar::MenuButton("90° X-Axis",
 		GKey::KeyBind(), []() { m_editor->getModel()->rotateMatrix(AXIS_X); }));
-	menuBar->addElement("Edit\\Transform\\Rotate", new CMenubar::MenuButton("90° Y-Axis",
+	menuBar->addElement("Model_Edit\\Model_Transform\\Model_Rotate", new CMenubar::MenuButton("90° Y-Axis",
 		GKey::KeyBind(), []() { m_editor->getModel()->rotateMatrix(AXIS_Y); }));
-	menuBar->addElement("Edit\\Transform\\Rotate", new CMenubar::MenuButton("90° Z-Axis",
+	menuBar->addElement("Model_Edit\\Model_Transform\\Model_Rotate", new CMenubar::MenuButton("90° Z-Axis",
 		GKey::KeyBind(), []() { m_editor->getModel()->rotateMatrix(AXIS_Z); }));
-	menuBar->addElement("Edit\\Transform", new CMenubar::Submenu("Scale"));
-	menuBar->addElement("Edit\\Transform\\Scale", new CMenubar::MenuButton("Half All",
+	menuBar->addElement("Model_Edit\\Model_Transform", new CMenubar::Submenu("Model_Scale", "Scale"));
+	menuBar->addElement("Model_Edit\\Model_Transform\\Model_Scale", new CMenubar::MenuButton("Half All",
 		GKey::KeyBind(), []() { m_editor->getModel()->scaleMatrix(AXIS_X | AXIS_Y | AXIS_Z, 0.5f); }));
-	menuBar->addElement("Edit\\Transform\\Scale", new CMenubar::MenuButton("Double All",
+	menuBar->addElement("Model_Edit\\Model_Transform\\Model_Scale", new CMenubar::MenuButton("Double All",
 		GKey::KeyBind(), []() { m_editor->getModel()->scaleMatrix(AXIS_X | AXIS_Y | AXIS_Z, 2.f); }));
-	menuBar->addElement("Edit\\Transform\\Scale", new CMenubar::MenuDivider());
-	menuBar->addElement("Edit\\Transform\\Scale", new CMenubar::MenuButton("Half X-Axis",
+	menuBar->addElement("Model_Edit\\Model_Transform\\Model_Scale", new CMenubar::MenuDivider());
+	menuBar->addElement("Model_Edit\\Model_Transform\\Model_Scale", new CMenubar::MenuButton("Half X-Axis",
 		GKey::KeyBind(), []() { m_editor->getModel()->scaleMatrix(AXIS_X, 0.5f); }));
-	menuBar->addElement("Edit\\Transform\\Scale", new CMenubar::MenuButton("Half Y-Axis",
+	menuBar->addElement("Model_Edit\\Model_Transform\\Model_Scale", new CMenubar::MenuButton("Half Y-Axis",
 		GKey::KeyBind(), []() { m_editor->getModel()->scaleMatrix(AXIS_Y, 0.5f); }));
-	menuBar->addElement("Edit\\Transform\\Scale", new CMenubar::MenuButton("Half Z-Axis",
+	menuBar->addElement("Model_Edit\\Model_Transform\\Model_Scale", new CMenubar::MenuButton("Half Z-Axis",
 		GKey::KeyBind(), []() { m_editor->getModel()->scaleMatrix(AXIS_Z, 0.5f); }));
-	menuBar->addElement("Edit\\Transform\\Scale", new CMenubar::MenuDivider());
-	menuBar->addElement("Edit\\Transform\\Scale", new CMenubar::MenuButton("Double X-Axis",
+	menuBar->addElement("Model_Edit\\Model_Transform\\Model_Scale", new CMenubar::MenuDivider());
+	menuBar->addElement("Model_Edit\\Model_Transform\\Model_Scale", new CMenubar::MenuButton("Double X-Axis",
 		GKey::KeyBind(), []() { m_editor->getModel()->scaleMatrix(AXIS_X, 2.f); }));
-	menuBar->addElement("Edit\\Transform\\Scale", new CMenubar::MenuButton("Double Y-Axis",
+	menuBar->addElement("Model_Edit\\Model_Transform\\Model_Scale", new CMenubar::MenuButton("Double Y-Axis",
 		GKey::KeyBind(), []() { m_editor->getModel()->scaleMatrix(AXIS_Y, 2.f); }));
-	menuBar->addElement("Edit\\Transform\\Scale", new CMenubar::MenuButton("Double Z-Axis",
+	menuBar->addElement("Model_Edit\\Model_Transform\\Model_Scale", new CMenubar::MenuButton("Double Z-Axis",
 		GKey::KeyBind(), []() { m_editor->getModel()->scaleMatrix(AXIS_Z, 2.f); }));
 
-	submenu = new CMenubar::Submenu("View");
+	submenu = new CMenubar::Submenu("Model_View", "View");
 	submenu->setPriority(9);
 	submenu->setVisibleFunction([&]() -> bool { return p_editor->getModel() != 0; });
 	menuBar->addElement("", submenu);
-	menuBar->addElement("View", new CMenubar::MenuButton("Focus to Selected",
+	menuBar->addElement("Model_View", new CMenubar::MenuButton("Focus to Selected",
 		GKey::KeyBind(GLFW_KEY_SPACE, 0), []() { m_editor->getModel()->focus(); }));
-	menuBar->addElement("View", new CMenubar::MenuDivider());
-	menuBar->addElement("View", new CMenubar::MenuCheckbox("Matrix Grid",
+	menuBar->addElement("Model_View", new CMenubar::MenuDivider());
+	menuBar->addElement("Model_View", new CMenubar::MenuCheckbox("Matrix Grid",
 		GKey::KeyBind(GLFW_KEY_G, GLFW_MOD_CONTROL), []() { m_editor->getModel()->toggleGrid(); },
 		[&]() -> bool { return m_editor->getModel()->isGridVisible(); }));
-	menuBar->addElement("View", new CMenubar::MenuCheckbox("Matrix Outline",
+	menuBar->addElement("Model_View", new CMenubar::MenuCheckbox("Matrix Outline",
 		GKey::KeyBind(GLFW_KEY_H, GLFW_MOD_CONTROL), []() { m_editor->getModel()->toggleOutline(); },
 		[&]() -> bool { return m_editor->getModel()->isOutlineVisible(); }));
-	menuBar->addElement("View", new CMenubar::MenuCheckbox("Camera Focus",
+	menuBar->addElement("Model_View", new CMenubar::MenuCheckbox("Camera Focus",
 		GKey::KeyBind(), []() { m_editor->getModel()->toggleFocus(); },
 		[&]() -> bool { return m_editor->getModel()->isFocusVisible(); }));
-	menuBar->addElement("View", new CMenubar::MenuDivider());
-	menuBar->addElement("View", new CMenubar::Submenu("Zoom"));
-	menuBar->addElement("View\\Zoom", new CMenubar::MenuButton("Reset Zoom",
+	menuBar->addElement("Model_View", new CMenubar::MenuDivider());
+	menuBar->addElement("Model_View", new CMenubar::Submenu("Model_Zoom", "Zoom"));
+	menuBar->addElement("Model_View\\Model_Zoom", new CMenubar::MenuButton("Reset Zoom",
 		GKey::KeyBind(GLFW_KEY_0, GLFW_MOD_CONTROL), []() { Camera::resetZoom(); }));
-	menuBar->addElement("View\\Zoom", new CMenubar::MenuButton("Zoom In",
+	menuBar->addElement("Model_View\\Model_Zoom", new CMenubar::MenuButton("Zoom In",
 		GKey::KeyBind(GLFW_KEY_EQUAL, GLFW_MOD_CONTROL), []() { Camera::addZoom(5.f); }));
-	menuBar->addElement("View\\Zoom", new CMenubar::MenuButton("Zoom Out",
+	menuBar->addElement("Model_View\\Model_Zoom", new CMenubar::MenuButton("Zoom Out",
 		GKey::KeyBind(GLFW_KEY_MINUS, GLFW_MOD_CONTROL), []() { Camera::addZoom(-5.f); }));
 
 	// Workspace section (Middle of screen)

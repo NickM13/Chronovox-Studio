@@ -6,15 +6,18 @@ in vec4 ShadowCoord;
 in vec4 ex_color;
 in float cosThetaSun;
 in float cosThetaNorm;
+in vec4 gl_FragCoord;
 
 // Ouput data
 layout(location = 0) out vec4 color;
+out float gl_FragDepth;
 
 // Values that stay constant for the whole mesh.
-//layout(location = 4) uniform sampler2D myTextureSampler;
-layout(location = 6) uniform bool useLight;
-layout(location = 7) uniform sampler2D shadowMap;
-layout(location = 20) uniform bool useShadows;
+//layout(location=4) uniform sampler2D myTextureSampler;
+layout(location=6) uniform bool useLight;
+layout(location=7) uniform sampler2D shadowMap;
+layout(location=8) uniform float depthLayer;
+layout(location=20) uniform bool useShadows;
 
 float random(in vec3 seed4, in int i);
 float random(in vec3 seed4, in int i) {
@@ -52,4 +55,5 @@ void main(){
 	}
 	_color *= (LightColor * visibility);
 	color = vec4(_color, ex_color.a);
+	gl_FragDepth = gl_FragCoord.z * depthLayer;
 }

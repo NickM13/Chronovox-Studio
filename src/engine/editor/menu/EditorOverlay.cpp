@@ -36,10 +36,10 @@ Container* EditorOverlay::init(Editor* p_editor) {
 	menuBar->setPriorityLayer(16);
 	CMenubar::Submenu* submenu = 0;
 
-	submenu = new CMenubar::Submenu("File");
+	submenu = new CMenubar::Submenu("File", "File");
 	submenu->setPriority(0);
 	menuBar->addElement("", submenu);
-	menuBar->addElement("File", new CMenubar::Submenu("New"))
+	menuBar->addElement("File", new CMenubar::Submenu("New", "New"))
 		->setPriority(0);
 	menuBar->addElement("File\\New", new CMenubar::MenuButton("Model...", GKey::KeyBind(GLFW_KEY_N, GLFW_MOD_SHIFT + GLFW_MOD_CONTROL), []() { m_editor->fileNewModel(); }));
 #ifdef _DEBUG
@@ -52,7 +52,7 @@ Container* EditorOverlay::init(Editor* p_editor) {
 	menuBar->addElement("File", new CMenubar::MenuButton("Exit", GKey::KeyBind(GLFW_KEY_F4, GLFW_MOD_ALT), []() { m_editor->attemptClose(); }))
 		->setPriority(10);
 
-	submenu = new CMenubar::Submenu("Help");
+	submenu = new CMenubar::Submenu("Help", "Help");
 	submenu->setPriority(10);
 	menuBar->addElement("", submenu);
 	menuBar->addElement("Help", new CMenubar::MenuButton("About Chronovox Studio", GKey::KeyBind(), []() { Gui::openDialog(AboutDialog::getInstance().getDialog()); }));

@@ -1,4 +1,5 @@
 #include "engine\utils\math\ModelMath.h"
+#include "engine\editor\camera\Camera.h"
 
 bool ModelMath::castRayMatrix(glm::vec3 p_start, glm::vec3 p_direction, Matrix* p_matrix, GLfloat &p_near, GLfloat &p_far) {
 	GLfloat _c = 0.00001f;
@@ -109,46 +110,53 @@ bool ModelMath::castRayScale(glm::vec3 p_start, glm::vec3 p_direction, Matrix* p
 		Vector2<GLfloat> _closest = { 1, 1 };
 		p_scale = 0;
 		GLfloat size = 0.2f;
+		GLfloat length = 2.f;
 
 		glm::vec3 s = glm::vec3(p_matrix->getSize()) / glm::vec3(2);
 		glm::vec3 _offset = p_matrix->getPos() + s;
 
-		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ -(s.x + 2), -size, -size }, { 2, size * 2, size * 2 }, _near, _far, _side);
+		glm::vec3 dist = _offset - Camera::getPosition();
+		GLfloat dlen = sqrt(dist.x * dist.x + dist.y * dist.y + dist.z * dist.z) / 25.f + 1;
+		glm::vec3 scalar = glm::vec3(dlen, dlen, dlen);
+		size = size * scalar.x;
+		length = length * scalar.x;
+
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ -(s.x + length), -size, -size }, { length, size * 2, size * 2 }, _near, _far, _side);
 		if (_near < _closest.x) {
 			p_scale = FACE_SOUTH;
 			_closest = { _near, _far };
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ (s.x), -size, -size }, { 2, size * 2, size * 2 }, _near, _far, _side);
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ (s.x), -size, -size }, { length, size * 2, size * 2 }, _near, _far, _side);
 		if (_near < _closest.x) {
 			p_scale = FACE_NORTH;
 			_closest = { _near, _far };
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ -size, -(s.y + 2), -size }, { size * 2, 2, size * 2 }, _near, _far, _side);
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ -size, -(s.y + length), -size }, { size * 2, length, size * 2 }, _near, _far, _side);
 		if (_near < _closest.x) {
 			p_scale = FACE_BOTTOM;
 			_closest = { _near, _far };
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ -size, (s.y), -size }, { size * 2, 2, size * 2 }, _near, _far, _side);
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ -size, (s.y), -size }, { size * 2, length, size * 2 }, _near, _far, _side);
 		if (_near < _closest.x) {
 			p_scale = FACE_TOP;
 			_closest = { _near, _far };
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ -size, -size, -(s.z + 2) }, { size * 2, size * 2, 2 }, _near, _far, _side);
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ -size, -size, -(s.z + length) }, { size * 2, size * 2, length }, _near, _far, _side);
 		if (_near < _closest.x) {
 			p_scale = FACE_WEST;
 			_closest = { _near, _far };
 		}
 		_near = 0;
 		_far = 1;
-		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ -size, -size, (s.z) }, { size * 2, size * 2, 2 }, _near, _far, _side);
+		Math::castRay3d(p_start, p_direction, _offset + glm::vec3{ -size, -size, (s.z) }, { size * 2, size * 2, length }, _near, _far, _side);
 		if (_near < _closest.x) {
 			p_scale = FACE_EAST;
 			_closest = { _near, _far };

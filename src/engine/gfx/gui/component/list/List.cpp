@@ -39,7 +39,7 @@ void CList::removeItem(Uint16 p_index) {
 Uint16 CList::getItemCount() {
 	return Uint16(m_itemList.size());
 }
-CList::ListItem &CList::getItem(Uint16 p_index) {
+CList::ListItem &CList::getItem(Sint16 p_index) {
 	return m_itemList.at(p_index);
 }
 void CList::clear() {

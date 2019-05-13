@@ -132,7 +132,7 @@ void CMenubar::input(Sint8& p_interactFlags) {
 		Sint32 _height, _eHeight;
 		for (i = 0; i < m_submenu.getVisibleElements().size(); i++) {
 			me = m_submenu.getVisibleElements()[i];
-			_buttonWidth = Font::getMessageWidth(me->getName()).x + 16;
+			_buttonWidth = Font::getMessageWidth(me->getDisplayName()).x + 16;
 			if (m_currDir != "" && _splitDir[0] == me->getName()) {
 				std::vector<std::string> _path;
 				Submenu* _submenu = &m_submenu;
@@ -155,7 +155,7 @@ void CMenubar::input(Sint8& p_interactFlags) {
 						_height = 0;
 						for (Uint16 k = 0; k < _submenu->getVisibleElements().size(); k++) {
 							me = _submenu->getVisibleElements()[k];
-							_subWidth = std::fmaxf(_subWidth, Font::getMessageWidth(me->getName()).x);
+							_subWidth = std::fmaxf(_subWidth, Font::getMessageWidth(me->getDisplayName()).x);
 							_descWidth = std::fmaxf(_descWidth, Font::getMessageWidth(me->getDesc()).x);
 							_eHeight = me->getHeight();
 							if (j < _splitDir.size() - 1 && _splitDir.at(j + 1) == me->getName()) {
@@ -203,7 +203,7 @@ void CMenubar::input(Sint8& p_interactFlags) {
 		w = 0;
 		for (i = 0; i < m_submenu.getVisibleElements().size(); i++) {
 			me = m_submenu.getVisibleElements()[i];
-			_buttonWidth = Font::getMessageWidth(me->getName()).x + 16;
+			_buttonWidth = Font::getMessageWidth(me->getDisplayName()).x + 16;
 			if (_mousePos.x - w >= 0 && _mousePos.x - w < Sint32(_buttonWidth) &&
 				_mousePos.y >= 0 && _mousePos.y < m_size.y) {
 				m_currDir = me->getName();
@@ -265,20 +265,18 @@ void CMenubar::update(GLfloat p_deltaUpdate) {
 	Sint32 _selectHeight = 0;
 	Sint32 _iconWidth = Font::getSpacingHeight();
 	for (Uint16 i = 0; i < m_submenu.getElements().size(); i++) {
-		_buttonName = m_submenu.getElements()[i]->getName();
+		_buttonName = m_submenu.getElements()[i]->getDisplayName();
 		_buttonWidth = Font::getMessageWidth(_buttonName).x + 16;
 		m_submenu.getElements()[i]->update();
 		m_submenu.updateElements();
 
 		if (_splitDir[0] == m_submenu.getElements()[i]->getName()) {
 			Submenu* _submenu = &m_submenu;
-			std::string _subName;
 			Sint32 _subWidth, _descWidth;
 			_selectHeight = 0;
 			for (Uint16 j = 0; j < _splitDir.size(); j++) {
 				Sint32 _sh = 0;
 				_submenu = _submenu->find(_splitDir[j]);
-				_subName = _submenu->getName();
 				_submenu->updateElements();
 				if (j > 0) {
 					_subWidth = 0;
@@ -288,7 +286,7 @@ void CMenubar::update(GLfloat p_deltaUpdate) {
 				}
 				_descWidth = 0;
 				for (Uint16 k = 0; k < _submenu->getElements().size(); k++) {
-					_subWidth = std::fmaxf(_subWidth, Font::getMessageWidth(_submenu->getElements()[k]->getName()).x);
+					_subWidth = std::fmaxf(_subWidth, Font::getMessageWidth(_submenu->getElements()[k]->getDisplayName()).x);
 					_descWidth = std::fmaxf(_descWidth, Font::getMessageWidth(_submenu->getElements()[k]->getDesc()).x);
 					_submenu->getElements()[k]->update();
 					if (j < _splitDir.size() - 1 && _splitDir.at(j + 1) == _submenu->getElements()[k]->getName()) {
@@ -380,20 +378,18 @@ void CMenubar::render() {
 	Sint32 _height, _eHeight;
 	Font::setAlignment(ALIGN_LEFT);
 	for (Uint16 i = 0; i < m_submenu.getVisibleElements().size(); i++) {
-		_buttonName = m_submenu.getVisibleElements()[i]->getName();
+		_buttonName = m_submenu.getVisibleElements()[i]->getDisplayName();
 		_buttonWidth = Font::getMessageWidth(_buttonName).x + 16;
 
 		if (_splitDir[0] == m_submenu.getVisibleElements()[i]->getName()) {
 			Font::setAlignment(Alignment::ALIGN_LEFT);
 			Submenu* _submenu = &m_submenu;
-			std::string _subName;
 			Sint32 _subWidth, _descWidth;
 			_selectHeight = 0;
 			GBuffer::renderShadow(Vector2<Sint32>(), Vector2<Sint32>(_buttonWidth, m_size.y));
 			for (Uint16 j = 0; j < _splitDir.size(); j++) {
 				Sint32 _sh = 0;
 				_submenu = _submenu->find(_splitDir[j]);
-				_subName = _submenu->getName();
 				if (j > 0) {
 					_subWidth = 0;
 				}
@@ -404,7 +400,7 @@ void CMenubar::render() {
 				_height = 0;
 				for (Uint16 k = 0; k < _submenu->getVisibleElements().size(); k++) {
 					MenuElement* me = _submenu->getVisibleElements()[k];
-					_subWidth = std::fmaxf(_subWidth, Font::getMessageWidth(me->getName()).x);
+					_subWidth = std::fmaxf(_subWidth, Font::getMessageWidth(me->getDisplayName()).x);
 					_descWidth = std::fmaxf(_descWidth, Font::getMessageWidth(me->getDesc()).x);
 					_eHeight = me->getHeight();
 					if (j < _splitDir.size() - 1 && _splitDir.at(j + 1) == me->getName()) {
@@ -443,7 +439,7 @@ void CMenubar::render() {
 						Shader::popMatrixModel();
 					}
 					else {
-						if ((Uint16)_splitDir.size() > j + 1 && _splitDir[j + 1] == me->getName()
+						if ((Uint16)_splitDir.size() > j + 1 && _splitDir[j + 1] == me->getDisplayName()
 							|| me->getHoverTimer() > 0) {
 							GBuffer::setColor(m_colorThemeMap.at("actionHovered").applyScale(Color(1, 1, 1, me->getHoverTimer())));
 							GBuffer::addQuadFilled(Vector2<Sint32>(0, _height), Vector2<Sint32>(_subWidth + _descWidth + _iconWidth, _eHeight));
@@ -459,7 +455,7 @@ void CMenubar::render() {
 							}
 						}
 						GBuffer::setColor(m_colorThemeMap.at("textLight"));
-						Font::print(me->getName(), _iconWidth, Sint32(_height + _eHeight / 2));
+						Font::print(me->getDisplayName(), _iconWidth, Sint32(_height + _eHeight / 2));
 						Font::print(me->getDesc(), _iconWidth + _subWidth, Sint32(_height + _eHeight / 2));
 						if (me->getType() == ElementType::SUBMENU) {
 							Shader::pushMatrixModel();
@@ -489,7 +485,7 @@ void CMenubar::render() {
 		}
 		GBuffer::setColor(m_colorThemeMap.at("textLight"));
 		Font::setAlignment(Alignment::ALIGN_CENTER);
-		Font::print(m_submenu.getVisibleElements()[i]->getName(), _buttonWidth / 2, (m_size.y) / 2);
+		Font::print(m_submenu.getVisibleElements()[i]->getDisplayName(), _buttonWidth / 2, (m_size.y) / 2);
 		Shader::translate(glm::vec3((GLfloat)_buttonWidth, 0.f, 0.f));
 	}
 	Shader::popMatrixModel();

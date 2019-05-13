@@ -383,11 +383,17 @@ void Model::updateMatrixList() {
 		if (li.state == 2)
 			selectSet.insert(li.name);
 	}
+	std::string selected;
+	if (m_nameList->getSelectedItem() == -1)
+		selected = m_nameList->getItem(m_nameList->getSelectedItem()).name;
 	m_nameList->clear();
 	Sint32 id = 0;
 	for (Matrix* m : *m_sModel->getMatrixList()) {
 		m->setId(id);
 		m_nameList->addItem(m->getName(), m->isVisible(), selectSet.find(m->getName()) != selectSet.end());
+		if (m->getName() == selected) {
+			m_nameList->setSelectedItem(id);
+		}
 		id++;
 	}
 }

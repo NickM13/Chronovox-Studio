@@ -13,7 +13,7 @@ bool Application::init(char *p_filePath) {
 	Logger::logNormal("Initializing application...");
 
 	GScreen::setAppName("Chronovox Studio");
-	GScreen::setAppVersion("1.2.4.1");
+	GScreen::setAppVersion("1.2.6");
 	GScreen::setWindowTitle("Chronovox Studio");
 	GScreen::setDeveloper(true);
 	GScreen::enableShadows(false);
@@ -186,7 +186,7 @@ void Application::init3dPersp() {
 	Shader::loadIdentityView();
 	Shader::loadIdentityProjection();
 
-	glm::mat4 projection = glm::perspective((GLfloat)glm::radians(GScreen::getFov()), (GLfloat)GScreen::getScreenSize().x / GScreen::getScreenSize().y, 0.1f, 2000.0f);
+	glm::mat4 projection = glm::perspective((GLfloat)glm::radians(GScreen::getFov()), (GLfloat)GScreen::getScreenSize().x / GScreen::getScreenSize().y, 0.1f, 10000.0f);
 	Shader::transformProjection(projection);
 	Shader::applyProjection();
 	Camera::setProjectionMatrix(projection);
@@ -194,7 +194,6 @@ void Application::init3dPersp() {
 	glUniform1i(4, 0);
 }
 void Application::init3dOrtho() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
@@ -303,6 +302,7 @@ void Application::render() {
 	Shader::useProgram("shadowmap");
 	Shader::setLightEnabled(false);
 	init3dPersp();
+	glUniform1f(8, 1.f); // Depth multiplier for matrix move tool
 	glUniformMatrix4fv(10, 1, GL_FALSE, &depthBiasMVP[0][0]);
 	glUniform3f(11, m_editor->getSunlightDir().x, m_editor->getSunlightDir().y, m_editor->getSunlightDir().z);
 	m_editor->render3d();

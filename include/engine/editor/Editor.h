@@ -63,8 +63,8 @@ public:
 	~Editor();
 	bool attemptClose();
 
-	static Animation* getAnimation() { if (m_cProj) return (Animation*)m_cProj->editor; return 0; }
-	static Model* getModel() { if (m_cProj) return (Model*)m_cProj->editor; return 0; }
+	static Animation* getAnimation() { if (m_cProj && m_cProj->mode == EditorMode::ANIMATION) return (Animation*)m_cProj->editor; return 0; }
+	static Model* getModel() { if (m_cProj && m_cProj->mode == EditorMode::MODEL) return (Model*)m_cProj->editor; return 0; }
 
 	static void setDataString(std::string* p_dataString);
 

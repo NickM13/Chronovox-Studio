@@ -34,7 +34,7 @@ public:
 	Component* insertItem(Uint16 p_index, std::string p_itemName);
 	void removeItem(Uint16 p_itemName);
 	Uint16 getItemCount();
-	ListItem &getItem(Uint16 p_index);
+	ListItem &getItem(Sint16 p_index);
 	std::vector<ListItem> getItemList() { return m_itemList; }
 	void clear();
 

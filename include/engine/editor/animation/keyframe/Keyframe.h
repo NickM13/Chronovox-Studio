@@ -8,10 +8,11 @@ public:
 	GLfloat m_start = 0;
 	GLfloat m_length = 0;
 	enum TransformationType {
-		TRANSLATION = 0,
-		ROTATION = 1,
-		SCALE = 2
-	} m_transformationType = {};
+		NONE = 0,
+		TRANSLATION = 1,
+		ROTATION = 2,
+		SCALE = 3
+	} m_transformationType;
 	Vector3<GLfloat> m_focus = {};
 	Vector3<GLfloat> m_value = {};
 

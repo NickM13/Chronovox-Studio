@@ -7,6 +7,7 @@ layout(location=3) uniform vec4 colorScalar;
 layout(location=4) uniform sampler2D texMap;
 layout(location=5) uniform vec3 light;
 layout(location=6) uniform bool useLight;
+layout(location=8) uniform float depthLayer; // For rendering 3d objects ontop of other objects
 
 layout(location=0) in vec4 vertexPosition;
 layout(location=1) in vec4 vertexColor;

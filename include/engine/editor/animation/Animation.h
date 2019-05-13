@@ -7,8 +7,7 @@
 
 class Animation : public TEMode {
 private:
-	std::vector<std::string> m_matrixList; // List of matrices used in animation
-	SimpleModel* m_model; // Visual aid for animation, animations are based on matrix names
+	SimpleModel* m_model; // Visual aid for animation, animation skeletons are based on matrices
 
 	std::string m_animationName;
 	Sint32 m_animationLength;

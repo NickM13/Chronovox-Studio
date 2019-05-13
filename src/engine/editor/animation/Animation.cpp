@@ -11,7 +11,7 @@ Animation::~Animation() {
 }
 void Animation::init(SimpleModel* p_model) {
 	m_model = p_model;
-	m_keyframeTimeline = (KeyframeTimeline*)AnimationOverlay::getContainer()->findComponent("TIMELINE_KEYFRAME");
+	m_keyframeTimeline = (KeyframeTimeline*)AnimationOverlay::getContainer()->findComponent("GUI_WORKSPACE\\TIMELINE_KEYFRAME");
 	setAnimationLength(2000);
 }
 
