@@ -40,10 +40,14 @@ void NumberField::input(Sint8& p_interactFlags) {
 		std::vector<GKey::KeyEvent> _keyEvents = GKey::getKeyEvents();
 		for (Uint16 i = 0; i < _keyEvents.size(); i++) {
 			if (_keyEvents[i].action != 0) {
-				if (_keyEvents[i].keyCode == GLFW_KEY_ENTER || _keyEvents[i].keyCode == GLFW_KEY_TAB) {
-					p_interactFlags += (Sint8)EventFlag::KEYPRESS;
-					m_selected = 0;
-					callReleaseFunction();
+				if (_keyEvents[i].keyCode == GLFW_KEY_ENTER) {
+					nextComponent();
+				}
+				else if (_keyEvents[i].keyCode == GLFW_KEY_TAB) {
+					if (GKey::modDown(GLFW_MOD_SHIFT))
+						prevComponent();
+					else
+						nextComponent();
 				}
 				else if (_keyEvents[i].keyCode == GLFW_KEY_ESCAPE) {
 					m_selected = 0;
@@ -143,25 +147,25 @@ void NumberField::render() {
 	GBuffer::setTexture(0);
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 
-	if (m_selected) GBuffer::setColor(m_colorThemeMap.at("borderElementFocused"));
-	else			GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+	if (m_selected) GBuffer::setColor(getElementColor(getElementPos() + "BorderFocused"));
+	else			GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
 
 	GBuffer::addVertexQuad(-1, -1);
 	GBuffer::addVertexQuad((m_size.x + 1), -1);
 	GBuffer::addVertexQuad((m_size.x + 1), (m_size.y + 1));
 	GBuffer::addVertexQuad(-1, (m_size.y + 1));
 
-	GBuffer::setColor(m_colorThemeMap.at("primaryText"));
+	GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed"));
 
 	GBuffer::addVertexQuad(0, 0);
 	GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
 	GBuffer::addVertexQuad(GLfloat(m_size.x), GLfloat(m_size.y));
 	GBuffer::addVertexQuad(0, GLfloat(m_size.y));
 
-	GBuffer::setColor(m_colorThemeMap.at("textLight"));
+	GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
 	Font::setAlignment(ALIGN_RIGHT);
 	Font::print(m_title, -2, Sint32(0.5f * Font::getSpacingHeight()));
-	GBuffer::setColor(m_colorThemeMap.at("textLight"));
+	GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
 	Font::setAlignment(ALIGN_LEFT);
 	Font::print(m_numText, 2, Sint32(0.5f * Font::getSpacingHeight()));
 	if (m_selected != 0 && (fmod(glfwGetTime(), 0.5) < 0.25)) {

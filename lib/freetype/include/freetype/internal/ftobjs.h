@@ -413,7 +413,7 @@ FT_BEGIN_HEADER
    *     if necessary.
    *
    *   glyph_hints ::
-   *     Format-specific glyph hints management.
+   *     LFormat-specific glyph hints management.
    *
    *   load_flags ::
    *     The load flags passed as an argument to @FT_Load_Glyph while

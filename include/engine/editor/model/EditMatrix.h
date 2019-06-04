@@ -32,6 +32,7 @@ public:
 	void undo();
 	void redo();
 	void clearCommands();
+	void clearForwardCommands();
 
 	void reset(bool p_saveChanges = true);
 

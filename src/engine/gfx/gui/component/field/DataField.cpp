@@ -29,7 +29,7 @@ void DataField::render() {
 	Shader::pushMatrixModel();
 	GBuffer::setTexture(0);
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
-	GBuffer::setColor(m_colorThemeMap.at("textLight"));
+	GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
 	Font::setAlignment(ALIGN_LEFT);
 	Font::print(*m_dataString, 0, Sint32(Font::getHeight()));
 	Shader::popMatrixModel();

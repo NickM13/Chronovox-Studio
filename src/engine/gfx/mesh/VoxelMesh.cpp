@@ -4,7 +4,11 @@
 #include "engine\editor\camera\Camera.h"
 
 VoxelMesh::VoxelMesh() {
-	glGenVertexArrays(1, &m_vaoId);
+	// No longer initialize here due to OpenGL being finicky
+	// when running in a multi-threaded application.
+	// Easier to just singleton-style gen on the run
+
+	/*glGenVertexArrays(1, &m_vaoId);
 	glBindVertexArray(m_vaoId);
 	glGenBuffers(3, m_vboId);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboId[0]);
@@ -14,16 +18,25 @@ VoxelMesh::VoxelMesh() {
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboId[2]);
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);*/
 }
 
 VoxelMesh::~VoxelMesh() {
-	glDeleteVertexArrays(1, &m_vaoId);
-	glDeleteBuffers(3, m_vboId);
+	if (m_vaoId != 0) {
+		glDeleteVertexArrays(1, &m_vaoIdWire);
+		glDeleteBuffers(3, m_vboIdWire);
+
+		glDeleteVertexArrays(1, &m_vaoId);
+		glDeleteBuffers(3, m_vboId);
+	}
+	destroyMesh();
 }
 
 void VoxelMesh::destroyMesh() {
-	// Not really necessary, hmmm
+	m_colors.clear();
+	m_normals.clear();
+	m_vertices.clear();
+	m_verticesWire.clear();
 }
 
 Vector4<GLfloat> VoxelMesh::getAO(Vector3<Uint16> p_pos, Voxel*** p_voxels, Uint8 p_side) {
@@ -72,8 +85,20 @@ Vector4<GLfloat> VoxelMesh::getAO(Vector3<Uint16> p_pos, Voxel*** p_voxels, Uint
 }
 
 void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Sint16> p_dimensions) {
+	destroyMesh();
+
+	m_meshType = MeshType::MESH;
 	Logger::logDiagnostic("Creating VoxelMesh (No AO), size {" + p_dimensions.toString() + "}...");
 	GLfloat start = glfwGetTime();
+	
+	glm::vec3 normals[6] = {
+		glm::vec3(-1,  0,  0),
+		glm::vec3( 1,  0,  0),
+		glm::vec3( 0,  0,  1),
+		glm::vec3( 0,  0, -1),
+		glm::vec3( 0,  1,  0),
+		glm::vec3( 0, -1,  0)
+	};
 
 	Voxel*** _voxels;
 	Sint8*** _faces;
@@ -95,8 +120,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 			}
 		}
 	}
-	m_colors.clear();
-	m_vertices.clear();
+
 	Uint16 x, y, z;
 	Uint16 x2, y2, z2;
 	Uint16 _interactionType;
@@ -149,6 +173,14 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + z2));
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
+
+					m_verticesWire.push_back(glm::vec3(x1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1, y1, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1, y1, z1 + z2));		m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1 + z2));	m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1));
+					m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1));		m_verticesWire.push_back(glm::vec3(x1, y1, z1));
+
+					for (Uint16 k = 0; k < 4; k++) m_normals.push_back(normals[0]);
 				}
 			}
 		}
@@ -200,6 +232,14 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1));
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1 + z2));
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + 1, y1, z1 + z2));
+
+					m_verticesWire.push_back(glm::vec3(x1 + 1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1 + 1, y1 + y2, z1));
+					m_verticesWire.push_back(glm::vec3(x1 + 1, y1 + y2, z1));		m_verticesWire.push_back(glm::vec3(x1 + 1, y1 + y2, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1 + 1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1 + 1, y1 + y2, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1 + 1, y1 + y2, z1 + z2));	m_verticesWire.push_back(glm::vec3(x1 + 1, y1, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1 + 1, y1, z1 + z2));		m_verticesWire.push_back(glm::vec3(x1 + 1, y1, z1));
+
+					for (Uint16 k = 0; k < 4; k++) m_normals.push_back(normals[1]);
 				}
 			}
 		}
@@ -251,6 +291,14 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + 1));
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1 + 1));
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + 1));
+
+					m_verticesWire.push_back(glm::vec3(x1, y1, z1 + 1));			m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1 + 1));
+					m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1 + 1));		m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + y2, z1 + 1));
+					m_verticesWire.push_back(glm::vec3(x1, y1, z1 + 1));			m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + y2, z1 + 1));
+					m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + y2, z1 + 1));	m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1 + 1));
+					m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1 + 1));		m_verticesWire.push_back(glm::vec3(x1, y1, z1 + 1));
+
+					for (Uint16 k = 0; k < 4; k++) m_normals.push_back(normals[2]);
 				}
 			}
 		}
@@ -301,6 +349,14 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1));
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
+
+					m_verticesWire.push_back(glm::vec3(x1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1));
+					m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1));		m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + y2, z1));
+					m_verticesWire.push_back(glm::vec3(x1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + y2, z1));
+					m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + y2, z1));	m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1));
+					m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1));		m_verticesWire.push_back(glm::vec3(x1, y1, z1));
+
+					for (Uint16 k = 0; k < 4; k++) m_normals.push_back(normals[3]);
 				}
 			}
 		}
@@ -351,6 +407,14 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1 + 1, z1 + z2));
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1 + z2));
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1));
+
+					m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1));			m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1 + z2));		m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + 1, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1));			m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + 1, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + 1, z1 + z2));	m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + 1, z1));
+					m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + 1, z1));		m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1));
+
+					for (Uint16 k = 0; k < 4; k++) m_normals.push_back(normals[4]);
 				}
 			}
 		}
@@ -401,6 +465,14 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + z2));
 					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
+
+					m_verticesWire.push_back(glm::vec3(x1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1));
+					m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1));		m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1 + z2));	m_verticesWire.push_back(glm::vec3(x1, y1, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1, y1, z1 + z2));		m_verticesWire.push_back(glm::vec3(x1, y1, z1));
+
+					for (Uint16 k = 0; k < 4; k++) m_normals.push_back(normals[5]);
 				}
 			}
 		}
@@ -416,26 +488,48 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 	delete[] _voxels;
 	delete[] _faces;
 
-	glGenVertexArrays(1, &m_vaoId);
-	glBindVertexArray(m_vaoId);
-	glGenBuffers(2, m_vboId);
+	if (m_vertices.size() == 0) return;
+
+	if (!m_vaoId) {
+		glGenVertexArrays(1, &m_vaoIdWire);
+		glBindVertexArray(m_vaoIdWire);
+		glGenBuffers(1, m_vboIdWire);
+
+		glGenVertexArrays(1, &m_vaoId);
+		glBindVertexArray(m_vaoId);
+		glGenBuffers(3, m_vboId);
+	} else {
+		glBindVertexArray(m_vaoId);
+	}
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboId[0]);
 	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(GLfloat) * 3, &m_vertices[0].x, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboId[1]);
 	glBufferData(GL_ARRAY_BUFFER, m_colors.size() * sizeof(GLfloat) * 4, &m_colors[0].r, GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboId[2]);
+	glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(GLfloat) * 3, &m_normals[0].x, GL_STATIC_DRAW);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(m_vaoIdWire);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboIdWire[0]);
+	glBufferData(GL_ARRAY_BUFFER, m_verticesWire.size() * sizeof(GLfloat) * 3, &m_verticesWire[0].x, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	Logger::logDiagnostic("Created mesh in " + std::to_string(glfwGetTime() - start) + " seconds");
 	Logger::logDiagnostic("Mesh vertices(" + std::to_string(m_vertices.size()) + "), colors(" + std::to_string(m_colors.size()) + ")");
 }
 
 void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Sint16> p_dimensions) {
+	destroyMesh();
+
+	m_meshType = MeshType::MESHAO;
 	Logger::logDiagnostic("Creating VoxelMesh (AO), size {" + p_dimensions.toString() + "}...");
 	GLfloat start = glfwGetTime();
-
+	
 	glm::vec3 normals[6] = {
 		glm::vec3(-1,  0,  0),
 		glm::vec3( 1,  0,  0),
@@ -444,11 +538,9 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 		glm::vec3( 0,  1,  0),
 		glm::vec3( 0, -1,  0)
 	};
-	Voxel*** _voxels;
-	Sint8*** _faces;
 	// Outside voxels are for continuing lighting, and are not rendered
-	_voxels = new Voxel**[p_dimensions.x + 2];
-	_faces = new Sint8**[p_dimensions.x + 2];
+	Voxel*** _voxels = new Voxel**[p_dimensions.x + 2];
+	Sint8*** _faces = new Sint8**[p_dimensions.x + 2];
 	for(Uint16 x = 0; x < p_dimensions.x + 2; x++) {
 		_voxels[x] = new Voxel*[p_dimensions.y + 2];
 		_faces[x] = new Sint8*[p_dimensions.y + 2];
@@ -464,9 +556,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 			}
 		}
 	}
-	m_colors.clear();
-	m_vertices.clear();
-	m_normals.clear();
+
 	Uint16 x, y, z;
 	Uint16 x2, y2, z2;
 	Vector4<GLfloat> ao;
@@ -525,17 +615,24 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 					p[2] = ao.x2 + (ao.y1 + ao.y2) / 2;
 					p[3] = ao.y2 + (ao.x1 + ao.x2) / 2;
 					if((p[0] >= p[1] && p[0] >= p[3]) || (p[2] >= p[1] && p[2] >= p[3])) {
-						m_colors.push_back(_color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1, z1));
-						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
-						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + z2));
-						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
+						m_colors.push_back(_color * ao.x1);						m_vertices.push_back(glm::vec3(x1, y1, z1));
+						m_colors.push_back(_color * ao.y2);						m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
+						m_colors.push_back(_color * ao.x2);						m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + z2));
+						m_colors.push_back(_color * ao.y1);						m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
+						m_verticesWire.push_back(glm::vec3(x1, y1, z1));		m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1 + z2));
 					}
 					else {
-						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
-						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + z2));
-						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
-						m_colors.push_back(_color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1, z1));
+						m_colors.push_back(_color * ao.y2);						m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
+						m_colors.push_back(_color * ao.x2);						m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + z2));
+						m_colors.push_back(_color * ao.y1);						m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
+						m_colors.push_back(_color * ao.x1);						m_vertices.push_back(glm::vec3(x1, y1, z1));
+						m_verticesWire.push_back(glm::vec3(x1, y1, z1 + z2));	m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1));
 					}
+					m_verticesWire.push_back(glm::vec3(x1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1, y1, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1, y1, z1 + z2));		m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1 + z2));	m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1));
+					m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1));		m_verticesWire.push_back(glm::vec3(x1, y1, z1));
+
 					for(Uint16 k = 0; k < 4; k++) m_normals.push_back(normals[0]);
 				}
 			}
@@ -596,13 +693,20 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1));
 						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1 + z2));
 						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1 + 1, y1, z1 + z2));
+						m_verticesWire.push_back(glm::vec3(x1 + 1, y1, z1)); m_verticesWire.push_back(glm::vec3(x1 + 1, y1 + y2, z1 + z2));
 					}
 					else {
 						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1 + 1, y1, z1 + z2));
 						m_colors.push_back(_color * ao.x1); m_vertices.push_back(glm::vec3(x1 + 1, y1, z1));
 						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1));
 						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1 + z2));
+						m_verticesWire.push_back(glm::vec3(x1 + 1, y1, z1 + z2)); m_verticesWire.push_back(glm::vec3(x1 + 1, y1 + y2, z1));
 					}
+					m_verticesWire.push_back(glm::vec3(x1 + 1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1 + 1, y1 + y2, z1));
+					m_verticesWire.push_back(glm::vec3(x1 + 1, y1 + y2, z1));		m_verticesWire.push_back(glm::vec3(x1 + 1, y1 + y2, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1 + 1, y1 + y2, z1 + z2));	m_verticesWire.push_back(glm::vec3(x1 + 1, y1, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1 + 1, y1, z1 + z2));		m_verticesWire.push_back(glm::vec3(x1 + 1, y1, z1));
+
 					for(Uint16 k = 0; k < 4; k++) m_normals.push_back(normals[1]);
 				}
 			}
@@ -663,13 +767,20 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + 1));
 						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1 + 1));
 						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + 1));
+						m_verticesWire.push_back(glm::vec3(x1, y1, z1 + 1)); m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + y2, z1 + 1));
 					}
 					else {
 						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + 1));
 						m_colors.push_back(_color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1, z1 + 1));
 						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + 1));
 						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1 + 1));
+						m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1 + 1)); m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1 + 1));
 					}
+					m_verticesWire.push_back(glm::vec3(x1, y1, z1 + 1));			m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1 + 1));
+					m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1 + 1));		m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + y2, z1 + 1));
+					m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + y2, z1 + 1));	m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1 + 1));
+					m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1 + 1));		m_verticesWire.push_back(glm::vec3(x1, y1, z1 + 1));
+
 					for(Uint16 k = 0; k < 4; k++) m_normals.push_back(normals[2]);
 				}
 			}
@@ -729,13 +840,20 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
 						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1));
 						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
+						m_verticesWire.push_back(glm::vec3(x1, y1, z1)); m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + y2, z1));
 					}
 					else {
 						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
 						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1));
 						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
 						m_colors.push_back(_color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1, z1));
+						m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1)); m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1));
 					}
+					m_verticesWire.push_back(glm::vec3(x1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1));
+					m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1));		m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + y2, z1));
+					m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + y2, z1));	m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1));
+					m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1));		m_verticesWire.push_back(glm::vec3(x1, y1, z1));
+
 					for(Uint16 k = 0; k < 4; k++) m_normals.push_back(normals[3]);
 				}
 			}
@@ -795,13 +913,20 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + 1, z1 + z2));
 						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1 + z2));
 						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1));
+						m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1)); m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + 1, z1 + z2));
 					}
 					else {
 						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + 1, z1 + z2));
 						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1 + z2));
 						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1));
 						m_colors.push_back(_color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1 + 1, z1));
+						m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1 + z2)); m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + 1, z1));
 					}
+					m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1));			m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1 + z2));		m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + 1, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + 1, z1 + z2));	m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + 1, z1));
+					m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + 1, z1));		m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1));
+
 					for(Uint16 k = 0; k < 4; k++) m_normals.push_back(normals[4]);
 				}
 			}
@@ -861,13 +986,20 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
 						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + z2));
 						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
+						m_verticesWire.push_back(glm::vec3(x1, y1, z1)); m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1 + z2));
 					}
 					else {
 						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
 						m_colors.push_back(_color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1, z1));
 						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
 						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + z2));
+						m_verticesWire.push_back(glm::vec3(x1, y1, z1 + z2)); m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1));
 					}
+					m_verticesWire.push_back(glm::vec3(x1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1));
+					m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1));		m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1 + z2));	m_verticesWire.push_back(glm::vec3(x1, y1, z1 + z2));
+					m_verticesWire.push_back(glm::vec3(x1, y1, z1 + z2));		m_verticesWire.push_back(glm::vec3(x1, y1, z1));
+
 					for(Uint16 k = 0; k < 4; k++) m_normals.push_back(normals[5]);
 				}
 			}
@@ -884,10 +1016,20 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 	delete[] _voxels;
 	delete[] _faces;
 
-	if(m_vertices.size() == 0) {
-		return;
+	if(m_vertices.size() == 0) return;
+	
+	if (!m_vaoId) {
+		glGenVertexArrays(1, &m_vaoIdWire);
+		glBindVertexArray(m_vaoIdWire);
+		glGenBuffers(1, m_vboIdWire);
+
+		glGenVertexArrays(1, &m_vaoId);
+		glBindVertexArray(m_vaoId);
+		glGenBuffers(3, m_vboId);
 	}
-	glBindVertexArray(m_vaoId);
+	else {
+		glBindVertexArray(m_vaoId);
+	}
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboId[0]);
 	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(GLfloat) * 3, &m_vertices[0].x, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -900,13 +1042,20 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	glBindVertexArray(m_vaoIdWire);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboIdWire[0]);
+	glBufferData(GL_ARRAY_BUFFER, m_verticesWire.size() * sizeof(GLfloat) * 3, &m_verticesWire[0].x, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
 	Logger::logDiagnostic("Created mesh in " + std::to_string(glfwGetTime() - start) + " seconds");
 	Logger::logDiagnostic("Mesh vertices(" + std::to_string(m_vertices.size()) + "), colors(" + std::to_string(m_colors.size()) + ")");
 }
 
 void VoxelMesh::renderMesh() {
+	if (!m_vaoId) return;
 	Shader::applyModel();
-	glUniform4f(3, 1, 1, 1, 1);
+	Shader::setColor(glm::vec4(1.f, 1.f, 1.f, 1.f));
 	glBindVertexArray(m_vaoId);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
@@ -918,7 +1067,22 @@ void VoxelMesh::renderMesh() {
 	glBindVertexArray(0);
 }
 
+void VoxelMesh::renderMeshWireframe() {
+	if (!m_vaoIdWire) return;
+	Shader::setBool("wireframe", true);
+	Shader::applyModel();
+	Shader::setColor(glm::vec4(1.f));
+	glBindVertexArray(m_vaoIdWire);
+	glVertexAttrib4f(1, 1.f, 0.75f, 0.f, 0.75f);
+	glEnableVertexAttribArray(0);
+	glDrawArrays(GL_LINES, 0, GLsizei(m_verticesWire.size()));
+	glDisableVertexAttribArray(0);
+	glBindVertexArray(0);
+	Shader::setBool("wireframe", false);
+}
+
 void VoxelMesh::renderMeshShadow() {
+	if (!m_vaoId) return;
 	Shader::applyModel();
 	glBindVertexArray(m_vaoId);
 	glEnableVertexAttribArray(0);

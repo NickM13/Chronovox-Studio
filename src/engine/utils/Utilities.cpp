@@ -364,6 +364,9 @@ void FileExt::writeShort(std::ofstream& p_fileStream, Sint16 p_ushort) {
 void FileExt::writeChar(std::ofstream& p_fileStream, Uint8 p_uchar) {
 	p_fileStream << p_uchar;
 }
+void FileExt::writeFloat(std::ofstream& p_fileStream, GLfloat p_float) {
+	p_fileStream.write(reinterpret_cast<const char*>(&p_float), sizeof(float));
+}
 void FileExt::writeString(std::ofstream& p_fileStream, std::string p_string) {
 	writeChar(p_fileStream, (Uint8)p_string.length());
 	for(Uint16 i = 0; i < p_string.length(); i++)
@@ -387,6 +390,10 @@ Sint16 FileExt::readShort(char* p_fileStream, Uint32& p_index) {
 Uint8 FileExt::readChar(char* p_fileStream, Uint32& p_index) {
 	p_index = p_index + 1;
 	return Uint8(p_fileStream[p_index - 1]);
+}
+GLfloat FileExt::readFloat(char* p_fileStream, Uint32& p_index) {
+	// Todo: Write this
+	return 0;
 }
 std::string FileExt::readString(char* p_fileStream, Uint32& p_index) {
 	std::string str = "";

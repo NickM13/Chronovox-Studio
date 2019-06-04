@@ -5,6 +5,8 @@
 #include "engine\utils\Utilities.h"
 #include "engine\utils\Singleton.h"
 
+#include <map>
+
 enum Alignment {
 	ALIGN_LEFT = 0,
 	ALIGN_CENTER = 1,
@@ -31,7 +33,7 @@ private:
 
 		GLfloat m_spacing = 0;
 	};
-	static std::vector<FontType*> m_fontList;
+	static std::map<std::string, FontType*> m_fontMap;
 	static FontType* m_font;
 
 	static Alignment m_alignment;
@@ -42,6 +44,7 @@ public:
 
 	static void loadFont(std::string p_fontName, std::string p_src, Uint32 p_fontSize);
 	static void setFont(std::string p_fontName);
+	static FontType* getFont(std::string p_fontName) { return m_fontMap[p_fontName]; }
 	static void clean();
 
 	static Sint16 getHeight();

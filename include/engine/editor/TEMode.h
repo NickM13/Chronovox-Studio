@@ -10,6 +10,7 @@ protected:
 	std::string m_name;
 
 	bool m_focus;
+	bool m_building;
 
 	virtual void inputEditor(Sint8 p_guiFlags);
 	virtual void updateEditor(GLfloat p_deltaUpdate);
@@ -17,9 +18,13 @@ protected:
 	virtual void renderEditorShadow();
 public:
 	TEMode();
+	~TEMode();
 
 	virtual bool hasChanged();
 	virtual void setChanged(bool p_changed);
+
+	bool isBuilding() const { return m_building; }
+	void setBuilding(bool p_building) { m_building = p_building; }
 
 	bool isFocusVisible() const { return m_focus; }
 	void toggleFocus() { m_focus = !m_focus; }

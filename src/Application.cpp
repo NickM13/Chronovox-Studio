@@ -13,11 +13,12 @@ bool Application::init(char *p_filePath) {
 	Logger::logNormal("Initializing application...");
 
 	GScreen::setAppName("Chronovox Studio");
-	GScreen::setAppVersion("1.2.6");
+	GScreen::setAppVersion("1.3.0");
 	GScreen::setWindowTitle("Chronovox Studio");
-	GScreen::setDeveloper(true);
+	GScreen::setDeveloper(false);
 	GScreen::enableShadows(false);
 	GScreen::setMinScreenSize(Vector2<Sint32>(600.f, 600.f));
+	GScreen::setSamples(2.f);
 
 	if (!glfwInit()) {
 		Logger::logError("glfw failed to initialize");
@@ -77,13 +78,21 @@ bool Application::init(char *p_filePath) {
 	Shader::getProgram("gui")
 		->loadShader(GL_VERTEX_SHADER, "gui.vert")
 		->loadShader(GL_FRAGMENT_SHADER, "gui.frag");
+	Shader::getProgram("gBuffer")
+		->loadShader(GL_VERTEX_SHADER, "gbuffer.vert")
+		->loadShader(GL_FRAGMENT_SHADER, "gbuffer.frag");
+	Shader::getProgram("deferredShading")
+		->loadShader(GL_VERTEX_SHADER, "deferredshading.vert")
+		->loadShader(GL_FRAGMENT_SHADER, "deferredshading.frag");
+	Shader::getProgram("ssaa")
+		->loadShader(GL_VERTEX_SHADER, "ssaa.vert")
+		->loadShader(GL_FRAGMENT_SHADER, "ssaa.frag");
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.f);
 	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	GLua::init();
-	//GLua::loadScriptFile("script.lua");
 
 	m_editor = new Editor();
 
@@ -107,12 +116,12 @@ void Application::windowResizeCallback(GLFWwindow* p_window, int p_x, int p_y) {
 	init2d();
 }
 
-void Application::mouseEnterCallback(GLFWwindow* p_window, int p_action) {
-	GMouse::setMouseActive(p_action);
+void Application::mouseEnterCallback(GLFWwindow* p_window, int p_Action) {
+	GMouse::setMouseActive(p_Action);
 }
 
 void Application::dropFileCallback(GLFWwindow* p_window, int count, const char** paths) {
-	for (Sint32 i = 0; i < count; i++) {
+	for (Sint32 i = 0; i < 1; i++) {
 		m_editor->dropFile(paths[i]);
 	}
 	glfwFocusWindow(m_mainWindow);
@@ -192,6 +201,7 @@ void Application::init3dPersp() {
 	Camera::setProjectionMatrix(projection);
 
 	glUniform1i(4, 0);
+	glLineWidth(GScreen::getSamples());
 }
 void Application::init3dOrtho() {
 	glMatrixMode(GL_PROJECTION);
@@ -216,6 +226,7 @@ void Application::init3dOrtho() {
 	Shader::applyProjection();
 	Shader::transformView(depthViewMatrix);
 	Shader::applyView();
+	glLineWidth(1);
 }
 
 void Application::run() {
@@ -254,7 +265,8 @@ void Application::run() {
 
 void Application::input() {
 	if (glfwWindowShouldClose(m_mainWindow)) {
-		GScreen::setExitting(1);
+		m_editor->attemptClose();
+		glfwSetWindowShouldClose(m_mainWindow, false);
 	}
 	GMouse::reset();
 	GKey::reset();
@@ -263,17 +275,19 @@ void Application::input() {
 	if (GScreen::isMaximized() && GScreen::isDraggingWindow() && GScreen::getDragStart().y < GMouse::getMousePos().y) {
 		maximize(true);
 	}
-	if (GScreen::finishedResize()) resize();
+	if (GScreen::isFinishedResizing()) resize();
+	else if (GScreen::hasResizeUpdate()) glfwSetWindowSize(m_mainWindow, GScreen::getDragScreenSize().x, GScreen::getDragScreenSize().y);
 	GScreen::updateWindow();
 }
 
 GLfloat _last = 0;
 void Application::update() {
+	Gui::setLoading(GFormat::getLoadPercent());
 	m_editor->update();
 
 	if (GScreen::getWindowCommand() == GScreen::WindowCommand::MINIMIZE)	glfwIconifyWindow(m_mainWindow);
 	if (GScreen::getWindowCommand() == GScreen::WindowCommand::RESIZE)		maximize(false);
-	if (GScreen::getWindowCommand() == GScreen::WindowCommand::CLOSE)		glfwSetWindowShouldClose(m_mainWindow, true);
+	if (GScreen::getWindowCommand() == GScreen::WindowCommand::CLOSE)		m_editor->attemptClose();
 	GScreen::setWindowCommand(GScreen::WindowCommand::NONE);
 
 	GMouse::update(GScreen::getDeltaUpdate());
@@ -291,7 +305,7 @@ void Application::render() {
 		m_editor->unbindShadowBuffer();
 	}
 
-	glm::mat4 biasMatrix{
+	glm::mat4 biasMatrix {
 		0.5, 0.0, 0.0, 0.0,
 		0.0, 0.5, 0.0, 0.0,
 		0.0, 0.0, 0.5, 0.0,
@@ -300,12 +314,18 @@ void Application::render() {
 	glm::mat4 depthBiasMVP = biasMatrix * Shader::getMVP();
 	
 	Shader::useProgram("shadowmap");
-	Shader::setLightEnabled(false);
+	Shader::setBool("useLight", false);
 	init3dPersp();
-	glUniform1f(8, 1.f); // Depth multiplier for matrix move tool
-	glUniformMatrix4fv(10, 1, GL_FALSE, &depthBiasMVP[0][0]);
-	glUniform3f(11, m_editor->getSunlightDir().x, m_editor->getSunlightDir().y, m_editor->getSunlightDir().z);
-	m_editor->render3d();
+
+	m_editor->renderGeometry();
+
+	m_editor->renderLight();
+
+	//Shader::setFloat("depthLayer", 1.f);
+	//Shader::setMat4("DepthBiasMVP", depthBiasMVP);
+	//Shader::setVec3("sunlight", m_editor->getSunlightDir());
+	//Shader::setBool("wireframe", false);
+	//m_editor->render3d();
 
 	Shader::useProgram("gui");
 	init2d();

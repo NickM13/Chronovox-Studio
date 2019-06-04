@@ -7,10 +7,9 @@
 std::map<std::string, Texture*> MTexture::m_textures;
 
 Texture* MTexture::loadTexture(std::string p_texturePath) {
-	std::string path = LDirectory::getProjectPath() + "res\\texture\\" + p_texturePath;
 	std::vector<unsigned char> image;
 	unsigned width, height;
-	unsigned error = lodepng::decode(image, width, height, path.c_str());
+	unsigned error = lodepng::decode(image, width, height, p_texturePath.c_str());
 
 	if (error != 0) {
 		Logger::logError("LodePNG %i: ", lodepng_error_text(error));
@@ -33,7 +32,7 @@ void MTexture::init() {
 	m_textures.insert({"NULL", new Texture()});
 	size_t rootLen = std::string(LDirectory::getProjectPath() + "res\\texture\\").length();
 	for(std::string path : LDirectory::getFilesInDirectory(LDirectory::getProjectPath() + "res\\texture\\", ".png")) {
-		m_textures.insert({ path.substr(rootLen), loadTexture(path.substr(rootLen)) });
+		m_textures.insert({ path.substr(rootLen), loadTexture(path) });
 	}
 }
 
@@ -89,7 +88,6 @@ Texture* MTexture::getTextureById(GLuint p_texId) {
 	return m_textures.at("NULL");
 }
 
-void MTexture::saveTexturePNG(std::string p_filePath, Texture* p_tex) {
-	//ilBindImage(p_tex->getIlId());
-	//ilSave(IL_PNG, p_filePath.c_str());
+void MTexture::saveTexturePNG(const std::string& p_filename, const std::vector<unsigned char>& p_pixels, Uint32 p_width, Uint32 p_height) {
+	lodepng::encode(p_filename, p_pixels, p_width, p_height);
 }

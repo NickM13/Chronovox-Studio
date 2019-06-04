@@ -1098,9 +1098,9 @@ The specifications used are:
 
 *) Portable Network Graphics (PNG) Specification (Second Edition):
      http://www.w3.org/TR/2003/REC-PNG-20031110
-*) RFC 1950 ZLIB Compressed Data Format version 3.3:
+*) RFC 1950 ZLIB Compressed Data LFormat version 3.3:
      http://www.gzip.org/zlib/rfc-zlib.html
-*) RFC 1951 DEFLATE Compressed Data Format Specification ver 1.3:
+*) RFC 1951 DEFLATE Compressed Data LFormat Specification ver 1.3:
      http://www.gzip.org/zlib/rfc-deflate.html
 
 The most recent version of LodePNG can currently be found at

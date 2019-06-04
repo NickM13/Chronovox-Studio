@@ -77,7 +77,7 @@ void CButton::render() {
 		Component::renderBorder();
 	}
 
-	GBuffer::setColor(m_colorThemeMap.at("textLight"));
+	GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
 	Font::setAlignment(ALIGN_CENTER);
 	Font::print(m_title, m_pos.x + m_size.x / 2, m_pos.y + m_size.y / 2);
 }

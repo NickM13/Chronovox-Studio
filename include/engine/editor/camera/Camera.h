@@ -9,9 +9,10 @@ class Camera {
 private:
 	static glm::vec3 m_position, m_rotation;
 	static GLfloat m_zoom, m_tarZoom, m_zoomSpeed;
+	static GLfloat m_autoRotation;
 	static Texture* m_skyTexture;
 	static glm::mat4 m_projectionMatrix;
-	static bool m_dragging;
+	static bool m_draggingRight, m_draggingMiddle;
 
 	static void zoom(GLfloat p_scroll);
 	static void turn(Vector2<Sint32> p_mouseMove);
@@ -25,6 +26,9 @@ public:
 
 	static void resetZoom();
 	static void addZoom(GLfloat p_zoom);
+
+	static void resetAutoRotation();
+	static void addAutoRotation(GLfloat p_speed);
 
 	static void setPosition(glm::vec3 p_position);
 

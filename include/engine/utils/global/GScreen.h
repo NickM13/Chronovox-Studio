@@ -40,12 +40,14 @@ private:
 	static GLFWwindow *m_window;
 	static Vector2<Sint32> m_monitorSize;
 	static Vector2<Sint32> m_windowPos;
+	static GLfloat m_samples;
 	static bool m_maximized;
 	static bool m_iconified;
 	static bool m_focused;
 	static Vector2<Sint32> m_screenSize;
 	static Vector2<Sint32> m_smallScreen;
 	static Vector2<Sint32> m_minScreenSize;
+	static Vector2<Sint32> m_dragScreenSize;
 	static bool m_draggingWindow;
 	static Vector2<Sint32> m_dragStart;
 	static Vector2<Sint32> m_dragDistance;
@@ -53,6 +55,7 @@ private:
 	static Vector2<Sint32> m_resizeMousePos;
 	static bool m_resizing;
 	static bool m_finishedResize;
+	static bool m_resizeUpdate;
 	static bool m_shadows;
 
 	static WindowCommand m_windowCommand;
@@ -73,6 +76,9 @@ public:
 	static void setDeveloper(bool p_developer) { m_developer = p_developer; }
 	static bool isDeveloper() { return m_developer; }
 
+	static void setSamples(GLfloat p_samples) { m_samples = p_samples; }
+	static GLfloat getSamples() { return m_samples; }
+
 	static void setScreenSize(Vector2<Sint32> p_screenSize) { m_screenSize = p_screenSize; }
 	static Vector2<Sint32> getScreenSize() { return m_screenSize; }
 
@@ -81,6 +87,9 @@ public:
 
 	static void setMinScreenSize(Vector2<Sint32> p_screenSize) { m_minScreenSize = p_screenSize; }
 	static Vector2<Sint32> getMinScreenSize() { return m_minScreenSize; }
+
+	static void setDragScreenSize(Vector2<Sint32> p_dragScreenSize) { m_dragScreenSize = p_dragScreenSize; }
+	static Vector2<Sint32> getDragScreenSize() { return m_dragScreenSize; }
 
 	static bool isMaximized() { return m_maximized; }
 	static void setMaximized(bool p_maximized) { m_maximized = p_maximized; }
@@ -123,7 +132,8 @@ public:
 	static void endWindowDrag();
 
 	static void startResizing(ResizeType p_resizeType);
-	static bool finishedResize() { return m_finishedResize; }
+	static bool isFinishedResizing() { return m_finishedResize; }
+	static bool hasResizeUpdate() { return m_resizeUpdate; }
 	static void stopResizing();
 
 	static void updateWindow();

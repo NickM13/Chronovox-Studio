@@ -15,34 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\engine\editor\animation\Animation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\animation\keyframe\Keyframe.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\animation\menu\AnimationOverlay.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\animation\menu\KeyframeTimeline.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\editor\camera\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\editor\model\EditMatrix.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\format\Format.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\format\QbclFormat.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\format\QbFormat.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\format\VoxFormat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\editor\model\tool\matrix\MatrixTool.cpp">
@@ -58,9 +34,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\editor\menu\EditorOverlay.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\format\NvmFormat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\editor\model\Matrix.cpp">
@@ -216,61 +189,19 @@
     <ClCompile Include="src\engine\editor\model\SimpleModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\editor\menu\AboutDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\menu\CloseTabDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\menu\NewModelDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\menu\ModelPropertiesDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\gfx\gui\LGui.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\menu\CloseEditorDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\tool\voxel\single\VoxelSingleTool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\tool\voxel\box\VoxelBoxTool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\tool\voxel\fill\VoxelFillTool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\tool\voxel\box\VBTAdd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\editor\model\tool\voxel\fill\VFTAdd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\editor\model\tool\voxel\single\VSTAdd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\tool\voxel\box\VBTErase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\editor\model\tool\voxel\fill\VFTErase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\tool\voxel\single\VSTErase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\editor\model\tool\voxel\single\VSTEyedrop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\editor\model\tool\voxel\box\VBTReplace.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\editor\model\tool\voxel\fill\VFTReplace.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\tool\voxel\single\VSTReplace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\editor\model\tool\matrix\MTResize.cpp">
@@ -291,27 +222,66 @@
     <ClCompile Include="src\engine\utils\variable\datatype\Color.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\editor\model\format\CsmFormat.cpp">
+    <ClCompile Include="src\engine\editor\model\format\export\StlFormat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\format\export\ObjFormat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\format\export\PlyFormat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\format\LFormat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\format\GFormat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\command\MDeleteCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\command\MDrawCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\command\MMoveCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\command\MNewCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\command\MPasteCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\command\MResizeCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\format\import\CsmFormat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\format\import\NvmFormat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\format\import\QbFormat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\format\import\QbclFormat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\format\import\VoxFormat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\tool\voxel\VTAdd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\tool\voxel\VTErase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\tool\voxel\VTReplace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Application.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\animation\Animation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\animation\command\KDeleteCommand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\animation\keyframe\Keyframe.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\animation\menu\AnimationOverlay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\animation\menu\KeyframeTimeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\engine\editor\camera\Camera.h">
@@ -357,21 +327,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\engine\editor\model\EditMatrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\format\Format.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\format\NvmFormat.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\format\QbclFormat.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\format\QbFormat.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\format\VoxFormat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\engine\editor\model\Matrix.h">
@@ -572,61 +527,10 @@
     <ClInclude Include="include\engine\editor\model\SimpleModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\engine\editor\menu\CloseTabDialog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\menu\AboutDialog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\menu\NewModelDialog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\menu\ModelPropertiesDialog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\engine\gfx\gui\LGui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\engine\editor\menu\CloseEditorDialog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\tool\voxel\single\VoxelSingleTool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\tool\voxel\fill\VoxelFillTool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\tool\voxel\box\VoxelBoxTool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\tool\voxel\single\VSTAdd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\tool\voxel\fill\VFTAdd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\tool\voxel\box\VBTAdd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\tool\voxel\box\VBTErase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\tool\voxel\fill\VFTErase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\tool\voxel\single\VSTErase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\engine\editor\model\tool\voxel\single\VSTEyedrop.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\tool\voxel\box\VBTReplace.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\tool\voxel\fill\VFTReplace.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\engine\editor\model\tool\voxel\single\VSTReplace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\engine\editor\model\tool\matrix\MTResize.h">
@@ -914,7 +818,52 @@
     <ClInclude Include="include\engine\editor\model\tool\matrix\MTSelect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\engine\editor\model\format\CsmFormat.h">
+    <ClInclude Include="include\engine\editor\model\format\export\StlFormat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\editor\model\format\export\ObjFormat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\editor\model\format\export\PlyFormat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\editor\model\format\LFormat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\editor\model\format\GFormat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\editor\model\format\import\CsmFormat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\editor\model\format\import\NvmFormat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\editor\model\format\import\QbclFormat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\editor\model\format\import\VoxFormat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\editor\model\format\import\QbFormat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\editor\model\tool\voxel\VTAdd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\editor\model\tool\voxel\VTErase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\editor\model\tool\voxel\VTReplace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\editor\model\tool\voxel\fill\VFTAdd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\editor\model\tool\voxel\fill\VFTErase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\editor\model\tool\voxel\fill\VFTReplace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

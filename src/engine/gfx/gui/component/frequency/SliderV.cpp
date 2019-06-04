@@ -87,7 +87,7 @@ void CSliderV::render() {
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 
 	//Outline
-	GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+	GBuffer::setColor(m_colorThemeMap.at("BorderUnfocused"));
 	GBuffer::addQuadFilled(Vector2<Sint32>(-m_width / 2.f - 1, -m_height - 1), Vector2<Sint32>(m_width + 2, m_length + m_height * 2 + 2));
 
 	//Background

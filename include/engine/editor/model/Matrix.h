@@ -6,7 +6,6 @@
 
 #include "engine\utils\variable\manager\VoxelManager.h"
 #include "engine\gfx\mesh\VoxelMesh.h"
-#include "..\animation\keyframe\Keyframe.h"
 
 // Data of one component of the Model
 struct Matrix {
@@ -26,7 +25,6 @@ private:
 
 	// Animation vars
 	std::string m_parent;
-	std::vector<Keyframe*> m_keyframes;
 
 public:
 	enum class OutlineType {
@@ -57,27 +55,31 @@ public:
 	void shiftVoxels(glm::ivec3 p_direction);
 	void flip(Sint8 p_axes, glm::vec3 p_focus);
 	void rotate(Sint8 p_axes, glm::vec3 p_focus);
-	void scale(Sint8 p_axes, glm::vec3 p_focus, GLfloat p_power);
+	void scale(glm::vec3 p_scalar, glm::vec3 p_focus);
 
 	Sint16 getId() { return m_id; }
 	std::string &getName() { return m_name; }
 	bool isVisible() { return m_visible; }
 	glm::vec3 getPos() { return m_pos; }
 	glm::ivec3 getSize() { return m_size; }
+	Sint32 getWidth() const { return m_size.x; }
+	Sint32 getHeight() const { return m_size.y; }
+	Sint32 getDepth() const { return m_size.z; }
 	glm::vec3 getCenter() { return (m_pos + (glm::vec3(m_size) / glm::vec3(2))); }
 
 	bool containsPoint(glm::ivec3 p_point);
 
 	std::string &getParent() { return m_parent; }
 	void setParent(std::string p_parent) { m_parent = p_parent; }
-	void addKeyframe(Keyframe* p_keyFrame);
-	void applyAnimation(GLfloat p_time);
-	void clearAnimation() { m_keyframes.clear(); }
 
 	void update();
 	void renderMatrix();
+	void renderMatrixWireframe();
 	void renderShadow();
 	void renderOutline(OutlineType p_outline);
+
+	VoxelMesh* getMesh() const { return m_mesh; }
+	VoxelMesh* getMeshSimple();
 
 	void rasterize();
 };

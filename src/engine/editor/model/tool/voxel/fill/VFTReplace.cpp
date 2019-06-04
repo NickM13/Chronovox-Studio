@@ -1,7 +1,7 @@
 #include "engine\editor\model\tool\voxel\fill\VFTReplace.h"
 
 VFTReplace::VFTReplace()
-	: VoxelFillTool() {
+	: VoxelTool() {
 	m_parent = "Fill";
 	m_toolName = "Fill Replace Tool";
 	m_toolDesc = "Replace Voxel - R";
@@ -14,9 +14,10 @@ void VFTReplace::inputTool() {
 		m_fillArea->use(Voxel(1, MColor::getInstance().getUnitID(*m_color)));
 }
 void VFTReplace::updateTool() {
-	m_fillArea->create(true);
+	if (!GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT))
+		m_fillArea->create(true);
 }
 void VFTReplace::renderTool() {
-	if (!m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel)) return;
-	renderFillMesh();
+	if (m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel))
+		renderFillMesh();
 }

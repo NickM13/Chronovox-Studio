@@ -23,7 +23,7 @@ void Component::init() {
 	loadTheme(); 
 }
 void Component::loadTheme() {
-	std::ifstream themefile(LDirectory::getProjectPath() + "res\\config\\ColorThemeDark.ini");
+	std::ifstream themefile(LDirectory::getProjectPath() + "res\\config\\ColorTheme.ini");
 	if (themefile.good()) {
 		m_colorThemeMap.clear();
 		m_colorThemeMap.insert({ "NULL", Color() });
@@ -45,7 +45,7 @@ void Component::loadTheme() {
 	}
 	themefile.close();
 
-	Color& bg = m_colorThemeMap.at("primaryBackground");
+	Color& bg = m_colorThemeMap.at("modelBackground");
 	glClearColor(bg.r, bg.g, bg.b, 1.f);
 }
 void Component::terminate() {
@@ -59,22 +59,22 @@ Color& Component::getElementColor(std::string p_element) {
 	return m_colorThemeMap.at(p_element);
 }
 Color& Component::getPrimaryColor() {
-	if (getPrimaryPos() != "") {
-		return m_colorThemeMap.at("primary" + getPrimaryPos());
+	if (getElementPos() != "") {
+		return getElementColor(getElementPos() + "Primary");
 	}
 	if (m_parentContainer) {
-		return m_colorThemeMap.at("primary" + m_parentContainer->getPrimaryPos());
+		return getElementColor(m_parentContainer->getElementPos() + "Primary");
 	}
-	return m_colorThemeMap.at("NULL");
+	return getElementColor("NULL");
 }
-std::string Component::getPrimaryPos() {
-	if (m_parentContainer != 0 && m_primaryPos == "") {
-		return m_parentContainer->getPrimaryPos();
+std::string Component::getElementPos() {
+	if (m_parentContainer != 0 && m_elementPos == "") {
+		return m_parentContainer->getElementPos();
 	}
-	return m_primaryPos;
+	return m_elementPos;
 }
-void Component::setPrimaryPos(std::string p_pp) {
-	m_primaryPos = p_pp;
+void Component::setElementPos(std::string p_pp) {
+	m_elementPos = p_pp;
 }
 Component* Component::addItem(std::string p_item) { return this; }
 Uint16 Component::getItemCount() { return 0; }
@@ -105,6 +105,19 @@ Component* Component::callHoldFunction() {
 Component* Component::callReleaseFunction() {
 	if (m_releaseFunction) m_releaseFunction();
 	return this;
+}
+
+void Component::prevComponent() {
+	if (m_prevComp) {
+		m_selected = 0;
+		m_prevComp->setState(1);
+	}
+}
+void Component::nextComponent() {
+	if (m_nextComp) {
+		m_selected = 0;
+		m_nextComp->setState(1);
+	}
 }
 
 void Component::setSelectedItem(Uint16 p_selectedItem) { }
@@ -155,7 +168,6 @@ Component* Component::setVisibleFunction(std::function<bool()> p_visible) {
 	m_visible = p_visible;
 	return this;
 }
-bool Component::isVisible() { return m_visible(); }
 
 void Component::input() { }
 void Component::input(Sint8& p_interactFlags) { }
@@ -186,8 +198,8 @@ void Component::renderFill(bool p_setColor) {
 	GBuffer::addVertexQuad(m_size.x, m_size.y);
 	GBuffer::addVertexQuad(0, m_size.y);
 	if (m_highlighting && (isSelected() || m_hoverTimer > 0)) {
-		if (isSelected())			GBuffer::setColor(m_colorThemeMap.at("actionPressed").applyScale(Color(1.f, 1.f, 1.f, 0.5f)));
-		else if (m_hoverTimer > 0)	GBuffer::setColor(m_colorThemeMap.at("actionHovered").applyScale(Color(1.f, 1.f, 1.f, m_hoverTimer)));
+		if (isSelected())			GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed").applyScale(Color(1.f, 1.f, 1.f, 0.5f)));
+		else if (m_hoverTimer > 0)	GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(Color(1.f, 1.f, 1.f, m_hoverTimer)));
 		GBuffer::addVertexQuad(0, 0);
 		GBuffer::addVertexQuad(m_size.x, 0);
 		GBuffer::addVertexQuad(m_size.x, m_size.y);
@@ -203,7 +215,7 @@ void Component::renderBorder() {
 	GBuffer::setTexture(0);
 	Shader::pushMatrixModel();
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
-	GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+	GBuffer::setColor(getElementColor(getElementPos() + (isFocused() ? "BorderFocused" : "BorderUnfocused")));
 	if (m_border & static_cast<Sint8>(BorderFlag::TOP)) {
 		GBuffer::addVertexQuad(0, 0);
 		GBuffer::addVertexQuad(GLfloat(m_size.x), 0);

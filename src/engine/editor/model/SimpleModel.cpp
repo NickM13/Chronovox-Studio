@@ -71,7 +71,7 @@ void SimpleModel::open() {
 	char documents[MAX_PATH];
 	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
 
-	strcat_s(documents, "\\Voxel Models");
+	strcat_s(documents, "\\Chronovox Studio");
 	_mkdir(documents);
 
 	char filename[MAX_PATH];
@@ -91,10 +91,10 @@ void SimpleModel::open() {
 }
 
 bool SimpleModel::loadOpen(std::string p_fileName) {
-	Format::FormatType _formatType = Format::valid(p_fileName);
-	if (_formatType != Format::FormatType::NONE) {
+	LFormat::ImportType _formatType = LFormat::valid(p_fileName);
+	if (_formatType != LFormat::ImportType::NONE) {
 		m_matrices.clear();
-		Format::load(p_fileName, m_matrices, _formatType);
+		LFormat::load(p_fileName, &m_matrices, _formatType);
 		return true;
 	}
 	return false;

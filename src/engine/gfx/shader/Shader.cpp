@@ -59,7 +59,7 @@ void Shader::init() {
 	loadIdentityProjection();
 	loadIdentityView();
 	loadIdentityModel();
-	Shader::setTextureCoords(glm::vec4(0, 0, 1, 1));
+	//Shader::setTextureCoords(glm::vec4(0, 0, 1, 1));
 }
 void Shader::terminate() {
 
@@ -86,17 +86,17 @@ void Shader::use(GLuint p_program) {
 }
 
 void Shader::applyModel() {
-	glUniformMatrix4fv(2, 1, GL_FALSE, &m_modelStack.top()[0][0]);
+	setMat4("Model", m_modelStack.top());
 }
 void Shader::applyView() {
-	glUniformMatrix4fv(1, 1, GL_FALSE, &m_viewStack.top()[0][0]);
+	setMat4("View", m_viewStack.top());
 }
 void Shader::applyProjection() {
-	glUniformMatrix4fv(0, 1, GL_FALSE, &m_projStack.top()[0][0]);
+	setMat4("Projection", m_projStack.top());
 }
 
 void Shader::setColor(glm::vec4 p_colorScalar) {
-	glUniform4fv(3, 1, &p_colorScalar.x);
+	setVec4("colorScalar", p_colorScalar);
 }
 void Shader::setTexture(GLint p_activeTexture, GLint p_textureId) {
 	glActiveTexture(GL_TEXTURE0 + p_activeTexture);
@@ -107,18 +107,8 @@ void Shader::setTexture(GLint p_activeTexture, std::string p_textureName) {
 	glBindTexture(GL_TEXTURE_2D, MTexture::getTexture(p_textureName)->getTexId());
 }
 void Shader::setTextureCoords(glm::vec4& p_subtexCoords) {
+	setVec4("subtexCoords", p_subtexCoords);
 	glUniform4fv(6, 1, &p_subtexCoords.x);
-}
-
-void Shader::setShadowsEnabled(bool p_enabled) {
-	glUniform1i(20, (GLint)p_enabled);
-}
-void Shader::setLightEnabled(bool p_enabled) {
-	glUniform1i(6, (GLint)p_enabled);
-}
-void Shader::setLightDirection(glm::vec3 p_light) {
-	glUniform3f(5, p_light.x, p_light.y, p_light.z);
-	glUniform1i(6, 1);
 }
 
 glm::mat4 Shader::getMVP() {

@@ -22,6 +22,9 @@ protected:
 	Vector4<Sint32> m_contentArea;
 	Component* m_currDialog = 0;
 
+	GLfloat m_tLoadPercent = 1; // Target load percent
+	GLfloat m_loadPercent = 1; // Actual load percent
+
 	void sortInComponent(Comp comp);
 
 	void anchorComponent(Component* p_component, Anchor p_posAnchor = Anchor::NONE, Anchor p_sizeAnchor = Anchor::NONE);
@@ -42,6 +45,8 @@ public:
 
 	Component* openDialog(Component* p_dialog);
 	Component* closeDialog();
+	GLfloat getLoading() const { return m_loadPercent; }
+	Component* setLoading(GLfloat p_loadPercent);
 
 	void updateSize();
 

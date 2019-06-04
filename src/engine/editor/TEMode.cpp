@@ -4,6 +4,10 @@
 TEMode::TEMode() {
 	Camera::init();
 	m_focus = true;
+	m_building = true;
+}
+TEMode::~TEMode() {
+
 }
 
 bool TEMode::hasChanged() {

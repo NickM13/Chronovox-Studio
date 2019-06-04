@@ -17,6 +17,7 @@ public:
 		Sint32 height = 0;
 		Sint32 width = 0;
 		std::function<bool()> isVisibleFunc = []() -> bool { return true; };
+		std::function<bool()> isEnabledFunc = []() -> bool { return true; };
 		std::string name = "", desc = "";
 		MenuElement* parent = 0;
 		GLfloat hoverTimer = 0;
@@ -65,6 +66,14 @@ public:
 		}
 		bool isVisible() const {
 			return (isVisibleFunc() && (!parent || parent->isVisible()));
+		}
+
+		MenuElement* setEnabledFunction(std::function<bool()> p_isEnabledFunc) {
+			isEnabledFunc = p_isEnabledFunc;
+			return this;
+		}
+		bool isEnabled() const {
+			return (isEnabledFunc() && (!parent || parent->isEnabled()));
 		}
 
 		virtual function getFunction() {
@@ -234,6 +243,9 @@ public:
 			return keyBind;
 		}
 
+		void setFunction(function p_func) {
+			func = p_func;
+		}
 		function getFunction() {
 			return ([&]() { if (isVisible()) func(); });
 		}
@@ -288,6 +300,7 @@ private:
 
 	// Texture for submenu arrow
 	Texture* m_texHasSubmenu = 0;
+	Texture* m_texCheckbox;
 
 	std::string m_currDir = "";
 	std::string m_selected = ""; // Directory to button being hovered over

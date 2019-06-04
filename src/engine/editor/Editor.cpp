@@ -2,9 +2,6 @@
 
 #include "engine\editor\menu\EditorOverlay.h"
 #include "engine\editor\menu\FreshOverlay.h"
-#include "engine\editor\menu\CloseEditorDialog.h"
-#include "engine\editor\menu\CloseTabDialog.h"
-#include "engine\editor\animation\menu\AnimationOverlay.h"
 #include "engine\editor\model\menu\ModelOverlay.h"
 
 #include "engine\gfx\font\Font.h"
@@ -38,9 +35,10 @@ Editor::Editor() {
 	m_editorState = EditorState::STARTING;
 	MTexture::init();
 	MModelObj::init();
-	Font::loadFont("Leelaw", "leelawui.ttf", 12);
-	Font::loadFont("Segoe", "segoeui.ttf", 12);
-	Font::setFont("Segoe");
+	//Font::loadFont("Leelaw", "leelawui.ttf", 12);
+	Font::loadFont("Body", "segoeui.ttf", 12);
+	Font::loadFont("Header", "segoeui.ttf", 20);
+	Font::setFont("Body");
 	Sound::getInstance().init();
 	GGui::init(GScreen::getGLFWWindow());
 	GBuffer::init();
@@ -56,8 +54,6 @@ Editor::Editor() {
 		->setVisibleFunction([]() { return false; });
 	Gui::getContainer()->addComponent(ModelOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)
 		->setVisibleFunction([]() { return false; });
-	Gui::getContainer()->addComponent(AnimationOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)
-		->setVisibleFunction([]() { return false; });
 	Gui::getContainer()->resize();
 	m_projectTabs = (CTabBar*)Gui::getContainer()->findComponent("GUI_EDITOR\\GUI_TOP\\TAB_FILES");
 
@@ -65,6 +61,7 @@ Editor::Editor() {
 	setEditorMode(EditorMode::NONE);
 
 	m_autosavePeriod = 15;
+	/*
 	m_autosaveThread = new std::thread([&]() {
 		GLfloat lastSave = glfwGetTime();
 		std::unique_lock<std::mutex> lock(m_autosaveMutex);
@@ -76,16 +73,21 @@ Editor::Editor() {
 			//getModel()->autosave();
 		}
 		});
+		*/
 
 	initShadowBuffer();
+	initGBuffer();
+	initAABuffer();
 
 	m_sunlightDirection = glm::normalize(glm::vec3(0.5f, 4, 2));
 }
 Editor::~Editor() {
 	m_editorState = EditorState::STOPPING;
 	m_autosaveCv.notify_all();
-	if (m_autosaveThread->joinable()) m_autosaveThread->join();
-	delete m_autosaveThread;
+	if (m_autosaveThread) {
+		if (m_autosaveThread->joinable()) m_autosaveThread->join();
+		delete m_autosaveThread;
+	}
 	MTexture::terminate();
 	MModelObj::terminate();
 	Sound::getInstance().terminate();
@@ -97,6 +99,8 @@ Editor::~Editor() {
 	MTool::terminate();
 
 	terminateShadowBuffer();
+	terminateGBuffer();
+	terminateAABuffer();
 }
 bool Editor::initShadowBuffer() {
 	m_shadowBuffer.framebufferName = 0;
@@ -125,22 +129,213 @@ bool Editor::initShadowBuffer() {
 
 	return true;
 }
+bool Editor::initGBuffer() {
+	glGenFramebuffers(1, &gBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+
+	// Position color buffer
+	glGenTextures(1, &gPosition);
+	glBindTexture(GL_TEXTURE_2D, gPosition);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, GScreen::getScreenSize().x * GScreen::getSamples(), GScreen::getScreenSize().y * GScreen::getSamples(), 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
+
+	// Normal color buffer
+	glGenTextures(1, &gNormal);
+	glBindTexture(GL_TEXTURE_2D, gNormal);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, GScreen::getScreenSize().x * GScreen::getSamples(), GScreen::getScreenSize().y * GScreen::getSamples(), 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
+
+	// Color + Specular color buffer
+	glGenTextures(1, &gAlbedoSpec);
+	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GScreen::getScreenSize().x * GScreen::getSamples(), GScreen::getScreenSize().y * GScreen::getSamples(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpec, 0);
+
+	// Tell OpenGL which color attachments we'll use (of this framebuffer) for rendering
+	Uint32 attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+	glDrawBuffers(3, attachments);
+
+	glGenRenderbuffers(1, &rboDepth);
+	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, GScreen::getScreenSize().x * GScreen::getSamples(), GScreen::getScreenSize().y * GScreen::getSamples());
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		Logger::logError("Framebuffer not complete!");
+	}
+	
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	Shader::useProgram("deferredShading");
+	Shader::setInt("gPosition", 0);
+	Shader::setInt("gNormal", 1);
+	Shader::setInt("gAlbedoSpec", 2);
+
+	return true;
+}
+bool Editor::initAABuffer() {
+	glGenFramebuffers(1, &aaBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, aaBuffer);
+
+	// Position color buffer
+	glGenTextures(1, &aaScreenTex);
+	glBindTexture(GL_TEXTURE_2D, aaScreenTex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, GScreen::getScreenSize().x * GScreen::getSamples(), GScreen::getScreenSize().y * GScreen::getSamples(), 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, aaScreenTex, 0);
+
+	// Tell OpenGL which color attachments we'll use (of this framebuffer) for rendering
+	Uint32 attachments[1] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, attachments);
+
+	glGenRenderbuffers(1, &rboAA);
+	glBindRenderbuffer(GL_RENDERBUFFER, rboAA);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, GScreen::getScreenSize().x * GScreen::getSamples(), GScreen::getScreenSize().y * GScreen::getSamples());
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboAA);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		Logger::logError("Framebuffer not complete!");
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	Shader::useProgram("ssaa");
+	Shader::setInt("aaSamples", GScreen::getSamples());
+	Shader::setInt("screenTex", 0);
+
+	return true;
+}
 void Editor::terminateShadowBuffer() {
 	glDeleteFramebuffers(1, &m_shadowBuffer.framebufferName);
 	glDeleteTextures(1, &m_shadowBuffer.renderedTexture);
 }
+void Editor::terminateGBuffer() {
+	glDeleteFramebuffers(1, &gBuffer);
+	glDeleteTextures(1, &gPosition);
+	glDeleteTextures(1, &gNormal);
+	glDeleteTextures(1, &gAlbedoSpec);
+	glDeleteRenderbuffers(1, &rboDepth);
+}
+void Editor::terminateAABuffer() {
+	glDeleteFramebuffers(1, &aaBuffer);
+	glDeleteTextures(1, &aaScreenTex);
+	glDeleteRenderbuffers(1, &rboAA);
+}
+
+void Editor::renderSquare() {
+	if (quadVAO == 0) {
+		float quadVertices[] = {
+			// positions        // texture Coords
+			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+		};
+		// setup plane VAO
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	}
+	glBindVertexArray(quadVAO);
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glBindVertexArray(0);
+}
+
+void Editor::renderCube() {
+	// initialize (if necessary)
+	if (cubeVAO == 0) {
+		float vertices[] = {
+			// back face
+			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+			 1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+			 1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
+			 1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+			-1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
+			// front face
+			-1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+			 1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
+			 1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+			 1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+			-1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
+			-1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+			// left face
+			-1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+			-1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
+			-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+			-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+			-1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+			-1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+			// right face
+			 1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+			 1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+			 1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
+			 1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+			 1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+			 1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
+			// bottom face
+			-1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+			 1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
+			 1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+			 1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+			-1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+			-1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+			// top face
+			-1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+			 1.0f,  1.0f , 1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+			 1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
+			 1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+			-1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+			-1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
+		};
+		glGenVertexArrays(1, &cubeVAO);
+		glGenBuffers(1, &cubeVBO);
+		// fill buffer
+		glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		// link vertex attributes
+		glBindVertexArray(cubeVAO);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+	// render Cube
+	glBindVertexArray(cubeVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+}
+
 bool Editor::attemptClose() {
 	for (Project* p : m_projects) {
 		if (p->editor->hasChanged()) {
-			Gui::openDialog(CloseEditorDialog::getInstance().getDialog()
-				->setOptionFunc("Exit Without Saving", [&]() {
-					GScreen::setWindowCommand(GScreen::WindowCommand::CLOSE);
-					CloseEditorDialog::getInstance().getDialog()->setActive(false);
-					}));
+			Gui::openDialog("CloseEditor.lua");
+			Gui::topDialog()->addFunction([&]() { GScreen::setExitting(2); });
 			return true;
 		}
 	}
-	GScreen::setWindowCommand(GScreen::WindowCommand::CLOSE);
+	GScreen::setExitting(2);
 	return true;
 }
 
@@ -215,6 +410,7 @@ void Editor::setProject(Sint32 p_index) {
 }
 void Editor::closeProject(Sint32 p_index) {
 	m_projectTabs->removeTab(p_index);
+	delete static_cast<Model*>(m_projects.at(p_index)->editor);
 	m_projects.erase(m_projects.begin() + p_index);
 	setProject(m_projectTabs->getTabCount() - 1);
 }
@@ -225,16 +421,14 @@ void Editor::attemptCloseProject(Sint32 p_index) {
 	if (p_index >= 0 && p_index < (Sint32)m_projects.size()) {
 		setProject(p_index);
 		if (m_projects.at(p_index)->editor->hasChanged()) {
-			Gui::openDialog(CloseTabDialog::getInstance().getDialog()
-				->setOptionFunc("Save", [&]() {
-					if (fileSave()) {
-						closeProject(m_projectTabs->getSelectedItem());
-						CloseTabDialog::getInstance().getDialog()->setActive(false);
-					}
-					})->setOptionFunc("Don't Save", [&]() {
-						closeProject(m_projectTabs->getSelectedItem());
-						CloseTabDialog::getInstance().getDialog()->setActive(false);
-						}));
+			Gui::openDialog("CloseTab.lua");
+			Gui::topDialog()->addFunction([&]() {
+				closeProject(m_projectTabs->getSelectedItem());
+				});
+			Gui::topDialog()->addFunction([&]() {
+				if (fileSave())
+					closeProject(m_projectTabs->getSelectedItem());
+				});
 		} else {
 			closeProject(m_projectTabs->getSelectedItem());
 		}
@@ -243,33 +437,40 @@ void Editor::attemptCloseProject(Sint32 p_index) {
 
 void Editor::resize() {
 	Gui::resize();
+
+	terminateGBuffer();
+	terminateAABuffer();
+
+	initGBuffer();
+	initAABuffer();
 }
 
 void Editor::dropFile(const char* path) {
-	Format::FormatType formatType = Format::valid(path);
-	EditorMode mode;
-	TEMode* editor;
+	LFormat::ImportType formatType = LFormat::valid(path);
+	TEMode* editor = 0;
 	switch (formatType) {
-	case Format::FormatType::CSM:
-	case Format::FormatType::NVM:
-	case Format::FormatType::QB:
-	case Format::FormatType::QBCL:
-	case Format::FormatType::VOX:
-		mode = EditorMode::MODEL;
+	case LFormat::ImportType::CSM:
+	case LFormat::ImportType::NVM:
+	case LFormat::ImportType::QB:
+	case LFormat::ImportType::QBCL:
+	case LFormat::ImportType::VOX:
 		editor = new Model();
-		((Model*)editor)->init();
-		((Model*)editor)->loadOpen(path);
-		((Model*)editor)->setDataString(m_dataString);
+		static_cast<Model*>(editor)->init();
+		static_cast<Model*>(editor)->setDataString(m_dataString);
+		static_cast<Model*>(editor)->loadOpen(path);
+		newProject(new Project(EditorMode::MODEL, editor));
 		break;
-	case Format::FormatType::NVA:
-		mode = EditorMode::ANIMATION;
-		editor = new Animation();
+	case LFormat::ImportType::NVA:
+		//editor = new Animation();
 		//((Animation*)editor)->init();
+		break;
+	case LFormat::ImportType::PNG:
+		if (isModel()) {
+			getModel()->addImageMatrix(path);
+		}
 		break;
 	default: return;
 	}
-
-	newProject(new Project(mode, editor));
 }
 
 void Editor::renderMouse() {
@@ -350,6 +551,11 @@ void Editor::renderShadowTexture() {
 	glEnd();
 }
 
+void Editor::bindGBuffer() {
+	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
 glm::vec3 Editor::getSunlightDir() {
 	glm::vec4 lRayStart_NDC(0.f, 0.f, -1.0f, 1.0f);
 	glm::vec4 lRayEnd_NDC(0.f, 0.f, 0.f, 1.0f);
@@ -374,12 +580,14 @@ glm::mat4 Editor::getSunlightMatrix() {
 }
 
 void Editor::input() {
+	GFormat::checkLoadFunction();
+
 	Sint8 _iFlags = (Sint8)Component::EventFlag::ALL;
 	if (!GMouse::isMouseActive())
 		_iFlags -= static_cast<Sint8>(Component::EventFlag::MOUSEOVER);
 	Gui::input(_iFlags);
 
-	if (m_cProj) {
+	if (m_cProj && !m_cProj->editor->isBuilding()) {
 		m_cProj->editor->input(_iFlags);
 		m_projectTabs->setSelectedState(m_projectTabs->getSelectedItem(), m_cProj->editor->hasChanged());
 	}
@@ -388,7 +596,6 @@ void Editor::input() {
 		MTexture::reload();
 		Component::loadTheme();
 	}
-	//if (GKey::keyPressed(GLFW_KEY_F4, GLFW_MOD_ALT)) GScreen::m_exitting = 2;
 }
 
 void Editor::update() {
@@ -397,7 +604,7 @@ void Editor::update() {
 
 	GScreen::setDeltaUpdate(m_deltaUpdate);
 
-	if (m_cProj) {
+	if (m_cProj && !m_cProj->editor->isBuilding()) {
 		m_cProj->editor->update(m_deltaUpdate);
 	}
 
@@ -405,16 +612,16 @@ void Editor::update() {
 }
 
 void Editor::renderShadow() {
-	if (m_cProj) {
+	if (m_cProj && !m_cProj->editor->isBuilding()) {
 		m_cProj->editor->renderShadow();
 	}
 }
 void Editor::render3d() {
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, m_shadowBuffer.renderedTexture);
-	glUniform1i(7, 1);
+	Shader::setInt("shadowMap", 1);
 	glActiveTexture(GL_TEXTURE0);
-	if (m_cProj) {
+	if (m_cProj && !m_cProj->editor->isBuilding()) {
 		m_cProj->editor->render();
 	}
 }
@@ -426,6 +633,38 @@ void Editor::render2d() {
 	GBuffer::rasterize();
 	GBuffer::renderMesh();
 }
+void Editor::renderGeometry() {
+	Font::setFont("Body");
+	glViewport(0, 0, GScreen::getScreenSize().x * GScreen::getSamples(), GScreen::getScreenSize().y * GScreen::getSamples());
+	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	Shader::useProgram("gBuffer");
+	Shader::applyProjection();
+	Shader::applyView();
+	if (m_cProj && !m_cProj->editor->isBuilding()) {
+		m_cProj->editor->render();
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+void Editor::renderLight() {
+	glBindFramebuffer(GL_FRAMEBUFFER, aaBuffer);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	Shader::useProgram("deferredShading");
+	Shader::setTexture(0, gPosition);
+	Shader::setTexture(1, gNormal);
+	Shader::setTexture(2, gAlbedoSpec);
+	Shader::setVec3("viewPos", Camera::getPosition());
+	Camera::applyLightDirection();
+	
+	renderSquare();
+
+	glViewport(0, 0, GScreen::getScreenSize().x, GScreen::getScreenSize().y);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	Shader::useProgram("ssaa");
+	Shader::setTexture(0, aaScreenTex);
+	renderSquare();
+}
 
 bool Editor::fileNewModel() {
 	EditorMode mode = EditorMode::MODEL;
@@ -433,21 +672,14 @@ bool Editor::fileNewModel() {
 	editor->init();
 	editor->setDataString(m_dataString);
 	newProject(new Project(mode, editor));
-	return true;
-}
-bool Editor::fileNewAnimation() {
-	EditorMode mode = EditorMode::ANIMATION;
-	Animation* editor = new Animation();
-	SimpleModel* testModel = new SimpleModel();
-	editor->init(testModel);
-	newProject(new Project(mode, editor));
+	editor->setBuilding(false);
 	return true;
 }
 bool Editor::fileOpen() {
 	char documents[MAX_PATH];
 	HRESULT res = SHGetFolderPathA(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
 
-	strcat_s(documents, "\\Voxel Models");
+	strcat_s(documents, "\\Chronovox Studio");
 	if (_mkdir(documents)) {
 		Logger::logDiagnostic("Directory made");
 	}
@@ -471,26 +703,21 @@ bool Editor::fileOpen() {
 	ofn.lpstrTitle = "Open Model";
 	if (!GetOpenFileNameA(&ofn)) return false;
 
-	Format::FormatType formatType;
+	LFormat::ImportType formatType;
 	EditorMode mode;
 	TEMode* editor;
-	formatType = Format::valid(filename);
+	formatType = LFormat::valid(filename);
 	switch (formatType) {
-	case Format::FormatType::CSM:
-	case Format::FormatType::NVM:
-	case Format::FormatType::QB:
-	case Format::FormatType::QBCL:
-	case Format::FormatType::VOX:
+	case LFormat::ImportType::CSM:
+	case LFormat::ImportType::NVM:
+	case LFormat::ImportType::QB:
+	case LFormat::ImportType::QBCL:
+	case LFormat::ImportType::VOX:
 		mode = EditorMode::MODEL;
 		editor = new Model();
 		((Model*)editor)->init();
 		((Model*)editor)->loadOpen(filename);
 		((Model*)editor)->setDataString(m_dataString);
-		break;
-	case Format::FormatType::NVA:
-		mode = EditorMode::ANIMATION;
-		editor = new Animation();
-		//((Animation*)editor)->init();
 		break;
 	default: return false;
 	}
@@ -500,7 +727,7 @@ bool Editor::fileOpen() {
 	return true;
 }
 bool Editor::fileSave() {
-	if (m_cProj) {
+	if (m_cProj && !m_cProj->editor->isBuilding()) {
 		bool s = m_cProj->editor->fileSave();
 		if (s)
 			m_projectTabs->renameItem(m_projectTabs->getSelectedItem(), m_cProj->editor->getName(), m_cProj->editor->getPath());
@@ -509,7 +736,7 @@ bool Editor::fileSave() {
 	return false;
 }
 bool Editor::fileSaveAs() {
-	if (m_cProj) {
+	if (m_cProj && !m_cProj->editor->isBuilding()) {
 		bool s = m_cProj->editor->fileSaveAs();
 		if (s)
 			m_projectTabs->renameItem(m_projectTabs->getSelectedItem(), m_cProj->editor->getName(), m_cProj->editor->getPath());
@@ -528,4 +755,9 @@ void Editor::editUndo() {
 }
 void Editor::editRedo() {
 	//if (m_tMode) m_tMode->editRedo();
+}
+
+void Editor::helpAbout() {
+	Gui::openDialog("About.lua");
+	static_cast<CTextFile*>(Gui::topDialog()->findComponent("ABOUT"))->addInputString(GScreen::getAppVersion());
 }

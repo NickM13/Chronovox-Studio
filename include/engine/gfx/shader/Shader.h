@@ -28,6 +28,43 @@ public:
 	static Program* useProgram(std::string p_programName);
 	static void use(GLuint p_program);
 
+	static void setBool(const std::string& name, bool value) {
+		glUniform1i(glGetUniformLocation(m_current->program, name.c_str()), (int)value);
+	}
+	static void setInt(const std::string& name, int value) {
+		glUniform1i(glGetUniformLocation(m_current->program, name.c_str()), value);
+	}
+	static void setFloat(const std::string& name, float value) {
+		glUniform1f(glGetUniformLocation(m_current->program, name.c_str()), value);
+	}
+	static void setVec2(const std::string& name, const glm::vec2& value) {
+		glUniform2fv(glGetUniformLocation(m_current->program, name.c_str()), 1, &value[0]);
+	}
+	static void setVec2(const std::string& name, float x, float y) {
+		glUniform2f(glGetUniformLocation(m_current->program, name.c_str()), x, y);
+	}
+	static void setVec3(const std::string& name, const glm::vec3& value) {
+		glUniform3fv(glGetUniformLocation(m_current->program, name.c_str()), 1, &value[0]);
+	}
+	static void setVec3(const std::string& name, float x, float y, float z) {
+		glUniform3f(glGetUniformLocation(m_current->program, name.c_str()), x, y, z);
+	}
+	static void setVec4(const std::string& name, const glm::vec4& value) {
+		glUniform4fv(glGetUniformLocation(m_current->program, name.c_str()), 1, &value[0]);
+	}
+	static void setVec4(const std::string& name, float x, float y, float z, float w) {
+		glUniform4f(glGetUniformLocation(m_current->program, name.c_str()), x, y, z, w);
+	}
+	static void setMat2(const std::string& name, const glm::mat2& value) {
+		glUniformMatrix2fv(glGetUniformLocation(m_current->program, name.c_str()), 1, GL_FALSE, &value[0][0]);
+	}
+	static void setMat3(const std::string& name, const glm::mat3& value) {
+		glUniformMatrix3fv(glGetUniformLocation(m_current->program, name.c_str()), 1, GL_FALSE, &value[0][0]);
+	}
+	static void setMat4(const std::string& name, const glm::mat4& value) {
+		glUniformMatrix4fv(glGetUniformLocation(m_current->program, name.c_str()), 1, GL_FALSE, &value[0][0]);
+	}
+
 	static void applyModel();
 	static void applyView();
 	static void applyProjection();
@@ -36,9 +73,6 @@ public:
 	static void setTexture(GLint p_activeTexture, GLint p_textureId);
 	static void setTexture(GLint p_activeTexture, std::string p_textureName);
 	static void setTextureCoords(glm::vec4& p_subtexCoords);
-	static void setShadowsEnabled(bool p_enabled);
-	static void setLightEnabled(bool p_enabled);
-	static void setLightDirection(glm::vec3 p_light);
 
 	static glm::mat4 getMVP();
 

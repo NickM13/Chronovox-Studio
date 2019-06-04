@@ -8,7 +8,7 @@
 #include "engine\utils\variable\datatype\Vector3.h"
 #include "engine\editor\model\tool\MTool.h"
 
-#include "format\Format.h"
+#include "format\LFormat.h"
 
 class SimpleModel {
 private:

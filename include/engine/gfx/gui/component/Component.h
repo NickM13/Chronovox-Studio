@@ -65,11 +65,15 @@ protected:
 	bool m_hovered = false;
 	GLfloat m_hoverTimer = 0;
 	// Appends to primary to link with ColorTheme color
-	std::string m_primaryPos = "";
+	std::string m_elementPos = "";
 
 	// Type is Component because Container includes Component.h, just use
 	// a static_cast<Container*>
 	Component* m_parentContainer = 0;
+
+	// Forward and Backward components
+	// Switch between components using tab and shift-tab
+	Component* m_prevComp = 0, *m_nextComp = 0;
 
 	Texture* m_texture = 0;
 	GBuffer::TextureStyle m_textureStyle = GBuffer::TextureStyle::STRETCH;
@@ -82,6 +86,7 @@ protected:
 	static std::map<std::string, Color> m_colorThemeMap;
 	std::function<bool()> m_visible = [](){ return true; };
 	bool m_highlighting = true;
+	bool m_focused = false;
 	GGui::CursorType m_hoverCursor = GGui::CursorType::NONE;
 	Sint8 m_moveToFront = 0;
 	Sint8 m_priority = 0;
@@ -108,8 +113,8 @@ public:
 
 	static Color& getElementColor(std::string p_element);
 	Color& getPrimaryColor();
-	virtual std::string getPrimaryPos();
-	virtual void setPrimaryPos(std::string p_pp);
+	virtual std::string getElementPos();
+	virtual void setElementPos(std::string p_pp);
 	virtual Component* addItem(std::string p_item);
 	virtual Uint16 getItemCount();
 	virtual void setList(std::vector<std::string> p_items);
@@ -123,6 +128,11 @@ public:
 	Component* callPressFunction();
 	Component* callHoldFunction();
 	Component* callReleaseFunction();
+
+	virtual void setPrevComponent(Component* p_comp) { m_prevComp = p_comp; }
+	virtual void setNextComponent(Component* p_comp) { m_nextComp = p_comp; }
+	virtual void prevComponent();
+	virtual void nextComponent();
 
 	virtual void setSelectedItem(Uint16 p_selectedItem);
 	virtual void setSelectedButton(Uint16 p_selectedButton);
@@ -149,9 +159,11 @@ public:
 	virtual Vector2<Sint32> getRealSize();
 
 	virtual Component* setVisibleFunction(std::function<bool()> p_visible);
-	bool isVisible();
+	bool isVisible() const { return m_visible(); }
+	bool isFocused() const { return m_focused; }
 	Component* setHighlightActive(bool p_highlighting) { m_highlighting = p_highlighting; return this; }
 	Component* setHoverCursor(GGui::CursorType p_cursor) { m_hoverCursor = p_cursor; return this; }
+	Component* setFocused(bool p_focused) { m_focused = p_focused; return this; }
 
 	void renderBack();
 	void renderFill(bool p_setColor = true);

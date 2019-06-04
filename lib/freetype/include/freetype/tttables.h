@@ -450,7 +450,7 @@ FT_BEGIN_HEADER
    */
   typedef struct  TT_Postscript_
   {
-    FT_Fixed  FormatType;
+    FT_Fixed  ImportType;
     FT_Fixed  italicAngle;
     FT_Short  underlinePosition;
     FT_Short  underlineThickness;

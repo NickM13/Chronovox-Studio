@@ -1,7 +1,7 @@
 #pragma once
-#include "VoxelFillTool.h"
+#include "..\VoxelTool.h"
 
-class VFTErase : public VoxelFillTool {
+class VFTErase : public VoxelTool {
 protected:
 
 public:

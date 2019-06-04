@@ -10,13 +10,7 @@ EditMatrix::EditMatrix() {
 }
 EditMatrix::~EditMatrix() {
 	clearMatrix(false);
-	for (Uint16 i = 0; i < m_recentCommands.size(); i++) {
-		for (Uint16 j = 0; j < m_recentCommands[i].size(); j++) {
-			delete m_recentCommands[i][j];
-		}
-		m_recentCommands[i].clear();
-	}
-	m_recentCommands.clear();
+	clearCommands();
 }
 
 void EditMatrix::setCommandListOpen(bool p_isOpen) {
@@ -24,29 +18,20 @@ void EditMatrix::setCommandListOpen(bool p_isOpen) {
 }
 void EditMatrix::setCommandChaining(bool p_chaining) {
 	if (p_chaining) {
-		for (Sint16 i = Sint16(m_recentCommands.size()) - 1; i >= m_commandIndex; i--) {
-			for (Uint16 j = 0; j < m_recentCommands[i].size(); j++) {
-				delete m_recentCommands[i][j];
-			}
-			m_recentCommands.erase(m_recentCommands.begin() + i);
-		}
+		clearForwardCommands();
 		m_recentCommands.push_back(std::vector<Command*>());
 		m_commandIndex = Sint16(m_recentCommands.size());
 	}
 	else if (m_recentCommands.back().empty()) {
 		m_recentCommands.pop_back();
+		m_commandIndex--;
 	}
 	m_commandChaining = p_chaining;
 }
 
 void EditMatrix::addCommand(Command* p_com) {
 	if (!m_commandListIsOpen) return;
-	for (Sint16 i = Sint16(m_recentCommands.size()) - 1; i >= m_commandIndex; i--) {
-		for (Uint16 j = 0; j < m_recentCommands[i].size(); j++) {
-			delete m_recentCommands[i][j];
-		}
-		m_recentCommands.erase(m_recentCommands.begin() + i);
-	}
+	clearForwardCommands();
 	if (!m_commandChaining || m_recentCommands.empty()) {
 		m_recentCommands.push_back(std::vector<Command*>());
 	}
@@ -89,12 +74,22 @@ void EditMatrix::redo() {
 void EditMatrix::clearCommands() {
 	for (Uint16 i = 0; i < m_recentCommands.size(); i++) {
 		for (Uint16 j = 0; j < m_recentCommands[i].size(); j++) {
+			m_recentCommands[i][j]->terminate();
 			delete m_recentCommands[i][j];
 		}
 		m_recentCommands[i].clear();
 	}
 	m_recentCommands.clear();
 	m_commandIndex = 0;
+}
+void EditMatrix::clearForwardCommands() {
+	for (Sint16 i = Sint16(m_recentCommands.size()) - 1; i >= m_commandIndex; i--) {
+		for (Uint16 j = 0; j < m_recentCommands[i].size(); j++) {
+			m_recentCommands[i][j]->terminate();
+			delete m_recentCommands[i][j];
+		}
+		m_recentCommands.erase(m_recentCommands.begin() + i);
+	}
 }
 
 void EditMatrix::reset(bool p_saveChanges) {

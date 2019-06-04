@@ -91,7 +91,7 @@ void CDropDown::render() {
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 
 	if (m_selected == 0) {
-		GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+		GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
 		GBuffer::addVertexQuad(-1, -1);
 		GBuffer::addVertexQuad((m_size.x + 1), -1);
 		GBuffer::addVertexQuad((m_size.x + 1), (m_size.y + 1));
@@ -111,7 +111,7 @@ void CDropDown::render() {
 		GBuffer::setTexture(0);
 	}
 	else {
-		GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+		GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
 		GBuffer::addVertexQuad(-1, -1);
 		GBuffer::addVertexQuad((m_size.x + 1), -1);
 		GBuffer::addVertexQuad((m_size.x + 1), (m_size.y * (m_itemList.size() + 1) + 1));
@@ -125,14 +125,14 @@ void CDropDown::render() {
 	}
 	if (m_selected != 0) {
 		if (m_hoverItem != -1) {
-			GBuffer::setColor(m_colorThemeMap.at("actionPressed"));
+			GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed"));
 			GBuffer::addVertexQuad(0, (m_hoverItem + 1) * m_size.y);
 			GBuffer::addVertexQuad(m_size.x, (m_hoverItem + 1) * m_size.y);
 			GBuffer::addVertexQuad(m_size.x, (m_hoverItem + 2) * m_size.y);
 			GBuffer::addVertexQuad(0, (m_hoverItem + 2) * m_size.y);
 		}
 		if (m_hoverItem != m_selectedItem) {
-			GBuffer::setColor((m_colorThemeMap.at("actionPressed") + getPrimaryColor()) / 2);
+			GBuffer::setColor((getElementColor(getElementPos() + "ActionPressed") + getPrimaryColor()) / 2);
 
 			GBuffer::addVertexQuad(0, (m_selectedItem + 1) * m_size.y);
 			GBuffer::addVertexQuad(m_size.x, (m_selectedItem + 1) * m_size.y);
@@ -140,7 +140,7 @@ void CDropDown::render() {
 			GBuffer::addVertexQuad(0, (m_selectedItem + 2) * m_size.y);
 		}
 	}
-	GBuffer::setColor(m_colorThemeMap.at("textLight"));
+	GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
 	Font::setAlignment(ALIGN_CENTER);
 	Font::print(m_title, m_size.x / 2, -(Font::getHeight()));
 	Font::setAlignment(ALIGN_LEFT);
@@ -149,7 +149,7 @@ void CDropDown::render() {
 		Font::print(m_itemList[m_selectedItem], 0, 0);
 		if (m_selected != 0) {
 			for (Uint16 i = 0; i < m_itemList.size(); i++) {
-				GBuffer::setColor(m_colorThemeMap.at("textLight").applyScale(m_hoverItem ? Color(1.f, 1.f, 1.f) : Color(0.8f, 0.8f, 0.8f)));
+				GBuffer::setColor(getElementColor(getElementPos() + (m_hoverItem ? "Text1" : "Text2")));
 				Font::print(m_itemList[i], 0, (i + 1) * m_size.y);
 			}
 		}

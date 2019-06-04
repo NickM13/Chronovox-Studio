@@ -57,6 +57,12 @@ private:
 	glm::vec3 dir = {}, pos = {}, norm = {};
 	GLfloat dist = 0, denom = 0, p = 0;
 
+	// Script variables
+	static GLfloat m_scriptPos[3];
+	static Sint32 m_scriptSize[3];
+	static Sint32 m_scriptColor[3];
+	static Matrix* m_scriptMatrix;
+
 	void fixSelectedMatrix();
 public:
 	Model();
@@ -72,11 +78,12 @@ public:
 	void setTool(std::string p_toolName);
 	void updateTool();
 
-	void toggleGrid();
-	bool isGridVisible();
-	void toggleOutline();
-	bool isOutlineVisible();
-	void toggleWireframe();
+	void toggleGrid() { m_grid = !m_grid; }
+	bool isGridVisible() const { return m_grid; }
+	void toggleOutline() { m_outline = !m_outline; }
+	bool isOutlineVisible() const { return m_outline; }
+	void toggleWireframe() { m_wireframe = !m_wireframe; }
+	bool isWireframe() const { return m_wireframe; }
 
 	void focus();
 
@@ -94,14 +101,15 @@ public:
 	void shiftMatrix(glm::ivec3 p_direction);
 	void flipMatrix(Sint8 p_axesFlags);
 	void rotateMatrix(Sint8 p_axesFlags);
-	void scaleMatrix(Sint8 p_axesFlags, GLfloat p_power);
-	void addMatrix(std::string p_name, glm::vec3 p_pos, glm::ivec3 p_size);
+	void scaleMatrix(glm::vec3 p_scale);
+	Sint32 addMatrix(std::string p_name, glm::vec3 p_pos, glm::ivec3 p_size);
 	void renameMatrix(Uint16 id, std::string p_name);
 	void deleteSelectedMatrices();
 	void moveMatrix(bool up);
 	void hoverMatrix(Sint16 id);
 	void setSelectedMatrix(Sint16 id);
 	void selectMatrix(Sint16 id);
+	EditMatrix* getEditMatrix() const { return m_matrixEdit; }
 
 	glm::vec3 getPos() { return m_pos; }
 	glm::vec3 getSize() { return m_size; }
@@ -125,6 +133,19 @@ public:
 	Matrix* getSelectedMatrix();
 	std::vector<Matrix*> getSelectedMatrices();
 	glm::vec3 getSelectedMatricesCenter();
+
+	void addImageMatrix(std::string p_filename);
+
+	static void useScriptColorPalette();
+	static Sint32 addScriptMatrix(std::string p_name, Sint32 width, Sint32 height, Sint32 depth);
+	static Sint32 getScriptMatrixByName(std::string p_name);
+	static void setScriptMatrixPos(Sint32 p_matrix, GLfloat x, GLfloat y, GLfloat z);
+	static void setScriptMatrixSize(Sint32 p_matrix, Sint32 x, Sint32 y, Sint32 z);
+	static void setScriptMatrixSelected(Sint32 i);
+	static void getScriptColor(Sint32 x, Sint32 y, Sint32 z);
+	static void setScriptVoxel(Sint32 x, Sint32 y, Sint32 z, Sint32 p_interAction = 1);
+	static void loadScriptFile(std::string p_scriptFile);
+	static void loadScriptString(std::string p_script);
 	
 	bool exitSave();
 	void autosave();
@@ -136,18 +157,25 @@ public:
 	bool saveAs();
 	bool loadOpen(std::string p_fileName);
 	bool loadAdd(std::string p_fileName);
+	bool exportAs(LFormat::ExportType p_exportType);
 
 	void fileNew();
 	void fileAdd();
 	bool fileSave();
 	bool fileSaveAs();
 	void fileExit();
+	void fileExport(LFormat::ExportType p_exportType);
 
 	void editMergeMatrix();
 	void editNewMatrix();
 	void editMatrixProperties();
 	void editCopy();
+	void editCut();
 	void editPaste();
 	void editUndo();
 	void editRedo();
+
+	void matrixSize();
+
+	void generateCustom();
 };

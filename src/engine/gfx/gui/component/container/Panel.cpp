@@ -56,14 +56,20 @@ void Panel::render() {
 			GBuffer::setTexture(0);
 		}
 		if (m_title != "") {
-			GBuffer::setColor(getPrimaryColor());
+			GBuffer::setColor(getElementColor(getElementPos() + "TitleBar"));
 			GBuffer::addQuadFilled(Vector2<Sint32>(0, 0), Vector2<Sint32>(m_size.x, 25));
-			GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+			if (m_highlighting) {
+				GBuffer::setColor(getElementColor(getElementPos() + "BorderFocused"));
+				GBuffer::addQuadOutlined(Vector2<Sint32>(0, 0), Vector2<Sint32>(m_size.x, m_size.y + 24));
+			}
+			else {
+				GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
+			}
 			GBuffer::addQuadOutlined(Vector2<Sint32>(0, 0), Vector2<Sint32>(m_size.x, 25));
 
-			GBuffer::setColor(m_colorThemeMap.at("textLight"));
-			Font::setAlignment(ALIGN_CENTER);
-			Font::print(m_title, m_size.x / 2, 12);
+			GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
+			Font::setAlignment(ALIGN_LEFT);
+			Font::print(m_title, 12, 12);
 			GBuffer::setTexture(0);
 		}
 		Shader::popMatrixModel();

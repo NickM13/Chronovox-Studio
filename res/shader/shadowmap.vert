@@ -7,7 +7,8 @@ layout(location=3) uniform vec4 colorScalar;
 layout(location=4) uniform sampler2D texMap;
 layout(location=5) uniform vec3 light;
 layout(location=6) uniform bool useLight;
-layout(location=8) uniform float depthLayer; // For rendering 3d objects ontop of other objects
+// For rendering 3d objects ontop of other objects
+layout(location=8) uniform float depthLayer;
 
 layout(location=0) in vec4 vertexPosition;
 layout(location=1) in vec4 vertexColor;
@@ -23,6 +24,8 @@ out float cosThetaNorm;
 // Values that stay constant for the whole mesh.
 layout(location=10) uniform mat4 DepthBiasMVP;
 layout(location=11) uniform vec3 sunlight;
+// Wireframe only uses vertexPosition in vars
+layout(location=12) uniform bool wireframe;
 
 void main(){
 
@@ -31,13 +34,20 @@ void main(){
 	
 	ShadowCoord = DepthBiasMVP * Model * vertexPosition;
 	
-	if(useLight) {
-		cosThetaSun = clamp(dot(vertexNormal, sunlight), 0, 1);
-		cosThetaNorm = clamp(dot(vertexNormal, light), 0, 1);
-	}
-	else {
+	if (wireframe) {
 		cosThetaSun = 1;
 		cosThetaNorm = 1;
+		ex_color = colorScalar;
 	}
-	ex_color = vertexColor * colorScalar;
+	else {
+		if (useLight) {
+			cosThetaSun = clamp(dot(vertexNormal, sunlight), 0, 1);
+			cosThetaNorm = clamp(dot(vertexNormal, light), 0, 1);
+		}
+		else {
+			cosThetaSun = 1;
+			cosThetaNorm = 1;
+		}
+		ex_color = vertexColor * colorScalar;
+	}
 }

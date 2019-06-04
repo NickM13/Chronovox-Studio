@@ -210,8 +210,8 @@ void CTabBar::render() {
 		GBuffer::addVertexQuad(0, size.y);
 
 		if (m_selected == i || m_tabList[i].hoverTimer > 0) {
-			if (m_selected == i)	GBuffer::setColor(m_colorThemeMap.at("actionHighlight"));
-			else					GBuffer::setColor(m_colorThemeMap.at("actionHovered").applyScale(Color(1, 1, 1, m_tabList[i].hoverTimer)));
+			if (m_selected == i)	GBuffer::setColor(getElementColor(getElementPos() + "ActionHighlight"));
+			else					GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(Color(1, 1, 1, m_tabList[i].hoverTimer)));
 			GBuffer::addVertexQuad(0, 0);
 			GBuffer::addVertexQuad(size.x, 0);
 			GBuffer::addVertexQuad(size.x, size.y);
@@ -240,7 +240,7 @@ void CTabBar::render() {
 			}
 		}
 
-		GBuffer::setColor(m_colorThemeMap.at("textLight"));
+		GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
 		Font::setAlignment(Alignment::ALIGN_LEFT);
 		Font::print(title, 5, Font::getSpacingHeight() / 2);
 
@@ -254,17 +254,17 @@ void CTabBar::render() {
 	Shader::translate(glm::vec3(-m_extList.width, m_size.y, 0));
 	GBuffer::setTexture(0);
 	if (m_extList.open) {
-		GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+		GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
 		GBuffer::addQuadFilled(Vector2<Sint32>(-1, -1), Vector2<Sint32>(m_extList.width, m_extList.shown * m_size.y) + 2);
-		GBuffer::setColor(m_colorThemeMap.at("actionPressed"));
+		GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed"));
 		GBuffer::addQuadFilled(Vector2<Sint32>(), Vector2<Sint32>(m_extList.width, m_extList.shown * m_size.y));
 
 		if (m_extList.hoveredItem >= 0 && m_extList.hoveredItem < m_extList.shown) {
-			GBuffer::setColor(m_colorThemeMap.at("actionHovered"));
+			GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered"));
 			GBuffer::addQuadFilled(Vector2<Sint32>(0, m_size.y * m_extList.hoveredItem), Vector2<Sint32>(m_extList.width, m_size.y));
 		}
 
-		GBuffer::setColor(m_colorThemeMap.at("textLight"));
+		GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
 		for (size_t i = 0; i < (size_t)m_extList.shown; i++) {
 			Font::print(m_tabList.at(i).title, 4, m_size.y * (i + 0.5f));
 		}
@@ -275,12 +275,12 @@ void CTabBar::render() {
 	GBuffer::setTexture(0);
 	if (m_extList.open || m_extList.hoverTimer > 0) {
 		if (m_extList.open) {
-			GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+			GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
 			GBuffer::addQuadFilled(Vector2<Sint32>(-m_extList.texArrow->getSize().x - 1, -1), Vector2<Sint32>(m_extList.texArrow->getSize().x + 2, m_size.y + 1));
-			GBuffer::setColor(m_colorThemeMap.at("actionPressed"));
+			GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed"));
 		}
 		else {
-			GBuffer::setColor(m_colorThemeMap.at("actionHovered").applyScale(Color(1, 1, 1, m_extList.hoverTimer)));
+			GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(Color(1, 1, 1, m_extList.hoverTimer)));
 		}
 		GBuffer::addQuadFilled(Vector2<Sint32>(-m_extList.texArrow->getSize().x, 0), Vector2<Sint32>(m_extList.texArrow->getSize().x, m_size.y));
 	}

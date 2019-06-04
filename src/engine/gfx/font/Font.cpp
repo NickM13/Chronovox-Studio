@@ -14,7 +14,7 @@
 #include <freetype/ftoutln.h>
 #include <freetype/fttrigon.h>
 
-std::vector<Font::FontType*> Font::m_fontList;
+std::map<std::string, Font::FontType*> Font::m_fontMap;
 Font::FontType* Font::m_font = 0;
 
 Alignment Font::m_alignment;
@@ -24,16 +24,12 @@ void Font::setAlignment(Alignment p_alignment) {
 }
 
 void Font::loadFont(std::string p_fontName, std::string p_src, Uint32 p_fontSize) {
-	m_fontList.push_back(init(p_src, p_fontSize));
-	m_fontList[m_fontList.size() - 1]->m_fontName = p_fontName;
-	m_font = m_fontList[m_fontList.size() - 1];
+	m_fontMap.insert({ p_fontName, init(p_src, p_fontSize) });
+	m_fontMap[p_fontName]->m_fontName = p_fontName;
+	m_font = m_fontMap[p_fontName];
 }
 void Font::setFont(std::string p_fontName) {
-	for (Uint16 i = 0; i < m_fontList.size(); i++) {
-		if (m_fontList[i]->m_fontName == p_fontName) {
-			m_font = m_fontList[i];
-		}
-	}
+	m_font = m_fontMap[p_fontName];
 }
 Font::FontType* Font::init(std::string p_src, Uint32 p_fontSize) {
 	std::string _src = LDirectory::getProjectPath() + "res\\font\\" + p_src;
@@ -131,15 +127,16 @@ Font::FontType* Font::init(std::string p_src, Uint32 p_fontSize) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 	_font->m_height = _font->m_characters['A'].size.y + 2;
+	_font->m_spacing = _font->m_height * getSpacing();
 	return _font;
 }
 
 void Font::clean() {
-	for (size_t i = 0; i < m_fontList.size(); i++) {
-		glDeleteTextures(1, &m_fontList.at(i)->m_texture);
-		delete m_fontList.at(i);
+	for (auto font : m_fontMap) {
+		glDeleteTextures(1, &font.second->m_texture);
+		delete font.second;
 	}
-	m_fontList.clear();
+	m_fontMap.clear();
 }
 
 Sint16 Font::getHeight() {

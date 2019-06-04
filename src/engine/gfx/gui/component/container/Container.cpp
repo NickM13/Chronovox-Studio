@@ -6,7 +6,9 @@ Container::Container(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint
 	: Component(p_compName, "", p_pos, p_size) {
 	m_visible = p_visible;
 	m_contentArea = Vector4<Sint32>();
-	addComponent(new SColorPanel("PAUSE_BACKGROUND", { 0, 0 }, p_size, Color(0, 0, 0, 0.5f)), Anchor::NONE, Anchor::BOTTOM_RIGHT)->setPriorityLayer(99)->setVisibleFunction([]() {return false;});
+	addComponent(new SColorPanel("PAUSE_BACKGROUND", { 0, 0 }, p_size, Color(0, 0, 0, 0.5f)), Anchor::NONE, Anchor::BOTTOM_RIGHT)->
+		setPriorityLayer(99)->
+		setVisibleFunction([&]() { return m_currDialog || m_loadPercent < 1; });
 	m_border = 0;
 }
 
@@ -135,18 +137,24 @@ Vector2<Sint32> Container::getRealPosition() { return Vector2<Sint32>(m_contentA
 Vector2<Sint32> Container::getRealSize() { return Vector2<Sint32>(m_contentArea.x2 - m_contentArea.x1, m_contentArea.y2 - m_contentArea.y1); }
 
 Component* Container::openDialog(Component* p_dialog) {
+	m_currDialog = p_dialog;
 	if (p_dialog) {
-		m_currDialog = p_dialog;
-		((CDialog*)m_currDialog)->setActive(true);
-		m_currDialog->callPressFunction();
-		findComponent("PAUSE_BACKGROUND")->setVisibleFunction([]() {return true;});
+		static_cast<CDialog*>(m_currDialog)->setActive(true);
 	}
 	return this;
 }
 Component* Container::closeDialog() {
-	m_currDialog->callReleaseFunction();
 	m_currDialog = 0;
-	findComponent("PAUSE_BACKGROUND")->setVisibleFunction([]() {return false;});
+	return this;
+}
+
+Component* Container::setLoading(GLfloat p_loadPercent) {
+	if (p_loadPercent < m_loadPercent) {
+		m_tLoadPercent = m_loadPercent = p_loadPercent;
+	}
+	else {
+		m_tLoadPercent = p_loadPercent;
+	}
 	return this;
 }
 
@@ -209,7 +217,7 @@ void Container::render() {
 			GBuffer::setTexture(0);
 			Shader::pushMatrixModel();
 			Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
-			GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+			GBuffer::setColor(m_colorThemeMap.at("BorderUnfocused"));
 			if (m_border & static_cast<Sint8>(BorderFlag::TOP)) {
 				GBuffer::addVertexQuad(0, 0);
 				GBuffer::addVertexQuad(GLfloat(m_size.x), 0);
@@ -238,6 +246,65 @@ void Container::render() {
 		}
 		if (m_currDialog) {
 			m_currDialog->render();
+		}
+		if (m_loadPercent < 1) {
+			GBuffer::setColor(Color(1, 1, 1, 1));
+			Shader::pushMatrixModel();
+			Shader::translate(glm::vec3(m_size.x / 2, m_size.y / 2, 0));
+			GBuffer::renderTexture(MTexture::getTexture("gui\\LogoMedium.png"), {}, {}, GBuffer::TextureStyle::CENTERED);
+			
+			Sint32 loadingBarWidth = 100;
+			GBuffer::setTexture(MTexture::getTexture("gui\\Loading.png")->getTexId());
+			
+			GBuffer::setSubtexUV(0, 0, 1, 0.25f);
+			// Outline Left
+			GBuffer::setUV(0.00f, 0); GBuffer::addVertexQuad(-loadingBarWidth, 80);
+			GBuffer::setUV(0.25f, 0); GBuffer::addVertexQuad(-loadingBarWidth + 8, 80);
+			GBuffer::setUV(0.25f, 1); GBuffer::addVertexQuad(-loadingBarWidth + 8,  96);
+			GBuffer::setUV(0.00f, 1); GBuffer::addVertexQuad(-loadingBarWidth,  96);
+
+			// Outline Middle
+			GBuffer::setUV(0.25f, 0); GBuffer::addVertexQuad(-loadingBarWidth + 8, 80);
+			GBuffer::setUV(0.75f, 0); GBuffer::addVertexQuad(loadingBarWidth - 8, 80);
+			GBuffer::setUV(0.75f, 1); GBuffer::addVertexQuad(loadingBarWidth - 8, 96);
+			GBuffer::setUV(0.25f, 1); GBuffer::addVertexQuad(-loadingBarWidth + 8, 96);
+
+			// Outline Right
+			GBuffer::setUV(0.75f, 0); GBuffer::addVertexQuad(loadingBarWidth - 8, 80);
+			GBuffer::setUV(1.00f, 0); GBuffer::addVertexQuad(loadingBarWidth, 80);
+			GBuffer::setUV(1.00f, 1); GBuffer::addVertexQuad(loadingBarWidth, 96);
+			GBuffer::setUV(0.75f, 1); GBuffer::addVertexQuad(loadingBarWidth - 8, 96);
+
+			GBuffer::setColor(Component::getElementColor("loadingBar"));
+			GBuffer::setSubtexUV(0, 0.25f, 1, 0.5f);
+			// Loading Bar Left
+			GLfloat ls = std::fminf(1, m_loadPercent * loadingBarWidth * 2 / 8);
+			GBuffer::setUV(0.00f, 0); GBuffer::addVertexQuad(-loadingBarWidth, 80);
+			GBuffer::setUV(0.25f * ls, 0); GBuffer::addVertexQuad(-loadingBarWidth + 8 * ls, 80);
+			GBuffer::setUV(0.25f * ls, 1); GBuffer::addVertexQuad(-loadingBarWidth + 8 * ls, 96);
+			GBuffer::setUV(0.00f, 1); GBuffer::addVertexQuad(-loadingBarWidth, 96);
+
+			// Loading Bar Middle
+			GLfloat ms = std::fminf(1, std::fmaxf(0, (m_loadPercent * loadingBarWidth * 2 - 8) / (loadingBarWidth * 2 - 16)));
+			GBuffer::setUV(0.25f, 0); GBuffer::addVertexQuad(-loadingBarWidth + 8, 80);
+			GBuffer::setUV(0.25f + 0.5f * ms, 0); GBuffer::addVertexQuad(-loadingBarWidth + 8 + (loadingBarWidth * 2 - 16) * ms, 80);
+			GBuffer::setUV(0.25f + 0.5f * ms, 1); GBuffer::addVertexQuad(-loadingBarWidth + 8 + (loadingBarWidth * 2 - 16) * ms, 96);
+			GBuffer::setUV(0.25f, 1); GBuffer::addVertexQuad(-loadingBarWidth + 8, 96);
+
+			// Loading Bar Right
+			GLfloat rs = std::fmaxf(0, (m_loadPercent * loadingBarWidth * 2 - (loadingBarWidth * 2 - 8)) / 8);
+			GBuffer::setUV(0.75f, 0); GBuffer::addVertexQuad(loadingBarWidth - 8, 80);
+			GBuffer::setUV(1.00f * rs, 0); GBuffer::addVertexQuad(loadingBarWidth - 8 + 8 * rs, 80);
+			GBuffer::setUV(1.00f * rs, 1); GBuffer::addVertexQuad(loadingBarWidth - 8 + 8 * rs, 96);
+			GBuffer::setUV(0.75f, 1); GBuffer::addVertexQuad(loadingBarWidth - 8, 96);
+
+			GBuffer::setSubtexUV(0, 0, 1, 1);
+			Shader::popMatrixModel();
+			
+			m_loadPercent += (m_tLoadPercent - m_loadPercent) / 8.f;
+			if (m_tLoadPercent - m_loadPercent < 0.005f) {
+				m_loadPercent = m_tLoadPercent;
+			}
 		}
 	}
 }

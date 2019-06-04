@@ -5,8 +5,11 @@
 GLuint MMesh::m_lineVao, MMesh::m_lineVbo[2];
 glm::vec3 MMesh::m_lineVertices[2];
 
-GLuint MMesh::m_boxVao, MMesh::m_boxVbo[2];
-glm::vec3 MMesh::m_boxVertices[24];
+GLuint MMesh::m_lineBoxVao, MMesh::m_lineBoxVbo[2];
+glm::vec3 MMesh::m_lineBoxVertices[24];
+
+GLuint MMesh::m_solidBoxVao, MMesh::m_solidBoxVbo[2];
+glm::vec3 MMesh::m_solidBoxVertices[24];
 
 void MMesh::init() {
 	// Line Vertex Array Object Initialization
@@ -29,27 +32,45 @@ void MMesh::init() {
 			  p011 = glm::vec3(0,   1.f, 1.f),
 			  p111 = glm::vec3(1.f, 1.f, 1.f);
 
-	m_boxVertices[0]  = p000; m_boxVertices[1]  = p100;
-	m_boxVertices[2]  = p010; m_boxVertices[3]  = p110;
-	m_boxVertices[4]  = p011; m_boxVertices[5]  = p111;
-	m_boxVertices[6]  = p001; m_boxVertices[7]  = p101;
+	m_lineBoxVertices[0]  = p000; m_lineBoxVertices[1]  = p100;
+	m_lineBoxVertices[2]  = p010; m_lineBoxVertices[3]  = p110;
+	m_lineBoxVertices[4]  = p011; m_lineBoxVertices[5]  = p111;
+	m_lineBoxVertices[6]  = p001; m_lineBoxVertices[7]  = p101;
 
-	m_boxVertices[8]  = p000; m_boxVertices[9]  = p010;
-	m_boxVertices[10] = p001; m_boxVertices[11] = p011;
-	m_boxVertices[12] = p101; m_boxVertices[13] = p111;
-	m_boxVertices[14] = p100; m_boxVertices[15] = p110;
+	m_lineBoxVertices[8]  = p000; m_lineBoxVertices[9]  = p010;
+	m_lineBoxVertices[10] = p001; m_lineBoxVertices[11] = p011;
+	m_lineBoxVertices[12] = p101; m_lineBoxVertices[13] = p111;
+	m_lineBoxVertices[14] = p100; m_lineBoxVertices[15] = p110;
 
-	m_boxVertices[16] = p000; m_boxVertices[17] = p001;
-	m_boxVertices[18] = p100; m_boxVertices[19] = p101;
-	m_boxVertices[20] = p110; m_boxVertices[21] = p111;
-	m_boxVertices[22] = p010; m_boxVertices[23] = p011;
+	m_lineBoxVertices[16] = p000; m_lineBoxVertices[17] = p001;
+	m_lineBoxVertices[18] = p100; m_lineBoxVertices[19] = p101;
+	m_lineBoxVertices[20] = p110; m_lineBoxVertices[21] = p111;
+	m_lineBoxVertices[22] = p010; m_lineBoxVertices[23] = p011;
 
-	glGenVertexArrays(1, &m_boxVao);
-	glBindVertexArray(m_boxVao);
-	glGenBuffers(2, m_boxVbo);
-	glBindBuffer(GL_ARRAY_BUFFER, m_boxVbo[0]);
+	glGenVertexArrays(1, &m_lineBoxVao);
+	glBindVertexArray(m_lineBoxVao);
+	glGenBuffers(2, m_lineBoxVbo);
+	glBindBuffer(GL_ARRAY_BUFFER, m_lineBoxVbo[0]);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * 24, &m_boxVertices[0].x, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * 24, &m_lineBoxVertices[0].x, GL_STATIC_DRAW);
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	m_solidBoxVertices[0] = p000; m_solidBoxVertices[3] = p100; m_solidBoxVertices[2] = p110; m_solidBoxVertices[1] = p010;
+	m_solidBoxVertices[4] = p001; m_solidBoxVertices[5] = p101; m_solidBoxVertices[6] = p111; m_solidBoxVertices[7] = p011;
+
+	m_solidBoxVertices[8] = p000; m_solidBoxVertices[11] = p001; m_solidBoxVertices[10] = p101; m_solidBoxVertices[9] = p100;
+	m_solidBoxVertices[12] = p010; m_solidBoxVertices[13] = p011; m_solidBoxVertices[14] = p111; m_solidBoxVertices[15] = p110;
+	
+	m_solidBoxVertices[16] = p000; m_solidBoxVertices[17] = p001; m_solidBoxVertices[18] = p011; m_solidBoxVertices[19] = p010;
+	m_solidBoxVertices[20] = p100; m_solidBoxVertices[23] = p101; m_solidBoxVertices[22] = p111; m_solidBoxVertices[21] = p110;
+
+	glGenVertexArrays(1, &m_solidBoxVao);
+	glBindVertexArray(m_solidBoxVao);
+	glGenBuffers(2, m_solidBoxVbo);
+	glBindBuffer(GL_ARRAY_BUFFER, m_solidBoxVbo[0]);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * 24, &m_solidBoxVertices[0].x, GL_STATIC_DRAW);
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
@@ -80,10 +101,26 @@ void MMesh::renderBoxOutline(glm::vec3 p, glm::vec3 s, glm::vec4 p_color) {
 	Shader::transformModel(glm::scale(glm::mat4(), s));
 	Shader::applyModel();
 
-	glBindVertexArray(m_boxVao);
+	glBindVertexArray(m_lineBoxVao);
 	glVertexAttrib4f(1, p_color.r, p_color.g, p_color.b, p_color.a);
 	glEnableVertexAttribArray(0);
 	glDrawArrays(GL_LINES, 0, 24);
+	glDisableVertexAttribArray(0);
+	glBindVertexArray(0);
+
+	Shader::popMatrixModel();
+}
+
+void MMesh::renderBoxSolid(glm::vec3 p, glm::vec3 s, glm::vec4 p_color) {
+	Shader::pushMatrixModel();
+	Shader::transformModel(glm::translate(glm::mat4(), p));
+	Shader::transformModel(glm::scale(glm::mat4(), s));
+	Shader::applyModel();
+
+	glBindVertexArray(m_solidBoxVao);
+	glVertexAttrib4f(1, p_color.r, p_color.g, p_color.b, p_color.a);
+	glEnableVertexAttribArray(0);
+	glDrawArrays(GL_QUADS, 0, 24);
 	glDisableVertexAttribArray(0);
 	glBindVertexArray(0);
 

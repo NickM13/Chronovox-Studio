@@ -1,7 +1,5 @@
 #include "engine\editor\menu\EditorOverlay.h"
-#include "engine\editor\menu\AboutDialog.h"
 #include "engine\editor\model\menu\ModelOverlay.h"
-#include "engine\editor\animation\menu\AnimationOverlay.h"
 
 Editor* EditorOverlay::m_editor = 0;
 Container* EditorOverlay::m_container = 0;
@@ -12,18 +10,20 @@ Container* EditorOverlay::init(Editor* p_editor) {
 	
 	m_container = new Container("GUI_EDITOR", { 0, 0 }, { 0, 0 }, []() { return true; });
 	// By default use prefix top for primary colors
-	m_container->setPrimaryPos("Top");
+	m_container->setElementPos("top");
 	m_container->setBorderFlag(static_cast<Sint8>(Component::BorderFlag::NONE));
 
-	Container* topContainer = static_cast<Container*>(m_container->addComponent(new Container("GUI_TOP", { 0, 0 }, { 0, 68 }, []() { return true; }),
+	Container* topContainer = static_cast<Container*>(m_container->addComponent(new Container("GUI_TOP", { 0, 0 }, { 0, 92 }, []() { return true; }),
 		Component::Anchor::TOP_LEFT, Component::Anchor::TOP_RIGHT));
 
-	Container* titleBar = (Container*)topContainer->addComponent(new Container("TITLE", { 0, 0 }, { 0, 69 }, []() { return true; }), Component::Anchor::TOP_LEFT, Component::Anchor::TOP_RIGHT)
+	Container* titleBar = (Container*)topContainer->addComponent(new Container("TITLE", { 0, 0 }, { 0, 93 }, []() { return true; }), Component::Anchor::TOP_LEFT, Component::Anchor::TOP_RIGHT)
 		->setPriorityLayer(4);
 	titleBar->addComponent(new Panel("DRAGBAR", "", { 0, 0 }, { 0, 0 }, (Sint8)Component::BorderFlag::BOTTOM), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)
-		->setPressFunction([]() { GScreen::startWindowDrag(); })->setReleaseFunction([]() { GScreen::endWindowDrag(); }); // NOT DROGBAR
+		->setPressFunction([]() { GScreen::startWindowDrag(); })
+		->setReleaseFunction([]() { GScreen::endWindowDrag(); })
+		->setFocused(true); // NOT DROGBAR
 	titleBar->addComponent(new CIcon("WINDOW_ICON", MTexture::getTexture("gui\\icon\\window\\LogoFlat.png"), { 6, 4 }, { 24, 24 }));
-	titleBar->addComponent(new CText("WINDOW_TITLE", GScreen::getWindowTitle(), { 0, 16 }, { 0, 0 }, Alignment::ALIGN_CENTER, "textLight"),
+	titleBar->addComponent(new CText("WINDOW_TITLE", GScreen::getWindowTitle(), { 0, 8 }, { 0, 0 }, Alignment::ALIGN_CENTER, "topText1"),
 		Component::Anchor::TOP_LEFT, Component::Anchor::TOP_RIGHT);
 	titleBar->addComponent(new CButton("BUTTON_MINIMIZE_WINDOW", "", MTexture::getTexture("gui\\icon\\window\\Minimize.png"),
 		{ -68, 0 }, { 34, 28 }, CButton::RenderStyle::FILL, []() { GScreen::setWindowCommand(GScreen::WindowCommand::MINIMIZE); }), Component::Anchor::TOP_RIGHT);
@@ -39,13 +39,9 @@ Container* EditorOverlay::init(Editor* p_editor) {
 	submenu = new CMenubar::Submenu("File", "File");
 	submenu->setPriority(0);
 	menuBar->addElement("", submenu);
-	menuBar->addElement("File", new CMenubar::Submenu("New", "New"))
+	menuBar->addElement("File", new CMenubar::MenuButton("New Model...", GKey::KeyBind(GLFW_KEY_N, GLFW_MOD_SHIFT + GLFW_MOD_CONTROL), []() { m_editor->fileNewModel(); }))
 		->setPriority(0);
-	menuBar->addElement("File\\New", new CMenubar::MenuButton("Model...", GKey::KeyBind(GLFW_KEY_N, GLFW_MOD_SHIFT + GLFW_MOD_CONTROL), []() { m_editor->fileNewModel(); }));
-#ifdef _DEBUG
-	menuBar->addElement("File\\New", new CMenubar::MenuButton("Animation...", GKey::KeyBind(), []() { m_editor->fileNewAnimation(); }));
-#endif
-	menuBar->addElement("File", new CMenubar::MenuButton("Open", GKey::KeyBind(GLFW_KEY_O, GLFW_MOD_CONTROL), []() { m_editor->fileOpen(); }))
+	menuBar->addElement("File", new CMenubar::MenuButton("Open...", GKey::KeyBind(GLFW_KEY_O, GLFW_MOD_CONTROL), []() { m_editor->fileOpen(); }))
 		->setPriority(0);
 	menuBar->addElement("File", new CMenubar::MenuDivider())
 		->setPriority(0);
@@ -55,11 +51,15 @@ Container* EditorOverlay::init(Editor* p_editor) {
 	submenu = new CMenubar::Submenu("Help", "Help");
 	submenu->setPriority(10);
 	menuBar->addElement("", submenu);
-	menuBar->addElement("Help", new CMenubar::MenuButton("About Chronovox Studio", GKey::KeyBind(), []() { Gui::openDialog(AboutDialog::getInstance().getDialog()); }));
+	menuBar->addElement("Help", new CMenubar::MenuButton("About Chronovox Studio", GKey::KeyBind(), []() { m_editor->helpAbout(); }));
 
 	topContainer->addComponent(menuBar, Component::Anchor::TOP_LEFT, Component::Anchor::TOP_RIGHT);
 
-	CTabBar* tabbar = new CTabBar("TAB_FILES", { 0, 50 }, { 0, 18 });
+	topContainer->addComponent(new ContainerPanel("GUI_SETTINGS", "", { 0, 50 }, { 0, 24 },
+		static_cast<Sint8>(Component::BorderFlag::BOTTOM)), Component::Anchor::TOP_LEFT, Component::Anchor::TOP_RIGHT)
+		->setVisibleFunction([]() { return true; });
+
+	CTabBar* tabbar = new CTabBar("TAB_FILES", { 0, 74 }, { 0, 18 });
 	tabbar->setPriorityLayer(15);
 	tabbar->setPressFunction([]() { m_editor->setProject(m_container->findComponent("GUI_TOP\\TAB_FILES")->getSelectedItem()); });
 	tabbar->setReleaseFunction([]() { m_editor->attemptCloseProject(((CTabBar*)m_container->findComponent("GUI_TOP\\TAB_FILES"))->getClosedItem()); });
@@ -71,7 +71,7 @@ Container* EditorOverlay::init(Editor* p_editor) {
 
 	m_container->addComponent((new ContainerPanel("PANEL_INFOBAR", "", { 0, -24 }, { 0, 0 }, (Sint8)Component::BorderFlag::NONE))
 		->setPriorityLayer(4), Component::Anchor::BOTTOM_LEFT, Component::Anchor::BOTTOM_RIGHT)
-		->setPrimaryPos("Bottom");
+		->setElementPos("bottom");
 
 	std::string* _matrixData = new std::string("");
 	m_editor->setDataString(_matrixData);

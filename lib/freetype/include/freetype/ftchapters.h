@@ -50,7 +50,7 @@
    *   format_specific
    *
    * @title:
-   *   Format-Specific API
+   *   LFormat-Specific API
    *
    * @sections:
    *   multiple_masters

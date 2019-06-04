@@ -7,9 +7,11 @@
 
 glm::vec3 Camera::m_position, Camera::m_rotation;
 GLfloat Camera::m_zoom, Camera::m_tarZoom, Camera::m_zoomSpeed;
+GLfloat Camera::m_autoRotation;
 Texture* Camera::m_skyTexture;
 glm::mat4 Camera::m_projectionMatrix;
-bool Camera::m_dragging = false;
+bool Camera::m_draggingRight = false;
+bool Camera::m_draggingMiddle = false;
 
 void Camera::init() {
 	m_skyTexture = MTexture::getTexture("DaylightSky.png");
@@ -21,6 +23,7 @@ void Camera::reset() {
 	m_zoom = 32;
 	m_tarZoom = 0;
 	m_zoomSpeed = 10.f;
+	m_autoRotation = 0.f;
 }
 
 void Camera::setProjectionMatrix(glm::mat4 p_projectionMatrix) {
@@ -34,13 +37,25 @@ void Camera::addZoom(GLfloat p_zoom) {
 	zoom(p_zoom);
 }
 
+void Camera::resetAutoRotation() {
+	m_autoRotation = 0;
+}
+void Camera::addAutoRotation(GLfloat p_rotation) {
+	m_autoRotation += p_rotation;
+}
+
 void Camera::zoom(GLfloat p_scroll) {
-	m_tarZoom += p_scroll;
+	for (Sint32 i = 0; i < std::abs(p_scroll); i++) {
+		if (p_scroll < 0) {
+			m_tarZoom -= (m_zoom - m_tarZoom + 1) / 16.f;
+		} else {
+			m_tarZoom += (m_zoom - m_tarZoom) / 16.f;
+		}
+	}
 	if (m_zoom - m_tarZoom < 0) {
 		m_tarZoom = m_zoom;
-	}
-	else if (m_zoom - m_tarZoom > 256) {
-		m_tarZoom = m_zoom - 256;
+	} else if (m_zoom - m_tarZoom > 1024) {
+		m_tarZoom = m_zoom - 1024;
 	}
 }
 void Camera::turn(Vector2<Sint32> p_mouseMove) {
@@ -98,10 +113,10 @@ glm::vec3 Camera::getMouseDirection() {
 	glm::mat4 iProjectionMatrix = glm::inverse(m_projectionMatrix);
 	glm::mat4 iViewMatrix = glm::inverse(Camera::getViewMatrix());
 
-	glm::vec4 lRayStart_camera = iProjectionMatrix * lRayStart_NDC;      lRayStart_camera /= lRayStart_camera.w;
-	glm::vec4 lRayStart_world = iViewMatrix * lRayStart_camera;   lRayStart_world /= lRayStart_world.w;
-	glm::vec4 lRayEnd_camera = iProjectionMatrix * lRayEnd_NDC;	     lRayEnd_camera /= lRayEnd_camera.w;
-	glm::vec4 lRayEnd_world = iViewMatrix * lRayEnd_camera;     lRayEnd_world /= lRayEnd_world.w;
+	glm::vec4 lRayStart_camera = iProjectionMatrix * lRayStart_NDC;     lRayStart_camera /= lRayStart_camera.w;
+	glm::vec4 lRayStart_world = iViewMatrix * lRayStart_camera;			lRayStart_world /= lRayStart_world.w;
+	glm::vec4 lRayEnd_camera = iProjectionMatrix * lRayEnd_NDC;			lRayEnd_camera /= lRayEnd_camera.w;
+	glm::vec4 lRayEnd_world = iViewMatrix * lRayEnd_camera;				lRayEnd_world /= lRayEnd_world.w;
 
 	glm::vec3 lRayDir_world(lRayEnd_world - lRayStart_world);
 	return glm::normalize(lRayDir_world);
@@ -123,7 +138,7 @@ glm::mat4 Camera::getModelViewProjection() {
 }
 
 void Camera::applyLightDirection() {
-	Shader::setLightDirection(getDirection());
+	Shader::setVec3("light", getDirection());
 }
 void Camera::applyTransformation() {
 	Shader::transformView(getViewMatrix());
@@ -133,22 +148,41 @@ void Camera::applyTransformation() {
 void Camera::input(Sint8 p_guiFlags) {
 	if ((p_guiFlags & (Sint8)Component::EventFlag::MOUSEOVER)) {
 		if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_RIGHT)) {
-			m_dragging = true;
+			m_draggingRight = true;
 		}
+		if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_MIDDLE)) {
+			m_draggingMiddle = true;
+		}
+
 	}
 	if (GMouse::mouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
-		m_dragging = false;
+		m_draggingRight = false;
 	}
-	if (m_dragging) {
-		if (GKey::modDown(GLFW_MOD_SHIFT)) {
-			pan(Vector3<GLfloat>(-GMouse::getDeltaMousePos().x, GMouse::getDeltaMousePos().y, 0.f));
-		}
-		else {
-			turn(GMouse::getDeltaMousePos());
-		}
+	if (GMouse::mouseReleased(GLFW_MOUSE_BUTTON_MIDDLE)) {
+		m_draggingMiddle = false;
 	}
-	if ((p_guiFlags & (Sint8)Component::EventFlag::MOUSESCROLL)) {
-		zoom(GMouse::getMouseScroll());
+	if (m_draggingMiddle) {
+		pan(Vector3<GLfloat>(-GMouse::getDeltaMousePos().x, GMouse::getDeltaMousePos().y, 0.f) * (m_zoom + 16) / 100.f);
+	}
+	else {
+		if (m_draggingRight) {
+			if (GKey::modDown(GLFW_MOD_SHIFT)) {
+				pan(Vector3<GLfloat>(-GMouse::getDeltaMousePos().x, GMouse::getDeltaMousePos().y, 0.f) * (m_zoom + 16) / 100.f);
+			} else {
+				turn(GMouse::getDeltaMousePos());
+			}
+		}
+		if ((p_guiFlags & (Sint8)Component::EventFlag::MOUSESCROLL)) {
+			if (GKey::modDown(GLFW_MOD_SHIFT)) {
+				pan(Vector3<GLfloat>(0.f, GMouse::getMouseScroll() * (m_zoom + 0.25f) / 4.f, 0.f));
+			} else if (GKey::modDown(GLFW_MOD_CONTROL)) {
+				pan(Vector3<GLfloat>(GMouse::getMouseScroll() * (m_zoom + 0.25f) / 4.f, 0.f, 0.f));
+			} else if (GKey::modDown(GLFW_MOD_ALT)) {
+
+			} else {
+				zoom(GMouse::getMouseScroll());
+			}
+		}
 	}
 	if ((p_guiFlags & (Sint8)Component::EventFlag::KEYPRESS)) {
 		GLfloat speed = 8;
@@ -171,6 +205,7 @@ void Camera::update(GLfloat p_deltaUpdate) {
 		m_zoom -= _zoom;
 		m_tarZoom -= _zoom;
 	}
+	m_rotation.y += m_autoRotation * p_deltaUpdate;
 }
 
 void Camera::renderSkybox() {
@@ -188,7 +223,7 @@ void Camera::renderSkybox() {
 	Shader::popMatrixModel();
 }
 void Camera::renderFocus() {
-	glm::vec3 _size = glm::vec3(0.125f);
+	glm::vec3 _size = glm::vec3(0.5f) / 16.f;
 	Shader::pushMatrixModel();
 	Shader::transformModel(glm::translate(glm::mat4(), m_position));
 	Shader::transformModel(glm::scale(glm::mat4(), _size));

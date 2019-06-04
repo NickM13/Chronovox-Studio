@@ -1,6 +1,6 @@
 #include "engine\gfx\gui\component\field\TextFile.h"
 
-CTextFile::CTextFile(std::string p_compName, std::string p_src, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Alignment p_align, Color p_fontColor)
+CTextFile::CTextFile(std::string p_compName, std::string p_src, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Alignment p_align, std::string p_fontColor)
 	: Component(p_compName, "", p_pos, p_size) {
 	m_align = p_align;
 	m_color = p_fontColor;
@@ -58,7 +58,7 @@ std::string CTextFile::getTitle() {
 }
 
 void CTextFile::render() {
-	GBuffer::setColor(m_color);
+	GBuffer::setColor(getElementColor(m_color));
 	Font::setAlignment(m_align);
 	Sint32 y = m_pos.y + Font::getSpacingHeight() / 2;
 	for (Sint32 i = 0; i < (Sint32)m_lines.size(); i++) {

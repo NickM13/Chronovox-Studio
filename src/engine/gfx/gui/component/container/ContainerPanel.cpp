@@ -13,6 +13,7 @@ ContainerPanel::ContainerPanel(std::string p_compName, std::string p_title, Vect
 
 	m_panel = new Panel(p_compName.append("_PANEL"), p_title, p_pos, p_size, p_borderFlags);
 	m_panel->setParent(this);
+	m_panel->setHighlightActive(false);
 
 	m_border = 0;
 }
@@ -213,7 +214,7 @@ void ContainerPanel::render() {
 		Vector2<Sint32> _scrollDist = m_maxScroll - m_minScroll;
 		Shader::translate(glm::vec3(GLfloat(m_pos.x), GLfloat(m_pos.y), 0.f));
 		if (m_scrollX) {
-			GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+			GBuffer::setColor(m_colorThemeMap.at("BorderUnfocused"));
 			GBuffer::addVertexQuad(0, m_size.y);
 			GBuffer::addVertexQuad(0, m_size.y + 10);
 			GBuffer::addVertexQuad(m_size.x, m_size.y + 10);
@@ -221,7 +222,7 @@ void ContainerPanel::render() {
 			GBuffer::setColor(getPrimaryColor());
 		}
 		if (m_scrollY) {
-			GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+			GBuffer::setColor(m_colorThemeMap.at("BorderUnfocused"));
 			GBuffer::addVertexQuad(m_size.x, 0);
 			GBuffer::addVertexQuad(m_size.x + 10, 0);
 			GBuffer::addVertexQuad(m_size.x + 10, m_size.y);

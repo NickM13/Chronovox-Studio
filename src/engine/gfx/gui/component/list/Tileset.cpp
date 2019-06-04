@@ -153,7 +153,7 @@ void CTileSet::render() {
 		GBuffer::setScissorActive(true);
 	}
 
-	GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+	GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
 	GBuffer::addVertexQuad(-1, -1 - 20);
 	GBuffer::addVertexQuad((_size.x + 1), -1 - 20);
 	GBuffer::addVertexQuad((_size.x + 1), (_size.y + 1));
@@ -165,7 +165,7 @@ void CTileSet::render() {
 	GBuffer::addVertexQuad((_size.x + 1), -20 - 1);
 	GBuffer::addVertexQuad(-1, -20 - 1);
 
-	GBuffer::setColor(m_colorThemeMap.at("textLight"));
+	GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
 	Font::setAlignment(ALIGN_CENTER);
 	Font::print(m_title, _size.x / 2, -12);
 
@@ -225,7 +225,7 @@ void CTileSet::render() {
 	Shader::translate(glm::vec3((GLfloat)(m_scroll.x % m_tileSize), (GLfloat)(m_scroll.y % m_tileSize), 0.f));
 
 	if (m_hover || m_dragging) {
-		GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+		GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
 		GBuffer::addVertexQuad((GLfloat(m_scroll.x) / (m_tileSheet->getSize().x - _size.x + m_tileSize - 1)) * (_size.x - 80) + 4, (_size.y - 12));
 		GBuffer::addVertexQuad((GLfloat(m_scroll.x) / (m_tileSheet->getSize().x - _size.x + m_tileSize - 1)) * (_size.x - 80) + 60, (_size.y - 12));
 		GBuffer::addVertexQuad((GLfloat(m_scroll.x) / (m_tileSheet->getSize().x - _size.x + m_tileSize - 1)) * (_size.x - 80) + 60, (_size.y - 4));

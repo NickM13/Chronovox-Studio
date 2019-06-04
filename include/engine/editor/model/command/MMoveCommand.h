@@ -6,18 +6,11 @@
 struct MMoveCommand : public Command
 {
 public:
-	MMoveCommand(Matrix* m, glm::vec3 p_from, glm::vec3 p_to) {
-		m_commandType = "MoveCommand";
-		m_matrix = m;
-		from = p_from;
-		to = p_to;
-	}
-	void undo() {
-		m_matrix->setPosition(from);
-	}
-	void redo() {
-		m_matrix->setPosition(to);
-	}
+	MMoveCommand(Matrix* m, glm::vec3 p_from, glm::vec3 p_to);
+	void terminate();
+
+	void undo();
+	void redo();
 
 private:
 	Matrix* m_matrix;

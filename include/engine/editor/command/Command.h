@@ -7,6 +7,7 @@ protected:
 	std::string m_commandType;
 	bool m_staticChange = true;
 public:
+	virtual void terminate() = 0;
 	virtual void undo() = 0;
 	virtual void redo() = 0;
 	std::string getCommandType() { return m_commandType; }

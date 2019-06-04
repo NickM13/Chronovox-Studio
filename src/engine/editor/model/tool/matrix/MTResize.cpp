@@ -150,7 +150,6 @@ void MTResize::renderTool() {
 	Shader::translate(glm::vec3(_offset));
 
 	auto camp = Camera::getPosition();
-	Logger::logQuiet("%d %d %d", camp.x, camp.y, camp.z);
 	glm::vec3 dist = glm::vec3(glm::inverse(Shader::getMVP())[3]) / 5.f;
 	GLfloat dlen = sqrt(dist.x * dist.x + dist.y * dist.y + dist.z * dist.z) / 25.f + 1;
 	glm::vec3 scalar = glm::vec3(dlen, dlen, dlen);

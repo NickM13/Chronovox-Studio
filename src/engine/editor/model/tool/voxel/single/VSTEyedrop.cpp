@@ -1,7 +1,7 @@
 #include "engine\editor\model\tool\voxel\single\VSTEyedrop.h"
 
 VSTEyedrop::VSTEyedrop()
-	: VoxelSingleTool() {
+	: VoxelTool() {
 	m_parent = "Eyedropper";
 	m_toolName = "Eyedropper Tool";
 	m_toolDesc = "Eyedropper - K";

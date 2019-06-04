@@ -7,7 +7,6 @@
 
 #include "engine\gfx\gui\LGui.h"
 
-#include "animation\Animation.h"
 #include "model\Model.h"
 
 #include <vector>
@@ -31,6 +30,10 @@ private:
 		GLuint framebufferName = 0, renderedTexture = 0, depthRenderbuffer = 0;
 		glm::vec2 shadowSize = {};
 	} m_shadowBuffer = {};
+	GLuint gBuffer, gPosition, gNormal, gAlbedoSpec, rboDepth;
+	GLuint aaBuffer, aaScreenTex, rboAA;
+	GLuint quadVAO = 0, cubeVAO = 0;
+	GLuint quadVBO, cubeVBO = 0;
 
 	struct Project {
 		EditorMode mode = {};
@@ -57,14 +60,23 @@ private:
 	void closeProject(Sint32 p_index);
 
 	bool initShadowBuffer();
+	bool initGBuffer();
+	bool initAABuffer();
 	void terminateShadowBuffer();
+	void terminateGBuffer();
+	void terminateAABuffer();
+
+	void renderSquare();
+	void renderCube();
 public:
 	Editor();
 	~Editor();
 	bool attemptClose();
 
-	static Animation* getAnimation() { if (m_cProj && m_cProj->mode == EditorMode::ANIMATION) return (Animation*)m_cProj->editor; return 0; }
-	static Model* getModel() { if (m_cProj && m_cProj->mode == EditorMode::MODEL) return (Model*)m_cProj->editor; return 0; }
+	static bool isAnimation()	{ return (m_cProj && m_cProj->mode == EditorMode::ANIMATION); }
+	static bool isModel()		{ return (m_cProj && m_cProj->mode == EditorMode::MODEL); }
+
+	static Model* getModel()			{ if (m_cProj && m_cProj->mode == EditorMode::MODEL) return (Model*)m_cProj->editor; return 0; }
 
 	static void setDataString(std::string* p_dataString);
 
@@ -90,6 +102,8 @@ public:
 	void bindShadowTexture();
 	void renderShadowTexture();
 
+	void bindGBuffer();
+
 	glm::vec3 getSunlightDir();
 	glm::mat4 getSunlightMatrix();
 
@@ -98,10 +112,11 @@ public:
 	void renderShadow();
 	void render3d();
 	void render2d();
+	void renderGeometry();
+	void renderLight();
 
 	// Overlay functions
 	bool fileNewModel();
-	bool fileNewAnimation();
 	bool fileOpen();
 	bool fileSave();
 	bool fileSaveAs();
@@ -109,4 +124,6 @@ public:
 	
 	void editUndo();
 	void editRedo();
+
+	void helpAbout();
 };

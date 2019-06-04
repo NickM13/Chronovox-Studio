@@ -7,24 +7,20 @@ std::vector<Tool*> MTool::m_tools;
 void MTool::init() {
 	addTool(new MTSelect());
 
-	addTool(new VSTAdd());
+	addTool(new MTMove());
+	addTool(new MTResize());
 
-	addTool(new VSTErase());
+	addTool(new VTAdd());
 
-	addTool(new VSTReplace());
+	addTool(new VTErase());
+
+	addTool(new VTReplace());
 
 	addTool(new VSTEyedrop());
-
-	addTool(new VBTAdd());
-	addTool(new VBTErase());
-	addTool(new VBTReplace());
 
 	addTool(new VFTAdd());
 	addTool(new VFTErase());
 	addTool(new VFTReplace());
-
-	addTool(new MTMove());
-	addTool(new MTResize());
 }
 
 void MTool::terminate() {

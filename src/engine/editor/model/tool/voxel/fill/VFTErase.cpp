@@ -1,7 +1,7 @@
 #include "engine\editor\model\tool\voxel\fill\VFTErase.h"
 
 VFTErase::VFTErase()
-	: VoxelFillTool() {
+	: VoxelTool() {
 	m_parent = "Fill";
 	m_toolName = "Fill Erase Tool";
 	m_toolDesc = "Erase Voxel - E";
@@ -14,9 +14,10 @@ void VFTErase::inputTool() {
 		m_fillArea->use(Voxel(0, 0));
 }
 void VFTErase::updateTool() {
-	m_fillArea->create(true);
+	if (!GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT))
+		m_fillArea->create(true);
 }
 void VFTErase::renderTool() {
-	if (!m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel)) return;
-	renderFillMesh();
+	if (m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel))
+		renderFillMesh();
 }

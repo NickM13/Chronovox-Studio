@@ -227,7 +227,7 @@ void CList::update(GLfloat p_deltaUpdate) {
 }
 void CList::renderItems() {
 	Shader::pushMatrixModel();
-	GBuffer::setColor(m_colorThemeMap.at("textLight"));
+	GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
 	Font::setAlignment(ALIGN_CENTER);
 	Font::print(m_title, m_size.x / 2, -12);
 
@@ -243,22 +243,22 @@ void CList::renderItems() {
 		Shader::translate(glm::vec3(0, y * m_itemHeight, 0));
 
 		if (m_itemList.at(m_scroll / m_itemHeight + y).state == 2) {
-			GBuffer::setColor(m_colorThemeMap.at("actionHighlight"));
+			GBuffer::setColor(getElementColor(getElementPos() + "ActionHighlight"));
 			GBuffer::addQuadFilled({ 0, 1 }, { m_size.x, m_itemHeight - 1 });
 		}
 		else {
 			GBuffer::setColor(getPrimaryColor());
 			if (m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer > 0) {
-				GBuffer::setColor(m_colorThemeMap.at("actionHovered").applyScale(Color(1, 1, 1, m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer)));
+				GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(Color(1, 1, 1, m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer)));
 				GBuffer::addQuadFilled({ 0, 1 }, { m_size.x, m_itemHeight - 1 });
 			}
 		}
 		if (m_scroll / m_itemHeight + y == m_selectedItem) {
-			GBuffer::setColor(m_colorThemeMap.at("actionHighlight"));
+			GBuffer::setColor(getElementColor(getElementPos() + "ActionHighlight"));
 			GBuffer::addQuadOutlined({ 0, 1 }, { m_size.x, m_itemHeight - 1 });
 		}
 		
-		GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+		GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
 		GBuffer::addQuadFilled({ 0, m_itemHeight }, { m_size.x, 1 });
 
 		GBuffer::setColor(Color());
@@ -272,7 +272,7 @@ void CList::renderItems() {
 		Shader::popMatrixModel();
 	}
 
-	GBuffer::setColor(m_colorThemeMap.at("textLight"));
+	GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
 	Font::setAlignment(ALIGN_LEFT);
 	std::string _name;
 	for (Uint16 i = 0; i <= m_maxVisible; i++) {
@@ -295,13 +295,13 @@ void CList::render() {
 		Shader::pushMatrixModel();
 		Shader::translate(glm::vec3(m_size.x - 12, ((GLfloat)m_scroll / m_maxScroll) * (m_size.y - m_scrollBarHeight), 0.f));
 
-		GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+		GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
 		GBuffer::addVertexQuad(2, 2);
 		GBuffer::addVertexQuad(10, 2);
 		GBuffer::addVertexQuad(10, m_scrollBarHeight - 2);
 		GBuffer::addVertexQuad(2, m_scrollBarHeight - 2);
 
-		GBuffer::setColor(m_colorThemeMap.at("actionHovered"));
+		GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered"));
 		GBuffer::addVertexQuad(3, 3);
 		GBuffer::addVertexQuad(9, 3);
 		GBuffer::addVertexQuad(9, m_scrollBarHeight - 3);

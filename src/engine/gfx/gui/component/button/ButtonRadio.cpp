@@ -166,11 +166,11 @@ void CButtonRadio::render() {
 
 		GBuffer::setTexture(0);
 		if (m_selectedButton == i) {
-			GBuffer::setColor(m_colorThemeMap.at("actionPressed"));
+			GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed"));
 			GBuffer::addQuadFilled({ 0, 0 }, m_buttonSize);
 		}
 		if (rb->hoverTimer > 0) {
-			GBuffer::setColor(m_colorThemeMap.at("actionHighlight").applyScale(Color(1, 1, 1, rb->hoverTimer)));
+			GBuffer::setColor(getElementColor(getElementPos() + "ActionHighlight").applyScale(Color(1, 1, 1, rb->hoverTimer)));
 			GBuffer::addQuadOutlined({ 0, 0 }, m_buttonSize);
 		}
 
@@ -190,18 +190,18 @@ void CButtonRadio::render() {
 			GBuffer::setTexture(0);
 			GBuffer::setColor(getPrimaryColor());
 			GBuffer::addQuadFilled(Vector2<Sint32>(-4, -4), Vector2<Sint32>(m_iconWidth + m_buttonSize.x + rb->getTotalWidth() + m_buttonSize.x / 2, rb->rblist.size() * m_buttonSize.y + 8));
-			GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+			GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
 			GBuffer::addQuadOutlined(Vector2<Sint32>(-4, -4), Vector2<Sint32>(m_iconWidth + m_buttonSize.x + rb->getTotalWidth() + m_buttonSize.x / 2, rb->rblist.size() * m_buttonSize.y + 8));
 
 			for (size_t j = 0; j < rb->rblist.size(); j++) {
 				Shader::pushMatrixModel();
 				GBuffer::setTexture(0);
-				GBuffer::setColor(m_colorThemeMap.at("actionHovered").applyScale(Color(1, 1, 1, rb->rblist.at(j)->hoverTimer)));
+				GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(Color(1, 1, 1, rb->rblist.at(j)->hoverTimer)));
 				GBuffer::addQuadFilled(Vector2<Sint32>(0, m_buttonStep.y * j), Vector2<Sint32>(m_iconWidth + m_buttonSize.x + rb->getTotalWidth() + m_buttonSize.x / 2 - 8, m_buttonSize.y));
 				Shader::translate(glm::vec3(0, m_buttonStep.y * j, 0));
 				if (rb->selected == j) {
 					GBuffer::setTexture(0);
-					GBuffer::setColor(m_colorThemeMap.at("textLight"));
+					GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
 					GBuffer::addQuadFilled(Vector2<Sint32>(6, m_buttonSize.y / 2 - 2), Vector2<Sint32>(4, 4));
 				}
 				Shader::translate(glm::vec3(m_buttonSize.x / 2, 0, 0));
@@ -209,7 +209,7 @@ void CButtonRadio::render() {
 				GBuffer::renderTexture(rb->rblist.at(j)->getTexture(), (m_buttonSize - rb->rblist.at(j)->getTexture()->getSize()) / 2, rb->rblist.at(j)->getTexture()->getSize());
 				Shader::translate(glm::vec3(m_iconWidth - m_buttonSize.x / 2, 0, 0));
 				Font::setAlignment(Alignment::ALIGN_LEFT);
-				GBuffer::setColor(m_colorThemeMap.at("textLight"));
+				GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
 				Font::print(rb->rblist.at(j)->getName(), 0, m_buttonSize.y / 2);
 				Font::setAlignment(Alignment::ALIGN_RIGHT);
 				Font::print(rb->rblist.at(j)->getKeyBindText(), rb->getTotalWidth() + 16, m_buttonSize.y / 2);

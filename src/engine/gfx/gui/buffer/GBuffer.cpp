@@ -108,12 +108,14 @@ void GBuffer::setSubtexUV(GLfloat s, GLfloat t, GLfloat p, GLfloat q) {
 	}
 }
 void GBuffer::renderTexture(Texture* p_texture, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, TextureStyle p_texStyle) {
-	if (p_texture == 0) return;
 	Shader::pushMatrixModel();
 	Shader::translate(glm::vec3(p_pos.x, p_pos.y, 0));
 	setColor(Color(1.f, 1.f, 1.f, 1.f));
-	setTexture(p_texture->getTexId());
-	Vector2<Sint32> _texSize = p_texture->getSize();
+	Vector2<Sint32> _texSize;
+	if (p_texture != 0) {
+		setTexture(p_texture->getTexId());
+		_texSize = p_texture->getSize();
+	}
 	GLfloat _height, _width;
 	switch (p_texStyle) {
 	case TextureStyle::NONE:

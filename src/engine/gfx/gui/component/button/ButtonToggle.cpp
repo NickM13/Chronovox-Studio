@@ -82,7 +82,7 @@ void CButtonToggle::render() {
 		else									GBuffer::addVertexQuad(-GLfloat(m_buttonTex[1]->getSize().x) / 2, GLfloat(m_buttonTex[1]->getSize().y) / 2);
 		GBuffer::setTexture(0);
 	}
-	GBuffer::setColor(m_colorThemeMap.at("textLight"));
+	GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
 	Font::setAlignment(ALIGN_CENTER);
 	Font::print(m_title, 0, 0);
 	Shader::popMatrixModel();

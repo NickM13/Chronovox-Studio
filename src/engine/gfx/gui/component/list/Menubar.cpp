@@ -5,7 +5,8 @@ CMenubar::CMenubar(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32
 	m_panelMain = new Panel("", "", { 0, 0 }, p_size, (Sint8)BorderFlag::NONE);
 	m_panelMain->setParent(this);
 	m_texHasSubmenu = MTexture::getTexture("gui\\icon\\tool\\ArrowRightNoStem.png");
-	setPrimaryPos("Top");
+	m_texCheckbox = MTexture::getTexture("gui\\icon\\tool\\Checkbox.png");
+	setElementPos("top");
 }
 CMenubar::~CMenubar() {
 	delete m_panelMain;
@@ -105,6 +106,7 @@ void CMenubar::input(Sint8& p_interactFlags) {
 				p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
 			} else if (_submenu->getType() != ElementType::DIVIDER) {
 				m_currDir = m_selected;
+				_submenu->addHoverTimer(-1.f);
 			}
 		}
 	}
@@ -133,68 +135,70 @@ void CMenubar::input(Sint8& p_interactFlags) {
 		for (i = 0; i < m_submenu.getVisibleElements().size(); i++) {
 			me = m_submenu.getVisibleElements()[i];
 			_buttonWidth = Font::getMessageWidth(me->getDisplayName()).x + 16;
-			if (m_currDir != "" && _splitDir[0] == me->getName()) {
-				std::vector<std::string> _path;
-				Submenu* _submenu = &m_submenu;
-				if (_submenu != 0) {
-					_subWidthTotal = m_slBuffer + 1;
-					for (j = 0; j < _splitDir.size(); j++) {
-						Sint32 _sh = 0;
-						_path.push_back(_splitDir[j]);
-						if (_submenu->find(_splitDir[j])->getType() != ElementType::SUBMENU) {
-							break;
-						}
-						_submenu = _submenu->find(_splitDir[j]);
-						if (j > 0) {
-							_subWidth = 0;
-						}
-						else {
-							_subWidth = _buttonWidth;
-						}
-						_descWidth = 0;
-						_height = 0;
-						for (Uint16 k = 0; k < _submenu->getVisibleElements().size(); k++) {
-							me = _submenu->getVisibleElements()[k];
-							_subWidth = std::fmaxf(_subWidth, Font::getMessageWidth(me->getDisplayName()).x);
-							_descWidth = std::fmaxf(_descWidth, Font::getMessageWidth(me->getDesc()).x);
-							_eHeight = me->getHeight();
-							if (j < _splitDir.size() - 1 && _splitDir.at(j + 1) == me->getName()) {
-								_sh = _height;
-							}
-							_height += _eHeight;
-						}
-						_subWidth += _descWidth + 36 + _iconWidth;
-						_height = 0;
-						for (Uint16 g = 0; g < _submenu->getVisibleElements().size(); g++) {
-							me = _submenu->getVisibleElements()[g];
-							_eHeight = me->getHeight();
-							if (_mousePos.x - w - _subWidthTotal >= 0 && _mousePos.x - w - _subWidthTotal < _subWidth
-								&& _mousePos.y - m_size.y - _selectHeight >= _height
-								&& _mousePos.y - m_size.y - _selectHeight < _height + _eHeight) {
-								m_selected = "";
-								for (Uint16 h = 0; h < _path.size(); h++) {
-									m_selected += (_path[h] + "\\");
-								}
-								m_selected += me->getName();
-								if (p_interactFlags & (Sint8)EventFlag::MOUSEOVER) {
-									p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
-								}
+			if (me->isEnabled()) {
+				if (m_currDir != "" && _splitDir[0] == me->getName()) {
+					std::vector<std::string> _path;
+					Submenu* _submenu = &m_submenu;
+					if (_submenu != 0) {
+						_subWidthTotal = m_slBuffer + 1;
+						for (j = 0; j < _splitDir.size(); j++) {
+							Sint32 _sh = 0;
+							_path.push_back(_splitDir[j]);
+							if (_submenu->find(_splitDir[j])->getType() != ElementType::SUBMENU) {
 								break;
 							}
-							_height += _eHeight;
+							_submenu = _submenu->find(_splitDir[j]);
+							if (j > 0) {
+								_subWidth = 0;
+							} else {
+								_subWidth = _buttonWidth;
+							}
+							_descWidth = 0;
+							_height = 0;
+							for (Uint16 k = 0; k < _submenu->getVisibleElements().size(); k++) {
+								me = _submenu->getVisibleElements()[k];
+								_subWidth = std::fmaxf(_subWidth, Font::getMessageWidth(me->getDisplayName()).x);
+								_descWidth = std::fmaxf(_descWidth, Font::getMessageWidth(me->getDesc()).x);
+								_eHeight = me->getHeight();
+								if (j < _splitDir.size() - 1 && _splitDir.at(j + 1) == me->getName()) {
+									_sh = _height;
+								}
+								_height += _eHeight;
+							}
+							_subWidth += _descWidth + 36 + _iconWidth;
+							_height = 0;
+							for (Uint16 g = 0; g < _submenu->getVisibleElements().size(); g++) {
+								me = _submenu->getVisibleElements()[g];
+								_eHeight = me->getHeight();
+								if (me->isEnabled() &&
+									_mousePos.x - w - _subWidthTotal >= 0 && _mousePos.x - w - _subWidthTotal < _subWidth &&
+									_mousePos.y - m_size.y - _selectHeight >= _height &&
+									_mousePos.y - m_size.y - _selectHeight < _height + _eHeight) {
+									m_selected = "";
+									for (Uint16 h = 0; h < _path.size(); h++) {
+										m_selected += (_path[h] + "\\");
+									}
+									m_selected += me->getName();
+									if (p_interactFlags & (Sint8)EventFlag::MOUSEOVER) {
+										p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
+									}
+									break;
+								}
+								_height += _eHeight;
+							}
+							_selectHeight += _sh;
+							_subWidthTotal += _subWidth + m_slBuffer + 1;
 						}
-						_selectHeight += _sh;
-						_subWidthTotal += _subWidth + m_slBuffer + 1;
 					}
 				}
-			}
-			if (_mousePos.x - w >= 0 && _mousePos.x - w < Sint32(_buttonWidth) &&
-				_mousePos.y >= 0 && _mousePos.y < m_size.y) {
-				m_selected = m_submenu.getVisibleElements()[i]->getName();
-				if (p_interactFlags & (Sint8)EventFlag::MOUSEOVER) {
-					p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
+				if (_mousePos.x - w >= 0 && _mousePos.x - w < Sint32(_buttonWidth) &&
+					_mousePos.y >= 0 && _mousePos.y < m_size.y) {
+					m_selected = m_submenu.getVisibleElements()[i]->getName();
+					if (p_interactFlags & (Sint8)EventFlag::MOUSEOVER) {
+						p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
+					}
+					break;
 				}
-				break;
 			}
 			w += Sint16(_buttonWidth);
 		}
@@ -204,7 +208,8 @@ void CMenubar::input(Sint8& p_interactFlags) {
 		for (i = 0; i < m_submenu.getVisibleElements().size(); i++) {
 			me = m_submenu.getVisibleElements()[i];
 			_buttonWidth = Font::getMessageWidth(me->getDisplayName()).x + 16;
-			if (_mousePos.x - w >= 0 && _mousePos.x - w < Sint32(_buttonWidth) &&
+			if (me->isEnabled() &&
+				_mousePos.x - w >= 0 && _mousePos.x - w < Sint32(_buttonWidth) &&
 				_mousePos.y >= 0 && _mousePos.y < m_size.y) {
 				m_currDir = me->getName();
 				if (p_interactFlags & (Sint8)EventFlag::MOUSEOVER) {
@@ -217,9 +222,13 @@ void CMenubar::input(Sint8& p_interactFlags) {
 	}
 
 	// Keybinds
-	for (std::pair<GKey::KeyBind, function> kb : m_keyBinds) {
-		if (GKey::keyPressed(kb.first.key, kb.first.mods)) {
-			kb.second();
+	if (p_interactFlags & (Sint8)EventFlag::KEYPRESS) {
+		for (std::pair<GKey::KeyBind, function> kb : m_keyBinds) {
+			if (GKey::keyPressed(kb.first.key, kb.first.mods)) {
+				kb.second();
+				p_interactFlags -= (Sint8)EventFlag::KEYPRESS;
+				break;
+			}
 		}
 	}
 }
@@ -416,13 +425,13 @@ void CMenubar::render() {
 				Shader::translate(glm::vec3((GLfloat)_subWidthTotal, (Sint32)(m_size.y + _selectHeight), 0.f));
 				GBuffer::renderShadow(-1, Vector2<Sint32>(Sint32(_subWidth + _descWidth + _iconWidth), _submenu->getSubHeight()) + (m_slBuffer * 2) + 2);
 				GBuffer::setTexture(0);
-				GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+				GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
 				GBuffer::addQuadFilled(Vector2<Sint32>(-1, -1), Vector2<Sint32>(Sint32(_subWidth + _descWidth + _iconWidth), _submenu->getSubHeight()) + (m_slBuffer * 2) + 2);
-				GBuffer::setColor(m_colorThemeMap.at("actionPressed"));
+				GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed"));
 				GBuffer::addQuadFilled(Vector2<Sint32>(), Vector2<Sint32>(Sint32(_subWidth + _descWidth + _iconWidth), _submenu->getSubHeight()) + (m_slBuffer * 2));
 				Shader::translate(glm::vec3(m_slBuffer, m_slBuffer, 0));
 
-				GBuffer::setColor(m_colorThemeMap.at("textLight"));
+				GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
 				_height = 0;
 				for (Uint16 k = 0; k < _submenu->getVisibleElements().size(); k++) {
 					MenuElement* me = _submenu->getVisibleElements()[k];
@@ -433,7 +442,7 @@ void CMenubar::render() {
 						Shader::pushMatrixModel();
 						Shader::translate(glm::vec3(0, _height + _eHeight / 2, 0));
 
-						GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+						GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
 						GBuffer::addQuadFilled(Vector2<Sint32>(1, 0), Vector2<Sint32>(_subWidth + _descWidth + _iconWidth - 2, 1));
 
 						Shader::popMatrixModel();
@@ -441,20 +450,28 @@ void CMenubar::render() {
 					else {
 						if ((Uint16)_splitDir.size() > j + 1 && _splitDir[j + 1] == me->getDisplayName()
 							|| me->getHoverTimer() > 0) {
-							GBuffer::setColor(m_colorThemeMap.at("actionHovered").applyScale(Color(1, 1, 1, me->getHoverTimer())));
+							GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(Color(1, 1, 1, me->getHoverTimer())));
 							GBuffer::addQuadFilled(Vector2<Sint32>(0, _height), Vector2<Sint32>(_subWidth + _descWidth + _iconWidth, _eHeight));
 						}
 						if (me->getType() == ElementType::CHECKBOX) {
 							GLfloat cbs = 3;
 							GLfloat cbh = me->getHeight() - cbs * 2;
-							GBuffer::setColor(m_colorThemeMap.at("textLight"));
-							GBuffer::addQuadOutlined(Vector2<Sint32>(cbs, cbs + _height), cbh);
 
-							if (static_cast<MenuCheckbox*>(me)->isChecked()) {
-								GBuffer::addQuadFilled(Vector2<Sint32>(cbs, cbs + _height) + 3, cbh - 6);
-							}
+							Shader::pushMatrixModel();
+							GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
+							if (static_cast<MenuCheckbox*>(me)->isChecked())
+								GBuffer::setSubtexUV(0.5f, 0.0f, 1.0f, 1.0f);
+							else
+								GBuffer::setSubtexUV(0.0f, 0.0f, 0.5f, 1.0f);
+							GBuffer::renderTexture(m_texCheckbox, Vector2<Sint32>(cbs, _height + (_eHeight - m_texCheckbox->getSize().y) / 2), m_texCheckbox->getSize().y);
+							Shader::popMatrixModel();
+
+							GBuffer::setSubtexUV(0.0f, 0.0f, 1.0f, 1.0f);
 						}
-						GBuffer::setColor(m_colorThemeMap.at("textLight"));
+						if (me->isEnabled())
+							GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
+						else
+							GBuffer::setColor(getElementColor(getElementPos() + "Text2"));
 						Font::print(me->getDisplayName(), _iconWidth, Sint32(_height + _eHeight / 2));
 						Font::print(me->getDesc(), _iconWidth + _subWidth, Sint32(_height + _eHeight / 2));
 						if (me->getType() == ElementType::SUBMENU) {
@@ -472,18 +489,21 @@ void CMenubar::render() {
 				_selectHeight += _sh;
 			}
 			GBuffer::setTexture(0);
-			GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+			GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
 			GBuffer::addQuadFilled(Vector2<Sint32>(), Vector2<Sint32>(_buttonWidth, m_size.y));
 
-			GBuffer::setColor(m_colorThemeMap.at("actionPressed"));
+			GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed"));
 			GBuffer::addQuadFilled(Vector2<Sint32>(1, 1), Vector2<Sint32>(_buttonWidth - 2, m_size.y));
 		}
 		else if (m_submenu.getVisibleElements()[i]->getHoverTimer() > 0) {
 			GBuffer::setTexture(0);
-			GBuffer::setColor(m_colorThemeMap.at("actionHovered").applyScale(Color(1, 1, 1, m_submenu.getVisibleElements()[i]->getHoverTimer())));
+			GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(Color(1, 1, 1, m_submenu.getVisibleElements()[i]->getHoverTimer())));
 			GBuffer::addQuadFilled(Vector2<Sint32>(), Vector2<Sint32>(_buttonWidth - 1, m_size.y));
 		}
-		GBuffer::setColor(m_colorThemeMap.at("textLight"));
+		if (m_submenu.getVisibleElements()[i]->isEnabled())
+			GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
+		else
+			GBuffer::setColor(getElementColor(getElementPos() + "Text2"));
 		Font::setAlignment(Alignment::ALIGN_CENTER);
 		Font::print(m_submenu.getVisibleElements()[i]->getDisplayName(), _buttonWidth / 2, (m_size.y) / 2);
 		Shader::translate(glm::vec3((GLfloat)_buttonWidth, 0.f, 0.f));

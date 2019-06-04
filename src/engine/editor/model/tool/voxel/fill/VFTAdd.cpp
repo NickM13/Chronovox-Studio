@@ -1,7 +1,7 @@
 #include "engine\editor\model\tool\voxel\fill\VFTAdd.h"
 
 VFTAdd::VFTAdd()
-	: VoxelFillTool() {
+	: VoxelTool() {
 	m_parent = "Fill";
 	m_toolName = "Fill Append Tool";
 	m_toolDesc = "Fill Area with Voxels";
@@ -14,9 +14,10 @@ void VFTAdd::inputTool() {
 		m_fillArea->use(Voxel(1, MColor::getInstance().getUnitID(*m_color)));
 }
 void VFTAdd::updateTool() {
-	m_fillArea->create(false);
+	if (!GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT))
+		m_fillArea->create(false);
 }
 void VFTAdd::renderTool() {
-	if (!m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxelOffset)) return;
-	renderFillMesh();
+	if (m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxelOffset))
+		renderFillMesh();
 }

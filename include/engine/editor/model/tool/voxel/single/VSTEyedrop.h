@@ -1,7 +1,7 @@
 #pragma once
-#include "VoxelSingleTool.h"
+#include "..\VoxelTool.h"
 
-class VSTEyedrop : public VoxelSingleTool {
+class VSTEyedrop : public VoxelTool {
 protected:
 
 public:

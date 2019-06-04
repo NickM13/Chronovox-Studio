@@ -16,10 +16,19 @@
 
 class VoxelMesh {
 private:
+	enum class MeshType {
+		MESH,	// Regular
+		MESHAO,	// Ambient Occlusion
+		MESHDOT	// Triangle Outlines
+	} m_meshType;
+
 	std::vector<glm::vec3> m_vertices;
 	std::vector<Color> m_colors;
 	std::vector<glm::vec3> m_normals;
 	GLuint m_vaoId, m_vboId[3];
+
+	std::vector<glm::vec3> m_verticesWire;
+	GLuint m_vaoIdWire, m_vboIdWire[1];
 
 	Vector4<GLfloat> getAO(Vector3<Uint16> p_pos, Voxel*** p_voxels, Uint8 p_side);
 public:
@@ -34,6 +43,11 @@ public:
 	// Create a mesh with simulated ambient occlusion
 	void createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Sint16> p_dimensions);
 
+	std::vector<glm::vec3>& getVertices() { return m_vertices; }
+	std::vector<Color>& getColors() { return m_colors; }
+	std::vector<glm::vec3>& getNormals() { return m_normals; }
+
 	void renderMesh();
+	void renderMeshWireframe();
 	void renderMeshShadow();
 };

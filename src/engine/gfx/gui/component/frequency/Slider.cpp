@@ -74,14 +74,14 @@ void CSlider::render() {
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 
 	//Outline
-	GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused").applyScale(Color(0.5f, 0.5f, 0.5f)));
+	GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused").applyScale(Color(0.5f, 0.5f, 0.5f)));
 	GBuffer::addVertexQuad(-m_width - 1, -GLfloat(m_height / 2) - 1);
 	GBuffer::addVertexQuad(GLfloat(m_length + m_width + 1), -GLfloat(m_height / 2) - 1);
 	GBuffer::addVertexQuad(GLfloat(m_length + m_width + 1), GLfloat(m_height / 2) + 1);
 	GBuffer::addVertexQuad(-m_width - 1, GLfloat(m_height / 2) + 1);
 
 	//Background
-	GBuffer::setColor(m_colorThemeMap.at("borderElementUnfocused"));
+	GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
 	GBuffer::addVertexQuad(-m_width, -GLfloat(m_height / 2));
 	GBuffer::addVertexQuad(GLfloat(m_length + m_width), -GLfloat(m_height / 2));
 	GBuffer::addVertexQuad(GLfloat(m_length + m_width), GLfloat(m_height / 2));
@@ -94,14 +94,14 @@ void CSlider::render() {
 	GBuffer::addVertexQuad(-m_width, GLfloat(m_height / 2));
 
 	//Slider
-	GBuffer::setColor(m_colorThemeMap.at("actionPressed"));
+	GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed"));
 	GBuffer::addVertexQuad(GLfloat(m_slideValue - m_width), -GLfloat(m_height / 2));
 	GBuffer::addVertexQuad(GLfloat(m_slideValue + m_width), -GLfloat(m_height / 2));
 	GBuffer::addVertexQuad(GLfloat(m_slideValue + m_width), GLfloat(m_height / 2));
 	GBuffer::addVertexQuad(GLfloat(m_slideValue - m_width), GLfloat(m_height / 2));
 	Shader::popMatrixModel();
 
-	GBuffer::setColor(m_colorThemeMap.at("textLight"));
+	GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
 	Font::setAlignment(ALIGN_CENTER);
 	Font::print(m_title, Sint32(m_pos.x + m_length / 2), Sint32(m_pos.y - m_height));
 
