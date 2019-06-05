@@ -1,0 +1,75 @@
+--[ Chronovox Studio (1.3.0) ]--
+--[ Generation Documentation ]--
+
+Chronovox Studio supports custom generation LUA scripts.  All scripts should end in .lua and be saved in "res/script/generate".  If you're wanting to create or edit your own generation script, here is a list of available functions and variables:
+
+I = Int
+F = Float
+S = String
+
+Functions:
+	addMatrix(S matrixName, I width, I height, I depth)
+		matrixName: Name of matrix
+		width, height, depth: Size of matrix
+		return: I matrixId
+		
+	getMatrixByName(S matrixName)
+		matrixName: Name of matrix
+		return: I matrixId
+		Returns the id of a voxel 
+		
+	setMatrixPos(I matrixId, F x, F y, F z)
+		matrixId: ID of matrix (starts at 0)
+		x, y, z: Coordinates of new position
+		return: None
+		Sets the position of (matrixId) to (x, y, z)
+		
+	setMatrixSize(I matrixId, I width, I height, I depth)
+		matrixId: ID of matrix (starts at 0)
+		width, height, depth: Size of matrix
+		return: None
+		Sets the size of (matrixId) to (width, height, depth)
+		
+	setSelectedMatrix(I matrixId)
+		matrixId: ID of matrix (starts at 0)
+		return: None
+		Sets the current matrix to (matrixId)
+	
+	useColor()
+		return: None
+		Sets the current color to the current user-selected color
+	
+	getColor(I x, I y, I z)
+		x, y, z: Voxel coordinates
+		return: None
+		Sets the current color to the color of the voxel at (x, y, z)
+	
+	setVoxel(I x, I y, I z, I type)
+		x, y, z: Voxel coordinates
+		type: 0=air, 1=filled
+		return: None
+		Sets the voxel at (x, y, z) to air or filled (uses current color)
+
+
+
+Variables:
+	color:
+		r (I): Red (0-255)
+		g (I): Green (0-255)
+		b (I): Blue (0-255)
+		Current color used in setVoxel function
+		Note: Changing these values will change the color used in setVoxel
+	
+	pos (const):
+		x (F): X-coord
+		y (F): Y-coord
+		z (F): Z-coord
+		Position values of currently selected matrix
+		Note: If you want to change the position, use setMatrixPos function
+	
+	size (const):
+		x (F): X-coord
+		y (F): Y-coord
+		z (F): Z-coord
+		Dimension values of currently selected matrix
+		Note: If you want to change the dimensions, use setMatrixSize function

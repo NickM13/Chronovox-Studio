@@ -1,0 +1,18 @@
+# .csm (Chronovox Studio Model)
+# Version 3 
+# File format uses little-endian style storage
+
+Header
+Size(Byte)	Name			Description
+4			.CSM			Format type
+4			Version			Format version
+4			Unused			Unused
+4			Matrix Count	Number of matrices
+
+Body
+Size(Byte)	Name			Description
+1+n			Matrix Name		Name of matrix
+1+n			Matrix Parent	Parent of matrix (reserved for animations)
+6			Position		Matrix position, 2 bytes for each axis (divide by 10)
+6			Size			Matrix size, 2 bytes for each axis
+x*5			Voxel Data		Count, R, G, B, A
