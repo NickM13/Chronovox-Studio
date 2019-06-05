@@ -16,7 +16,7 @@ Functions:
 	getMatrixByName(S matrixName)
 		matrixName: Name of matrix
 		return: I matrixId
-		Returns the id of a voxel 
+		Returns the id of a voxel
 		
 	setMatrixPos(I matrixId, F x, F y, F z)
 		matrixId: ID of matrix (starts at 0)
@@ -68,8 +68,8 @@ Variables:
 		Note: If you want to change the position, use setMatrixPos function
 	
 	size (const):
-		x (F): X-coord
-		y (F): Y-coord
-		z (F): Z-coord
+		x (I): X-coord
+		y (I): Y-coord
+		z (I): Z-coord
 		Dimension values of currently selected matrix
 		Note: If you want to change the dimensions, use setMatrixSize function

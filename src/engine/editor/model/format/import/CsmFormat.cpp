@@ -108,6 +108,9 @@ bool CsmFormat::load(std::string p_fileName, std::vector<Matrix*>* p_matrixList)
 		case 2:
 			_success = load2(p_matrixList);
 			break;
+		case 3:
+			_success = load3(p_matrixList);
+			break;
 		default:
 			_success = false;
 			break;

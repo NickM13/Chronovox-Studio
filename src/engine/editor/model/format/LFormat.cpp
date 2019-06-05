@@ -63,11 +63,11 @@ bool LFormat::load(std::string p_fileName, std::vector<Matrix*>* p_matrixList, I
 	m_thread = std::thread([p_fileName, p_matrixList, p_formatType]() {
 		glfwMakeContextCurrent(GScreen::getGLFWWindow());
 		switch (p_formatType) {
-		case ImportType::CSM: CsmFormat::load(p_fileName, p_matrixList); break;
-		case ImportType::NVM: CsmFormat::load(p_fileName, p_matrixList); break;
-		case ImportType::QBCL: break;
-		case ImportType::QB: QbFormat::load(p_fileName, p_matrixList); break;
-		case ImportType::VOX: break;
+		case ImportType::CSM:	CsmFormat::load(p_fileName, p_matrixList); break;
+		case ImportType::NVM:	CsmFormat::load(p_fileName, p_matrixList); break;
+		case ImportType::QBCL:	break;
+		case ImportType::QB:	QbFormat::load(p_fileName, p_matrixList); break;
+		//case ImportType::VOX:	VoxFormat::load(p_fileName, p_matrixList); break;
 		default: break;
 		}
 		GFormat::setLoadPercent(1.f);

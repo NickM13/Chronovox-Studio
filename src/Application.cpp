@@ -13,7 +13,7 @@ bool Application::init(char *p_filePath) {
 	Logger::logNormal("Initializing application...");
 
 	GScreen::setAppName("Chronovox Studio");
-	GScreen::setAppVersion("1.3.0");
+	GScreen::setAppVersion("1.3.0.1");
 	GScreen::setWindowTitle("Chronovox Studio");
 	GScreen::setDeveloper(false);
 	GScreen::enableShadows(false);
