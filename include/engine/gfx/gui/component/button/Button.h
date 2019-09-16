@@ -3,7 +3,6 @@
 #include "engine\utils\Utilities.h"
 #include "..\Component.h"
 #include "engine\gfx\font\Font.h"
-#include "engine\sfx\Sound.h"
 
 class CButton : public Component {
 public:

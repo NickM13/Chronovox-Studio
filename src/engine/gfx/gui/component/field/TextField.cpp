@@ -296,13 +296,8 @@ void TextField::render() {
 	GBuffer::setTexture(0);
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 
-	if (m_selected) GBuffer::setColor(getElementColor(getElementPos() + "BorderFocused"));
-	else			GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
-
-	GBuffer::addVertexQuad(-1, -1);
-	GBuffer::addVertexQuad(GLfloat(m_size.x + 1), -1);
-	GBuffer::addVertexQuad(GLfloat(m_size.x + 1), GLfloat(_boxHeight + 1));
-	GBuffer::addVertexQuad(-1, GLfloat(_boxHeight + 1));
+	GBuffer::renderShadow({}, { m_size.x, _boxHeight });
+	GBuffer::setTexture(0);
 
 	GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed"));
 
@@ -329,7 +324,7 @@ void TextField::render() {
 				2,
 				Sint32(0.5f * Font::getSpacingHeight() - 2));
 		}
-		GBuffer::setColor(getElementColor(getElementPos() + "Text1").applyScale(Color(1.f, 1.f, 1.f, 0.5f)));
+		GBuffer::setColor(getElementColor(getElementPos() + "Text1").applyScale(1.f, 1.f, 1.f, 0.5f));
 		for (Uint16 i = 0; i < fmin((_boxHeight), ceil(GLfloat(m_blankField.length()) / (m_size.x))); i++) {
 			Font::print(m_blankField.substr(i * (m_size.x), (m_size.x)) + ((m_selected && (i == (_boxHeight)-1) && fmod(glfwGetTime(), 0.5) < 0.25) ? "|" : ""),
 				2,

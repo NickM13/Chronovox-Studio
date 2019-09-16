@@ -24,7 +24,7 @@ void VTAdd::inputTool() {
 		if (m_boxing) {
 			if (GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)) {
 				if (m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxelOffset)) {
-					box(*m_selectedVoxelOffset, Voxel(1, MColor::getInstance().getUnitID(*m_color)));
+					box(*m_selectedVoxelOffset, Voxel(1, *m_color));
 				}
 			} else {
 				m_editMatrix->saveChanges();
@@ -34,7 +34,7 @@ void VTAdd::inputTool() {
 	}
 	else if (m_voxelMode == VoxelMode::SINGLE) {
 		if (GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)) {
-			m_editMatrix->getMatrix()->setVoxel(*m_selectedVoxelOffset, Voxel(1, MColor::getInstance().getUnitID(*m_color)));
+			m_editMatrix->getMatrix()->setVoxel(*m_selectedVoxelOffset, Voxel(1, *m_color));
 		}
 	}
 }

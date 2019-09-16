@@ -14,7 +14,6 @@ bool GScreen::m_developer = false;
 GLFWwindow *GScreen::m_window = 0;
 Vector2<Sint32> GScreen::m_monitorSize = {};
 Vector2<Sint32> GScreen::m_windowPos = {};
-GLfloat GScreen::m_samples = 1;
 bool GScreen::m_maximized = false;
 bool GScreen::m_iconified = false;
 bool GScreen::m_focused = true;

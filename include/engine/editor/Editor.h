@@ -26,12 +26,9 @@ public:
 		ANIMATION
 	};
 private:
-	struct ShadowBuffer {
-		GLuint framebufferName = 0, renderedTexture = 0, depthRenderbuffer = 0;
-		glm::vec2 shadowSize = {};
-	} m_shadowBuffer = {};
 	GLuint gBuffer, gPosition, gNormal, gAlbedoSpec, rboDepth;
 	GLuint aaBuffer, aaScreenTex, rboAA;
+	GLuint ssaoBuffer, ssaoColorBuffer;
 	GLuint quadVAO = 0, cubeVAO = 0;
 	GLuint quadVBO, cubeVBO = 0;
 
@@ -59,10 +56,8 @@ private:
 
 	void closeProject(Sint32 p_index);
 
-	bool initShadowBuffer();
 	bool initGBuffer();
 	bool initAABuffer();
-	void terminateShadowBuffer();
 	void terminateGBuffer();
 	void terminateAABuffer();
 
@@ -97,11 +92,6 @@ public:
 
 	void renderMouse();
 
-	void bindShadowBuffer();
-	void unbindShadowBuffer();
-	void bindShadowTexture();
-	void renderShadowTexture();
-
 	void bindGBuffer();
 
 	glm::vec3 getSunlightDir();
@@ -109,13 +99,12 @@ public:
 
 	void input();
 	void update();
-	void renderShadow();
-	void render3d();
 	void render2d();
 	void renderGeometry();
 	void renderLight();
 
-	// Overlay functions
+	/* Menubar functions */
+
 	bool fileNewModel();
 	bool fileOpen();
 	bool fileSave();
@@ -124,6 +113,7 @@ public:
 	
 	void editUndo();
 	void editRedo();
+	void editPreferences();
 
 	void helpAbout();
 };

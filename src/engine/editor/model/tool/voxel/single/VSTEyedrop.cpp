@@ -11,7 +11,7 @@ VSTEyedrop::VSTEyedrop()
 
 void VSTEyedrop::inputTool() {
 	if(GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT) && m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel)) {
-		*m_color = MColor::getInstance().getUnit(m_editMatrix->getMatrix()->getVoxel(*m_selectedVoxel).color);
+		*m_color = m_editMatrix->getMatrix()->getVoxel(*m_selectedVoxel).color;
 	}
 }
 void VSTEyedrop::updateTool() {

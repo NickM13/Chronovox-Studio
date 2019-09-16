@@ -26,11 +26,11 @@ Container* EditorOverlay::init(Editor* p_editor) {
 	titleBar->addComponent(new CText("WINDOW_TITLE", GScreen::getWindowTitle(), { 0, 8 }, { 0, 0 }, Alignment::ALIGN_CENTER, "topText1"),
 		Component::Anchor::TOP_LEFT, Component::Anchor::TOP_RIGHT);
 	titleBar->addComponent(new CButton("BUTTON_MINIMIZE_WINDOW", "", MTexture::getTexture("gui\\icon\\window\\Minimize.png"),
-		{ -68, 0 }, { 34, 28 }, CButton::RenderStyle::FILL, []() { GScreen::setWindowCommand(GScreen::WindowCommand::MINIMIZE); }), Component::Anchor::TOP_RIGHT);
+		{ -68, 0 }, { 34, 28 }, CButton::RenderStyle::EMPTY, []() { GScreen::setWindowCommand(GScreen::WindowCommand::MINIMIZE); }), Component::Anchor::TOP_RIGHT);
 	titleBar->addComponent(new CButton("BUTTON_RESIZE_WINDOW", "", MTexture::getTexture("gui\\icon\\window\\Resize.png"),
-		{ -34, 0 }, { 34, 28 }, CButton::RenderStyle::FILL, []() { GScreen::setWindowCommand(GScreen::WindowCommand::RESIZE); }), Component::Anchor::TOP_RIGHT);
+		{ -34, 0 }, { 34, 28 }, CButton::RenderStyle::EMPTY, []() { GScreen::setWindowCommand(GScreen::WindowCommand::RESIZE); }), Component::Anchor::TOP_RIGHT);
 	titleBar->addComponent(new CButton("BUTTON_CLOSE_WINDOW", "", MTexture::getTexture("gui\\icon\\window\\Close.png"),
-		{ 0, 0 }, { 34, 28 }, CButton::RenderStyle::FILL, []() { m_editor->attemptClose(); }), Component::Anchor::TOP_RIGHT);
+		{ 0, 0 }, { 34, 28 }, CButton::RenderStyle::EMPTY, []() { m_editor->attemptClose(); }), Component::Anchor::TOP_RIGHT);
 
 	CMenubar* menuBar = new CMenubar("MENUBAR_MAIN", { 0, 32 }, { 0, 18 });
 	menuBar->setPriorityLayer(16);
@@ -47,6 +47,14 @@ Container* EditorOverlay::init(Editor* p_editor) {
 		->setPriority(0);
 	menuBar->addElement("File", new CMenubar::MenuButton("Exit", GKey::KeyBind(GLFW_KEY_F4, GLFW_MOD_ALT), []() { m_editor->attemptClose(); }))
 		->setPriority(10);
+
+	submenu = new CMenubar::Submenu("Edit", "Edit");
+	submenu->setPriority(1);
+	menuBar->addElement("", submenu);
+	menuBar->addElement("Edit", new CMenubar::MenuButton("Preferences...",
+		GKey::KeyBind(GLFW_KEY_F7, GLFW_MOD_CONTROL), []() { m_editor->editPreferences(); }))
+		->setPriority(16);
+	
 
 	submenu = new CMenubar::Submenu("Help", "Help");
 	submenu->setPriority(10);

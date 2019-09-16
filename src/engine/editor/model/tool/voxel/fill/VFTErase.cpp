@@ -10,14 +10,14 @@ VFTErase::VFTErase()
 }
 
 void VFTErase::inputTool() {
-	if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
-		m_fillArea->use(Voxel(0, 0));
+	if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
+		m_fillArea->create(true);
+		m_fillArea->use(Voxel(0, Color()));
+	}
 }
 void VFTErase::updateTool() {
-	if (!GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT))
-		m_fillArea->create(true);
+
 }
 void VFTErase::renderTool() {
-	if (m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel))
-		renderFillMesh();
+
 }

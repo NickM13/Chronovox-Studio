@@ -74,7 +74,7 @@ void CSlider::render() {
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 
 	//Outline
-	GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused").applyScale(Color(0.5f, 0.5f, 0.5f)));
+	GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused").applyScale(0.5f, 0.5f, 0.5f));
 	GBuffer::addVertexQuad(-m_width - 1, -GLfloat(m_height / 2) - 1);
 	GBuffer::addVertexQuad(GLfloat(m_length + m_width + 1), -GLfloat(m_height / 2) - 1);
 	GBuffer::addVertexQuad(GLfloat(m_length + m_width + 1), GLfloat(m_height / 2) + 1);

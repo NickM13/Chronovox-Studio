@@ -66,15 +66,26 @@ void CButton::update(GLfloat p_deltaUpdate) {
 	}
 }
 void CButton::render() {
+	Shader::pushMatrixModel();
+	GBuffer::setTexture(0);
+	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 	if (m_renderStyle & RenderStyle::FILL) {
-		Component::renderFill();
+		GBuffer::setColor(getElementColor("buttonPrimary"));
+		GBuffer::addQuadFilled({}, m_size);
 	}
-	else {
-		GBuffer::setColor(Color(0.f, 0.f, 0.f, 0.f));
-		Component::renderFill(false);
+	if (m_highlighting && (isSelected() || m_hoverTimer > 0)) {
+		if (isSelected())			GBuffer::setColor(getElementColor("buttonPressed").applyScale(1.f, 1.f, 1.f));
+		else if (m_hoverTimer > 0)	GBuffer::setColor(getElementColor("buttonHovered").applyScale(1.f, 1.f, 1.f, m_hoverTimer));
+		GBuffer::addQuadFilled({}, m_size);
 	}
+	if (m_texture) {
+		GBuffer::renderTexture(m_texture, {}, m_size, m_textureStyle);
+	}
+	Shader::popMatrixModel();
 	if (m_renderStyle & RenderStyle::BORDER) {
-		Component::renderBorder();
+		GBuffer::renderShadow(m_pos - 1, m_size + 2);
+		GBuffer::setTexture(0);
+		//Component::renderBorder();
 	}
 
 	GBuffer::setColor(getElementColor(getElementPos() + "Text1"));

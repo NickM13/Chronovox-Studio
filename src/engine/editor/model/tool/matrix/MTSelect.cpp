@@ -1,5 +1,6 @@
 #include "engine\editor\model\tool\matrix\MTSelect.h"
 #include "engine\gfx\model\MModelObj.h"
+#include "engine\editor\Editor.h"
 
 MTSelect::MTSelect()
 	: MatrixTool() {
@@ -11,7 +12,9 @@ MTSelect::MTSelect()
 }
 
 void MTSelect::inputTool() {
-
+	if (GMouse::mouseDoubleClicked(GLFW_MOUSE_BUTTON_LEFT)) {
+		Editor::getModel()->editMatrixProperties();
+	}
 }
 void MTSelect::updateTool() {
 

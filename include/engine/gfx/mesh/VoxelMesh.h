@@ -5,8 +5,7 @@
 #include "engine\utils\variable\datatype\Rectangle.h"
 #include "engine\utils\variable\datatype\Vector3.h"
 #include "engine\utils\variable\datatype\Vector4.h"
-#include "engine\utils\variable\manager\ColorManager.h"
-#include "engine\utils\variable\manager\VoxelManager.h"
+#include "engine\utils\variable\dictionary\DVoxel.h"
 
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>

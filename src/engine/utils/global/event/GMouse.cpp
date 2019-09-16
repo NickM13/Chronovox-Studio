@@ -7,6 +7,7 @@ GMouse::MouseCommand GMouse::m_mouseCommands[32];
 std::vector<GMouse::MouseEvent> GMouse::m_mouseEvents;
 bool GMouse::m_mouseActive = false;
 Sint8 GMouse::m_mouseScroll = 0;
+Vector2<Sint32> GMouse::m_doubleclickPos;
 
 void GMouse::mousePressCallback(GLFWwindow* p_window, Sint32 p_button, Sint32 p_state, Sint32 p_mods) {
 	m_mouseEvents.push_back({p_button, p_state, p_mods});
@@ -14,12 +15,14 @@ void GMouse::mousePressCallback(GLFWwindow* p_window, Sint32 p_button, Sint32 p_
 	case GLFW_PRESS:
 		m_mouseCommands[p_button].state = MouseState::MOUSE_PRESS | MouseState::MOUSE_DOWN;
 		m_mouseCommands[p_button].mods = p_mods;
-		if(m_mouseCommands[p_button].delay > 0) {
+		if(m_mouseCommands[p_button].delay > 0
+			&& (m_doubleclickPos - m_mousePos).getLength() < 4) {
 			m_mouseCommands[p_button].state = m_mouseCommands[p_button].state | MouseState::MOUSE_DOUBLECLICK;
 			m_mouseCommands[p_button].delay = 0;
 		}
 		else {
 			m_mouseCommands[p_button].delay = 0.25f;
+			m_doubleclickPos = m_mousePos;
 		}
 		break;
 	case GLFW_RELEASE:

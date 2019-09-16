@@ -10,16 +10,14 @@
 class Logger {
 public:
 	enum class Verbosity : Sint8 {
-		NONE = 0,
-		QUIET = 1,
-		NORMAL = 2,
-		DIAGNOSTIC = 3
+		QUIET = 0,
+		NORMAL = 1,
+		DIAGNOSTIC = 2
 	};
 	enum class Type : Sint8 {
-		NONE = 0,
-		INFO = 1,
-		WARN = 2,
-		ERR = 3
+		INFO = 0,
+		WARN = 1,
+		ERR = 2
 	};
 
 private:

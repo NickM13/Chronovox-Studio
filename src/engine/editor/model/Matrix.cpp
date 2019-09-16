@@ -1,5 +1,4 @@
 #include "engine\editor\model\Matrix.h"
-#include "engine\utils\variable\manager\ColorManager.h"
 #include "engine\gfx\mesh\MMesh.h"
 #include "engine\gfx\model\MModelObj.h"
 #include "engine\gfx\gui\component\Component.h"
@@ -12,17 +11,17 @@ Matrix::Matrix(Sint16 p_id, std::string p_name, std::string p_parent, glm::vec3 
 	m_pos = p_pos;
 	m_visible = true;
 
-	Uint16 noVoxel = MVoxel::getInstance().getUnitID(Voxel(0, MColor::getInstance().getUnitID(Color())));
+	Uint16 noVoxel = static_cast<Uint16>(DVoxel::getVoxelId(Voxel(0, Color())));
 
-	m_voxelData = new Uint16**[m_size.x + 2];
-	m_faceData = new Sint8**[m_size.x + 2];
-	for(Uint16 x = 0; x < m_size.x + 2; x++) {
-		m_voxelData[x] = new Uint16*[m_size.y + 2];
-		m_faceData[x] = new Sint8*[m_size.y + 2];
-		for(Uint16 y = 0; y < m_size.y + 2; y++) {
-			m_voxelData[x][y] = new Uint16[m_size.z + 2];
-			m_faceData[x][y] = new Sint8[m_size.z + 2];
-			for(Uint16 z = 0; z < m_size.z + 2; z++) {
+	m_voxelData = new Uint16**[static_cast<size_t>(m_size.x) + 2];
+	m_faceData = new Sint8**[static_cast<size_t>(m_size.x) + 2];
+	for(Uint16 x = 0; x < static_cast<size_t>(m_size.x) + 2; x++) {
+		m_voxelData[x] = new Uint16*[static_cast<size_t>(m_size.y) + 2];
+		m_faceData[x] = new Sint8*[static_cast<size_t>(m_size.y) + 2];
+		for(Uint16 y = 0; y < static_cast<size_t>(m_size.y) + 2; y++) {
+			m_voxelData[x][y] = new Uint16[static_cast<size_t>(m_size.z) + 2];
+			m_faceData[x][y] = new Sint8[static_cast<size_t>(m_size.z) + 2];
+			for(Uint16 z = 0; z < static_cast<size_t>(m_size.z) + 2; z++) {
 				m_voxelData[x][y][z] = noVoxel;
 				m_faceData[x][y][z] = FACE_ALL;
 			}
@@ -39,17 +38,17 @@ Matrix::Matrix(Matrix& m) {
 	m_pos = m.getPos();
 	m_visible = true;
 
-	Uint16 noVoxel = MVoxel::getInstance().getUnitID(Voxel(0, MColor::getInstance().getUnitID(Color())));
+	Uint16 noVoxel = static_cast<Uint16>(DVoxel::getVoxelId(Voxel(0, Color())));
 
-	m_voxelData = new Uint16**[m_size.x + 2];
-	m_faceData = new Sint8**[m_size.x + 2];
-	for(Uint16 x = 0; x < m_size.x + 2; x++) {
-		m_voxelData[x] = new Uint16*[m_size.y + 2];
-		m_faceData[x] = new Sint8*[m_size.y + 2];
-		for(Uint16 y = 0; y < m_size.y + 2; y++) {
-			m_voxelData[x][y] = new Uint16[m_size.z + 2];
-			m_faceData[x][y] = new Sint8[m_size.z + 2];
-			for(Uint16 z = 0; z < m_size.z + 2; z++) {
+	m_voxelData = new Uint16**[static_cast<size_t>(m_size.x) + 2];
+	m_faceData = new Sint8**[static_cast<size_t>(m_size.x) + 2];
+	for(Uint16 x = 0; x < static_cast<size_t>(m_size.x) + 2; x++) {
+		m_voxelData[x] = new Uint16*[static_cast<size_t>(m_size.y) + 2];
+		m_faceData[x] = new Sint8*[static_cast<size_t>(m_size.y) + 2];
+		for(Uint16 y = 0; y < static_cast<size_t>(m_size.y) + 2; y++) {
+			m_voxelData[x][y] = new Uint16[static_cast<size_t>(m_size.z) + 2];
+			m_faceData[x][y] = new Sint8[static_cast<size_t>(m_size.z) + 2];
+			for(Uint16 z = 0; z < static_cast<size_t>(m_size.z) + 2; z++) {
 				m_voxelData[x][y][z] = noVoxel;
 				m_faceData[x][y][z] = FACE_ALL;
 			}
@@ -64,8 +63,8 @@ Matrix::Matrix(Matrix& m) {
 	m_mesh = new VoxelMesh();
 }
 Matrix::~Matrix() {
-	for(Uint16 x = 0; x < m_size.x + 2; x++) {
-		for(Uint16 y = 0; y < m_size.y + 2; y++) {
+	for(Uint16 x = 0; x < static_cast<size_t>(m_size.x) + 2; x++) {
+		for(Uint16 y = 0; y < static_cast<size_t>(m_size.y) + 2; y++) {
 			delete[] m_voxelData[x][y];
 			delete[] m_faceData[x][y];
 		}
@@ -81,8 +80,8 @@ Matrix::~Matrix() {
 	}
 }
 void Matrix::operator=(Matrix& m) {
-	for(Uint16 x = 0; x < m_size.x + 2; x++) {
-		for(Uint16 y = 0; y < m_size.y + 2; y++) {
+	for(Uint16 x = 0; x < static_cast<size_t>(m_size.x) + 2; x++) {
+		for(Uint16 y = 0; y < static_cast<size_t>(m_size.y) + 2; y++) {
 			delete[] m_voxelData[x][y];
 			delete[] m_faceData[x][y];
 		}
@@ -99,17 +98,17 @@ void Matrix::operator=(Matrix& m) {
 	m_pos = m.getPos();
 	m_visible = true;
 
-	Uint16 noVoxel = MVoxel::getInstance().getUnitID(Voxel(0, MColor::getInstance().getUnitID(Color())));
+	Uint16 noVoxel = static_cast<Uint16>(DVoxel::getVoxelId(Voxel(0, Color())));
 
-	m_voxelData = new Uint16**[m_size.x + 2];
-	m_faceData = new Sint8**[m_size.x + 2];
-	for(Uint16 x = 0; x < m_size.x + 2; x++) {
-		m_voxelData[x] = new Uint16*[m_size.y + 2];
-		m_faceData[x] = new Sint8*[m_size.y + 2];
-		for(Uint16 y = 0; y < m_size.y + 2; y++) {
-			m_voxelData[x][y] = new Uint16[m_size.z + 2];
-			m_faceData[x][y] = new Sint8[m_size.z + 2];
-			for(Uint16 z = 0; z < m_size.z + 2; z++) {
+	m_voxelData = new Uint16**[static_cast<size_t>(m_size.x) + 2];
+	m_faceData = new Sint8**[static_cast<size_t>(m_size.x) + 2];
+	for(Uint16 x = 0; x < static_cast<size_t>(m_size.x) + 2; x++) {
+		m_voxelData[x] = new Uint16*[static_cast<size_t>(m_size.y) + 2];
+		m_faceData[x] = new Sint8*[static_cast<size_t>(m_size.y) + 2];
+		for(Uint16 y = 0; y < static_cast<size_t>(m_size.y) + 2; y++) {
+			m_voxelData[x][y] = new Uint16[static_cast<size_t>(m_size.z) + 2];
+			m_faceData[x][y] = new Sint8[static_cast<size_t>(m_size.z) + 2];
+			for(Uint16 z = 0; z < static_cast<size_t>(m_size.z) + 2; z++) {
 				m_voxelData[x][y][z] = noVoxel;
 				m_faceData[x][y][z] = FACE_ALL;
 			}
@@ -171,17 +170,17 @@ void Matrix::setSize(glm::ivec3 p_size) {
 
 	m_size = p_size;
 
-	Uint16 noVoxel = MVoxel::getInstance().getUnitID(Voxel(0, MColor::getInstance().getUnitID(Color())));
+	Uint16 noVoxel = static_cast<Uint16>(DVoxel::getVoxelId(Voxel(0, Color())));
 
-	m_voxelData = new Uint16**[p_size.x + 2];
-	m_faceData = new Sint8**[p_size.x + 2];
-	for(Uint16 x = 0; x < p_size.x + 2; x++) {
-		m_voxelData[x] = new Uint16*[p_size.y + 2];
-		m_faceData[x] = new Sint8*[p_size.y + 2];
-		for(Uint16 y = 0; y < p_size.y + 2; y++) {
-			m_voxelData[x][y] = new Uint16[p_size.z + 2];
-			m_faceData[x][y] = new Sint8[p_size.z + 2];
-			for(Uint16 z = 0; z < p_size.z + 2; z++) {
+	m_voxelData = new Uint16**[static_cast<size_t>(p_size.x) + 2];
+	m_faceData = new Sint8**[static_cast<size_t>(p_size.x) + 2];
+	for(Uint16 x = 0; x < static_cast<size_t>(p_size.x) + 2; x++) {
+		m_voxelData[x] = new Uint16*[static_cast<size_t>(p_size.y) + 2];
+		m_faceData[x] = new Sint8*[static_cast<size_t>(p_size.y) + 2];
+		for(Uint16 y = 0; y < static_cast<size_t>(p_size.y) + 2; y++) {
+			m_voxelData[x][y] = new Uint16[static_cast<size_t>(p_size.z) + 2];
+			m_faceData[x][y] = new Sint8[static_cast<size_t>(p_size.z) + 2];
+			for(Uint16 z = 0; z < static_cast<size_t>(p_size.z) + 2; z++) {
 				m_voxelData[x][y][z] = noVoxel;
 				m_faceData[x][y][z] = FACE_ALL;
 			}
@@ -206,63 +205,80 @@ void Matrix::addPosition(glm::vec3 p_pos) {
 
 bool Matrix::setVoxel(glm::ivec3 p_pos, Voxel p_voxel) {
 	if(p_pos.x < 0 || p_pos.y < 0 || p_pos.z < 0 || p_pos.x >= m_size.x || p_pos.y >= m_size.y || p_pos.z >= m_size.z) return false;
+	if (m_name == "Body" && p_pos.x == 1 && p_pos.y == 0 && p_pos.z == 2) {
+		int a = 0;
+	}
 	glm::ivec3 _pos = p_pos + 1;
-	if(m_voxelData[_pos.x][_pos.y][_pos.z] == MVoxel::getInstance().getUnitID(p_voxel)) return false;
-	if(p_voxel.interactionType != MVoxel::getInstance().getUnit(m_voxelData[_pos.x][_pos.y][_pos.z]).interactionType) {
+	Uint16 voxId = static_cast<Uint16>(DVoxel::getVoxelId(p_voxel));
+	if(m_voxelData[_pos.x][_pos.y][_pos.z] == voxId) return false;
+	if(p_voxel.interactionType != DVoxel::getVoxel(m_voxelData[_pos.x][_pos.y][_pos.z]).interactionType) {
 		// Set face data of surrounding voxels
 		if(p_pos.x < m_size.x) {
-			if(p_voxel.interactionType != 0 && (m_faceData[_pos.x + 1][_pos.y][_pos.z] & FACE_NORTH))
+			if (p_voxel.interactionType)	m_faceData[_pos.x + 1][_pos.y][_pos.z] &= ~FACE_NORTH;
+			else							m_faceData[_pos.x + 1][_pos.y][_pos.z] |= FACE_NORTH;
+			/*if(p_voxel.interactionType != 0 && (m_faceData[_pos.x + 1][_pos.y][_pos.z] & FACE_NORTH))
 				m_faceData[_pos.x + 1][_pos.y][_pos.z] -= FACE_NORTH;
 			else if(p_voxel.interactionType == 0 && !(m_faceData[_pos.x + 1][_pos.y][_pos.z] & FACE_NORTH))
-				m_faceData[_pos.x + 1][_pos.y][_pos.z] += FACE_NORTH;
+				m_faceData[_pos.x + 1][_pos.y][_pos.z] += FACE_NORTH;*/
 		}
 
 		if(p_pos.x >= 0) {
-			if(p_voxel.interactionType != 0 && (m_faceData[_pos.x - 1][_pos.y][_pos.z] & FACE_SOUTH))
+			if (p_voxel.interactionType)	m_faceData[_pos.x - 1][_pos.y][_pos.z] &= ~FACE_SOUTH;
+			else							m_faceData[_pos.x - 1][_pos.y][_pos.z] |= FACE_SOUTH;
+			/*if(p_voxel.interactionType != 0 && (m_faceData[_pos.x - 1][_pos.y][_pos.z] & FACE_SOUTH))
 				m_faceData[_pos.x - 1][_pos.y][_pos.z] -= FACE_SOUTH;
 			else if(p_voxel.interactionType == 0 && !(m_faceData[_pos.x - 1][_pos.y][_pos.z] & FACE_SOUTH))
-				m_faceData[_pos.x - 1][_pos.y][_pos.z] += FACE_SOUTH;
+				m_faceData[_pos.x - 1][_pos.y][_pos.z] += FACE_SOUTH;*/
 		}
 
 		if(p_pos.z < m_size.z) {
-			if(p_voxel.interactionType != 0 && (m_faceData[_pos.x][_pos.y][_pos.z + 1] & FACE_WEST))
+			if (p_voxel.interactionType)	m_faceData[_pos.x][_pos.y][_pos.z + 1] &= ~FACE_WEST;
+			else							m_faceData[_pos.x][_pos.y][_pos.z + 1] |= FACE_WEST;
+			/*if(p_voxel.interactionType != 0 && (m_faceData[_pos.x][_pos.y][_pos.z + 1] & FACE_WEST))
 				m_faceData[_pos.x][_pos.y][_pos.z + 1] -= FACE_WEST;
 			else if(p_voxel.interactionType == 0 && !(m_faceData[_pos.x][_pos.y][_pos.z + 1] & FACE_WEST))
-				m_faceData[_pos.x][_pos.y][_pos.z + 1] += FACE_WEST;
+				m_faceData[_pos.x][_pos.y][_pos.z + 1] += FACE_WEST;*/
 		}
 
 		if(p_pos.z >= 0) {
-			if(p_voxel.interactionType != 0 && (m_faceData[_pos.x][_pos.y][_pos.z - 1] & FACE_EAST))
+			if (p_voxel.interactionType)	m_faceData[_pos.x][_pos.y][_pos.z - 1] &= ~FACE_EAST;
+			else							m_faceData[_pos.x][_pos.y][_pos.z - 1] |= FACE_EAST;
+			/*if(p_voxel.interactionType != 0 && (m_faceData[_pos.x][_pos.y][_pos.z - 1] & FACE_EAST))
 				m_faceData[_pos.x][_pos.y][_pos.z - 1] -= FACE_EAST;
 			else if(p_voxel.interactionType == 0 && !(m_faceData[_pos.x][_pos.y][_pos.z - 1] & FACE_EAST))
-				m_faceData[_pos.x][_pos.y][_pos.z - 1] += FACE_EAST;
+				m_faceData[_pos.x][_pos.y][_pos.z - 1] += FACE_EAST;*/
 		}
 
 		if(p_pos.y < m_size.y) {
-			if(p_voxel.interactionType != 0 && (m_faceData[_pos.x][_pos.y + 1][_pos.z] & FACE_BOTTOM))
+			if (p_voxel.interactionType)	m_faceData[_pos.x][_pos.y + 1][_pos.z] &= ~FACE_BOTTOM;
+			else							m_faceData[_pos.x][_pos.y + 1][_pos.z] |= FACE_BOTTOM;
+			/*if(p_voxel.interactionType != 0 && (m_faceData[_pos.x][_pos.y + 1][_pos.z] & FACE_BOTTOM))
 				m_faceData[_pos.x][_pos.y + 1][_pos.z] -= FACE_BOTTOM;
 			else if(p_voxel.interactionType == 0 && !(m_faceData[_pos.x][_pos.y + 1][_pos.z] & FACE_BOTTOM))
-				m_faceData[_pos.x][_pos.y + 1][_pos.z] += FACE_BOTTOM;
+				m_faceData[_pos.x][_pos.y + 1][_pos.z] += FACE_BOTTOM;*/
 		}
 
 		if(p_pos.y >= 0) {
-			if(p_voxel.interactionType != 0 && (m_faceData[_pos.x][_pos.y - 1][_pos.z] & FACE_TOP))
+			if (p_voxel.interactionType)	m_faceData[_pos.x][_pos.y - 1][_pos.z] &= ~FACE_TOP;
+			else							m_faceData[_pos.x][_pos.y - 1][_pos.z] |= FACE_TOP;
+			/*if(p_voxel.interactionType != 0 && (m_faceData[_pos.x][_pos.y - 1][_pos.z] & FACE_TOP))
 				m_faceData[_pos.x][_pos.y - 1][_pos.z] -= FACE_TOP;
 			else if(p_voxel.interactionType == 0 && !(m_faceData[_pos.x][_pos.y - 1][_pos.z] & FACE_TOP))
-				m_faceData[_pos.x][_pos.y - 1][_pos.z] += FACE_TOP;
+				m_faceData[_pos.x][_pos.y - 1][_pos.z] += FACE_TOP;*/
 		}
 	}
-	m_voxelData[_pos.x][_pos.y][_pos.z] = MVoxel::getInstance().getUnitID(p_voxel);
+	m_voxelData[_pos.x][_pos.y][_pos.z] = voxId;
 	m_needsRasterize = true;
 	return true;
 }
 Voxel Matrix::getVoxel(glm::ivec3 p_pos) {
-	p_pos = p_pos + 1;
-	return MVoxel::getInstance().getUnit(m_voxelData[p_pos.x][p_pos.y][p_pos.z]);
+	return DVoxel::getVoxel(m_voxelData[p_pos.x + 1][p_pos.y + 1][p_pos.z + 1]);
+}
+Uint16*** Matrix::getVoxelData() {
+	return m_voxelData;
 }
 Uint16 Matrix::getVoxelId(glm::ivec3 p_pos) {
-	p_pos = p_pos + 1;
-	return m_voxelData[p_pos.x][p_pos.y][p_pos.z];
+	return m_voxelData[p_pos.x + 1][p_pos.y + 1][p_pos.z + 1];
 }
 void Matrix::shiftVoxels(glm::ivec3 d) {
 	Voxel*** _voxelData = new Voxel**[m_size.x];

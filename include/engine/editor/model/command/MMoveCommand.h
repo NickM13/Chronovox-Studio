@@ -13,7 +13,7 @@ public:
 	void redo();
 
 private:
-	Matrix* m_matrix;
+	Sint32 m_matrix;
 
 	glm::vec3 from, to;
 };

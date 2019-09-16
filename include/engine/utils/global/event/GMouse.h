@@ -26,6 +26,7 @@ private:
 	static Sint8 m_mouseScroll;
 	static bool m_mouseMoved;
 	static bool m_mouseActive;
+	static Vector2<Sint32> m_doubleclickPos;
 	static std::vector<MouseEvent> m_mouseEvents;
 public:
 	static void mousePressCallback(GLFWwindow* p_window, Sint32 p_button, Sint32 p_state, Sint32 p_mods);

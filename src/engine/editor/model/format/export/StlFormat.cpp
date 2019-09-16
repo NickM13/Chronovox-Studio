@@ -1,6 +1,10 @@
 #include "engine\editor\model\format\export\StlFormat.h"
 #include "engine\editor\model\format\GFormat.h"
 
+#include "engine\utils\logger\Logger.h"
+#include "engine\utils\Utilities.h"
+#include <fstream>
+
 Uint32		StlFormat::m_index = 0;
 char*		StlFormat::m_data = 0;
 
@@ -9,7 +13,7 @@ glm::vec3	StlFormat::m_offset;
 
 void StlFormat::printHeader(std::ofstream& p_file, std::string p_header) {
 	p_file << p_header;
-	for (Sint32 i = p_header.length(); i < 80; i++) {
+	for (Sint32 i = static_cast<Sint32>(p_header.length()); i < 80; i++) {
 		p_file.write("\0", 1);
 	}
 }
@@ -39,7 +43,7 @@ bool StlFormat::save(std::string p_fileName, std::vector<Matrix*>* p_matrixList)
 		Sint32 nTriangles = 0;
 
 		for (Matrix* m : *p_matrixList) {
-			nTriangles += m->getMesh()->getVertices().size() / 2;
+			nTriangles += static_cast<Sint32>(m->getMesh()->getVertices().size() / 2);
 		}
 
 		FileExt::writeInt(_file, nTriangles);

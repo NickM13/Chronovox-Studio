@@ -45,7 +45,7 @@ Tool* MTool::getTool(Sint32 p_toolId) {
 Sint32 MTool::getToolId(std::string p_toolName) {
 	for (size_t i = 0; i < m_tools.size(); i++) {
 		if (m_tools.at(i)->getName() == p_toolName) {
-			return i;
+			return static_cast<Sint32>(i);
 		}
 	}
 	return 0;
@@ -56,5 +56,5 @@ Sint32 MTool::getParentCount() {
 	for (Tool* t : m_tools) {
 		parents.insert(t->getParent());
 	}
-	return parents.size();
+	return static_cast<Sint32>(parents.size());
 }

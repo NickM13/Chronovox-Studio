@@ -382,20 +382,11 @@ void GBuffer::addVertexQuad(Sint32 x, Sint32 y) {
 
 void GBuffer::renderMesh() {
 	Sint32 quadIndex = 0, lineIndex = 0;
+	Shader::setVec4("colorScalar", 1, 1, 1, 1);
 	for (TextureBuffer tb : m_textureBuffers) {
-		if (tb.scissor.w > 1) {
-			glEnable(GL_SCISSOR_TEST);
-			glScissor((GLsizei)tb.scissor.x,
-					  (GLsizei)tb.scissor.y,
-					  (GLsizei)tb.scissor.w,
-					  (GLsizei)tb.scissor.h);
-		}
-		else {
-			glDisable(GL_SCISSOR_TEST);
-		}
 		Shader::setTexture(0, tb.textureId);
-		glUniform4f(3, 1, 1, 1, 1);
-		glUniform1i(5, tb.font ? 1 : 0);
+		Shader::setBool("isFont", tb.font);
+		Shader::setVec4("scissor", tb.scissor.x, tb.scissor.y, tb.scissor.w, tb.scissor.h);
 		Shader::setTextureCoords(tb.subtexCoords);
 
 		glBindVertexArray(m_quadVaoId);
@@ -411,5 +402,4 @@ void GBuffer::renderMesh() {
 		quadIndex += tb.quadCount;
 		lineIndex += tb.lineCount;
 	}
-	glDisable(GL_SCISSOR_TEST);
 }

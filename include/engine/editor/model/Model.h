@@ -109,6 +109,8 @@ public:
 	void hoverMatrix(Sint16 id);
 	void setSelectedMatrix(Sint16 id);
 	void selectMatrix(Sint16 id);
+	void selectAll();
+	void setSelectedVisibility(bool p_visible);
 	EditMatrix* getEditMatrix() const { return m_matrixEdit; }
 
 	glm::vec3 getPos() { return m_pos; }
@@ -172,8 +174,10 @@ public:
 	void editCopy();
 	void editCut();
 	void editPaste();
+	void editSelectAll();
 	void editUndo();
 	void editRedo();
+	void editPreferences();
 
 	void matrixSize();
 

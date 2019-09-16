@@ -1,5 +1,9 @@
 #include "engine\editor\model\format\import\QbFormat.h"
 
+#include "engine\utils\logger\Logger.h"
+#include "engine\utils\Utilities.h"
+#include <fstream>
+
 bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>* p_matrixList) {
 	std::ifstream _file;
 	Uint32 _length, _index;
@@ -68,7 +72,7 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>* p_matrixList) 
 								a = (data & 0x000000FF);
 							}
 							if (a != 0) {
-								m->setVoxel(glm::ivec3(x, y, z), Voxel(1, MColor::getInstance().getUnitID(Color(r / 255.f, g / 255.f, b / 255.f))));
+								m->setVoxel(glm::ivec3(x, y, z), Voxel(1, Color(r / 255.f, g / 255.f, b / 255.f)));
 							}
 						}
 					}
@@ -87,7 +91,7 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>* p_matrixList) 
 							count = FileExt::readInt(_data, _index);
 							data = FileExt::readInt(_data, _index);
 							if (data == 0) {
-								voxel = Voxel(0, 0);
+								voxel = Voxel(0, Color());
 							}
 							else {
 								if (colorFormat == 0) {
@@ -102,7 +106,7 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>* p_matrixList) 
 									b = (data & 0x0000FF00) >> 8;
 									a = (data & 0x000000FF);
 								}
-								voxel = Voxel(1, MColor::getInstance().getUnitID(Color(r / 255.f, g / 255.f, b / 255.f)));
+								voxel = Voxel(1, Color(r / 255.f, g / 255.f, b / 255.f));
 							}
 							for (Uint32 j = 0; j < count; j++) {
 								x = matrixIndex % size.x;
@@ -113,7 +117,7 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>* p_matrixList) 
 						}
 						else {
 							if (data == 0) {
-								voxel = Voxel(0, 0);
+								voxel = Voxel(0, Color());
 							}
 							else {
 								if (colorFormat == 0) {
@@ -128,7 +132,7 @@ bool QbFormat::load(std::string p_fileName, std::vector<Matrix*>* p_matrixList) 
 									b = (data & 0x0000FF00) >> 8;
 									a = (data & 0x000000FF);
 								}
-								voxel = Voxel(1, MColor::getInstance().getUnitID(Color(r / 255.f, g / 255.f, b / 255.f)));
+								voxel = Voxel(1, Color(r / 255.f, g / 255.f, b / 255.f));
 							}
 							m->setVoxel(glm::ivec3(matrixIndex % size.x, matrixIndex / size.x, z), voxel);
 							matrixIndex++;

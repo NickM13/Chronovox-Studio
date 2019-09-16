@@ -13,7 +13,13 @@ public:
 	void redo();
 
 private:
-	Matrix* m_matrix;
+	struct NewMatrix {
+		std::string name;
+		glm::vec3 pos;
+		glm::ivec3 size;
+	};
+	NewMatrix m_matrix;
+
 	std::vector<Matrix*>* m_matrices;
 	Uint16 m_index;
 	CList* m_nameList;

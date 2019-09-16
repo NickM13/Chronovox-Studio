@@ -198,8 +198,8 @@ void Component::renderFill(bool p_setColor) {
 	GBuffer::addVertexQuad(m_size.x, m_size.y);
 	GBuffer::addVertexQuad(0, m_size.y);
 	if (m_highlighting && (isSelected() || m_hoverTimer > 0)) {
-		if (isSelected())			GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed").applyScale(Color(1.f, 1.f, 1.f, 0.5f)));
-		else if (m_hoverTimer > 0)	GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(Color(1.f, 1.f, 1.f, m_hoverTimer)));
+		if (isSelected())			GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed").applyScale(1.f, 1.f, 1.f, 0.5f));
+		else if (m_hoverTimer > 0)	GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(1.f, 1.f, 1.f, m_hoverTimer));
 		GBuffer::addVertexQuad(0, 0);
 		GBuffer::addVertexQuad(m_size.x, 0);
 		GBuffer::addVertexQuad(m_size.x, m_size.y);
@@ -257,9 +257,9 @@ Sint8 Component::isSelected() {
 
 void Component::setValue(GLfloat p_value) { m_numValue = p_value; }
 GLfloat Component::getValue() { return m_numValue; }
-Sint8 Component::getPriorityLayer() { return m_priority + m_moveToFront; }
+GLfloat Component::getPriorityLayer() { return m_priority + m_moveToFront; }
 bool Component::hasList() { return false; }
-Component* Component::setPriorityLayer(Sint8 p_priority) {
+Component* Component::setPriorityLayer(GLfloat p_priority) {
 	m_priority = p_priority;
 	return this;
 }

@@ -10,14 +10,14 @@ VFTAdd::VFTAdd()
 }
 
 void VFTAdd::inputTool() {
-	if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
-		m_fillArea->use(Voxel(1, MColor::getInstance().getUnitID(*m_color)));
+	if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
+		m_fillArea->create(false);
+		m_fillArea->use(Voxel(1, *m_color));
+	}
 }
 void VFTAdd::updateTool() {
-	if (!GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT))
-		m_fillArea->create(false);
+
 }
 void VFTAdd::renderTool() {
-	if (m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxelOffset))
-		renderFillMesh();
+
 }

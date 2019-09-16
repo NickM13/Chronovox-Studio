@@ -6,7 +6,7 @@ CTabBar::CTabBar(std::string p_compName, Vector2<Sint32> p_pos, Vector2<Sint32> 
 	m_selected = -1;
 	m_texClose = MTexture::getTexture("gui\\icon\\tool\\Close.png");
 	m_visibleItems = 0;
-	m_extList.texArrow = MTexture::getTexture("gui\\icon\\tool\\DropdownArrow.png");
+	m_extList.texArrow = MTexture::getTexture("gui\\icon\\tool\\TabbarArrow.png");
 	m_extList.maxShown = 16;
 	m_extList.width = 10;
 }
@@ -211,7 +211,7 @@ void CTabBar::render() {
 
 		if (m_selected == i || m_tabList[i].hoverTimer > 0) {
 			if (m_selected == i)	GBuffer::setColor(getElementColor(getElementPos() + "ActionHighlight"));
-			else					GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(Color(1, 1, 1, m_tabList[i].hoverTimer)));
+			else					GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(1.f, 1.f, 1.f, m_tabList[i].hoverTimer));
 			GBuffer::addVertexQuad(0, 0);
 			GBuffer::addVertexQuad(size.x, 0);
 			GBuffer::addVertexQuad(size.x, size.y);
@@ -280,7 +280,7 @@ void CTabBar::render() {
 			GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed"));
 		}
 		else {
-			GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(Color(1, 1, 1, m_extList.hoverTimer)));
+			GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(1.f, 1.f, 1.f, m_extList.hoverTimer));
 		}
 		GBuffer::addQuadFilled(Vector2<Sint32>(-m_extList.texArrow->getSize().x, 0), Vector2<Sint32>(m_extList.texArrow->getSize().x, m_size.y));
 	}

@@ -1,5 +1,7 @@
 #include "engine\editor\Editor.h"
 
+#include "engine\editor\GPreferences.h"
+
 #include "engine\editor\menu\EditorOverlay.h"
 #include "engine\editor\menu\FreshOverlay.h"
 #include "engine\editor\model\menu\ModelOverlay.h"
@@ -7,8 +9,6 @@
 #include "engine\gfx\font\Font.h"
 #include "engine\gfx\texture\MTexture.h"
 #include "engine\gfx\model\MModelObj.h"
-
-#include "engine\sfx\Sound.h"
 
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
@@ -39,13 +39,13 @@ Editor::Editor() {
 	Font::loadFont("Body", "segoeui.ttf", 12);
 	Font::loadFont("Header", "segoeui.ttf", 20);
 	Font::setFont("Body");
-	Sound::getInstance().init();
 	GGui::init(GScreen::getGLFWWindow());
 	GBuffer::init();
 	MTool::init();
 	MMesh::init();
+	GPreferences::init();
 
-	glfwSetWindowIcon(GScreen::getGLFWWindow(), 1, MTexture::getTexture("gui\\icon\\window\\Logo.png")->getGlfwImage());
+	glfwSetWindowIcon(GScreen::getGLFWWindow(), 1, MTexture::getTexture("gui\\icon\\window\\Logo.png", true)->getGlfwImage());
 
 	Gui::init();
 	Gui::getContainer()->addComponent(EditorOverlay::init(this), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)
@@ -75,7 +75,6 @@ Editor::Editor() {
 		});
 		*/
 
-	initShadowBuffer();
 	initGBuffer();
 	initAABuffer();
 
@@ -90,7 +89,6 @@ Editor::~Editor() {
 	}
 	MTexture::terminate();
 	MModelObj::terminate();
-	Sound::getInstance().terminate();
 	Font::clean();
 	EditorOverlay::terminate();
 	GGui::terminate();
@@ -98,53 +96,27 @@ Editor::~Editor() {
 	MMesh::terminate();
 	MTool::terminate();
 
-	terminateShadowBuffer();
 	terminateGBuffer();
 	terminateAABuffer();
-}
-bool Editor::initShadowBuffer() {
-	m_shadowBuffer.framebufferName = 0;
-	glGenFramebuffers(1, &m_shadowBuffer.framebufferName);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_shadowBuffer.framebufferName);
-
-	// Depth texture. Slower than a depth buffer, but you can sample it later in your shader
-	m_shadowBuffer.shadowSize = glm::vec2(4096, 4096);
-	glGenTextures(1, &m_shadowBuffer.renderedTexture);
-	glBindTexture(GL_TEXTURE_2D, m_shadowBuffer.renderedTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, m_shadowBuffer.shadowSize.x, m_shadowBuffer.shadowSize.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_shadowBuffer.renderedTexture, 0);
-
-	glDrawBuffer(GL_NONE); // No color buffer is drawn to.
-
-						   // Always check that our framebuffer is ok
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		return false;
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	return true;
 }
 bool Editor::initGBuffer() {
 	glGenFramebuffers(1, &gBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
-
+	
 	// Position color buffer
 	glGenTextures(1, &gPosition);
 	glBindTexture(GL_TEXTURE_2D, gPosition);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, GScreen::getScreenSize().x * GScreen::getSamples(), GScreen::getScreenSize().y * GScreen::getSamples(), 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, GScreen::getScreenSize().x * GPreferences::getSamples(), GScreen::getScreenSize().y * GPreferences::getSamples(), 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
 
 	// Normal color buffer
 	glGenTextures(1, &gNormal);
 	glBindTexture(GL_TEXTURE_2D, gNormal);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, GScreen::getScreenSize().x * GScreen::getSamples(), GScreen::getScreenSize().y * GScreen::getSamples(), 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, GScreen::getScreenSize().x * GPreferences::getSamples(), GScreen::getScreenSize().y * GPreferences::getSamples(), 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
@@ -152,7 +124,7 @@ bool Editor::initGBuffer() {
 	// Color + Specular color buffer
 	glGenTextures(1, &gAlbedoSpec);
 	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GScreen::getScreenSize().x * GScreen::getSamples(), GScreen::getScreenSize().y * GScreen::getSamples(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GScreen::getScreenSize().x * GPreferences::getSamples(), GScreen::getScreenSize().y * GPreferences::getSamples(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpec, 0);
@@ -163,7 +135,7 @@ bool Editor::initGBuffer() {
 
 	glGenRenderbuffers(1, &rboDepth);
 	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, GScreen::getScreenSize().x * GScreen::getSamples(), GScreen::getScreenSize().y * GScreen::getSamples());
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, GScreen::getScreenSize().x * GPreferences::getSamples(), GScreen::getScreenSize().y * GPreferences::getSamples());
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
@@ -186,7 +158,7 @@ bool Editor::initAABuffer() {
 	// Position color buffer
 	glGenTextures(1, &aaScreenTex);
 	glBindTexture(GL_TEXTURE_2D, aaScreenTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, GScreen::getScreenSize().x * GScreen::getSamples(), GScreen::getScreenSize().y * GScreen::getSamples(), 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, GScreen::getScreenSize().x * GPreferences::getSamples(), GScreen::getScreenSize().y * GPreferences::getSamples(), 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, aaScreenTex, 0);
@@ -197,7 +169,7 @@ bool Editor::initAABuffer() {
 
 	glGenRenderbuffers(1, &rboAA);
 	glBindRenderbuffer(GL_RENDERBUFFER, rboAA);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, GScreen::getScreenSize().x * GScreen::getSamples(), GScreen::getScreenSize().y * GScreen::getSamples());
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, GScreen::getScreenSize().x * GPreferences::getSamples(), GScreen::getScreenSize().y * GPreferences::getSamples());
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboAA);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
@@ -207,14 +179,10 @@ bool Editor::initAABuffer() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	Shader::useProgram("ssaa");
-	Shader::setInt("aaSamples", GScreen::getSamples());
+	Shader::setInt("aaSamples", GPreferences::getSamples());
 	Shader::setInt("screenTex", 0);
 
 	return true;
-}
-void Editor::terminateShadowBuffer() {
-	glDeleteFramebuffers(1, &m_shadowBuffer.framebufferName);
-	glDeleteTextures(1, &m_shadowBuffer.renderedTexture);
 }
 void Editor::terminateGBuffer() {
 	glDeleteFramebuffers(1, &gBuffer);
@@ -526,31 +494,6 @@ void Editor::renderMouse() {
 	}
 }
 
-void Editor::bindShadowBuffer() {
-	glBindFramebuffer(GL_FRAMEBUFFER, m_shadowBuffer.framebufferName);
-	glViewport(0, 0, m_shadowBuffer.shadowSize.x, m_shadowBuffer.shadowSize.y);
-}
-void Editor::bindShadowTexture() {
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_shadowBuffer.renderedTexture);
-
-}
-void Editor::unbindShadowBuffer() {
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, GScreen::getScreenSize().x, GScreen::getScreenSize().y);
-}
-void Editor::renderShadowTexture() {
-	glBindTexture(GL_TEXTURE_2D, m_shadowBuffer.renderedTexture);
-	glBegin(GL_QUADS);
-	{
-		glTexCoord2f(0, 0); glVertex2f(0, 0);
-		glTexCoord2f(1, 0); glVertex2f(GScreen::getScreenSize().x, 0);
-		glTexCoord2f(1, 1); glVertex2f(GScreen::getScreenSize().x, GScreen::getScreenSize().y);
-		glTexCoord2f(0, 1); glVertex2f(0, GScreen::getScreenSize().y);
-	}
-	glEnd();
-}
-
 void Editor::bindGBuffer() {
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -563,10 +506,10 @@ glm::vec3 Editor::getSunlightDir() {
 	glm::mat4 iProjectionMatrix = glm::inverse(Shader::getMatrixProjection());
 	glm::mat4 iViewMatrix = glm::inverse(getSunlightMatrix());
 
-	glm::vec4 lRayStart_camera = iProjectionMatrix * lRayStart_NDC;      lRayStart_camera /= lRayStart_camera.w;
-	glm::vec4 lRayStart_world = iViewMatrix * lRayStart_camera;   lRayStart_world /= lRayStart_world.w;
-	glm::vec4 lRayEnd_camera = iProjectionMatrix * lRayEnd_NDC;	     lRayEnd_camera /= lRayEnd_camera.w;
-	glm::vec4 lRayEnd_world = iViewMatrix * lRayEnd_camera;     lRayEnd_world /= lRayEnd_world.w;
+	glm::vec4 lRayStart_camera = iProjectionMatrix * lRayStart_NDC;	lRayStart_camera /= lRayStart_camera.w;
+	glm::vec4 lRayStart_world = iViewMatrix * lRayStart_camera;		lRayStart_world /= lRayStart_world.w;
+	glm::vec4 lRayEnd_camera = iProjectionMatrix * lRayEnd_NDC;		lRayEnd_camera /= lRayEnd_camera.w;
+	glm::vec4 lRayEnd_world = iViewMatrix * lRayEnd_camera;			lRayEnd_world /= lRayEnd_world.w;
 
 	glm::vec3 lRayDir_world(lRayEnd_world - lRayStart_world);
 	return glm::normalize(lRayDir_world) * glm::vec3(-1, -1, -1);
@@ -611,20 +554,6 @@ void Editor::update() {
 	Gui::update(m_deltaUpdate);
 }
 
-void Editor::renderShadow() {
-	if (m_cProj && !m_cProj->editor->isBuilding()) {
-		m_cProj->editor->renderShadow();
-	}
-}
-void Editor::render3d() {
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, m_shadowBuffer.renderedTexture);
-	Shader::setInt("shadowMap", 1);
-	glActiveTexture(GL_TEXTURE0);
-	if (m_cProj && !m_cProj->editor->isBuilding()) {
-		m_cProj->editor->render();
-	}
-}
 void Editor::render2d() {
 	GBuffer::clean();
 	Font::setAlignment(Alignment::ALIGN_LEFT);
@@ -635,7 +564,7 @@ void Editor::render2d() {
 }
 void Editor::renderGeometry() {
 	Font::setFont("Body");
-	glViewport(0, 0, GScreen::getScreenSize().x * GScreen::getSamples(), GScreen::getScreenSize().y * GScreen::getSamples());
+	glViewport(0, 0, GScreen::getScreenSize().x * GPreferences::getSamples(), GScreen::getScreenSize().y * GPreferences::getSamples());
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Shader::useProgram("gBuffer");
@@ -691,8 +620,8 @@ bool Editor::fileOpen() {
 	memset(&ofn, 0, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = NULL;
-	ofn.lpstrFilter = "Model (*.csm, *.nvm, *.qb)\0"
-		"*.csm;*.nvm;*.qb*\0"
+	ofn.lpstrFilter = "Model (*.csm, *.nvm, *.qb, *.png)\0"
+		"*.csm;*.nvm;*.qb;*.png*\0"
 		//"Animation (*.nva)\0"
 		//"*.nva\0"
 		"Any File\0"
@@ -756,8 +685,28 @@ void Editor::editUndo() {
 void Editor::editRedo() {
 	//if (m_tMode) m_tMode->editRedo();
 }
+void Editor::editPreferences() {
+	Gui::openDialog("Preferences.lua");
+	Gui::topDialog()->findComponent("FFPS")->setValue(GPreferences::getFocusFPS());
+	Gui::topDialog()->findComponent("UFPS")->setValue(GPreferences::getUnfocusFPS());
+	Gui::topDialog()->findComponent("VIEW")->setSelectedItem(static_cast<Sint32>(GPreferences::getViewMode()));
+	Gui::topDialog()->findComponent("AA")->setSelectedItem(static_cast<Sint32>(GPreferences::getAntiAlias()));
+	Gui::topDialog()->findComponent("NGRID")->setValue(GPreferences::getGridCount());
+	Gui::topDialog()->findComponent("SGRID")->setValue(GPreferences::getGridSpace());
+	Gui::topDialog()->addFunction([&]() {
+		GPreferences::setFocusFPS(Gui::topDialog()->findComponent("FFPS")->getValue());
+		GPreferences::setUnfocusFPS(Gui::topDialog()->findComponent("UFPS")->getValue());
+		GPreferences::setViewMode(static_cast<GPreferences::ViewMode>(Gui::topDialog()->findComponent("VIEW")->getSelectedItem()));
+		GPreferences::setAntiAlias(static_cast<GPreferences::AntiAlias>(Gui::topDialog()->findComponent("AA")->getSelectedItem()));
+		GPreferences::setGridCount(Gui::topDialog()->findComponent("NGRID")->getValue());
+		GPreferences::setGridSpace(Gui::topDialog()->findComponent("SGRID")->getValue());
+		GPreferences::save();
+		resize();
+		});
+}
 
 void Editor::helpAbout() {
 	Gui::openDialog("About.lua");
 	static_cast<CTextFile*>(Gui::topDialog()->findComponent("ABOUT"))->addInputString(GScreen::getAppVersion());
+	Gui::topDialog()->addFunction([]() { ShellExecute(0, 0, "www.nickvoxel.com/chronovox-studio", 0, 0, SW_SHOW); });
 }

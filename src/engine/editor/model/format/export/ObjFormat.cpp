@@ -39,8 +39,8 @@ bool ObjFormat::save(std::string p_fileName, std::vector<Matrix*>* p_matrixList)
 	} else {
 		CreateDirectory(folder.c_str(), NULL);
 	}
-	std::vector<Uint32> usedColorsSorted;
-	std::map<Uint32, Sint32> usedColorsMap;
+	std::vector<Color> usedColorsSorted;
+	std::map<Color, Sint32> usedColorsMap;
 	std::map<Sint32, VoxelMesh*> meshMap;
 	VoxelMesh* mesh;
 	GLfloat invColorSize;
@@ -100,10 +100,9 @@ bool ObjFormat::save(std::string p_fileName, std::vector<Matrix*>* p_matrixList)
 			}
 
 			for (Color& c : *colors) {
-				Uint32 id = MColor::getInstance().getUnitID(c);
-				if (usedColorsMap.find(id) == usedColorsMap.end()) {
-					usedColorsSorted.push_back(id);
-					usedColorsMap.insert({ id, usedColorsSorted.size() - 1 });
+				if (usedColorsMap.find(c) == usedColorsMap.end()) {
+					usedColorsSorted.push_back(c);
+					usedColorsMap.insert({ c, static_cast<Sint32>(usedColorsSorted.size()) - 1 });
 				}
 			}
 		}
@@ -132,7 +131,7 @@ bool ObjFormat::save(std::string p_fileName, std::vector<Matrix*>* p_matrixList)
 			Sint32 fvt;
 
 			for (size_t i = 0; i < vertices->size() / 4; i++) {
-				fvt = usedColorsMap.at(MColor::getInstance().getUnitID(colors->at(i * 4))) + 1;
+				fvt = usedColorsMap.at(colors->at(i * 4)) + 1;
 
 				it = std::find(vertexList.begin(), vertexList.end(), vertices->at(i * 4));
 				fv[0] = it - vertexList.begin() + 1;
@@ -191,7 +190,7 @@ bool ObjFormat::save(std::string p_fileName, std::vector<Matrix*>* p_matrixList)
 	p_fileName = matFolder + "\\" + filename + ".png";
 	std::vector<unsigned char> pixels(usedColorsSorted.size() * m_texelSize * m_texelSize * 4);
 	for (size_t i = 0; i < usedColorsSorted.size(); i++) {
-		Color& c = MColor::getInstance().getUnit(usedColorsSorted.at(i));
+		Color& c = usedColorsSorted.at(i);
 		for (Sint32 x = 0; x < m_texelSize; x++) {
 			for (Sint32 y = 0; y < m_texelSize; y++) {
 				pixels.at((i * m_texelSize + x + (y * usedColorsSorted.size() * m_texelSize)) * 4 + 0) = c.r * 255;

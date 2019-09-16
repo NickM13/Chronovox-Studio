@@ -1,4 +1,9 @@
 #include "engine\editor\model\format\import\NvmFormat.h"
+
+#include "engine\utils\logger\Logger.h"
+#include "engine\utils\Utilities.h"
+#include <fstream>
+
 // .nvm = Nick's Voxel Model
 
 Uint32 NvmFormat::m_index = 0;
@@ -88,7 +93,7 @@ bool NvmFormat::load1(std::vector<Matrix*>* p_matrixList) {
 			g = FileExt::readChar(m_data, m_index);
 			b = FileExt::readChar(m_data, m_index);
 			a = FileExt::readChar(m_data, m_index);
-			vox = Voxel(a, MColor::getInstance().getUnitID(Color(r / 255.f, g / 255.f, b / 255.f)));
+			vox = Voxel(a, Color(r / 255.f, g / 255.f, b / 255.f));
 			for (Sint32 i = matrixIndex; i < matrixIndex + count; i++)
 				m->setVoxel(glm::ivec3(fmod(floorf(GLfloat(i) / (size.z * size.y)), size.x), fmod(floorf(GLfloat(i) / (size.z)), size.y), fmod(i, size.z)), vox);
 
@@ -137,7 +142,7 @@ bool NvmFormat::load2(std::vector<Matrix*>* p_matrixList) {
 			g = FileExt::readChar(m_data, m_index);
 			b = FileExt::readChar(m_data, m_index);
 			a = FileExt::readChar(m_data, m_index);
-			vox = Voxel(a, MColor::getInstance().getUnitID(Color(r / 255.f, g / 255.f, b / 255.f)));
+			vox = Voxel(a, Color(r / 255.f, g / 255.f, b / 255.f));
 			for (Sint32 i = matrixIndex; i < matrixIndex + count; i++)
 				matrix->setVoxel(glm::ivec3(fmod(floorf(GLfloat(i) / (size.z * size.y)), size.x), fmod(floorf(GLfloat(i) / (size.z)), size.y), fmod(i, size.z)), vox);
 

@@ -13,7 +13,7 @@ public:
 	void redo();
 
 private:
-	Matrix* m_matrix;
+	Matrix* m_pastedMatrix;
 	std::vector<Matrix*>* m_matrices;
 	Uint16 m_index;
 	CList* m_nameList;

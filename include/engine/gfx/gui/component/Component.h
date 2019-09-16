@@ -89,7 +89,7 @@ protected:
 	bool m_focused = false;
 	GGui::CursorType m_hoverCursor = GGui::CursorType::NONE;
 	Sint8 m_moveToFront = 0;
-	Sint8 m_priority = 0;
+	GLfloat m_priority = 0;
 
 	std::string m_tooltip = "";
 	GLfloat m_tooltipTime = 0;
@@ -174,8 +174,8 @@ public:
 	virtual void setValue(GLfloat p_value);
 	GLfloat getValue();
 
-	Component* setPriorityLayer(Sint8 p_priority);
-	Sint8 getPriorityLayer();
+	Component* setPriorityLayer(GLfloat p_priority);
+	GLfloat getPriorityLayer();
 
 	virtual void setState(Sint8 p_selected);
 	virtual Uint8 isUpdated();

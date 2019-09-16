@@ -48,11 +48,13 @@ void CDropDown::input(Sint8& p_interactFlags) {
 	Vector2<Sint32> _mousePos = GMouse::getMousePos() - m_pos;
 
 	m_update = false;
+	m_hovered = false;
 	if (p_interactFlags & (Sint8)EventFlag::MOUSEOVER) {
 		if (m_selected == 0) {
 			if (_mousePos.x >= 0 && _mousePos.x < m_size.x &&
 				_mousePos.y >= 0 && _mousePos.y < m_size.y) {
 				addTooltip();
+				m_hovered = true;
 				if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
 					m_selected = 1;
 					p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
@@ -69,6 +71,8 @@ void CDropDown::input(Sint8& p_interactFlags) {
 				p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
 			}
 		}
+	} else if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
+		m_selected = 0;
 	}
 
 	if (m_selected != 0) {
@@ -82,75 +86,53 @@ void CDropDown::input(Sint8& p_interactFlags) {
 	}
 }
 void CDropDown::update(GLfloat p_deltaUpdate) {
-
+	Component::update(p_deltaUpdate);
 }
 void CDropDown::render() {
 	Shader::pushMatrixModel();
 
 	GBuffer::setTexture(0);
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
-
-	if (m_selected == 0) {
-		GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
-		GBuffer::addVertexQuad(-1, -1);
-		GBuffer::addVertexQuad((m_size.x + 1), -1);
-		GBuffer::addVertexQuad((m_size.x + 1), (m_size.y + 1));
-		GBuffer::addVertexQuad(-1, (m_size.y + 1));
-
-		GBuffer::setColor(getPrimaryColor());
-		GBuffer::addVertexQuad(0, 0);
-		GBuffer::addVertexQuad(m_size.x, 0);
-		GBuffer::addVertexQuad(m_size.x, m_size.y);
-		GBuffer::addVertexQuad(0, m_size.y);
-		GBuffer::setTexture(m_arrow->getTexId());
-		GBuffer::setColor(Color(1.f, 1.f, 1.f));
-		GBuffer::setUV(0.f, 1.f); GBuffer::addVertexQuad(m_size.x - 24, 0);
-		GBuffer::setUV(1.f, 1.f); GBuffer::addVertexQuad(m_size.x, 0);
-		GBuffer::setUV(1.f, 0.f); GBuffer::addVertexQuad(m_size.x, 24);
-		GBuffer::setUV(0.f, 0.f); GBuffer::addVertexQuad(m_size.x - 24, 24);
-		GBuffer::setTexture(0);
-	}
-	else {
-		GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
-		GBuffer::addVertexQuad(-1, -1);
-		GBuffer::addVertexQuad((m_size.x + 1), -1);
-		GBuffer::addVertexQuad((m_size.x + 1), (m_size.y * (m_itemList.size() + 1) + 1));
-		GBuffer::addVertexQuad(-1, (m_size.y * (m_itemList.size() + 1) + 1));
-
-		GBuffer::setColor(getPrimaryColor());
-		GBuffer::addVertexQuad(0, -0);
-		GBuffer::addVertexQuad(m_size.x, -0);
-		GBuffer::addVertexQuad(m_size.x, (m_size.y * (m_itemList.size() + 1)));
-		GBuffer::addVertexQuad(0, (m_size.y * (m_itemList.size() + 1)));
-	}
-	if (m_selected != 0) {
-		if (m_hoverItem != -1) {
-			GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed"));
-			GBuffer::addVertexQuad(0, (m_hoverItem + 1) * m_size.y);
-			GBuffer::addVertexQuad(m_size.x, (m_hoverItem + 1) * m_size.y);
-			GBuffer::addVertexQuad(m_size.x, (m_hoverItem + 2) * m_size.y);
-			GBuffer::addVertexQuad(0, (m_hoverItem + 2) * m_size.y);
-		}
-		if (m_hoverItem != m_selectedItem) {
-			GBuffer::setColor((getElementColor(getElementPos() + "ActionPressed") + getPrimaryColor()) / 2);
-
-			GBuffer::addVertexQuad(0, (m_selectedItem + 1) * m_size.y);
-			GBuffer::addVertexQuad(m_size.x, (m_selectedItem + 1) * m_size.y);
-			GBuffer::addVertexQuad(m_size.x, (m_selectedItem + 2) * m_size.y);
-			GBuffer::addVertexQuad(0, (m_selectedItem + 2) * m_size.y);
-		}
-	}
-	GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
-	Font::setAlignment(ALIGN_CENTER);
-	Font::print(m_title, m_size.x / 2, -(Font::getHeight()));
 	Font::setAlignment(ALIGN_LEFT);
-	Shader::translate(glm::vec3((GLfloat)(m_size.y / 2), (GLfloat)(m_size.y) / 2, 0.f));
-	if (m_itemList.size() > 0) {
-		Font::print(m_itemList[m_selectedItem], 0, 0);
-		if (m_selected != 0) {
-			for (Uint16 i = 0; i < m_itemList.size(); i++) {
-				GBuffer::setColor(getElementColor(getElementPos() + (m_hoverItem ? "Text1" : "Text2")));
-				Font::print(m_itemList[i], 0, (i + 1) * m_size.y);
+
+	if (m_selected) {
+		GBuffer::renderShadow({}, Vector2<Sint32>(m_size.x, m_size.y * (m_itemList.size() + 1) + 2));
+	} else {
+		GBuffer::renderShadow({}, m_size);
+	}
+
+	// Selected item display
+		GBuffer::setTexture(0);
+	GBuffer::setColor(getElementColor(getElementPos() + "Primary"));
+	GBuffer::addQuadFilled({}, m_size);
+	if (m_selected) {
+		GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed"));
+		GBuffer::addQuadFilled({}, m_size);
+	} else if (m_hoverTimer > 0) {
+		GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(1, 1, 1, m_hoverTimer));
+		GBuffer::addQuadFilled({}, m_size);
+	}
+	GBuffer::renderTexture(m_arrow, { m_size.x - m_arrow->getSize().x / 2, m_size.y / 2 }, {}, GBuffer::TextureStyle::CENTERED);
+	GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
+	Font::print(m_itemList[m_selectedItem], 6, 0.5f * m_size.y);
+	GBuffer::setTexture(0);
+
+	if (m_selected) {
+		GBuffer::setTexture(0);
+		GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
+		GBuffer::addQuadOutlined({}, { m_size.x, m_size.y + 1 });
+		GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered"));
+		GBuffer::addQuadFilled({ 0, m_size.y + 1 }, Vector2<Sint32>(m_size.x, m_size.y * m_itemList.size() + 1));
+
+		// Render list
+		if (m_selected) {
+			for (size_t i = 0; i < m_itemList.size(); i++) {
+				GBuffer::setTexture(0);
+				if (m_hoverItem == i)	GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered"));
+				else					GBuffer::setColor(getElementColor(getElementPos() + "Primary"));
+				GBuffer::addQuadFilled(Vector2<Sint32>(1, (i + 1) * m_size.y + 2), Vector2<Sint32>(m_size.x - 2, m_size.y - 1));
+				GBuffer::setColor(getElementColor(getElementPos() + "Text1"));
+				Font::print(m_itemList[i], 6, (i + 1.5f) * m_size.y);
 			}
 		}
 	}

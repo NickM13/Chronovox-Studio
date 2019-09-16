@@ -40,7 +40,6 @@ private:
 	static GLFWwindow *m_window;
 	static Vector2<Sint32> m_monitorSize;
 	static Vector2<Sint32> m_windowPos;
-	static GLfloat m_samples;
 	static bool m_maximized;
 	static bool m_iconified;
 	static bool m_focused;
@@ -76,11 +75,9 @@ public:
 	static void setDeveloper(bool p_developer) { m_developer = p_developer; }
 	static bool isDeveloper() { return m_developer; }
 
-	static void setSamples(GLfloat p_samples) { m_samples = p_samples; }
-	static GLfloat getSamples() { return m_samples; }
-
 	static void setScreenSize(Vector2<Sint32> p_screenSize) { m_screenSize = p_screenSize; }
 	static Vector2<Sint32> getScreenSize() { return m_screenSize; }
+	static Vector2<GLfloat> getScreenSizeInverse() { return Vector2<GLfloat>(m_screenSize) / static_cast<GLfloat>(m_screenSize.y); }
 
 	static void setSmallScreenSize(Vector2<Sint32> p_screenSize) { m_smallScreen = p_screenSize; }
 	static Vector2<Sint32> getSmallScreenSize() { return m_smallScreen; }

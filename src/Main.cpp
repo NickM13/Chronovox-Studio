@@ -13,8 +13,6 @@
 */
 #include "Application.h"
 
-#include "engine\sfx\Sound.h"
-
 int main(int argc, char* argv[]) {
 	//_crtBreakAlloc;
 	Logger::init(static_cast<Sint8>(Logger::Verbosity::QUIET));

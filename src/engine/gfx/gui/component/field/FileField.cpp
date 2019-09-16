@@ -109,7 +109,7 @@ void FileField::input(Sint8& p_interactFlags) {
 				else if (_keyEvents[i].keyCode == GLFW_KEY_BACKSPACE) {
 					if (m_cursorPos.x > 0 || m_cursorPos.y > 0) {
 						if (m_cursorPos.x == 0) {
-							m_cursorPos.x = m_text[m_cursorPos.y - 1].length();
+							m_cursorPos.x = static_cast<Sint32>(m_text[m_cursorPos.y - 1].length());
 							m_text[m_cursorPos.y - 1] = m_text[m_cursorPos.y - 1] + m_text[m_cursorPos.y];
 							m_text.erase(m_text.begin() + m_cursorPos.y);
 							m_cursorPos.y -= 1;

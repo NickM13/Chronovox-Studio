@@ -54,24 +54,35 @@ Container* ModelOverlay::init(Editor* p_editor) {
 		->setVisibleFunction(p_editor->isModel)
 		->setPriority(5);
 
-	submenu = new CMenubar::Submenu("Model_Edit", "Edit");
-	submenu->setVisibleFunction([]() -> bool { return (m_editor->getModel() != 0); });
-	submenu->setPriority(1);
-	menuBar->addElement("", submenu);
-	menuBar->addElement("Model_Edit", new CMenubar::MenuButton("New Matrix...",
-		GKey::KeyBind(GLFW_KEY_N, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editNewMatrix(); }));
-	menuBar->addElement("Model_Edit", new CMenubar::MenuDivider());
-	menuBar->addElement("Model_Edit", new CMenubar::MenuButton("Copy",
-		GKey::KeyBind(GLFW_KEY_C, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editCopy(); }));
-	menuBar->addElement("Model_Edit", new CMenubar::MenuButton("Cut",
-		GKey::KeyBind(GLFW_KEY_X, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editCut(); }));
-	menuBar->addElement("Model_Edit", new CMenubar::MenuButton("Paste",
-		GKey::KeyBind(GLFW_KEY_V, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editPaste(); }));
-	menuBar->addElement("Model_Edit", new CMenubar::MenuDivider());
-	menuBar->addElement("Model_Edit", new CMenubar::MenuButton("Undo Changes",
-		GKey::KeyBind(GLFW_KEY_Z, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editUndo(); }));
-	menuBar->addElement("Model_Edit", new CMenubar::MenuButton("Redo Changes",
-		GKey::KeyBind(GLFW_KEY_Y, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editRedo(); }));
+	menuBar->addElement("Edit", new CMenubar::MenuButton("New Matrix...",
+		GKey::KeyBind(GLFW_KEY_N, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editNewMatrix(); }))
+		->setVisibleFunction(p_editor->isModel);
+	menuBar->addElement("Edit", new CMenubar::MenuDivider())
+		->setVisibleFunction(p_editor->isModel);
+	menuBar->addElement("Edit", new CMenubar::MenuButton("Copy",
+		GKey::KeyBind(GLFW_KEY_C, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editCopy(); }))
+		->setVisibleFunction(p_editor->isModel);
+	menuBar->addElement("Edit", new CMenubar::MenuButton("Cut",
+		GKey::KeyBind(GLFW_KEY_X, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editCut(); }))
+		->setVisibleFunction(p_editor->isModel);
+	menuBar->addElement("Edit", new CMenubar::MenuButton("Paste",
+		GKey::KeyBind(GLFW_KEY_V, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editPaste(); }))
+		->setVisibleFunction(p_editor->isModel);
+	menuBar->addElement("Edit", new CMenubar::MenuDivider())
+		->setVisibleFunction(p_editor->isModel);
+	menuBar->addElement("Edit", new CMenubar::MenuButton("Select All",
+		GKey::KeyBind(GLFW_KEY_A, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editSelectAll(); }))
+		->setVisibleFunction(p_editor->isModel);
+	menuBar->addElement("Edit", new CMenubar::MenuDivider())
+		->setVisibleFunction(p_editor->isModel);
+	menuBar->addElement("Edit", new CMenubar::MenuButton("Undo Changes",
+		GKey::KeyBind(GLFW_KEY_Z, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editUndo(); }))
+		->setVisibleFunction(p_editor->isModel);
+	menuBar->addElement("Edit", new CMenubar::MenuButton("Redo Changes",
+		GKey::KeyBind(GLFW_KEY_Y, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editRedo(); }))
+		->setVisibleFunction(p_editor->isModel);
+	menuBar->addElement("Edit", new CMenubar::MenuDivider())
+		->setVisibleFunction(p_editor->isModel);
 
 	submenu = new CMenubar::Submenu("Model_View", "View");
 	submenu->setPriority(2);
@@ -110,7 +121,7 @@ Container* ModelOverlay::init(Editor* p_editor) {
 		GKey::KeyBind(GLFW_KEY_LEFT_BRACKET), []() { Camera::addAutoRotation(15.f); }));
 	menuBar->addElement("Model_View\\Model_Rotation", new CMenubar::MenuButton("Add Clockwise",
 		GKey::KeyBind(GLFW_KEY_RIGHT_BRACKET), []() { Camera::addAutoRotation(-15.f); }));
-
+	
 	submenu = new CMenubar::Submenu("Model_Matrix", "Matrix");
 	submenu->setVisibleFunction([]() -> bool { return m_editor->isModel(); });
 	submenu->setEnabledFunction([]() -> bool { return m_editor->getModel()->getSelectedMatrix(); });
@@ -120,6 +131,11 @@ Container* ModelOverlay::init(Editor* p_editor) {
 		GKey::KeyBind(GLFW_KEY_DELETE), []() { m_editor->getModel()->deleteSelectedMatrices(); }));
 	menuBar->addElement("Model_Matrix", new CMenubar::MenuButton("Resize...",
 		GKey::KeyBind(), []() { m_editor->getModel()->matrixSize(); }));
+	menuBar->addElement("Model_Matrix", new CMenubar::MenuDivider());
+	menuBar->addElement("Model_Matrix", new CMenubar::MenuButton("Hide Matrices",
+		GKey::KeyBind(), []() { m_editor->getModel()->setSelectedVisibility(false); }));
+	menuBar->addElement("Model_Matrix", new CMenubar::MenuButton("Show Matrices",
+		GKey::KeyBind(), []() { m_editor->getModel()->setSelectedVisibility(true); }));
 	menuBar->addElement("Model_Matrix", new CMenubar::MenuDivider());
 	menuBar->addElement("Model_Matrix", new CMenubar::Submenu("Model_Transform", "Transform"));
 	menuBar->addElement("Model_Matrix\\Model_Transform", new CMenubar::Submenu("Model_Flip", "Flip"));
@@ -224,32 +240,32 @@ Container* ModelOverlay::init(Editor* p_editor) {
 		(Sint8)Component::BorderFlag::ALL), Component::Anchor::BOTTOM_RIGHT, Component::Anchor::NONE)
 		->setElementPos("workspace");
 	workContainer->findComponent("GUI_MATRICES")->addComponent(new CButton("BUTTON_MERGE_MATRIX", "",
-		MTexture::getTexture("gui\\icon\\matrices\\Merge.png"), { -50, 0 }, { 24, 24 }, CButton::RenderStyle::FILL, []() {
+		MTexture::getTexture("gui\\icon\\matrices\\Merge.png"), { -50, 0 }, { 24, 24 }, CButton::RenderStyle::EMPTY, []() {
 			if (m_editor->getModel()) m_editor->getModel()->editMergeMatrix();
 		}), Component::Anchor::BOTTOM_RIGHT)->setTooltip("Merge Matrices");
 
 		workContainer->findComponent("GUI_MATRICES")->addComponent(new CButton("BUTTON_NEW_MATRIX", "",
-		MTexture::getTexture("gui\\icon\\matrices\\Add.png"), { -122, 0 }, { 24, 24 }, CButton::RenderStyle::FILL, []() {
+		MTexture::getTexture("gui\\icon\\matrices\\Add.png"), { -122, 0 }, { 24, 24 }, CButton::RenderStyle::EMPTY, []() {
 			if (m_editor->getModel()) m_editor->getModel()->editNewMatrix();
 		}), Component::Anchor::BOTTOM_RIGHT)->setTooltip("New Matrix (Ctrl+N)");
 
 		workContainer->findComponent("GUI_MATRICES")->addComponent(new CButton("BUTTON_DELETE_MATRIX", "",
-		MTexture::getTexture("gui\\icon\\matrices\\Delete.png"), { -98, 0 }, { 24, 24 }, CButton::RenderStyle::FILL, []() {
+		MTexture::getTexture("gui\\icon\\matrices\\Delete.png"), { -98, 0 }, { 24, 24 }, CButton::RenderStyle::EMPTY, []() {
 			if (m_editor->getModel()) m_editor->getModel()->deleteSelectedMatrices();
 		}), Component::Anchor::BOTTOM_RIGHT)->setTooltip("Delete Matrices (Del)");
 
 		workContainer->findComponent("GUI_MATRICES")->addComponent(new CButton("BUTTON_PROPERTIES", "",
-		MTexture::getTexture("gui\\icon\\matrices\\Properties.png"), { -74, 0 }, { 24, 24 }, CButton::RenderStyle::FILL, []() {
+		MTexture::getTexture("gui\\icon\\matrices\\Properties.png"), { -74, 0 }, { 24, 24 }, CButton::RenderStyle::EMPTY, []() {
 			if (m_editor->getModel()) m_editor->getModel()->editMatrixProperties();
 		}), Component::Anchor::BOTTOM_RIGHT)->setTooltip("Edit Properties (F2)");
 
 		workContainer->findComponent("GUI_MATRICES")->addComponent(new CButton("BUTTON_MOVE_UP_MATRIX", "",
-		MTexture::getTexture("gui\\icon\\matrices\\ArrowUp.png"), { -26, 0 }, { 24, 24 }, CButton::RenderStyle::FILL, []() {
+		MTexture::getTexture("gui\\icon\\matrices\\ArrowUp.png"), { -26, 0 }, { 24, 24 }, CButton::RenderStyle::EMPTY, []() {
 			if (m_editor->getModel()) m_editor->getModel()->moveMatrix(true);
 		}), Component::Anchor::BOTTOM_RIGHT)->setTooltip("Move Up");
 
 		workContainer->findComponent("GUI_MATRICES")->addComponent(new CButton("BUTTON_MOVE_DOWN_MATRIX", "",
-		MTexture::getTexture("gui\\icon\\matrices\\ArrowDown.png"), { -2, 0 }, { 24, 24 }, CButton::RenderStyle::FILL, []() {
+		MTexture::getTexture("gui\\icon\\matrices\\ArrowDown.png"), { -2, 0 }, { 24, 24 }, CButton::RenderStyle::EMPTY, []() {
 			if (m_editor->getModel()) m_editor->getModel()->moveMatrix(false);
 		}), Component::Anchor::BOTTOM_RIGHT)->setTooltip("Move Down");
 

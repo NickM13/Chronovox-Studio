@@ -16,6 +16,7 @@ private:
 	Vector2<GLfloat> m_numBounds;
 	NumType m_numType;
 	GLfloat m_prevValue;
+	bool m_positive;
 public:
 	NumberField(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Vector2<GLfloat> p_numBounds, NumType p_numType);
 

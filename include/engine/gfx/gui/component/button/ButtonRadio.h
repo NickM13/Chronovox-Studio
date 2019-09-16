@@ -4,7 +4,6 @@
 #include "engine\utils\Utilities.h"
 #include "..\Component.h"
 #include "engine\gfx\font\Font.h"
-#include "engine\sfx\Sound.h"
 
 class CButtonRadio : public Component {
 public:
@@ -144,5 +143,5 @@ public:
 
 	Sint16 getSelectedItem()	 { return m_selectedButton; }
 	Sint16 getPrevSelectedItem() { return m_prevSelectedButton; }
-	Sint32 getButtonCount()		 { return m_buttonList.size(); }
+	Sint32 getButtonCount()		 { return static_cast<Sint32>(m_buttonList.size()); }
 };

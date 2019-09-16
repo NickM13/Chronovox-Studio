@@ -450,7 +450,7 @@ void CMenubar::render() {
 					else {
 						if ((Uint16)_splitDir.size() > j + 1 && _splitDir[j + 1] == me->getDisplayName()
 							|| me->getHoverTimer() > 0) {
-							GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(Color(1, 1, 1, me->getHoverTimer())));
+							GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(1.f, 1.f, 1.f, me->getHoverTimer()));
 							GBuffer::addQuadFilled(Vector2<Sint32>(0, _height), Vector2<Sint32>(_subWidth + _descWidth + _iconWidth, _eHeight));
 						}
 						if (me->getType() == ElementType::CHECKBOX) {
@@ -497,7 +497,7 @@ void CMenubar::render() {
 		}
 		else if (m_submenu.getVisibleElements()[i]->getHoverTimer() > 0) {
 			GBuffer::setTexture(0);
-			GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(Color(1, 1, 1, m_submenu.getVisibleElements()[i]->getHoverTimer())));
+			GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(1.f, 1.f, 1.f, m_submenu.getVisibleElements()[i]->getHoverTimer()));
 			GBuffer::addQuadFilled(Vector2<Sint32>(), Vector2<Sint32>(_buttonWidth - 1, m_size.y));
 		}
 		if (m_submenu.getVisibleElements()[i]->isEnabled())

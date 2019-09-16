@@ -16,7 +16,7 @@ CTextFile::CTextFile(std::string p_compName, std::string p_src, Vector2<Sint32> 
 				if (line.at(i) == '%') {
 					switch (line.at(i + 1)) {
 					case 's':
-						m_variableInputLoc.push_back(Vector2<Sint32>(m_lines.size(), i));
+						m_variableInputLoc.push_back(Vector2<Sint32>(static_cast<Sint32>(m_lines.size()), i));
 						line = line.substr(0, i) + line.substr(i + 2);
 						break;
 					}

@@ -4,7 +4,7 @@
 #define AXIS_Y 2
 #define AXIS_Z 4
 
-#include "engine\utils\variable\manager\VoxelManager.h"
+#include "engine\utils\variable\dictionary\DVoxel.h"
 #include "engine\gfx\mesh\VoxelMesh.h"
 
 // Data of one component of the Model
@@ -51,6 +51,7 @@ public:
 
 	bool setVoxel(glm::ivec3 p_pos, Voxel p_voxel);
 	Voxel getVoxel(glm::ivec3 p_pos);
+	Uint16*** getVoxelData();
 	Uint16 getVoxelId(glm::ivec3 p_pos);
 	void shiftVoxels(glm::ivec3 p_direction);
 	void flip(Sint8 p_axes, glm::vec3 p_focus);

@@ -1,6 +1,9 @@
 #include "engine\editor\model\format\export\PlyFormat.h"
 #include "engine\editor\model\format\GFormat.h"
 
+#include "engine\utils\logger\Logger.h"
+#include "engine\utils\Utilities.h"
+#include <fstream>
 #include <map>
 
 Uint32		PlyFormat::m_index = 0;
@@ -22,7 +25,7 @@ Sint32 PlyFormat::find(std::vector<Vertex>& vertexList, Vertex& vertex) {
 			return it - vertexList.begin();
 		}
 	}
-	return vertexList.size();
+	return static_cast<Sint32>(vertexList.size());
 }
 
 void PlyFormat::init(glm::vec3 p_scale, glm::vec3 p_offset) {
@@ -71,7 +74,7 @@ bool PlyFormat::save(std::string p_fileName, std::vector<Matrix*>* p_matrixList)
 			mesh = m->getMeshSimple();
 			meshMap.insert({ m->getId(), mesh });
 
-			nTriangles += mesh->getVertices().size() / 2;
+			nTriangles += static_cast<Sint32>(mesh->getVertices().size() / 2);
 
 			std::vector<glm::vec3>& vertices = mesh->getVertices(), & normals = mesh->getNormals();
 			std::vector<Color>& colors = mesh->getColors();

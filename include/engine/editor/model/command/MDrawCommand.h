@@ -14,7 +14,7 @@ public:
 	void redo();
 
 private:
-	Matrix* m_matrix;
+	Sint32 m_matrix;
 
 	struct _Voxel {
 		glm::ivec3 pos;

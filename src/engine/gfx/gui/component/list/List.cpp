@@ -249,7 +249,7 @@ void CList::renderItems() {
 		else {
 			GBuffer::setColor(getPrimaryColor());
 			if (m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer > 0) {
-				GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(Color(1, 1, 1, m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer)));
+				GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered").applyScale(1.f, 1.f, 1.f, m_itemList.at(m_scroll / m_itemHeight + y).hoverTimer));
 				GBuffer::addQuadFilled({ 0, 1 }, { m_size.x, m_itemHeight - 1 });
 			}
 		}

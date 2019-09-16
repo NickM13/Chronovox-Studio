@@ -100,9 +100,9 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 		glm::vec3( 0, -1,  0)
 	};
 
+	// Outside voxels are for continuing lighting, and are not rendered
 	Voxel*** _voxels;
 	Sint8*** _faces;
-	// Outside voxels are for continuing lighting, and are not rendered
 	_voxels = new Voxel**[p_dimensions.x + 2];
 	_faces = new Sint8**[p_dimensions.x + 2];
 	for(Uint16 x = 0; x < p_dimensions.x + 2; x++) {
@@ -112,7 +112,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 			_voxels[x][y] = new Voxel[p_dimensions.z + 2];
 			_faces[x][y] = new Sint8[p_dimensions.z + 2];
 			for(Uint16 z = 0; z < p_dimensions.z + 2; z++) {
-				_voxels[x][y][z] = MVoxel::getInstance().getUnit(p_voxelIds[x][y][z]);
+				_voxels[x][y][z] = DVoxel::getVoxel(p_voxelIds[x][y][z]);
 				if(_voxels[x][y][z].interactionType)
 					_faces[x][y][z] = p_faceData[x][y][z];
 				else
@@ -124,8 +124,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 	Uint16 x, y, z;
 	Uint16 x2, y2, z2;
 	Uint16 _interactionType;
-	Uint16 _colorId;
-	Color _color;
+	Color color;
 	bool _done1, _done2;
 	// North		X+
 	for(Uint16 x1 = 0; x1 < p_dimensions.x; x1++) {
@@ -136,7 +135,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 				z = z1 + 1;
 				if(_faces[x][y][z] & FACE_NORTH) {
 					_interactionType = _voxels[x][y][z].interactionType;
-					_colorId = _voxels[x][y][z].color;
+					color = _voxels[x][y][z].color;
 					y2 = z2 = 0;
 					_done1 = _done2 = false;
 					while(!_done1) {
@@ -145,7 +144,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 							_done1 = true;
 							break;
 						}
-						if(!(_faces[x][y + y2][z] & FACE_NORTH) || _voxels[x][y + y2][z].interactionType != _interactionType || _voxels[x][y + y2][z].color != _colorId)
+						if(!(_faces[x][y + y2][z] & FACE_NORTH) || _voxels[x][y + y2][z].interactionType != _interactionType || _voxels[x][y + y2][z].color != color)
 							_done1 = true;
 						if(!_done1)
 							y2++;
@@ -157,7 +156,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 							break;
 						}
 						for(Uint16 i = 0; i < y2; i++) {
-							if(!(_faces[x][y + i][z + z2] & FACE_NORTH) || _voxels[x][y + i][z + z2].interactionType != _interactionType || _voxels[x][y + i][z + z2].color != _colorId) {
+							if(!(_faces[x][y + i][z + z2] & FACE_NORTH) || _voxels[x][y + i][z + z2].interactionType != _interactionType || _voxels[x][y + i][z + z2].color != color) {
 								_done2 = true;
 								break;
 							}
@@ -168,11 +167,11 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 					for(Uint16 i = 0; i < y2; i++)
 						for(Uint16 j = 0; j < z2; j++)
 							_faces[x][y + i][z + j] -= FACE_NORTH;
-					_color = MColor::getInstance().getUnit(_colorId);
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1, z1));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + z2));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
+
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1, y1, z1));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + z2));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
 
 					m_verticesWire.push_back(glm::vec3(x1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1, y1, z1 + z2));
 					m_verticesWire.push_back(glm::vec3(x1, y1, z1 + z2));		m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1 + z2));
@@ -194,7 +193,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 				z = z1 + 1;
 				if(_faces[x][y][z] & FACE_SOUTH) {
 					_interactionType = _voxels[x][y][z].interactionType;
-					_colorId = _voxels[x][y][z].color;
+					color = _voxels[x][y][z].color;
 					y2 = z2 = 0;
 					_done1 = _done2 = false;
 					while(!_done1) {
@@ -203,7 +202,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 							_done1 = true;
 							break;
 						}
-						if(!(_faces[x][y + y2][z] & FACE_SOUTH) || _voxels[x][y + y2][z].interactionType != _interactionType || _voxels[x][y + y2][z].color != _colorId)
+						if(!(_faces[x][y + y2][z] & FACE_SOUTH) || _voxels[x][y + y2][z].interactionType != _interactionType || _voxels[x][y + y2][z].color != color)
 							_done1 = true;
 						if(!_done1)
 							y2++;
@@ -215,7 +214,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 							break;
 						}
 						for(Uint16 i = 0; i < y2; i++) {
-							if(!(_faces[x][y + i][z + z2] & FACE_SOUTH) || _voxels[x][y + i][z + z2].interactionType != _interactionType || _voxels[x][y + i][z + z2].color != _colorId) {
+							if(!(_faces[x][y + i][z + z2] & FACE_SOUTH) || _voxels[x][y + i][z + z2].interactionType != _interactionType || _voxels[x][y + i][z + z2].color != color) {
 								_done2 = true;
 								break;
 							}
@@ -227,11 +226,11 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 					for(Uint16 i = 0; i < y2; i++)
 						for(Uint16 j = 0; j < z2; j++)
 							_faces[x][y + i][z + j] -= FACE_SOUTH;
-					_color = MColor::getInstance().getUnit(_colorId);
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + 1, y1, z1));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1 + z2));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + 1, y1, z1 + z2));
+
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1 + 1, y1, z1));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1 + z2));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1 + 1, y1, z1 + z2));
 
 					m_verticesWire.push_back(glm::vec3(x1 + 1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1 + 1, y1 + y2, z1));
 					m_verticesWire.push_back(glm::vec3(x1 + 1, y1 + y2, z1));		m_verticesWire.push_back(glm::vec3(x1 + 1, y1 + y2, z1 + z2));
@@ -254,7 +253,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 				if(_faces[x][y][z] & FACE_EAST)
 				{
 					_interactionType = _voxels[x][y][z].interactionType;
-					_colorId = _voxels[x][y][z].color;
+					color = _voxels[x][y][z].color;
 					x2 = y2 = 0;
 					_done1 = _done2 = false;
 					while(!_done1) {
@@ -263,7 +262,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 							_done1 = true;
 							break;
 						}
-						if(!(_faces[x + x2][y][z] & FACE_EAST) || _voxels[x + x2][y][z].interactionType != _interactionType || _voxels[x + x2][y][z].color != _colorId)
+						if(!(_faces[x + x2][y][z] & FACE_EAST) || _voxels[x + x2][y][z].interactionType != _interactionType || _voxels[x + x2][y][z].color != color)
 							_done1 = true;
 						if(!_done1)
 							x2++;
@@ -275,7 +274,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 							break;
 						}
 						for(Uint16 i = 0; i < x2; i++) {
-							if(!(_faces[x + i][y + y2][z] & FACE_EAST) || _voxels[x + i][y + y2][z].interactionType != _interactionType || _voxels[x + i][y + y2][z].color != _colorId) {
+							if(!(_faces[x + i][y + y2][z] & FACE_EAST) || _voxels[x + i][y + y2][z].interactionType != _interactionType || _voxels[x + i][y + y2][z].color != color) {
 								_done2 = true;
 								break;
 							}
@@ -286,11 +285,11 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 					for(Uint16 i = 0; i < x2; i++)
 						for(Uint16 j = 0; j < y2; j++)
 							_faces[x + i][y + j][z] -= FACE_EAST;
-					_color = MColor::getInstance().getUnit(_colorId);
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1, z1 + 1));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + 1));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1 + 1));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + 1));
+
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1, y1, z1 + 1));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + 1));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1 + 1));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + 1));
 
 					m_verticesWire.push_back(glm::vec3(x1, y1, z1 + 1));			m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1 + 1));
 					m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1 + 1));		m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + y2, z1 + 1));
@@ -312,7 +311,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 				y = y1 + 1;
 				if(_faces[x][y][z] & FACE_WEST) {
 					_interactionType = _voxels[x][y][z].interactionType;
-					_colorId = _voxels[x][y][z].color;
+					color = _voxels[x][y][z].color;
 					x2 = y2 = 0;
 					_done1 = _done2 = false;
 					while(!_done1) {
@@ -321,7 +320,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 							_done1 = true;
 							break;
 						}
-						if(!(_faces[x + x2][y][z] & FACE_WEST) || _voxels[x + x2][y][z].interactionType != _interactionType || _voxels[x + x2][y][z].color != _colorId)
+						if(!(_faces[x + x2][y][z] & FACE_WEST) || _voxels[x + x2][y][z].interactionType != _interactionType || _voxels[x + x2][y][z].color != color)
 							_done1 = true;
 						if(!_done1)
 							x2++;
@@ -333,7 +332,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 							break;
 						}
 						for(Uint16 i = 0; i < x2; i++) {
-							if(!(_faces[x + i][y + y2][z] & FACE_WEST) || _voxels[x + i][y + y2][z].interactionType != _interactionType || _voxels[x + i][y + y2][z].color != _colorId) {
+							if(!(_faces[x + i][y + y2][z] & FACE_WEST) || _voxels[x + i][y + y2][z].interactionType != _interactionType || _voxels[x + i][y + y2][z].color != color) {
 								_done2 = true;
 								break;
 							}
@@ -344,11 +343,11 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 					for(Uint16 i = 0; i < x2; i++)
 						for(Uint16 j = 0; j < y2; j++)
 							_faces[x + i][y + j][z] -= FACE_WEST;
-					_color = MColor::getInstance().getUnit(_colorId);
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1, z1));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
+
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1, y1, z1));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
 
 					m_verticesWire.push_back(glm::vec3(x1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1));
 					m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1));		m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + y2, z1));
@@ -370,7 +369,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 				z = z1 + 1;
 				if(_faces[x][y][z] & FACE_TOP) {
 					_interactionType = _voxels[x][y][z].interactionType;
-					_colorId = _voxels[x][y][z].color;
+					color = _voxels[x][y][z].color;
 					x2 = z2 = 0;
 					_done1 = _done2 = false;
 					while(!_done1) {
@@ -379,7 +378,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 							_done1 = true;
 							break;
 						}
-						if(!(_faces[x + x2][y][z] & FACE_TOP) || _voxels[x + x2][y][z].interactionType != _interactionType || _voxels[x + x2][y][z].color != _colorId)
+						if(!(_faces[x + x2][y][z] & FACE_TOP) || _voxels[x + x2][y][z].interactionType != _interactionType || _voxels[x + x2][y][z].color != color)
 							_done1 = true;
 						if(!_done1)
 							x2++;
@@ -391,7 +390,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 							break;
 						}
 						for(Uint16 i = 0; i < x2; i++) {
-							if(!(_faces[x + i][y][z + z2] & FACE_TOP) || _voxels[x + i][y][z + z2].interactionType != _interactionType || _voxels[x + i][y][z + z2].color != _colorId) {
+							if(!(_faces[x + i][y][z + z2] & FACE_TOP) || _voxels[x + i][y][z + z2].interactionType != _interactionType || _voxels[x + i][y][z + z2].color != color) {
 								_done2 = true;
 								break;
 							}
@@ -402,11 +401,11 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 					for(Uint16 i = 0; i < x2; i++)
 						for(Uint16 j = 0; j < z2; j++)
 							_faces[x + i][y][z + j] -= FACE_TOP;
-					_color = MColor::getInstance().getUnit(_colorId);
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1 + 1, z1));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1 + 1, z1 + z2));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1 + z2));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1));
+
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1, y1 + 1, z1));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1, y1 + 1, z1 + z2));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1 + z2));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1));
 
 					m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1));			m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1 + z2));
 					m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1 + z2));		m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + 1, z1 + z2));
@@ -428,7 +427,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 				z = z1 + 1;
 				if(_faces[x][y][z] & FACE_BOTTOM) {
 					_interactionType = _voxels[x][y][z].interactionType;
-					_colorId = _voxels[x][y][z].color;
+					color = _voxels[x][y][z].color;
 					x2 = z2 = 0;
 					_done1 = _done2 = false;
 					while(!_done1) {
@@ -437,7 +436,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 							_done1 = true;
 							break;
 						}
-						if(!(_faces[x + x2][y][z] & FACE_BOTTOM) || _voxels[x + x2][y][z].interactionType != _interactionType || _voxels[x + x2][y][z].color != _colorId)
+						if(!(_faces[x + x2][y][z] & FACE_BOTTOM) || _voxels[x + x2][y][z].interactionType != _interactionType || _voxels[x + x2][y][z].color != color)
 							_done1 = true;
 						if(!_done1)
 							x2++;
@@ -449,7 +448,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 							break;
 						}
 						for(Uint16 i = 0; i < x2; i++) {
-							if(!(_faces[x + i][y][z + z2] & FACE_BOTTOM) || _voxels[x + i][y][z + z2].interactionType != _interactionType || _voxels[x + i][y][z + z2].color != _colorId) {
+							if(!(_faces[x + i][y][z + z2] & FACE_BOTTOM) || _voxels[x + i][y][z + z2].interactionType != _interactionType || _voxels[x + i][y][z + z2].color != color) {
 								_done2 = true;
 								break;
 							}
@@ -460,11 +459,11 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 					for(Uint16 i = 0; i < x2; i++)
 						for(Uint16 j = 0; j < z2; j++)
 							_faces[x + i][y][z + j] -= FACE_BOTTOM;
-					_color = MColor::getInstance().getUnit(_colorId);
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1, z1));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + z2));
-					m_colors.push_back(_color); m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
+
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1, y1, z1));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + z2));
+					m_colors.push_back(color); m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
 
 					m_verticesWire.push_back(glm::vec3(x1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1));
 					m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1));		m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1 + z2));
@@ -505,7 +504,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(GLfloat) * 3, &m_vertices[0].x, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboId[1]);
-	glBufferData(GL_ARRAY_BUFFER, m_colors.size() * sizeof(GLfloat) * 4, &m_colors[0].r, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, m_colors.size() * sizeof(GLubyte) * 4, &m_colors[0].r, GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboId[2]);
 	glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(GLfloat) * 3, &m_normals[0].x, GL_STATIC_DRAW);
@@ -548,7 +547,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 			_voxels[x][y] = new Voxel[p_dimensions.z + 2];
 			_faces[x][y] = new Sint8[p_dimensions.z + 2];
 			for(Uint16 z = 0; z < p_dimensions.z + 2; z++) {
-				_voxels[x][y][z] = MVoxel::getInstance().getUnit(p_voxelIds[x][y][z]);
+				_voxels[x][y][z] = DVoxel::getVoxel(p_voxelIds[x][y][z]);
 				if(_voxels[x][y][z].interactionType)
 					_faces[x][y][z] = p_faceData[x][y][z];
 				else
@@ -562,8 +561,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 	Vector4<GLfloat> ao;
 	GLfloat p[4];
 	Uint16 _interactionType;
-	Uint16 _colorId;
-	Color _color;
+	Color color;
 	bool _done1, _done2;
 	// North		X+
 	for(Uint16 x1 = 0; x1 < p_dimensions.x; x1++) {
@@ -575,7 +573,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 				if(_faces[x][y][z] & FACE_NORTH) {
 					ao = getAO(Vector3<Uint16>(x, y, z), _voxels, 0);
 					_interactionType = _voxels[x][y][z].interactionType;
-					_colorId = _voxels[x][y][z].color;
+					color = _voxels[x][y][z].color;
 					y2 = z2 = 0;
 					_done1 = _done2 = false;
 					while(!_done1) {
@@ -584,7 +582,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 							_done1 = true;
 							break;
 						}
-						if(!(_faces[x][y + y2][z] & FACE_NORTH) || _voxels[x][y + y2][z].interactionType != _interactionType || _voxels[x][y + y2][z].color != _colorId ||
+						if(!(_faces[x][y + y2][z] & FACE_NORTH) || _voxels[x][y + y2][z].interactionType != _interactionType || _voxels[x][y + y2][z].color != color ||
 							!(getAO(Vector3<Uint16>(x, y + y2, z), _voxels, 0) == ao))
 							_done1 = true;
 						if(!_done1)
@@ -597,7 +595,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 							break;
 						}
 						for(Uint16 i = 0; i < y2; i++) {
-							if(!(_faces[x][y + i][z + z2] & FACE_NORTH) || _voxels[x][y + i][z + z2].interactionType != _interactionType || _voxels[x][y + i][z + z2].color != _colorId ||
+							if(!(_faces[x][y + i][z + z2] & FACE_NORTH) || _voxels[x][y + i][z + z2].interactionType != _interactionType || _voxels[x][y + i][z + z2].color != color ||
 								!(getAO(Vector3<Uint16>(x, y + i, z + z2), _voxels, 0) == ao)) {
 								_done2 = true;
 								break;
@@ -609,23 +607,22 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 					for(Uint16 i = 0; i < y2; i++)
 						for(Uint16 j = 0; j < z2; j++)
 							_faces[x][y + i][z + j] -= FACE_NORTH;
-					_color = MColor::getInstance().getUnit(_colorId);
 					p[0] = ao.x1 + (ao.y1 + ao.y2) / 2;
 					p[1] = ao.y1 + (ao.x1 + ao.x2) / 2;
 					p[2] = ao.x2 + (ao.y1 + ao.y2) / 2;
 					p[3] = ao.y2 + (ao.x1 + ao.x2) / 2;
 					if((p[0] >= p[1] && p[0] >= p[3]) || (p[2] >= p[1] && p[2] >= p[3])) {
-						m_colors.push_back(_color * ao.x1);						m_vertices.push_back(glm::vec3(x1, y1, z1));
-						m_colors.push_back(_color * ao.y2);						m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
-						m_colors.push_back(_color * ao.x2);						m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + z2));
-						m_colors.push_back(_color * ao.y1);						m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
+						m_colors.push_back(color * ao.x1);						m_vertices.push_back(glm::vec3(x1, y1, z1));
+						m_colors.push_back(color * ao.y2);						m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
+						m_colors.push_back(color * ao.x2);						m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + z2));
+						m_colors.push_back(color * ao.y1);						m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
 						m_verticesWire.push_back(glm::vec3(x1, y1, z1));		m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1 + z2));
 					}
 					else {
-						m_colors.push_back(_color * ao.y2);						m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
-						m_colors.push_back(_color * ao.x2);						m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + z2));
-						m_colors.push_back(_color * ao.y1);						m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
-						m_colors.push_back(_color * ao.x1);						m_vertices.push_back(glm::vec3(x1, y1, z1));
+						m_colors.push_back(color * ao.y2);						m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
+						m_colors.push_back(color * ao.x2);						m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + z2));
+						m_colors.push_back(color * ao.y1);						m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
+						m_colors.push_back(color * ao.x1);						m_vertices.push_back(glm::vec3(x1, y1, z1));
 						m_verticesWire.push_back(glm::vec3(x1, y1, z1 + z2));	m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1));
 					}
 					m_verticesWire.push_back(glm::vec3(x1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1, y1, z1 + z2));
@@ -648,7 +645,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 				if(_faces[x][y][z] & FACE_SOUTH) {
 					ao = getAO(Vector3<Uint16>(x, y, z), _voxels, 1);
 					_interactionType = _voxels[x][y][z].interactionType;
-					_colorId = _voxels[x][y][z].color;
+					color = _voxels[x][y][z].color;
 					y2 = z2 = 0;
 					_done1 = _done2 = false;
 					while(!_done1) {
@@ -657,7 +654,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 							_done1 = true;
 							break;
 						}
-						if(!(_faces[x][y + y2][z] & FACE_SOUTH) || _voxels[x][y + y2][z].interactionType != _interactionType || _voxels[x][y + y2][z].color != _colorId ||
+						if(!(_faces[x][y + y2][z] & FACE_SOUTH) || _voxels[x][y + y2][z].interactionType != _interactionType || _voxels[x][y + y2][z].color != color ||
 							!(getAO(Vector3<Uint16>(x, y + y2, z), _voxels, 1) == ao))
 							_done1 = true;
 						if(!_done1)
@@ -670,7 +667,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 							break;
 						}
 						for(Uint16 i = 0; i < y2; i++) {
-							if(!(_faces[x][y + i][z + z2] & FACE_SOUTH) || _voxels[x][y + i][z + z2].interactionType != _interactionType || _voxels[x][y + i][z + z2].color != _colorId ||
+							if(!(_faces[x][y + i][z + z2] & FACE_SOUTH) || _voxels[x][y + i][z + z2].interactionType != _interactionType || _voxels[x][y + i][z + z2].color != color ||
 								!(getAO(Vector3<Uint16>(x, y + i, z + z2), _voxels, 1) == ao)) {
 								_done2 = true;
 								break;
@@ -683,23 +680,22 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 					for(Uint16 i = 0; i < y2; i++)
 						for(Uint16 j = 0; j < z2; j++)
 							_faces[x][y + i][z + j] -= FACE_SOUTH;
-					_color = MColor::getInstance().getUnit(_colorId);
 					p[0] = ao.x1 + (ao.y1 + ao.y2) / 2;
 					p[1] = ao.y1 + (ao.x1 + ao.x2) / 2;
 					p[2] = ao.x2 + (ao.y1 + ao.y2) / 2;
 					p[3] = ao.y2 + (ao.x1 + ao.x2) / 2;
 					if((p[0] >= p[1] && p[0] >= p[3]) || (p[2] >= p[1] && p[2] >= p[3])) {
-						m_colors.push_back(_color * ao.x1); m_vertices.push_back(glm::vec3(x1 + 1, y1, z1));
-						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1));
-						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1 + z2));
-						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1 + 1, y1, z1 + z2));
+						m_colors.push_back(color * ao.x1); m_vertices.push_back(glm::vec3(x1 + 1, y1, z1));
+						m_colors.push_back(color * ao.y1); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1));
+						m_colors.push_back(color * ao.x2); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1 + z2));
+						m_colors.push_back(color * ao.y2); m_vertices.push_back(glm::vec3(x1 + 1, y1, z1 + z2));
 						m_verticesWire.push_back(glm::vec3(x1 + 1, y1, z1)); m_verticesWire.push_back(glm::vec3(x1 + 1, y1 + y2, z1 + z2));
 					}
 					else {
-						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1 + 1, y1, z1 + z2));
-						m_colors.push_back(_color * ao.x1); m_vertices.push_back(glm::vec3(x1 + 1, y1, z1));
-						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1));
-						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1 + z2));
+						m_colors.push_back(color * ao.y2); m_vertices.push_back(glm::vec3(x1 + 1, y1, z1 + z2));
+						m_colors.push_back(color * ao.x1); m_vertices.push_back(glm::vec3(x1 + 1, y1, z1));
+						m_colors.push_back(color * ao.y1); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1));
+						m_colors.push_back(color * ao.x2); m_vertices.push_back(glm::vec3(x1 + 1, y1 + y2, z1 + z2));
 						m_verticesWire.push_back(glm::vec3(x1 + 1, y1, z1 + z2)); m_verticesWire.push_back(glm::vec3(x1 + 1, y1 + y2, z1));
 					}
 					m_verticesWire.push_back(glm::vec3(x1 + 1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1 + 1, y1 + y2, z1));
@@ -723,7 +719,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 				{
 					ao = getAO(Vector3<Uint16>(x, y, z), _voxels, 2);
 					_interactionType = _voxels[x][y][z].interactionType;
-					_colorId = _voxels[x][y][z].color;
+					color = _voxels[x][y][z].color;
 					x2 = y2 = 0;
 					_done1 = _done2 = false;
 					while(!_done1) {
@@ -732,7 +728,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 							_done1 = true;
 							break;
 						}
-						if(!(_faces[x + x2][y][z] & FACE_EAST) || _voxels[x + x2][y][z].interactionType != _interactionType || _voxels[x + x2][y][z].color != _colorId ||
+						if(!(_faces[x + x2][y][z] & FACE_EAST) || _voxels[x + x2][y][z].interactionType != _interactionType || _voxels[x + x2][y][z].color != color ||
 							!(getAO(Vector3<Uint16>(x + x2, y, z), _voxels, 2) == ao))
 							_done1 = true;
 						if(!_done1)
@@ -745,7 +741,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 							break;
 						}
 						for(Uint16 i = 0; i < x2; i++) {
-							if(!(_faces[x + i][y + y2][z] & FACE_EAST) || _voxels[x + i][y + y2][z].interactionType != _interactionType || _voxels[x + i][y + y2][z].color != _colorId ||
+							if(!(_faces[x + i][y + y2][z] & FACE_EAST) || _voxels[x + i][y + y2][z].interactionType != _interactionType || _voxels[x + i][y + y2][z].color != color ||
 								!(getAO(Vector3<Uint16>(x + i, y + y2, z), _voxels, 2) == ao)) {
 								_done2 = true;
 								break;
@@ -757,23 +753,22 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 					for(Uint16 i = 0; i < x2; i++)
 						for(Uint16 j = 0; j < y2; j++)
 							_faces[x + i][y + j][z] -= FACE_EAST;
-					_color = MColor::getInstance().getUnit(_colorId);
 					p[0] = ao.x1 + (ao.y1 + ao.y2) / 2;
 					p[1] = ao.y1 + (ao.x1 + ao.x2) / 2;
 					p[2] = ao.x2 + (ao.y1 + ao.y2) / 2;
 					p[3] = ao.y2 + (ao.x1 + ao.x2) / 2;
 					if((p[0] >= p[1] && p[0] >= p[3]) || (p[2] >= p[1] && p[2] >= p[3])) {
-						m_colors.push_back(_color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1, z1 + 1));
-						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + 1));
-						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1 + 1));
-						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + 1));
+						m_colors.push_back(color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1, z1 + 1));
+						m_colors.push_back(color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + 1));
+						m_colors.push_back(color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1 + 1));
+						m_colors.push_back(color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + 1));
 						m_verticesWire.push_back(glm::vec3(x1, y1, z1 + 1)); m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + y2, z1 + 1));
 					}
 					else {
-						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + 1));
-						m_colors.push_back(_color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1, z1 + 1));
-						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + 1));
-						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1 + 1));
+						m_colors.push_back(color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1 + 1));
+						m_colors.push_back(color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1, z1 + 1));
+						m_colors.push_back(color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + 1));
+						m_colors.push_back(color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1 + 1));
 						m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1 + 1)); m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1 + 1));
 					}
 					m_verticesWire.push_back(glm::vec3(x1, y1, z1 + 1));			m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1 + 1));
@@ -796,7 +791,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 				if(_faces[x][y][z] & FACE_WEST) {
 					ao = getAO(Vector3<Uint16>(x, y, z), _voxels, 3);
 					_interactionType = _voxels[x][y][z].interactionType;
-					_colorId = _voxels[x][y][z].color;
+					color = _voxels[x][y][z].color;
 					x2 = y2 = 0;
 					_done1 = _done2 = false;
 					while(!_done1) {
@@ -805,7 +800,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 							_done1 = true;
 							break;
 						}
-						if(!(_faces[x + x2][y][z] & FACE_WEST) || _voxels[x + x2][y][z].interactionType != _interactionType || _voxels[x + x2][y][z].color != _colorId ||
+						if(!(_faces[x + x2][y][z] & FACE_WEST) || _voxels[x + x2][y][z].interactionType != _interactionType || _voxels[x + x2][y][z].color != color ||
 							!(getAO(Vector3<Uint16>(x + x2, y, z), _voxels, 3) == ao))
 							_done1 = true;
 						if(!_done1)
@@ -818,7 +813,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 							break;
 						}
 						for(Uint16 i = 0; i < x2; i++) {
-							if(!(_faces[x + i][y + y2][z] & FACE_WEST) || _voxels[x + i][y + y2][z].interactionType != _interactionType || _voxels[x + i][y + y2][z].color != _colorId ||
+							if(!(_faces[x + i][y + y2][z] & FACE_WEST) || _voxels[x + i][y + y2][z].interactionType != _interactionType || _voxels[x + i][y + y2][z].color != color ||
 								!(getAO(Vector3<Uint16>(x + i, y + y2, z), _voxels, 3) == ao)) {
 								_done2 = true;
 								break;
@@ -830,23 +825,22 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 					for(Uint16 i = 0; i < x2; i++)
 						for(Uint16 j = 0; j < y2; j++)
 							_faces[x + i][y + j][z] -= FACE_WEST;
-					_color = MColor::getInstance().getUnit(_colorId);
 					p[0] = ao.x1 + (ao.y1 + ao.y2) / 2;
 					p[1] = ao.y1 + (ao.x1 + ao.x2) / 2;
 					p[2] = ao.x2 + (ao.y1 + ao.y2) / 2;
 					p[3] = ao.y2 + (ao.x1 + ao.x2) / 2;
 					if((p[0] >= p[1] && p[0] >= p[3]) || (p[2] >= p[1] && p[2] >= p[3])) {
-						m_colors.push_back(_color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1, z1));
-						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
-						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1));
-						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
+						m_colors.push_back(color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1, z1));
+						m_colors.push_back(color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
+						m_colors.push_back(color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1));
+						m_colors.push_back(color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
 						m_verticesWire.push_back(glm::vec3(x1, y1, z1)); m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + y2, z1));
 					}
 					else {
-						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
-						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1));
-						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
-						m_colors.push_back(_color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1, z1));
+						m_colors.push_back(color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + y2, z1));
+						m_colors.push_back(color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + y2, z1));
+						m_colors.push_back(color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
+						m_colors.push_back(color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1, z1));
 						m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1)); m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1));
 					}
 					m_verticesWire.push_back(glm::vec3(x1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1, y1 + y2, z1));
@@ -869,7 +863,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 				if(_faces[x][y][z] & FACE_TOP) {
 					ao = getAO(Vector3<Uint16>(x, y, z), _voxels, 4);
 					_interactionType = _voxels[x][y][z].interactionType;
-					_colorId = _voxels[x][y][z].color;
+					color = _voxels[x][y][z].color;
 					x2 = z2 = 0;
 					_done1 = _done2 = false;
 					while(!_done1) {
@@ -878,7 +872,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 							_done1 = true;
 							break;
 						}
-						if(!(_faces[x + x2][y][z] & FACE_TOP) || _voxels[x + x2][y][z].interactionType != _interactionType || _voxels[x + x2][y][z].color != _colorId ||
+						if(!(_faces[x + x2][y][z] & FACE_TOP) || _voxels[x + x2][y][z].interactionType != _interactionType || _voxels[x + x2][y][z].color != color ||
 							!(getAO(Vector3<Uint16>(x + x2, y, z), _voxels, 4) == ao))
 							_done1 = true;
 						if(!_done1)
@@ -891,7 +885,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 							break;
 						}
 						for(Uint16 i = 0; i < x2; i++) {
-							if(!(_faces[x + i][y][z + z2] & FACE_TOP) || _voxels[x + i][y][z + z2].interactionType != _interactionType || _voxels[x + i][y][z + z2].color != _colorId ||
+							if(!(_faces[x + i][y][z + z2] & FACE_TOP) || _voxels[x + i][y][z + z2].interactionType != _interactionType || _voxels[x + i][y][z + z2].color != color ||
 								!(getAO(Vector3<Uint16>(x + i, y, z + z2), _voxels, 4) == ao)) {
 								_done2 = true;
 								break;
@@ -903,23 +897,22 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 					for(Uint16 i = 0; i < x2; i++)
 						for(Uint16 j = 0; j < z2; j++)
 							_faces[x + i][y][z + j] -= FACE_TOP;
-					_color = MColor::getInstance().getUnit(_colorId);
 					p[0] = ao.x1 + (ao.y1 + ao.y2) / 2;
 					p[1] = ao.y1 + (ao.x1 + ao.x2) / 2;
 					p[2] = ao.x2 + (ao.y1 + ao.y2) / 2;
 					p[3] = ao.y2 + (ao.x1 + ao.x2) / 2;
 					if((p[0] >= p[1] && p[0] >= p[3]) || (p[2] >= p[1] && p[2] >= p[3])) {
-						m_colors.push_back(_color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1 + 1, z1));
-						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + 1, z1 + z2));
-						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1 + z2));
-						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1));
+						m_colors.push_back(color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1 + 1, z1));
+						m_colors.push_back(color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + 1, z1 + z2));
+						m_colors.push_back(color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1 + z2));
+						m_colors.push_back(color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1));
 						m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1)); m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + 1, z1 + z2));
 					}
 					else {
-						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + 1, z1 + z2));
-						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1 + z2));
-						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1));
-						m_colors.push_back(_color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1 + 1, z1));
+						m_colors.push_back(color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1 + 1, z1 + z2));
+						m_colors.push_back(color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1 + z2));
+						m_colors.push_back(color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1 + 1, z1));
+						m_colors.push_back(color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1 + 1, z1));
 						m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1 + z2)); m_verticesWire.push_back(glm::vec3(x1 + x2, y1 + 1, z1));
 					}
 					m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1));			m_verticesWire.push_back(glm::vec3(x1, y1 + 1, z1 + z2));
@@ -942,7 +935,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 				if(_faces[x][y][z] & FACE_BOTTOM) {
 					ao = getAO(Vector3<Uint16>(x, y, z), _voxels, 5);
 					_interactionType = _voxels[x][y][z].interactionType;
-					_colorId = _voxels[x][y][z].color;
+					color = _voxels[x][y][z].color;
 					x2 = z2 = 0;
 					_done1 = _done2 = false;
 					while(!_done1) {
@@ -951,7 +944,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 							_done1 = true;
 							break;
 						}
-						if(!(_faces[x + x2][y][z] & FACE_BOTTOM) || _voxels[x + x2][y][z].interactionType != _interactionType || _voxels[x + x2][y][z].color != _colorId ||
+						if(!(_faces[x + x2][y][z] & FACE_BOTTOM) || _voxels[x + x2][y][z].interactionType != _interactionType || _voxels[x + x2][y][z].color != color ||
 							!(getAO(Vector3<Uint16>(x + x2, y, z), _voxels, 5) == ao))
 							_done1 = true;
 						if(!_done1)
@@ -964,7 +957,7 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 							break;
 						}
 						for(Uint16 i = 0; i < x2; i++) {
-							if(!(_faces[x + i][y][z + z2] & FACE_BOTTOM) || _voxels[x + i][y][z + z2].interactionType != _interactionType || _voxels[x + i][y][z + z2].color != _colorId ||
+							if(!(_faces[x + i][y][z + z2] & FACE_BOTTOM) || _voxels[x + i][y][z + z2].interactionType != _interactionType || _voxels[x + i][y][z + z2].color != color ||
 								!(getAO(Vector3<Uint16>(x + i, y, z + z2), _voxels, 5) == ao)) {
 								_done2 = true;
 								break;
@@ -976,23 +969,22 @@ void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<
 					for(Uint16 i = 0; i < x2; i++)
 						for(Uint16 j = 0; j < z2; j++)
 							_faces[x + i][y][z + j] -= FACE_BOTTOM;
-					_color = MColor::getInstance().getUnit(_colorId);
 					p[0] = ao.x1 + (ao.y1 + ao.y2) / 2;
 					p[1] = ao.y1 + (ao.x1 + ao.x2) / 2;
 					p[2] = ao.x2 + (ao.y1 + ao.y2) / 2;
 					p[3] = ao.y2 + (ao.x1 + ao.x2) / 2;
 					if((p[0] >= p[1] && p[0] >= p[3]) || (p[2] >= p[1] && p[2] >= p[3])) {
-						m_colors.push_back(_color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1, z1));
-						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
-						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + z2));
-						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
+						m_colors.push_back(color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1, z1));
+						m_colors.push_back(color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
+						m_colors.push_back(color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + z2));
+						m_colors.push_back(color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
 						m_verticesWire.push_back(glm::vec3(x1, y1, z1)); m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1 + z2));
 					}
 					else {
-						m_colors.push_back(_color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
-						m_colors.push_back(_color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1, z1));
-						m_colors.push_back(_color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
-						m_colors.push_back(_color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + z2));
+						m_colors.push_back(color * ao.y2); m_vertices.push_back(glm::vec3(x1, y1, z1 + z2));
+						m_colors.push_back(color * ao.x1); m_vertices.push_back(glm::vec3(x1, y1, z1));
+						m_colors.push_back(color * ao.y1); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1));
+						m_colors.push_back(color * ao.x2); m_vertices.push_back(glm::vec3(x1 + x2, y1, z1 + z2));
 						m_verticesWire.push_back(glm::vec3(x1, y1, z1 + z2)); m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1));
 					}
 					m_verticesWire.push_back(glm::vec3(x1, y1, z1));			m_verticesWire.push_back(glm::vec3(x1 + x2, y1, z1));

@@ -27,6 +27,8 @@
 #include "component\list\Tileset.h"
 #include "global\GGui.h"
 
+#include "engine\utils\global\GLua.h"
+
 class Gui {
 private:
 	static Container* m_mainContainer;
@@ -46,6 +48,7 @@ private:
 	static void addTextArea(std::string p_compName, Sint32 height);
 	static void addNumField(std::string p_compName, std::string p_title, bool p_isFloat, Sint32 p_lowerBound, Sint32 p_upperBound, Sint32 p_count, Sint32 p_default);
 	static void addTextFile(std::string p_compName, std::string p_filename);
+	static void addDropdown(std::string p_compName, std::string p_title, LuaRef p_optionList);
 	static void addOption(std::string p_option, Sint32 p_functionIndex);
 	static void open();
 public:

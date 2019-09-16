@@ -2,6 +2,8 @@
 
 #include "..\Tool.h"
 
+#include <queue>
+
 class VoxelTool : public Tool {
 public:
 	struct Coord {
@@ -16,15 +18,40 @@ public:
 	};
 	struct FillArea {
 	protected:
+		struct FillCoord {
+			Sint32 x, y, z;
+			FillCoord(Sint32 x = 0, Sint32 y = 0, Sint32 z = 0)
+				: x(x), y(y), z(z) {}
+
+			FillCoord operator+(const glm::ivec3 v) {
+				x += v.x;
+				y += v.y;
+				z += v.z;
+			}
+		};
+		struct FillCoordCompare {
+			bool operator() (const FillCoord& lhs, const FillCoord& rhs) const {
+				return	 lhs.x < rhs.x || lhs.x == rhs.x &&
+					(lhs.y < rhs.y || lhs.y == rhs.y &&
+					(lhs.z < rhs.z));
+			}
+		};
 		Sint32 m_fillMatrix = 0;
 		glm::ivec3 m_fillStart = {};
 		Sint8 m_fillSide = 0;
-		std::vector<glm::ivec3> m_fillVoxels = {};
+		std::vector<FillCoord> m_fillVoxels = {};
 		std::vector<glm::vec3> m_fillMesh = {};
 
 		void vectorAdd(std::vector<glm::ivec3>& list1, std::vector<glm::ivec3> list2, glm::ivec3 element);
+
+		void checkPointAppend(std::vector<glm::ivec2>& fillVoxels, const glm::ivec2& size, bool** checkMap, bool** validMap, std::queue<glm::ivec2>& checkQueue, const glm::ivec2& coord);
+		std::vector<glm::ivec2> append(const glm::ivec2& size, bool** validMap, const glm::ivec2& start);
 		bool append();
+
+		void checkPoint(const glm::ivec3& size, bool*** checkMap, Uint16*** voxelData, std::queue<FillCoord>& checkQueue, Uint16 baseVoxel, const FillCoord& coord);
 		bool insert();
+
+		bool insertFancy();
 		void createMesh();
 	public:
 		void create(bool p_inset);

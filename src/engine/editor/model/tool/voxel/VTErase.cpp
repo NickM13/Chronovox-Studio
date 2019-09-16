@@ -29,9 +29,9 @@ void VTErase::inputTool() {
 		if (m_boxing) {
 			if (GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)) {
 				if (m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel)) {
-					box(*m_selectedVoxel, Voxel(0, 0));
+					box(*m_selectedVoxel, Voxel(0, Color()));
 				} else if (m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxelOffset)) {
-					box(*m_selectedVoxelOffset, Voxel(0, 0));
+					box(*m_selectedVoxelOffset, Voxel(0, Color()));
 				}
 			} else {
 				m_editMatrix->saveChanges();
@@ -40,7 +40,7 @@ void VTErase::inputTool() {
 		}
 	} else if (m_voxelMode == VoxelMode::SINGLE) {
 		if (GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)) {
-			m_editMatrix->getMatrix()->setVoxel(*m_selectedVoxel, Voxel(0, 0));
+			m_editMatrix->getMatrix()->setVoxel(*m_selectedVoxel, Voxel(0, Color()));
 		}
 	}
 }

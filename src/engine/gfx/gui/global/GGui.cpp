@@ -27,9 +27,9 @@ void GGui::init(GLFWwindow* p_mainWindow) {
 	m_cursors.emplace(CursorType::LINK,				glfwCreateStandardCursor(GLFW_HAND_CURSOR));
 	m_cursors.emplace(CursorType::EWRESIZE,			glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR));
 	m_cursors.emplace(CursorType::NSRESIZE,			glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR));
-	cursor = MTexture::getTexture("cursor\\aero_nesw.png");
+	cursor = MTexture::getTexture("cursor\\aero_nesw.png", true);
 	m_cursors.emplace(CursorType::NESWRESIZE,		glfwCreateCursor(cursor->getGlfwImage(), cursor->getSize().x / 2, cursor->getSize().y / 2));
-	cursor = MTexture::getTexture("cursor\\aero_nwse.png");
+	cursor = MTexture::getTexture("cursor\\aero_nwse.png", true);
 	m_cursors.emplace(CursorType::NWSERESIZE,		glfwCreateCursor(cursor->getGlfwImage(), cursor->getSize().x / 2, cursor->getSize().y / 2));
 
 	/*m_cursors.emplace(CursorType::IBEAM,		LoadCursorA(hInstance, MAKEINTRESOURCE(CursorType::IBEAM)));

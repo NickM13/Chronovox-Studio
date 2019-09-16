@@ -26,6 +26,7 @@ public:
 
 	static void resetZoom();
 	static void addZoom(GLfloat p_zoom);
+	static GLfloat getZoom() { return m_zoom; }
 
 	static void resetAutoRotation();
 	static void addAutoRotation(GLfloat p_speed);
@@ -36,6 +37,7 @@ public:
 	static glm::vec3 getPosition();
 	static glm::vec3 getRotation();
 	static glm::vec3 getDirection();
+	static glm::vec3 getMousePosition();
 	static glm::vec3 getMouseDirection();
 
 	static glm::mat4 getViewMatrix();

@@ -39,11 +39,11 @@ void Logger::init(Sint8 p_verbosity) {
 	m_logFile = filePrefix + std::to_string(i) + fileExt;
 	logQuiet("Logger initialized");
 	switch (p_verbosity) {
-	case 1:	logQuiet("Logger verbosity set to quiet"); break;
-	case 2:	logQuiet("Logger verbosity set to minimal"); break;
-	case 3:	logQuiet("Logger verbosity set to normal"); break;
-	case 4:	logQuiet("Logger verbosity set to detailed"); break;
-	case 5: logQuiet("Logger verbosity set to diagnostic"); break;
+	case 0:	logQuiet("Logger verbosity set to quiet"); break;
+	case 1:	logQuiet("Logger verbosity set to minimal"); break;
+	case 2:	logQuiet("Logger verbosity set to normal"); break;
+	case 3:	logQuiet("Logger verbosity set to detailed"); break;
+	case 4: logQuiet("Logger verbosity set to diagnostic"); break;
 	}
 
 }
@@ -73,24 +73,21 @@ void Logger::log(Sint8 p_verbosity, Sint8 p_type, std::string p_msg) {
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 		switch (p_type) {
 		case 0:
-			SetConsoleTextAttribute(hConsole, 15); 
-			break;
-		case 1:
 			// 7 is gray 15 is white
 			msg += "INFO";
 			SetConsoleTextAttribute(hConsole, 7);
 			break;
-		case 2:
+		case 1:
 			msg += "WARN";
 			// 6 is gold
 			SetConsoleTextAttribute(hConsole, 14);
 			break;
-		case 3:
+		case 2:
 			msg += "ERROR";
 			// 4 is dark red 12 is light red
 			SetConsoleTextAttribute(hConsole, 12);
 			break;
-		case 4:
+		case 3:
 			msg += "SUCCESS";
 			SetConsoleTextAttribute(hConsole, 10);
 			break;

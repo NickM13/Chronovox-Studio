@@ -13,7 +13,7 @@ CDialog::CDialog(std::string p_compName, std::string p_title, Vector2<Sint32> p_
 	addComponent(new Panel("WINDOW", ""/*p_title*/, -m_padding - 1, m_padding + 1, (Sint8)Component::BorderFlag::ALL), Anchor::TOP_LEFT, Component::Anchor::BOTTOM_RIGHT)
 		->setHighlightActive(true);
 	addComponent(new CButton("BUTTON_CLOSE_DIALOG", "", MTexture::getTexture("gui\\icon\\window\\Close.png"),
-		{ m_padding, -m_padding }, { 34, 28 }, CButton::RenderStyle::FILL, [&]() { setActive(false); }), Component::Anchor::TOP_RIGHT);
+		{ m_padding, -m_padding }, { 34, 28 }, CButton::RenderStyle::EMPTY, [&]() { setActive(false); }), Component::Anchor::TOP_RIGHT);
 	setElementPos("dialog");
 }
 
@@ -43,7 +43,7 @@ void CDialog::input(Sint8& p_interactFlags) {
 	if (GKey::keyPressed(GLFW_KEY_ESCAPE)) m_active = false;
 	Container::input(p_interactFlags);
 	for (Option o : m_optionList) {
-		if (o.button->isSelected() == 3) {
+		if (o.button->isSelected() == 3 && o.button->isHovered()) {
 			if (o.function != -1) {
 				m_functionList.at(o.function)();
 			}

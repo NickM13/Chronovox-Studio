@@ -75,35 +75,41 @@ void NumberField::input(Sint8& p_interactFlags) {
 					}
 				}
 				else if (_keyEvents[i].keyCode == GLFW_KEY_UP) {
+					GLfloat num;
 					if (m_numType == NumType::INT) {
-						m_numValue += (_keyEvents[i].mods & 1) ? 5 : 1;
+						num = std::stoi(m_numText);
+						num += (_keyEvents[i].mods & 1) ? 5 : 1;
 					}
 					else {
-						m_numValue += (_keyEvents[i].mods & 1) ? 0.1f : 1;
+						num = std::stof(m_numText);
+						num += (_keyEvents[i].mods & 1) ? 0.1f : 1;
 					}
-					if (m_numValue > m_numBounds.y) {
-						m_numValue = m_numBounds.y;
+					if (num > m_numBounds.y) {
+						num = m_numBounds.y;
 					}
-					if (m_numValue < m_numBounds.x) {
-						m_numValue = m_numBounds.x;
+					if (num < m_numBounds.x) {
+						num = m_numBounds.x;
 					}
-					m_numText = Util::numToStringFloat(m_numValue);
+					m_numText = Util::numToStringFloat(num);
 
 				}
 				else if (_keyEvents[i].keyCode == GLFW_KEY_DOWN) {
+					GLfloat num = m_numValue;
 					if (m_numType == NumType::INT) {
-						m_numValue -= (_keyEvents[i].mods & 1) ? 5 : 1;
+						num = std::stoi(m_numText);
+						num -= (_keyEvents[i].mods & 1) ? 5 : 1;
 					}
 					else {
-						m_numValue -= (_keyEvents[i].mods & 1) ? 0.1f : 1;
+						num = std::stof(m_numText);
+						num -= (_keyEvents[i].mods & 1) ? 0.1f : 1;
 					}
-					if (m_numValue > m_numBounds.y) {
-						m_numValue = m_numBounds.y;
+					if (num > m_numBounds.y) {
+						num = m_numBounds.y;
 					}
-					if (m_numValue < m_numBounds.x) {
-						m_numValue = m_numBounds.x;
+					if (num < m_numBounds.x) {
+						num = m_numBounds.x;
 					}
-					m_numText = Util::numToStringFloat(m_numValue);
+					m_numText = Util::numToStringFloat(num);
 				}
 				else if (_keyEvents[i].keyCode == GLFW_KEY_PERIOD) {
 					if (m_numType == NumType::FLOAT &&
@@ -113,6 +119,7 @@ void NumberField::input(Sint8& p_interactFlags) {
 				}
 				else if (_keyEvents[i].keyCode == GLFW_KEY_MINUS) {
 					if (m_numBounds.x < 0) {
+						m_positive = !m_positive;
 						m_numText = Util::numToStringFloat(std::stoi(m_numText) * -1);
 					}
 				}
@@ -122,11 +129,12 @@ void NumberField::input(Sint8& p_interactFlags) {
 }
 
 void NumberField::update(GLfloat p_deltaUpdate) {
-	if (m_numType == INT) {
-		m_numValue = std::stoi(m_numText);
-	}
-	else {
-		m_numValue = std::stof(m_numText);
+	if (!isSelected()) {
+		if (m_numType == INT) {
+			m_numValue = std::stoi(m_numText.substr(0, 5));
+		} else {
+			m_numValue = std::stof(m_numText.substr(0, 5));
+		}
 	}
 	if (m_prevValue != m_numValue) {
 		if (m_numValue > m_numBounds.y) {
@@ -147,13 +155,8 @@ void NumberField::render() {
 	GBuffer::setTexture(0);
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 
-	if (m_selected) GBuffer::setColor(getElementColor(getElementPos() + "BorderFocused"));
-	else			GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
-
-	GBuffer::addVertexQuad(-1, -1);
-	GBuffer::addVertexQuad((m_size.x + 1), -1);
-	GBuffer::addVertexQuad((m_size.x + 1), (m_size.y + 1));
-	GBuffer::addVertexQuad(-1, (m_size.y + 1));
+	GBuffer::renderShadow({}, m_size);
+	GBuffer::setTexture(0);
 
 	GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed"));
 

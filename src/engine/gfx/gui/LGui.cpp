@@ -1,5 +1,4 @@
 #include "engine\gfx\gui\LGui.h"
-#include "engine\utils\global\GLua.h"
 
 Container* Gui::m_mainContainer = 0;
 std::vector<CDialog*> Gui::m_dialogList;
@@ -19,6 +18,7 @@ void Gui::init() {
 	nDialog.addFunction("addTextArea",	&addTextArea);
 	nDialog.addFunction("addNumField",	&addNumField);
 	nDialog.addFunction("addTextFile",	&addTextFile);
+	nDialog.addFunction("addDropDown",	&addDropdown);
 	nDialog.addFunction("addOption",	&addOption);
 	nDialog.addFunction("open",			&open);
 }
@@ -64,14 +64,12 @@ void Gui::addTextField(std::string p_compName, std::string p_title, std::string 
 	auto textfield = new TextField(p_compName, p_title, { 0, m_cHeight }, { m_actionWidth - m_actionSpacing, 1 });
 	textfield->setTitle(p_default);
 	m_dialogList.back()->addComponent(new CText(p_compName + "_TEXT", p_title, { 0, m_cHeight }, {  }, Alignment::ALIGN_LEFT, "dialogText1"));
-	m_dialogList.back()->addComponent(textfield, Component::Anchor::TOP_RIGHT);
 	m_cHeight += Font::getFont("Body")->m_spacing + 8;
 	m_compBuildList.push_back(textfield);
 }
 void Gui::addTextArea(std::string p_compName, Sint32 p_height) {
 	auto textfield = new TextField(p_compName, "", { 0, m_cHeight }, { m_dialogList.back()->getSize().x, p_height }, 0, false);
 	textfield->setTitle("");
-	m_dialogList.back()->addComponent(textfield, Component::Anchor::TOP_CENTER);
 	m_cHeight += Font::getFont("Body")->m_spacing * p_height + 8;
 	m_compBuildList.push_back(textfield);
 }
@@ -84,7 +82,6 @@ void Gui::addNumField(std::string p_compName, std::string p_title, bool p_isFloa
 			Vector2<GLfloat>(p_lowerBound, p_upperBound),
 			p_isFloat ? NumberField::NumType::FLOAT : NumberField::NumType::INT);
 		numfield->setValue(p_default);
-		m_dialogList.back()->addComponent(numfield, Component::Anchor::TOP_RIGHT);
 		m_compBuildList.push_back(numfield);
 	}
 	m_cHeight += Font::getFont("Body")->m_spacing + 8;
@@ -92,16 +89,27 @@ void Gui::addNumField(std::string p_compName, std::string p_title, bool p_isFloa
 void Gui::addTextFile(std::string p_compName, std::string p_filename) {
 	m_dialogList.back()->addComponent(new CTextFile(p_compName, p_filename, { 0, m_cHeight }, {}, Alignment::ALIGN_LEFT, "dialogText1"));
 }
+void Gui::addDropdown(std::string p_compName, std::string p_title, LuaRef p_optionList) {
+	auto dropdown = new CDropDown(p_compName, "", { 0, m_cHeight }, m_actionWidth - m_actionSpacing);
+	for (Sint32 i = 1; i <= p_optionList.length(); i++)
+		dropdown->addItem(p_optionList[i]);
+	m_dialogList.back()->addComponent(new CText(p_compName + "_TEXT", p_title, { 0, m_cHeight + static_cast<Sint32>(dropdown->getSize().y - Font::getSpacingHeight()) }, {  }, Alignment::ALIGN_LEFT, "dialogText1"));
+	m_compBuildList.push_back(dropdown);
+	m_cHeight += dropdown->getSize().y + 8;
+}
 void Gui::addOption(std::string p_option, Sint32 p_functionIndex) {
 	m_dialogList.back()->addOption(p_option, "", p_functionIndex);
 }
 void Gui::open() {
 	for (size_t i = 0; i < m_compBuildList.size(); i++) {
-		if (i != 0)
+		m_compBuildList.at(i)->setPriorityLayer(m_compBuildList.size() - i);
+		if (i > 0)
 			m_compBuildList.at(i)->setPrevComponent(m_compBuildList.at(i - 1));
-		if (i != m_compBuildList.size() - 1)
+		if (i < m_compBuildList.size() - 1)
 			m_compBuildList.at(i)->setNextComponent(m_compBuildList.at(i + 1));
+		m_dialogList.back()->addComponent(m_compBuildList.at(i), Component::Anchor::TOP_RIGHT);
 	}
+	m_dialogList.back()->resize();
 	m_mainContainer->openDialog(m_dialogList.back());
 }
 

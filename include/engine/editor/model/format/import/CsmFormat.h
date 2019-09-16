@@ -1,5 +1,5 @@
 #pragma once
-#define MODEL_VERSION 3
+#define MODEL_VERSION 4
 
 #include "..\..\Matrix.h"
 
@@ -13,4 +13,5 @@ public:
 	static bool load1(std::vector<Matrix*>* p_matrixList);
 	static bool load2(std::vector<Matrix*>* p_matrixList);
 	static bool load3(std::vector<Matrix*>* p_matrixList);
+	static bool load4(std::vector<Matrix*>* p_matrixList);
 };

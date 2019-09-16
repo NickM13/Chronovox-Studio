@@ -11,5 +11,6 @@ public:
 	void redo();
 
 private:
-	Matrix* m_matrix, *m_fromMatrix, *m_toMatrix;
+	Sint32 m_matrix;
+	Matrix* m_fromMatrix, *m_toMatrix;
 };

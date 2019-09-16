@@ -1,30 +1,34 @@
 #pragma once
 
 #include "Macros.h"
+#include "Color.h"
 
 // X+
-#define FACE_NORTH		(2 << 0)
+constexpr char FACE_NORTH = (2 << 0);
 // X-
-#define FACE_SOUTH		(2 << 1)
+constexpr char FACE_SOUTH = (2 << 1);
 // Z+
-#define FACE_EAST		(2 << 2)
+constexpr char FACE_EAST = (2 << 2);
 // Z-
-#define FACE_WEST		(2 << 3)
+constexpr char FACE_WEST = (2 << 3);
 // Y+
-#define FACE_TOP		(2 << 4)
+constexpr char FACE_TOP = (2 << 4);
 // Y-
-#define FACE_BOTTOM		(2 << 5)
+constexpr char FACE_BOTTOM = (2 << 5);
 // All
-#define FACE_ALL		((2 << 6) - 1)
+constexpr char FACE_ALL = ((2 << 6) - 1);
 
 struct Voxel {
 	Sint8 interactionType = 0;
-	Uint16 color = 0;
+	Color color;
 
-	Voxel() {};
-	Voxel(Sint8 p_interaction, Uint16 p_color) : interactionType(p_interaction), color(p_color) {};
+	Voxel(Sint8 p_interaction = 0, Color p_color = Color()) : interactionType(p_interaction), color(p_color) {};
 
-	bool operator==(Voxel p_vox) {
+	bool operator<(const Voxel& vox) const {
+		return (interactionType < vox.interactionType ||
+			(interactionType == vox.interactionType && color < vox.color));
+	}
+	bool operator==(Voxel p_vox) const {
 		return (interactionType == p_vox.interactionType &&
 				color == p_vox.color);
 	}

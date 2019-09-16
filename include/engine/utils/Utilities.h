@@ -83,10 +83,15 @@ public:
 	static void writeChar(std::ofstream& p_fileStream, Uint8 p_uchar);
 	static void writeFloat(std::ofstream& p_fileStream, GLfloat p_uchar);
 	static void writeString(std::ofstream& p_fileStream, std::string p_string);
+	// Obselete write string, writes one char for string length
+	static void _writeString(std::ofstream& p_fileStream, std::string p_string);
 
+	static char* readBytes(char* p_fileStream, Uint32& p_index, Sint32 p_count);
 	static Sint32 readInt(char* p_fileStream, Uint32& p_index);
 	static Sint16 readShort(char* p_fileStream, Uint32& p_index);
 	static Uint8 readChar(char* p_fileStream, Uint32& p_index);
 	static GLfloat readFloat(char* p_fileStream, Uint32& p_index);
 	static std::string readString(char* p_fileStream, Uint32& p_index);
+	// Obselete read string, reads one char for string length
+	static std::string _readString(char* p_fileStream, Uint32& p_index);
 };

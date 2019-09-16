@@ -10,14 +10,14 @@ VFTReplace::VFTReplace()
 }
 
 void VFTReplace::inputTool() {
-	if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
-		m_fillArea->use(Voxel(1, MColor::getInstance().getUnitID(*m_color)));
+	if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
+		m_fillArea->create(true);
+		m_fillArea->use(Voxel(1, *m_color));
+	}
 }
 void VFTReplace::updateTool() {
-	if (!GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT))
-		m_fillArea->create(true);
+
 }
 void VFTReplace::renderTool() {
-	if (m_editMatrix->getMatrix()->containsPoint(*m_selectedVoxel))
-		renderFillMesh();
+
 }

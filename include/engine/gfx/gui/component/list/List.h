@@ -6,6 +6,14 @@
 #include "engine\gfx\font\Font.h"
 
 class CList : public Component {
+public:
+	struct ListItem {
+		std::string name;
+		bool visible = true;
+		GLfloat hoverTimer = 0;
+		Sint8 state; // 0=Unselected, 1=Hovered, 2=Selected
+		ListItem(std::string name = "", Sint8 state = 0, bool visible = true) : name(name), state(state), visible(visible) {};
+	};
 protected:
 	Uint16 m_itemHeight = 0;
 	GLfloat m_maxVisible = 0; // Max items visible, more efficient rendering but not necessarily needed?
@@ -15,13 +23,6 @@ protected:
 	Texture* m_visibleTexture = 0, * m_invisibleTexture = 0;
 	Vector2<Sint32> m_mouseBuffer = {};
 	bool m_hover = false, m_dragging = false;
-	struct ListItem {
-		std::string name;
-		bool visible = true;
-		GLfloat hoverTimer = 0;
-		Sint8 state; // 0=Unselected, 1=Hovered, 2=Selected
-		ListItem(std::string name = "", Sint8 state = 0, bool visible = true) : name(name), state(state), visible(visible) {};
-	};
 	std::vector<ListItem> m_itemList;
 
 	void renderItems();

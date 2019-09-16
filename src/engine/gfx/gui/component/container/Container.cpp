@@ -178,7 +178,7 @@ void Container::input(Sint8& p_interactFlags) {
 			p_interactFlags = 0;
 		}
 		Component* _comp;
-		for (Sint32 i = m_componentOrder.size() - 1; i >= 0; i--) {
+		for (Sint32 i = static_cast<Sint32>(m_componentOrder.size()) - 1; i >= 0; i--) {
 			_comp = m_componentMap[m_componentOrder[i]].m_component;
 			if (_comp->isVisible()) {
 				_comp->input(p_interactFlags);

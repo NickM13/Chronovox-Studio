@@ -6,13 +6,14 @@
 
 std::map<std::string, Texture*> MTexture::m_textures;
 
-Texture* MTexture::loadTexture(std::string p_texturePath) {
+Texture* MTexture::loadTexture(std::string p_texturePath, bool p_includeGlfw) {
+	Texture* tex;
 	std::vector<unsigned char> image;
 	unsigned width, height;
 	unsigned error = lodepng::decode(image, width, height, p_texturePath.c_str());
 
 	if (error != 0) {
-		Logger::logError("LodePNG %i: ", lodepng_error_text(error));
+		Logger::logError("LodePNG %i: %s", lodepng_error_text(error), p_texturePath);
 		return new Texture();
 	}
 
@@ -24,16 +25,15 @@ Texture* MTexture::loadTexture(std::string p_texturePath) {
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
 
-	Logger::logNormal("Loaded texture \"" + p_texturePath + "\"");
-	return new Texture(p_texturePath, texId, Vector2<Sint32>(width, height), &image);
+	Logger::logNormal("Loaded texture \"%s\"", p_texturePath);
+	if (p_includeGlfw)	tex = new Texture(p_texturePath, texId, Vector2<Sint32>(width, height), image);
+	else				tex = new Texture(p_texturePath, texId, Vector2<Sint32>(width, height));
+	image.clear();
+	return tex;
 }
 
 void MTexture::init() {
 	m_textures.insert({"NULL", new Texture()});
-	size_t rootLen = std::string(LDirectory::getProjectPath() + "res\\texture\\").length();
-	for(std::string path : LDirectory::getFilesInDirectory(LDirectory::getProjectPath() + "res\\texture\\", ".png")) {
-		m_textures.insert({ path.substr(rootLen), loadTexture(path) });
-	}
 }
 
 void MTexture::reload() {
@@ -72,10 +72,17 @@ void MTexture::terminate() {
 	m_textures.clear();
 }
 
-Texture* MTexture::getTexture(std::string p_texturePath) {
+Texture* MTexture::getTexture(std::string p_texturePath, bool p_includeGlfw) {
 	if(m_textures.find(p_texturePath) == m_textures.end()) {
-		Logger::logWarning("Texture file could not be found: \"" + p_texturePath + "\"");
-		return m_textures.at("NULL");
+		m_textures.insert({ p_texturePath, loadTexture(LDirectory::getProjectPath() + "res\\texture\\" + p_texturePath, p_includeGlfw) });
+		//Logger::logWarning("Texture file could not be found: \"" + p_texturePath + "\"");
+	}
+	return m_textures.at(p_texturePath);
+}
+Texture* MTexture::getTextureExternal(std::string p_texturePath, bool p_includeGlfw) {
+	if (m_textures.find(p_texturePath) == m_textures.end()) {
+		m_textures.insert({ p_texturePath, loadTexture(p_texturePath, p_includeGlfw) });
+		//Logger::logWarning("Texture file could not be found: \"" + p_texturePath + "\"");
 	}
 	return m_textures.at(p_texturePath);
 }

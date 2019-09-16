@@ -368,11 +368,24 @@ void FileExt::writeFloat(std::ofstream& p_fileStream, GLfloat p_float) {
 	p_fileStream.write(reinterpret_cast<const char*>(&p_float), sizeof(float));
 }
 void FileExt::writeString(std::ofstream& p_fileStream, std::string p_string) {
+	writeInt(p_fileStream, (Sint32)p_string.length());
+	for (Sint32 i = 0; i < (Sint32)p_string.length(); i++)
+		p_fileStream << p_string[i];
+}
+void FileExt::_writeString(std::ofstream& p_fileStream, std::string p_string) {
 	writeChar(p_fileStream, (Uint8)p_string.length());
-	for(Uint16 i = 0; i < p_string.length(); i++)
+	for (Uint16 i = 0; i < (Uint8)p_string.length(); i++)
 		p_fileStream << p_string[i];
 }
 
+char* FileExt::readBytes(char* p_fileStream, Uint32& p_index, Sint32 p_count) {
+	char* bytes = new char[p_count];
+	for (Sint32 i = 0; i < p_count; i++) {
+		bytes[i] = p_fileStream[p_index];
+		p_index++;
+	}
+	return bytes;
+}
 Sint32 FileExt::readInt(char* p_fileStream, Uint32& p_index) {
 	Sint32 _value = 0;
 	_value += readChar(p_fileStream, p_index);
@@ -397,8 +410,15 @@ GLfloat FileExt::readFloat(char* p_fileStream, Uint32& p_index) {
 }
 std::string FileExt::readString(char* p_fileStream, Uint32& p_index) {
 	std::string str = "";
+	Sint32 size = readInt(p_fileStream, p_index);
+	for (Sint32 i = 0; i < size; i++)
+		str += ((char)readChar(p_fileStream, p_index));
+	return str;
+}
+std::string FileExt::_readString(char* p_fileStream, Uint32& p_index) {
+	std::string str = "";
 	Uint8 size = readChar(p_fileStream, p_index);
-	for(Uint8 i = 0; i < size; i++)
+	for (Sint32 i = 0; i < size; i++)
 		str += ((char)readChar(p_fileStream, p_index));
 	return str;
 }

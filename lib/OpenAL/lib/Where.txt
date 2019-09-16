@@ -1,1 +1,0 @@
-This lib came from Win32/OpenAL32.lib

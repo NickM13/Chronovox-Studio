@@ -11,8 +11,8 @@ bool ModelObj::loadObjFile(std::string p_fileName) {
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
-	std::string err;
-
+	std::string warn, err;
+	
 	if(!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, p_fileName.c_str())) {
 		throw std::runtime_error(err);
 	}
@@ -27,10 +27,10 @@ bool ModelObj::loadObjFile(std::string p_fileName) {
 												attrib.texcoords[2 * index.texcoord_index + 1]));
 			else
 				m_texCoords.push_back(glm::vec2(0, 0));
-			m_normals.push_back(glm::vec3(		attrib.normals[3 * index.normal_index + 0],
-												attrib.normals[3 * index.normal_index + 1],
-												attrib.normals[3 * index.normal_index + 2]));
-			m_colors.push_back(glm::vec4(		1.f, 1.f, 1.f, 1.f));
+			m_normals.push_back(glm::vec3(	attrib.normals[3 * index.normal_index + 0],
+											attrib.normals[3 * index.normal_index + 1],
+											attrib.normals[3 * index.normal_index + 2]));
+			m_colors.push_back(glm::vec4(	1.f, 1.f, 1.f, 1.f));
 		}
 	}
 
@@ -64,7 +64,7 @@ void ModelObj::renderObj() {
 	glBindVertexArray(m_vao);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
+	glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertices.size()));
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glBindVertexArray(0);

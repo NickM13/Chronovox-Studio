@@ -44,7 +44,7 @@ void EditMatrix::undo() {
 		Sint16 id = getId();
 		clearMatrix();
 		//clearMatrix(); // Was in an id==-1 || command.isStatic
-		for (Sint32 i = m_recentCommands[m_commandIndex - 1].size() - 1; i >= 0; i--) {
+		for (Sint32 i = static_cast<Sint32>(m_recentCommands[m_commandIndex - 1].size()) - 1; i >= 0; i--) {
 			m_recentCommands[m_commandIndex - 1][i]->undo();
 		}
 		m_commandIndex--;
@@ -122,14 +122,19 @@ void EditMatrix::clearMatrix(bool p_saveChanges) {
 	m_initMatrix = 0;
 }
 void EditMatrix::saveChanges() {
-	bool hasChanged = false;
-	if (!(m_matrix->getPos() == m_initMatrix->getPos())) {
-		addCommand(new MMoveCommand(m_matrix, m_initMatrix->getPos(), m_matrix->getPos()));
+	std::vector<Command*> cmdList;
+
+	if (m_matrix->getName() != m_initMatrix->getName()) {
+		cmdList.push_back(new MRenameCommand(m_matrix, m_initMatrix->getName(), m_matrix->getName()));
 	}
-	if (!(m_matrix->getSize() == m_initMatrix->getSize()) || (m_matrix->getName() != m_initMatrix->getName())) {
-		addCommand(new MResizeCommand(m_matrix, m_initMatrix));
+	if (m_matrix->getPos() != m_initMatrix->getPos()) {
+		cmdList.push_back(new MMoveCommand(m_matrix, m_initMatrix->getPos(), m_matrix->getPos()));
+	}
+	if (m_matrix->getSize() != m_initMatrix->getSize()) {
+		cmdList.push_back(new MResizeCommand(m_matrix, m_initMatrix));
 	}
 	else {
+		bool hasChanged = false;
 		MDrawCommand* _dcmd = new MDrawCommand(m_matrix);
 		for (Sint32 x = 0; x < m_initMatrix->getSize().x; x++) {
 			for (Sint32 y = 0; y < m_initMatrix->getSize().y; y++) {
@@ -142,8 +147,14 @@ void EditMatrix::saveChanges() {
 			}
 		}
 		if (hasChanged) {
-			addCommand(_dcmd);
+			cmdList.push_back(_dcmd);
 		}
+	}
+
+	if (!cmdList.empty()) {
+		setCommandChaining(true);
+		for (Command* c : cmdList) addCommand(c);
+		setCommandChaining(false);
 	}
 }
 void EditMatrix::refreshPos() {

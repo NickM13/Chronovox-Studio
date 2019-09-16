@@ -23,7 +23,7 @@ public:
 	void setActive(bool p_active);
 	bool isActive();
 
-	Sint32 addFunction(function p_func) { m_functionList.push_back(p_func); return m_functionList.size(); }
+	Sint32 addFunction(function p_func) { m_functionList.push_back(p_func); return static_cast<Sint32>(m_functionList.size()); }
 	CDialog* addOption(std::string p_title, std::string p_description, Sint32 p_funcIndex);
 
 	void input(Sint8& p_interactFlags);

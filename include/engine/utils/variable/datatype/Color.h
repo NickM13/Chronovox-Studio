@@ -5,11 +5,11 @@
 struct Color {
 private:
 	GLfloat sub(GLfloat a, GLfloat b) {
-		return GLfloat(fmax(static_cast<double>(a) - b, 0));
+		return static_cast<GLfloat>(fmax(static_cast<double>(a) - b, 0));
 	}
 
 	GLfloat add(GLfloat a, GLfloat b) {
-		return GLfloat(fmin(static_cast<double>(a) + b, 1.f));
+		return static_cast<GLfloat>(fmin(static_cast<double>(a) + b, 1));
 	}
 public:
 	GLfloat r, g, b, a;
@@ -18,7 +18,7 @@ public:
 	Color(std::string hex);
 	Color(GLfloat r, GLfloat g, GLfloat b, GLfloat a = 1.f);
 
-	Color applyScale(Color p_scalar);
+	Color applyScale(GLfloat r, GLfloat g, GLfloat b, GLfloat a = 1.f);
 
 	void useColor(GLfloat p_mod = 1.f);
 
@@ -28,12 +28,14 @@ public:
 
 	Color operator/(GLfloat value);
 
-	Color operator*(float v);
+	Color operator*(GLfloat v);
 
 	Color operator+(Color c);
 	Color operator+(GLfloat v);
 
 	Color operator-(GLfloat v);
 
-	bool operator==(Color c);
+	bool operator<(const Color& c) const;
+	bool operator==(const Color& c) const;
+	bool operator!=(const Color& c) const;
 };

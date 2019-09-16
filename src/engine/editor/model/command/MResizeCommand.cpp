@@ -1,18 +1,18 @@
 #include "engine\editor\model\command\MResizeCommand.h"
+#include "engine\editor\Editor.h"
 
 MResizeCommand::MResizeCommand(Matrix* p_matrix, Matrix* p_fromMatrix) {
 	m_commandType = "ResizeCommand";
-	m_matrix = p_matrix;
+	m_matrix = p_matrix->getId();
 	m_fromMatrix = new Matrix(*p_fromMatrix);
-	m_toMatrix = new Matrix(*m_matrix);
+	m_toMatrix = new Matrix(*p_matrix);
 }
 void MResizeCommand::terminate() {
-	delete m_fromMatrix;
-	delete m_toMatrix;
+
 }
 void MResizeCommand::undo() {
-	*m_matrix = Matrix(*m_fromMatrix);
+	*Editor::getModel()->getMatrix(m_matrix) = Matrix(*m_fromMatrix);
 }
 void MResizeCommand::redo() {
-	*m_matrix = Matrix(*m_toMatrix);
+	*Editor::getModel()->getMatrix(m_matrix) = Matrix(*m_toMatrix);
 }

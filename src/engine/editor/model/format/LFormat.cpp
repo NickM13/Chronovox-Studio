@@ -1,5 +1,9 @@
 #include "engine\editor\model\format\LFormat.h"
 
+#include "engine\utils\logger\Logger.h"
+#include "engine\utils\Utilities.h"
+#include <fstream>
+
 std::thread LFormat::m_thread;
 std::string LFormat::m_fileName = "";
 std::vector<Matrix*>* LFormat::m_matrixList = 0;
@@ -67,7 +71,7 @@ bool LFormat::load(std::string p_fileName, std::vector<Matrix*>* p_matrixList, I
 		case ImportType::NVM:	CsmFormat::load(p_fileName, p_matrixList); break;
 		case ImportType::QBCL:	break;
 		case ImportType::QB:	QbFormat::load(p_fileName, p_matrixList); break;
-		//case ImportType::VOX:	VoxFormat::load(p_fileName, p_matrixList); break;
+		case ImportType::VOX:	VoxFormat::load(p_fileName, p_matrixList); break;
 		default: break;
 		}
 		GFormat::setLoadPercent(1.f);

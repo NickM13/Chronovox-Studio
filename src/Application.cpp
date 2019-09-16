@@ -1,5 +1,6 @@
 #include "Application.h"
 #include <glm\gtc\matrix_transform.hpp>
+#include "engine\editor\GPreferences.h"
 
 Editor* Application::m_editor = 0;
 Vector2<Uint16> Application::m_screenSize = {};
@@ -7,8 +8,6 @@ GLFWwindow* Application::m_mainWindow = 0;
 
 bool Application::init(char *p_filePath) {
 	GScreen::setFov(70);
-	m_focusFps = 60;
-	m_unfocusFps = 30;
 
 	Logger::logNormal("Initializing application...");
 
@@ -18,7 +17,6 @@ bool Application::init(char *p_filePath) {
 	GScreen::setDeveloper(false);
 	GScreen::enableShadows(false);
 	GScreen::setMinScreenSize(Vector2<Sint32>(600.f, 600.f));
-	GScreen::setSamples(2.f);
 
 	if (!glfwInit()) {
 		Logger::logError("glfw failed to initialize");
@@ -201,9 +199,10 @@ void Application::init3dPersp() {
 	Camera::setProjectionMatrix(projection);
 
 	glUniform1i(4, 0);
-	glLineWidth(GScreen::getSamples());
+	glLineWidth(GPreferences::getSamples());
 }
 void Application::init3dOrtho() {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
@@ -212,21 +211,25 @@ void Application::init3dOrtho() {
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glEnable(GL_MULTISAMPLE);
-	glCullFace(GL_FRONT);
+	glCullFace(GL_BACK);
 	glLoadIdentity();
 
 	Shader::loadIdentityModel();
 	Shader::loadIdentityView();
 	Shader::loadIdentityProjection();
 
-	glm::mat4 depthProjectionMatrix = glm::ortho<GLfloat>(-64.0f, 64.0f, -64.0f, 64.0f, -64.0f, 64.0f);
+	Vector2<GLfloat> screenSize = GScreen::getScreenSizeInverse() * Camera::getZoom();
+	glm::mat4 depthProjectionMatrix = glm::ortho<GLfloat>(-screenSize.x, screenSize.x, -screenSize.y, screenSize.y, -2000.f, 2000.0f);
 	glm::mat4 depthViewMatrix = m_editor->getSunlightMatrix();
 
 	Shader::transformProjection(depthProjectionMatrix);
 	Shader::applyProjection();
-	Shader::transformView(depthViewMatrix);
-	Shader::applyView();
-	glLineWidth(1);
+	//Shader::transformView(depthViewMatrix);
+	//Shader::applyView();
+	Camera::setProjectionMatrix(depthProjectionMatrix);
+
+	glUniform1i(4, 0);
+	glLineWidth(GPreferences::getSamples());
 }
 
 void Application::run() {
@@ -239,10 +242,10 @@ void Application::run() {
 		render();
 
 		if (GScreen::isFocused()) {
-			m_sleepTime = DWORD(std::fmaxf(1000 / m_focusFps - ((glfwGetTime() - i) * 1000), 0));
+			m_sleepTime = DWORD(std::fmaxf(1000 / GPreferences::getFocusFPS() - ((glfwGetTime() - i) * 1000), 0));
 		}
 		else {
-			m_sleepTime = DWORD(std::fmaxf(1000 / m_unfocusFps - ((glfwGetTime() - i) * 1000), 0));
+			m_sleepTime = DWORD(std::fmaxf(1000 / GPreferences::getUnfocusFPS() - ((glfwGetTime() - i) * 1000), 0));
 		}
 		if (m_sleepTime > 0) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepTime));
@@ -296,15 +299,6 @@ void Application::update() {
 void Application::render() {
 	if (GScreen::isIconified()) return;
 
-	if (GScreen::hasShadows()) {
-		m_editor->bindShadowBuffer();
-		Shader::useProgram("depthRTT");
-		m_editor->bindShadowTexture();
-		init3dOrtho();
-		m_editor->renderShadow();
-		m_editor->unbindShadowBuffer();
-	}
-
 	glm::mat4 biasMatrix {
 		0.5, 0.0, 0.0, 0.0,
 		0.0, 0.5, 0.0, 0.0,
@@ -313,19 +307,18 @@ void Application::render() {
 	};
 	glm::mat4 depthBiasMVP = biasMatrix * Shader::getMVP();
 	
-	Shader::useProgram("shadowmap");
-	Shader::setBool("useLight", false);
-	init3dPersp();
+	switch (GPreferences::getViewMode()) {
+	case GPreferences::ViewMode::PERSPECTIVE:
+		init3dPersp();
+		break;
+	default:
+		init3dOrtho();
+		break;
+	}
 
 	m_editor->renderGeometry();
 
 	m_editor->renderLight();
-
-	//Shader::setFloat("depthLayer", 1.f);
-	//Shader::setMat4("DepthBiasMVP", depthBiasMVP);
-	//Shader::setVec3("sunlight", m_editor->getSunlightDir());
-	//Shader::setBool("wireframe", false);
-	//m_editor->render3d();
 
 	Shader::useProgram("gui");
 	init2d();

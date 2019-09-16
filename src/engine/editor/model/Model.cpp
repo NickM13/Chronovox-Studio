@@ -1,11 +1,11 @@
 #include "engine\editor\model\Model.h"
 #include "engine\utils\global\GScreen.h"
 #include "engine\utils\Utilities.h"
-#include "engine\utils\variable\manager\ColorManager.h"
 #include "engine\editor\menu\EditorOverlay.h"
 #include "engine\editor\model\menu\ModelOverlay.h"
 #include "engine\gfx\gui\component\Component.h"
 #include "engine\utils\global\GLua.h"
+#include "engine\editor\GPreferences.h"
 
 #include <direct.h>
 #include <shlobj.h>
@@ -207,18 +207,17 @@ Uint16 Model::getVoxelId(Uint16 p_matrix, glm::ivec3 p_pos) {
 void Model::resize(Uint16 p_matrixId, glm::ivec3 p_offset, glm::ivec3 p_size) {
 	if (p_size.x <= p_offset.x || p_size.y <= p_offset.y || p_size.z <= p_offset.z) return;
 	Sint32 id = m_matrixEdit->getId();
-	m_matrixEdit->clearMatrix();
-	Matrix* prev = new Matrix(*m_sModel->getMatrix(p_matrixId));
-	m_sModel->getMatrix(p_matrixId)->setSize(p_size);
-	m_sModel->getMatrix(p_matrixId)->shiftVoxels(p_offset * -1);
-	m_sModel->getMatrix(p_matrixId)->setSize(p_size - p_offset);
-	m_sModel->getMatrix(p_matrixId)->addPosition(p_offset);
-	MResizeCommand* _cmd = new MResizeCommand(m_sModel->getMatrix(p_matrixId), prev);
-	m_matrixEdit->addCommand(_cmd);
 
-	if (id != -1) {
+	m_matrixEdit->setMatrix(m_sModel->getMatrix(p_matrixId), p_matrixId);
+	m_matrixEdit->getMatrix()->setSize(p_size);
+	m_matrixEdit->getMatrix()->shiftVoxels(-p_offset);
+	m_matrixEdit->getMatrix()->setSize(p_size - p_offset);
+	m_matrixEdit->getMatrix()->addPosition(p_offset);
+
+	if (id != -1)
 		m_matrixEdit->setMatrix(m_sModel->getMatrix(id), id);
-	}
+	else
+		m_matrixEdit->clearMatrix();
 }
 void Model::shiftMatrix(glm::ivec3 p_direction) {
 	if (m_hoverMatrix != -1) {
@@ -279,8 +278,6 @@ Sint32 Model::addMatrix(std::string p_name, glm::vec3 p_pos, glm::ivec3 p_size) 
 	m_sModel->getMatrixList()->push_back(matrix);
 	MNewCommand* _cmd = new MNewCommand(m_sModel->getMatrix(Sint16(m_sModel->getMatrixList()->size()) - 1), *m_sModel->getMatrixList(), Uint16(m_sModel->getMatrixList()->size()) - 1, m_nameList);
 	m_matrixEdit->addCommand(_cmd);
-	m_hoverMatrix = Sint16(m_sModel->getMatrixList()->size()) - 1;
-	m_matrixEdit->setMatrix(m_sModel->getMatrix(m_hoverMatrix), m_hoverMatrix);
 	glm::vec3 _pos = m_pos = { 1000, 1000, 1000 };
 	m_size = { -1000, -1000, -1000 };
 	for (Matrix *m : *m_sModel->getMatrixList()) {
@@ -293,7 +290,7 @@ Sint32 Model::addMatrix(std::string p_name, glm::vec3 p_pos, glm::ivec3 p_size) 
 		m_pos = _pos;
 	}
 	updateMatrixList();
-	return m_sModel->getMatrixList()->size() - 1;
+	return static_cast<Sint32>(m_sModel->getMatrixList()->size()) - 1;
 }
 void Model::renameMatrix(Uint16 id, std::string p_name) {
 	if (p_name == "") p_name = "Matrix";
@@ -323,6 +320,7 @@ void Model::deleteSelectedMatrices() {
 }
 void Model::moveMatrix(bool p_up) {
 	// Reversed because it is rendered opposite
+	std::vector<CList::ListItem> fromOrder = m_nameList->getItemList();
 	if (!p_up) {
 		for (Sint32 i = m_nameList->getItemCount() - 2; i >= 0; i--) {
 			if (m_nameList->getItem(i).state != 2) continue;
@@ -348,6 +346,7 @@ void Model::moveMatrix(bool p_up) {
 		m->setId(id);
 		id++;
 	}
+	m_matrixEdit->addCommand(new MReorderCommand(m_sModel->getMatrixList(), fromOrder, m_nameList));
 }
 void Model::hoverMatrix(Sint16 id) {
 	if (id == -1) {
@@ -405,6 +404,19 @@ void Model::selectMatrix(Sint16 id) {
 		}
 	}
 }
+void Model::selectAll() {
+	for (size_t i = 0; i < m_nameList->getItemList().size(); i++) {
+		m_nameList->getItem((Sint16)i).state = 2;
+	}
+	if (!m_sModel->getMatrixList()->empty()) m_matrixEdit->setMatrix(getMatrix(0), 0);
+	updateMatrixList();
+}
+void Model::setSelectedVisibility(bool p_visible) {
+	for (Matrix* m : getSelectedMatrices()) {
+		m->setVisible(p_visible);
+	}
+	updateVisibilityMtoL();
+}
 
 void Model::updateMatrixList() {
 	std::set<std::string> selectSet;
@@ -448,11 +460,11 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 			&& m_matrixEdit->getId() != -1) {
 			if (GKey::modDown(GLFW_MOD_SHIFT)) {
 				//m_voxelPlaneMode = true;
-				ModelMath::castRayMatrix(Camera::getPosition(),
+				ModelMath::castRayMatrix(Camera::getMousePosition(),
 					Camera::getMouseDirection() * glm::vec3(4096),
 					m_matrixEdit->getInitMatrix(),
 					_near, _far);
-				ModelMath::castRayVoxel(Camera::getPosition(),
+				ModelMath::castRayVoxel(Camera::getMousePosition(),
 					Camera::getMouseDirection() * glm::vec3(4096),
 					m_matrixEdit->getInitMatrix(),
 					_near, _far,
@@ -466,7 +478,7 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 		else {
 			if (GMouse::mouseDown(GLFW_MOUSE_BUTTON_LEFT)
 				&& m_matrixEdit->getId() != -1) {
-				ModelMath::castRayMatrix(Camera::getPosition(),
+				ModelMath::castRayMatrix(Camera::getMousePosition(),
 					Camera::getMouseDirection() * glm::vec3(4096),
 					m_matrixEdit->getInitMatrix(),
 					_near, _far);
@@ -477,12 +489,12 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 				if (matrices.empty()) {
 					matrices = getVisibleMatrices();
 				}
-				ModelMath::castRayMatrices(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), matrices, m_hoverMatrix, _near, _far);
+				ModelMath::castRayMatrices(Camera::getMousePosition(), Camera::getMouseDirection() * glm::vec3(4096), matrices, m_hoverMatrix, _near, _far);
 			}
 		}
 	}
 	else {
-		ModelMath::castRayMatrices(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), getVisibleMatrices(), m_hoverMatrix, _near, _far);
+		ModelMath::castRayMatrices(Camera::getMousePosition(), Camera::getMouseDirection() * glm::vec3(4096), getVisibleMatrices(), m_hoverMatrix, _near, _far);
 	}
 
 	if (!mouseOnGui) {
@@ -515,7 +527,7 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 		case Tool::ToolType::VOXEL:
 			if (m_voxelPlaneMode) {
 				if (!GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
-					ModelMath::castRayVoxelPlane(Camera::getPosition(),
+					ModelMath::castRayVoxelPlane(Camera::getMousePosition(),
 						Camera::getMouseDirection() * glm::vec3(4096),
 						m_matrixEdit->getInitMatrix(),
 						_near, _far,
@@ -528,7 +540,7 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 			}
 			else {
 				if (!GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
-					ModelMath::castRayVoxel(Camera::getPosition(),
+					ModelMath::castRayVoxel(Camera::getMousePosition(),
 						Camera::getMouseDirection() * glm::vec3(4096),
 						m_matrixEdit->getInitMatrix(),
 						_near, _far, m_selectedVoxel,
@@ -539,7 +551,7 @@ void Model::inputEditor(Sint8 p_guiFlags) {
 			static_cast<VoxelTool*>(MTool::getTool(m_tool))->input();
 			break;
 		case Tool::ToolType::MATRIX:
-			ModelMath::castRayScale(Camera::getPosition(), Camera::getMouseDirection() * glm::vec3(4096), m_matrixEdit->getMatrix(), _near, _far, m_scalePos, m_selectedScale);
+			ModelMath::castRayScale(Camera::getMousePosition(), Camera::getMouseDirection() * glm::vec3(4096), m_matrixEdit->getMatrix(), _near, _far, m_scalePos, m_selectedScale);
 			static_cast<MatrixTool*>(MTool::getTool(m_tool))->input();
 			break;
 		}
@@ -623,8 +635,8 @@ void Model::renderEditorShadow() {
 	}
 }
 void Model::renderGrid() {
-	GLfloat w1 = 0.05f, w2 = w1 / 2.5f;
-	GLfloat gc = 32; // Grid Count
+	GLfloat gc = GPreferences::getGridCount();	// Grid Count
+	GLfloat gs = GPreferences::getGridCount() * GPreferences::getGridSpace();	// Grid Space
 	Shader::pushMatrixModel();
 	Shader::transformModel(glm::translate(glm::mat4(), glm::vec3(0.f, -0.025f, 0.f)));
 	Shader::applyModel();
@@ -633,23 +645,23 @@ void Model::renderGrid() {
 	glm::vec4 colorVecInset = colorVec;
 	colorVecInset.a *= 0.5f;
 	Shader::setColor(glm::vec4(1.f));
-	for (Sint16 i = -gc; i <= gc; i++) {
+	for (Sint32 i = -gs; i <= gs; i += GPreferences::getGridSpace()) {
 		if (i == 0) {
-			MMesh::renderLine(glm::vec3(-gc, 0, 0), glm::vec3(0, 0, 0), colorVec);
-			MMesh::renderLine(glm::vec3(0, 0, -gc), glm::vec3(0, 0, 0), colorVec);
+			MMesh::renderLine(glm::vec3(-gs, 0, 0), glm::vec3(0, 0, 0), colorVec);
+			MMesh::renderLine(glm::vec3(0, 0, -gs), glm::vec3(0, 0, 0), colorVec);
 
-			MMesh::renderLine(glm::vec3(0, 0, 0), glm::vec3(gc, 0, 0), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-			MMesh::renderLine(glm::vec3(0, 0, 0), glm::vec3(0, gc, 0), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-			MMesh::renderLine(glm::vec3(0, 0, 0), glm::vec3(0, 0, gc), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+			MMesh::renderLine(glm::vec3(0, 0, 0), glm::vec3(gs, 0, 0), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+			MMesh::renderLine(glm::vec3(0, 0, 0), glm::vec3(0, gs, 0), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+			MMesh::renderLine(glm::vec3(0, 0, 0), glm::vec3(0, 0, gs), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 		}
 		else {
-			if (i % 2 == 0) {
-				MMesh::renderLine(glm::vec3(i, 0, -gc), glm::vec3(i, 0, gc), colorVec);
-				MMesh::renderLine(glm::vec3(-gc, 0, i), glm::vec3(gc, 0, i), colorVec);
+			if ((i / GPreferences::getGridSpace()) % 2 == 0) {
+				MMesh::renderLine(glm::vec3(i, 0, -gs), glm::vec3(i, 0, gs), colorVec);
+				MMesh::renderLine(glm::vec3(-gs, 0, i), glm::vec3(gs, 0, i), colorVec);
 			}
 			else {
-				MMesh::renderLine(glm::vec3(i, 0, -gc), glm::vec3(i, 0, gc), colorVecInset);
-				MMesh::renderLine(glm::vec3(-gc, 0, i), glm::vec3(gc, 0, i), colorVecInset);
+				MMesh::renderLine(glm::vec3(i, 0, -gs), glm::vec3(i, 0, gs), colorVecInset);
+				MMesh::renderLine(glm::vec3(-gs, 0, i), glm::vec3(gs, 0, i), colorVecInset);
 			}
 		}
 	}
@@ -712,7 +724,7 @@ glm::vec3 Model::getSelectedMatricesCenter() {
 }
 
 void Model::addImageMatrix(std::string p_filename) {
-	Texture* tex = MTexture::loadTexture(p_filename);
+	Texture* tex = MTexture::getTextureExternal(p_filename);
 	Sint32 mid = addMatrix(p_filename.substr(p_filename.find_last_of('\\') + 1),
 		Camera::getFocus() - (glm::vec3(tex->getSize().x, tex->getSize().y, 1) / 2.f),
 		glm::ivec3(tex->getSize().x, tex->getSize().y, 1));
@@ -725,16 +737,16 @@ void Model::addImageMatrix(std::string p_filename) {
 			Uint8 a = tex->getGlfwImage()->pixels[static_cast<Sint32>(x + y * tex->getSize().x) * 4 + 3];
 			if (a) {
 				matrix->setVoxel(glm::ivec3(x, tex->getSize().y - y - 1, 0),
-					Voxel(1, MColor::getInstance().getUnitID(Color(r / 255.f, g / 255.f, b / 255.f))));
+					Voxel(1, Color(r, g, b)));
 			}
 		}
 	}
 }
 
 void Model::useScriptColorPalette() {
-	m_scriptColor[0] = m_voxelColor->r * 255;
-	m_scriptColor[1] = m_voxelColor->g * 255;
-	m_scriptColor[2] = m_voxelColor->b * 255;
+	m_scriptColor[0] = m_voxelColor->r;
+	m_scriptColor[1] = m_voxelColor->g;
+	m_scriptColor[2] = m_voxelColor->b;
 }
 Sint32 Model::addScriptMatrix(std::string p_name, Sint32 width, Sint32 height, Sint32 depth) {
 	Sint32 id = Editor::getModel()->addMatrix(p_name, glm::ivec3(), glm::ivec3(width, height, depth));
@@ -765,19 +777,19 @@ void Model::setScriptMatrixSelected(Sint32 id) {
 	m_scriptSize[2] = size.z;
 }
 void Model::getScriptColor(Sint32 x, Sint32 y, Sint32 z) {
-	Color& voxelColor = MColor::getInstance().getUnit(m_scriptMatrix->getVoxel(glm::ivec3(x, y, z)).color);
-	m_scriptColor[0] = voxelColor.r * 255;
-	m_scriptColor[1] = voxelColor.g * 255;
-	m_scriptColor[2] = voxelColor.b * 255;
+	Color& voxelColor = m_scriptMatrix->getVoxel(glm::ivec3(x, y, z)).color;
+	m_scriptColor[0] = voxelColor.r;
+	m_scriptColor[1] = voxelColor.g;
+	m_scriptColor[2] = voxelColor.b;
 }
 void Model::setScriptVoxel(Sint32 x, Sint32 y, Sint32 z, Sint32 p_interAction) {
 	if (p_interAction) {
 		m_scriptMatrix->setVoxel(glm::ivec3(x, y, z),
-			Voxel(p_interAction, MColor::getInstance().getUnitID(Color(m_scriptColor[0] / 255.f, m_scriptColor[1] / 255.f, m_scriptColor[2] / 255.f))));
+			Voxel(p_interAction, Color(m_scriptColor[0], m_scriptColor[1], m_scriptColor[2])));
 	}
 	else {
 		m_scriptMatrix->setVoxel(glm::ivec3(x, y, z),
-			Voxel(p_interAction, 0));
+			Voxel(p_interAction, Color()));
 	}
 }
 void Model::loadScriptFile(std::string p_scriptFile) {
@@ -857,8 +869,8 @@ void Model::add() {
 	ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = NULL;
-	ofn.lpstrFilter = "Model (*.csm, *.nvm, *.qb)\0"
-		"*.csm;*.nvm;*.qb*\0"
+	ofn.lpstrFilter = "Model (*.csm, *.nvm, *.qb, *.png)\0"
+		"*.csm;*.nvm;*.qb;*.png*\0"
 		//"Animation (*.nva)\0"
 		//"*.nva\0"
 		"Any File\0"
@@ -1161,9 +1173,9 @@ void Model::editNewMatrix() {
 		GLfloat width	 = Gui::topDialog()->findComponent("SIZE0")->getValue();
 		GLfloat height	 = Gui::topDialog()->findComponent("SIZE1")->getValue();
 		GLfloat depth	 = Gui::topDialog()->findComponent("SIZE2")->getValue();
-		addMatrix(name,
-			glm::vec3(width / -2, height / -2, depth / -2),
-			glm::ivec3(width, height, depth));
+		selectMatrix(addMatrix(name,
+			glm::vec3(width / -2, height / -2, depth / -2) + Camera::getFocus(),
+			glm::ivec3(width, height, depth)));
 		});
 }
 void Model::editMatrixProperties() {
@@ -1202,6 +1214,9 @@ void Model::editCut() {
 }
 void Model::editPaste() {
 	pasteMatrix();
+}
+void Model::editSelectAll() {
+	selectAll();
 }
 void Model::editUndo() {
 	undo();

@@ -1,5 +1,6 @@
 #include "engine\editor\camera\Camera.h"
 #include "engine\editor\menu\EditorOverlay.h"
+#include "engine\editor\GPreferences.h"
 #include "engine\gfx\model\MModelObj.h"
 #include <glm\gtx\rotate_vector.hpp>
 #include <glm\gtx\perpendicular.hpp>
@@ -14,12 +15,12 @@ bool Camera::m_draggingRight = false;
 bool Camera::m_draggingMiddle = false;
 
 void Camera::init() {
-	m_skyTexture = MTexture::getTexture("DaylightSky.png");
+	//m_skyTexture = MTexture::getTexture("DaylightSky.png");
 	reset();
 }
 void Camera::reset() {
 	m_position = { 0, 6, 0 };
-	m_rotation = { 30, -45, 0 };
+	m_rotation = { 35.264f, -45, 0 };
 	m_zoom = 32;
 	m_tarZoom = 0;
 	m_zoomSpeed = 10.f;
@@ -61,8 +62,13 @@ void Camera::zoom(GLfloat p_scroll) {
 void Camera::turn(Vector2<Sint32> p_mouseMove) {
 	m_rotation = m_rotation + glm::vec3(GLfloat(p_mouseMove.y), GLfloat(p_mouseMove.x), 0) * 0.5f;
 
-	if (m_rotation.x < -90) m_rotation.x = -90;
-	if (m_rotation.x > 90) m_rotation.x = 90;
+	if (GPreferences::getViewMode() == GPreferences::ViewMode::ISOMETRIC) {
+		if (m_rotation.x < 0)	m_rotation.x = -35.264f;
+		if (m_rotation.x > 0)	m_rotation.x = 35.264f;
+	} else {
+		if (m_rotation.x < -90)	m_rotation.x = -90;
+		if (m_rotation.x >  90)	m_rotation.x = 90;
+	}
 
 	m_rotation.y = fmodf(m_rotation.y, 360);
 }
@@ -96,30 +102,45 @@ glm::vec3 Camera::getDirection() {
 glm::vec3 Camera::getRotation() {
 	return m_rotation;
 }
+glm::vec3 Camera::getMousePosition() {
+	if (GPreferences::getViewMode() == GPreferences::ViewMode::PERSPECTIVE) {
+		return getPosition();
+	}
+	glm::vec2 iMouse = glm::vec2(
+		static_cast<GLfloat>(GMouse::getMousePos().x) / GScreen::getScreenSize().x - 0.5f,
+		static_cast<GLfloat>(GMouse::getMousePos().y) / GScreen::getScreenSize().y - 0.5f);
+	glm::mat4 viewMatrix = getViewMatrix();
+	glm::vec3 upVector = glm::normalize(glm::vec3(viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1])) * -iMouse.y * m_zoom * 2.0f;
+	glm::vec3 rightVector = glm::normalize(glm::vec3(viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0])) * iMouse.x * m_zoom * GScreen::getScreenSizeInverse().x * 2.0f;
+	return getPosition() + upVector + rightVector;
+}
 glm::vec3 Camera::getMouseDirection() {
-	glm::vec4 lRayStart_NDC(
-		((GLfloat)GMouse::getMousePos().x / GScreen::getScreenSize().x - 0.5f) * 2.0f, // [0,1024] -> [-1,1]
-		((GLfloat)GMouse::getMousePos().y / GScreen::getScreenSize().y - 0.5f) * -2.0f, // [0, 768] -> [-1,1]
-		-1.0, // The near plane maps to Z=-1 in Normalized Device Coordinates
-		1.0f
-	);
-	glm::vec4 lRayEnd_NDC(
-		((GLfloat)GMouse::getMousePos().x / GScreen::getScreenSize().x - 0.5f) * 2.0f,
-		((GLfloat)GMouse::getMousePos().y / GScreen::getScreenSize().y - 0.5f) * -2.0f,
-		0.0,
-		1.0f
-	);
+	if (GPreferences::getViewMode() == GPreferences::ViewMode::PERSPECTIVE) {
+		glm::vec4 lRayStart_NDC(
+			((GLfloat)GMouse::getMousePos().x / GScreen::getScreenSize().x - 0.5f) * 2.0f, // [0,1024] -> [-1,1]
+			((GLfloat)GMouse::getMousePos().y / GScreen::getScreenSize().y - 0.5f) * -2.0f, // [0, 768] -> [-1,1]
+			-1.0, // The near plane maps to Z=-1 in Normalized Device Coordinates
+			1.0f
+		);
+		glm::vec4 lRayEnd_NDC(
+			((GLfloat)GMouse::getMousePos().x / GScreen::getScreenSize().x - 0.5f) * 2.0f,
+			((GLfloat)GMouse::getMousePos().y / GScreen::getScreenSize().y - 0.5f) * -2.0f,
+			0.0,
+			1.0f
+		);
 
-	glm::mat4 iProjectionMatrix = glm::inverse(m_projectionMatrix);
-	glm::mat4 iViewMatrix = glm::inverse(Camera::getViewMatrix());
+		glm::mat4 iProjectionMatrix = glm::inverse(m_projectionMatrix);
+		glm::mat4 iViewMatrix = glm::inverse(Camera::getViewMatrix());
 
-	glm::vec4 lRayStart_camera = iProjectionMatrix * lRayStart_NDC;     lRayStart_camera /= lRayStart_camera.w;
-	glm::vec4 lRayStart_world = iViewMatrix * lRayStart_camera;			lRayStart_world /= lRayStart_world.w;
-	glm::vec4 lRayEnd_camera = iProjectionMatrix * lRayEnd_NDC;			lRayEnd_camera /= lRayEnd_camera.w;
-	glm::vec4 lRayEnd_world = iViewMatrix * lRayEnd_camera;				lRayEnd_world /= lRayEnd_world.w;
+		glm::vec4 lRayStart_camera = iProjectionMatrix * lRayStart_NDC;     lRayStart_camera /= lRayStart_camera.w;
+		glm::vec4 lRayStart_world = iViewMatrix * lRayStart_camera;			lRayStart_world /= lRayStart_world.w;
+		glm::vec4 lRayEnd_camera = iProjectionMatrix * lRayEnd_NDC;			lRayEnd_camera /= lRayEnd_camera.w;
+		glm::vec4 lRayEnd_world = iViewMatrix * lRayEnd_camera;				lRayEnd_world /= lRayEnd_world.w;
 
-	glm::vec3 lRayDir_world(lRayEnd_world - lRayStart_world);
-	return glm::normalize(lRayDir_world);
+		glm::vec3 lRayDir_world(lRayEnd_world - lRayStart_world);
+		return glm::normalize(lRayDir_world);
+	}
+	return glm::normalize(-Camera::getDirection());
 }
 
 glm::mat4 Camera::getViewMatrix() {
@@ -153,7 +174,6 @@ void Camera::input(Sint8 p_guiFlags) {
 		if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_MIDDLE)) {
 			m_draggingMiddle = true;
 		}
-
 	}
 	if (GMouse::mouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
 		m_draggingRight = false;
