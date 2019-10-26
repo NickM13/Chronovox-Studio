@@ -293,15 +293,17 @@ void CList::render() {
 
 	if (m_maxScroll > 0) {
 		Shader::pushMatrixModel();
+
+		GBuffer::setColor(getElementColor(getElementPos() + "Primary"));
+		GBuffer::addVertexQuad(m_size.x - 11, 1);
+		GBuffer::addVertexQuad(m_size.x - 1, 1);
+		GBuffer::addVertexQuad(m_size.x - 1, m_size.y - 1);
+		GBuffer::addVertexQuad(m_size.x - 11, m_size.y - 1);
+
 		Shader::translate(glm::vec3(m_size.x - 12, ((GLfloat)m_scroll / m_maxScroll) * (m_size.y - m_scrollBarHeight), 0.f));
 
-		GBuffer::setColor(getElementColor(getElementPos() + "BorderUnfocused"));
-		GBuffer::addVertexQuad(2, 2);
-		GBuffer::addVertexQuad(10, 2);
-		GBuffer::addVertexQuad(10, m_scrollBarHeight - 2);
-		GBuffer::addVertexQuad(2, m_scrollBarHeight - 2);
-
-		GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered"));
+		if (m_hover || m_dragging) GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed"));
+		else GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered"));
 		GBuffer::addVertexQuad(3, 3);
 		GBuffer::addVertexQuad(9, 3);
 		GBuffer::addVertexQuad(9, m_scrollBarHeight - 3);

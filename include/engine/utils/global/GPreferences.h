@@ -24,8 +24,6 @@ private:
 	Sint32 m_gridSize;
 	Sint32 m_gridSpacing;
 public:
-	Preferences();
-
 	ViewMode getViewMode() const		{ return m_viewMode; }
 	void setViewMode(ViewMode mode)		{ m_viewMode = mode; }
 

@@ -2,9 +2,9 @@
 
 void LDirectory::getFilesInDirectory(std::vector<std::string>& p_files, std::string p_root, std::string p_fileExtension) {
 	std::string path;
-	for(std::experimental::filesystem::directory_entry p : std::experimental::filesystem::directory_iterator(p_root)) {
+	for(std::filesystem::directory_entry p : std::filesystem::directory_iterator(p_root)) {
 		path = p.path().string();
-		if(std::experimental::filesystem::is_directory(p.status())) {
+		if(std::filesystem::is_directory(p.status())) {
 			getFilesInDirectory(p_files, path, p_fileExtension);
 		}
 		else if(path.substr(path.length() - p_fileExtension.length()) == p_fileExtension) {

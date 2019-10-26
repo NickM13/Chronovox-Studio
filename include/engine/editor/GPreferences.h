@@ -15,6 +15,10 @@ public:
 		MEDIUM,
 		HIGH
 	};
+	enum class AutoResize : Sint8 {
+		OFF,
+		ON
+	};
 private:
 	static ViewMode m_viewMode;
 	static bool m_vsync;
@@ -24,6 +28,7 @@ private:
 	static bool m_voxelAO;
 	static Sint32 m_gridCount;
 	static Sint32 m_gridSpace;
+	static AutoResize m_autoResize;
 public:
 	static void init();
 	static void save();
@@ -49,9 +54,12 @@ public:
 	static bool hasVoxelAO()				{ return m_voxelAO; }
 	static void setVoxelAO(bool ao)			{ m_voxelAO = ao; }
 
-	static 	Sint32 getGridCount()			{ return m_gridCount; }
+	static Sint32 getGridCount()			{ return m_gridCount; }
 	static void setGridCount(Sint32 size)	{ m_gridCount = size; }
 
-	static 	Sint32 getGridSpace()			{ return m_gridSpace; }
+	static Sint32 getGridSpace()			{ return m_gridSpace; }
 	static void setGridSpace(Sint32 size)	{ m_gridSpace = size; }
+
+	static AutoResize getAutoResize()		{ return m_autoResize; }
+	static void setAutoResize(AutoResize ar){ m_autoResize = ar; }
 };

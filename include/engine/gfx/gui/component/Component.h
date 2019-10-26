@@ -57,7 +57,7 @@ public:
 	};
 
 protected:
-	function m_pressFunction = 0, m_holdFunction = 0, m_releaseFunction = 0;
+	function m_pressFunction = 0, m_holdFunction = 0, m_releaseFunction = 0, m_doubleclickFunction = 0;
 
 	std::string m_compName, m_title;
 	Vector2<Sint32> m_posInit, m_pos, m_sizeInit, m_size;
@@ -125,9 +125,11 @@ public:
 	Component* setPressFunction(function p_func);
 	Component* setHoldFunction(function p_func);
 	Component* setReleaseFunction(function p_func);
+	Component* setDoubleclickFunction(function p_func);
 	Component* callPressFunction();
 	Component* callHoldFunction();
 	Component* callReleaseFunction();
+	Component* callDoubleclickFunction();
 
 	virtual void setPrevComponent(Component* p_comp) { m_prevComp = p_comp; }
 	virtual void setNextComponent(Component* p_comp) { m_nextComp = p_comp; }

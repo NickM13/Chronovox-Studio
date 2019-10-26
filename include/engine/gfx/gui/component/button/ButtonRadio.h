@@ -141,6 +141,7 @@ public:
 	void setSelectedItem(Uint16 p_selectedButton);
 	std::string getSelectedRadio();
 
+	void incrementSelected();
 	Sint16 getSelectedItem()	 { return m_selectedButton; }
 	Sint16 getPrevSelectedItem() { return m_prevSelectedButton; }
 	Sint32 getButtonCount()		 { return static_cast<Sint32>(m_buttonList.size()); }

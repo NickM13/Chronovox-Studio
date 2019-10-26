@@ -11,6 +11,7 @@ GPreferences::AntiAlias GPreferences::m_antiAlias = GPreferences::AntiAlias::NON
 bool GPreferences::m_voxelAO = false;
 Sint32 GPreferences::m_gridCount = 32;
 Sint32 GPreferences::m_gridSpace = 2;
+GPreferences::AutoResize GPreferences::m_autoResize = GPreferences::AutoResize::OFF;
 
 void GPreferences::init() {
 	std::ifstream fs(LDirectory::getProjectPath() + "res\\config\\Preferences.ini");
@@ -38,6 +39,8 @@ void GPreferences::init() {
 				m_gridCount = std::stoi(second);
 			} else if (first == "GRIDSPACE") {
 				m_gridSpace = std::stoi(second);
+			} else if (first == "AUTORESIZE") {
+				m_autoResize = static_cast<AutoResize>(std::stoi(second));
 			}
 
 			line = "";
@@ -54,6 +57,7 @@ void GPreferences::save() {
 		fs << "ANTIALIAS=" << static_cast<Sint32>(m_antiAlias) << std::endl;
 		fs << "GRIDCOUNT=" << m_gridCount << std::endl;
 		fs << "GRIDSPACE=" << m_gridSpace << std::endl;
+		fs << "AUTORESIZE=" << static_cast<Sint32>(m_autoResize) << std::endl;
 	}
 	fs.close();
 }

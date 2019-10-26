@@ -90,11 +90,19 @@ void Model::setDataString(std::string* p_dataString) {
 	m_dataString = p_dataString;
 }
 void Model::setTool(Sint32 p_tool) {
-	m_tool = p_tool;
-	ModelOverlay::getContainer()->findComponent("GUI_WORKSPACE\\GUI_TOOLBAR\\TOOLBAR_MAIN")->setSelectedItem(p_tool);
-	Tool* tool = MTool::getTool(m_tool);
+	Logger::logQuiet("test1");
+	if (m_tool == p_tool) {
+		static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_WORKSPACE\\GUI_TOOLBAR\\TOOLBAR_MAIN"))->incrementSelected();
+	}
+	else {
+		m_tool = p_tool;
+		ModelOverlay::getContainer()->findComponent("GUI_WORKSPACE\\GUI_TOOLBAR\\TOOLBAR_MAIN")->setSelectedItem(p_tool);
+		Tool* tool = MTool::getTool(m_tool);
+	}
 }
 void Model::setTool(std::string p_toolName) {
+	Logger::logQuiet("test2");
+	Sint32 select = -1;
 	if (p_toolName == MTool::getTool(m_tool)->getName()) {
 		switch (MTool::getTool(m_tool)->getType()) {
 		case Tool::ToolType::VOXEL:
@@ -108,19 +116,24 @@ void Model::setTool(std::string p_toolName) {
 		MTool::getTool(m_tool)->disable();
 		for (Sint32 i = 0; i < (Sint32)MTool::getToolList().size(); i++) {
 			if (MTool::getToolList()[i]->getName() == p_toolName) {
-				m_tool = i;
+				select = i;
 				break;
 			}
 		}
-		ModelOverlay::getContainer()->findComponent("GUI_WORKSPACE\\GUI_TOOLBAR\\TOOLBAR_MAIN")->setSelectedItem(m_tool);
-		MTool::getTool(m_tool)->enable();
+		if (select != -1) {
+			if (m_tool == select) {
+				static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_WORKSPACE\\GUI_TOOLBAR\\TOOLBAR_MAIN"))->incrementSelected();
+			}
+			m_tool = select;
+			ModelOverlay::getContainer()->findComponent("GUI_WORKSPACE\\GUI_TOOLBAR\\TOOLBAR_MAIN")->setSelectedItem(m_tool);
+			MTool::getTool(m_tool)->enable();
+		}
 	}
 }
 void Model::updateTool() {
 	m_tool = MTool::getToolId(static_cast<CButtonRadio*>(ModelOverlay::getContainer()->findComponent("GUI_WORKSPACE\\GUI_TOOLBAR\\TOOLBAR_MAIN"))->getSelectedRadio());
 	if (MTool::getTool(m_tool)->getType() == Tool::ToolType::VOXEL) {
-	}
-	if (MTool::getTool(m_tool)->getType() == Tool::ToolType::MATRIX) {
+	} else if (MTool::getTool(m_tool)->getType() == Tool::ToolType::MATRIX) {
 		hoverMatrix(-1);
 	}
 }

@@ -84,6 +84,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;lua51.lib;freetyped.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -98,6 +99,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -116,6 +118,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -127,6 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="include\engine\editor\GRecents.cpp" />
     <ClCompile Include="lib\lodepng\include\lodepng.cpp" />
     <ClCompile Include="lib\lodepng\include\lodepng_util.cpp" />
     <ClCompile Include="src\engine\editor\camera\Camera.cpp" />
@@ -171,6 +175,7 @@
     <ClCompile Include="src\engine\editor\model\tool\voxel\VTAdd.cpp" />
     <ClCompile Include="src\engine\editor\model\tool\voxel\VTErase.cpp" />
     <ClCompile Include="src\engine\editor\model\tool\voxel\VTReplace.cpp" />
+    <ClCompile Include="src\engine\gfx\gui\component\list\ListThick.cpp" />
     <ClCompile Include="src\engine\gfx\gui\LGui.cpp" />
     <ClCompile Include="src\engine\utils\global\GLua.cpp" />
     <ClCompile Include="src\engine\utils\math\ModelMath.cpp" />
@@ -227,6 +232,7 @@
     <ClInclude Include="include\engine\editor\command\CommandCombo.h" />
     <ClInclude Include="include\engine\editor\command\LCommand.h" />
     <ClInclude Include="include\engine\editor\GPreferences.h" />
+    <ClInclude Include="include\engine\editor\GRecents.h" />
     <ClInclude Include="include\engine\editor\menu\FreshOverlay.h" />
     <ClInclude Include="include\engine\editor\model\command\MDeleteCommand.h" />
     <ClInclude Include="include\engine\editor\model\command\MDrawCommand.h" />
@@ -265,6 +271,7 @@
     <ClInclude Include="include\engine\editor\model\tool\voxel\VTAdd.h" />
     <ClInclude Include="include\engine\editor\model\tool\voxel\VTErase.h" />
     <ClInclude Include="include\engine\editor\model\tool\voxel\VTReplace.h" />
+    <ClInclude Include="include\engine\gfx\gui\component\list\ListThick.h" />
     <ClInclude Include="include\engine\utils\global\GLua.h" />
     <ClInclude Include="include\engine\utils\global\GPreferences.h" />
     <ClInclude Include="include\engine\utils\math\ModelMath.h" />

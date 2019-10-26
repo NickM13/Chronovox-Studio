@@ -21,6 +21,7 @@ Container* EditorOverlay::init(Editor* p_editor) {
 	titleBar->addComponent(new Panel("DRAGBAR", "", { 0, 0 }, { 0, 0 }, (Sint8)Component::BorderFlag::BOTTOM), Component::Anchor::NONE, Component::Anchor::BOTTOM_RIGHT)
 		->setPressFunction([]() { GScreen::startWindowDrag(); })
 		->setReleaseFunction([]() { GScreen::endWindowDrag(); })
+		->setDoubleclickFunction([]() { GScreen::setWindowCommand(GScreen::WindowCommand::RESIZE); })
 		->setFocused(true); // NOT DROGBAR
 	titleBar->addComponent(new CIcon("WINDOW_ICON", MTexture::getTexture("gui\\icon\\window\\LogoFlat.png"), { 6, 4 }, { 24, 24 }));
 	titleBar->addComponent(new CText("WINDOW_TITLE", GScreen::getWindowTitle(), { 0, 8 }, { 0, 0 }, Alignment::ALIGN_CENTER, "topText1"),

@@ -20,7 +20,10 @@ void Panel::input(Sint8& p_interactFlags) {
 		if (_mousePos.x - m_pos.x >= 0 && _mousePos.x - m_pos.x < m_size.x &&
 			_mousePos.y - m_pos.y >= 0 && _mousePos.y - m_pos.y < m_size.y) {
 			p_interactFlags -= (Sint8)EventFlag::MOUSEOVER;
-			if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
+			if (GMouse::mouseDoubleClicked(GLFW_MOUSE_BUTTON_LEFT)) {
+				callDoubleclickFunction();
+			}
+			else if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
 				m_selected = 1;
 				callPressFunction();
 			}

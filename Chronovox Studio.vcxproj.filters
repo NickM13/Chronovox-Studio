@@ -291,6 +291,12 @@
     <ClCompile Include="lib\lodepng\include\lodepng_util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\engine\gfx\gui\component\list\ListThick.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\engine\editor\GRecents.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Application.h">
@@ -642,6 +648,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lib\lodepng\include\lodepng_util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\gfx\gui\component\list\ListThick.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine\editor\GRecents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

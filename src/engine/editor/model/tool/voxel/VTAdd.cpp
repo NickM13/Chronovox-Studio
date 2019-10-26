@@ -12,6 +12,7 @@ VTAdd::VTAdd()
 
 void VTAdd::inputTool() {
 	if (GMouse::mousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
+		m_editMatrix->getMatrix()->autoResize(m_selectedVoxel, m_selectedVoxelOffset);
 		if (GKey::modDown(GLFW_MOD_SHIFT)) {
 			m_boxStart = *m_selectedVoxelOffset;
 			m_boxing = m_editMatrix->getMatrix()->containsPoint(m_boxStart);

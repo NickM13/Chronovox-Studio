@@ -22,6 +22,7 @@
 #include "component\icon\Icon.h"
 #include "component\list\DropDown.h"
 #include "component\list\List.h"
+#include "component\list\ListThick.h"
 #include "component\list\Menubar.h"
 #include "component\list\TabBar.h"
 #include "component\list\Tileset.h"

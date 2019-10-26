@@ -94,6 +94,10 @@ Component* Component::setReleaseFunction(function p_func) {
 	m_releaseFunction = p_func;
 	return this;
 }
+Component* Component::setDoubleclickFunction(function p_func) {
+	m_doubleclickFunction = p_func;
+	return this;
+}
 Component* Component::callPressFunction() {
 	if (m_pressFunction) m_pressFunction();
 	return this;
@@ -104,6 +108,10 @@ Component* Component::callHoldFunction() {
 }
 Component* Component::callReleaseFunction() {
 	if (m_releaseFunction) m_releaseFunction();
+	return this;
+}
+Component* Component::callDoubleclickFunction() {
+	if (m_doubleclickFunction) m_doubleclickFunction();
 	return this;
 }
 

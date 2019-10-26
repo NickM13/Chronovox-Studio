@@ -96,12 +96,10 @@ void CButtonRadio::input(Sint8 & p_interactFlags) {
 			sl = m_buttonList.at(i);
 			if (GKey::keyPressed(sl->getKeyBind().key, sl->getKeyBind().mods)) {
 				if (m_selectedButton == i) {
-					/*if (GKey::modDown(GLFW_MOD_SHIFT)) {
-						sl->selected++;
-						if (sl->selected >= (Sint32)sl->rblist.size()) {
-							sl->selected = 0;
-						}
-					}*/
+					sl->selected++;
+					if (sl->selected >= (Sint32)sl->rblist.size()) {
+						sl->selected = 0;
+					}
 					m_prevSelectedButton = -1;
 				}
 				else {
@@ -232,4 +230,10 @@ void CButtonRadio::setSelectedItem(Uint16 p_selectedButton) {
 std::string CButtonRadio::getSelectedRadio() {
 	RadioSublist* rsl = m_buttonList.at(m_selectedButton);
 	return rsl->rblist.at(rsl->selected)->getName();
+}
+void CButtonRadio::incrementSelected() {
+	m_buttonList.at(m_selectedButton)->selected++;
+	if (m_buttonList.at(m_selectedButton)->selected > m_buttonList.at(m_selectedButton)->getRBList().size()) {
+		m_buttonList.at(m_selectedButton)->selected = 0;
+	}
 }

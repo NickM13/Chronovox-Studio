@@ -38,6 +38,7 @@ Editor::Editor() {
 	//Font::loadFont("Leelaw", "leelawui.ttf", 12);
 	Font::loadFont("Body", "segoeui.ttf", 12);
 	Font::loadFont("Header", "segoeui.ttf", 20);
+	Font::loadFont("Bold", "segoeui.ttf", 14);
 	Font::setFont("Body");
 	GGui::init(GScreen::getGLFWWindow());
 	GBuffer::init();
@@ -693,6 +694,7 @@ void Editor::editPreferences() {
 	Gui::topDialog()->findComponent("AA")->setSelectedItem(static_cast<Sint32>(GPreferences::getAntiAlias()));
 	Gui::topDialog()->findComponent("NGRID")->setValue(GPreferences::getGridCount());
 	Gui::topDialog()->findComponent("SGRID")->setValue(GPreferences::getGridSpace());
+	Gui::topDialog()->findComponent("AUTORESIZE")->setSelectedItem(static_cast<Sint32>(GPreferences::getAutoResize()));
 	Gui::topDialog()->addFunction([&]() {
 		GPreferences::setFocusFPS(Gui::topDialog()->findComponent("FFPS")->getValue());
 		GPreferences::setUnfocusFPS(Gui::topDialog()->findComponent("UFPS")->getValue());
@@ -700,6 +702,7 @@ void Editor::editPreferences() {
 		GPreferences::setAntiAlias(static_cast<GPreferences::AntiAlias>(Gui::topDialog()->findComponent("AA")->getSelectedItem()));
 		GPreferences::setGridCount(Gui::topDialog()->findComponent("NGRID")->getValue());
 		GPreferences::setGridSpace(Gui::topDialog()->findComponent("SGRID")->getValue());
+		GPreferences::setAutoResize(static_cast<GPreferences::AutoResize>(Gui::topDialog()->findComponent("AUTORESIZE")->getSelectedItem()));
 		GPreferences::save();
 		resize();
 		});

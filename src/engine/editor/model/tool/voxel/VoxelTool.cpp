@@ -35,7 +35,7 @@ std::vector<glm::ivec2> VoxelTool::FillArea::append(const glm::ivec2& size, bool
 	std::queue<glm::ivec2> checkQueue;
 	std::vector<glm::ivec2> fillList;
 	bool** checkMap = new bool*[size.x];
-	for (Sint32 i = 0; i < size.y; i++) {
+	for (Sint32 i = 0; i < size.x; i++) {
 		checkMap[i] = new bool[size.y];
 		ZeroMemory(checkMap[i], size.y);
 	}
@@ -54,7 +54,7 @@ std::vector<glm::ivec2> VoxelTool::FillArea::append(const glm::ivec2& size, bool
 		checkQueue.pop();
 	}
 
-	for (Sint32 i = 0; i < size.y; i++) {
+	for (Sint32 i = 0; i < size.x; i++) {
 		delete[] checkMap[i];
 	}
 	delete[] checkMap;
@@ -63,6 +63,7 @@ std::vector<glm::ivec2> VoxelTool::FillArea::append(const glm::ivec2& size, bool
 }
 bool VoxelTool::FillArea::append() {
 	Matrix* matrix;
+	m_editMatrix->getMatrix()->autoResize(m_selectedVoxel, m_selectedVoxelOffset);
 	if (m_editMatrix->getId() == -1
 		|| !(matrix = m_editMatrix->getMatrix())->containsPoint(*m_selectedVoxelOffset)) {
 		m_fillVoxels.clear();
@@ -208,135 +209,6 @@ bool VoxelTool::FillArea::append() {
 		delete[] validMap[i];
 	}
 	delete[] validMap;
-
-	/*Matrix* matrix = 0;
-	if (m_editMatrix->getId() == -1
-		|| !(matrix = m_editMatrix->getMatrix())->containsPoint(*m_selectedVoxelOffset)) {
-		m_fillVoxels.clear();
-		return false;
-	} else if (std::find(m_fillVoxels.begin(), m_fillVoxels.end(), *m_selectedVoxelOffset) != m_fillVoxels.end()
-		&& *m_selectedSide == m_fillSide
-		&& m_editMatrix->getId() == m_fillMatrix) return false;
-
-	m_fillVoxels.clear();
-	glm::ivec3 _size = matrix->getSize();
-	Voxel baseVoxel = matrix->getVoxel(*m_selectedVoxelOffset);
-	std::vector<glm::ivec3> check;
-	check.push_back(*m_selectedVoxelOffset);
-
-	switch (*m_selectedSide) {
-	case FACE_SOUTH:
-		while (check.msize() > 0) {
-			if (check[0].y > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, -1, 0)) &&
-				(check[0].x == _size.x - 1 || matrix->getVoxel(check[0] + glm::ivec3(1, -1, 0)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, -1, 0));
-			if (check[0].y < _size.y - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 1, 0)) &&
-				(check[0].x == _size.x - 1 || matrix->getVoxel(check[0] + glm::ivec3(1, 1, 0)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, 1, 0));
-			if (check[0].z > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 0, -1)) &&
-				(check[0].x == _size.x - 1 || matrix->getVoxel(check[0] + glm::ivec3(1, 0, -1)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, 0, -1));
-			if (check[0].z < _size.z - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 0, 1)) &&
-				(check[0].x == _size.x - 1 || matrix->getVoxel(check[0] + glm::ivec3(1, 0, 1)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, 0, 1));
-			m_fillVoxels.push_back(check[0]);
-			check.erase(check.begin());
-		}
-		break;
-	case FACE_NORTH:
-		while (check.msize() > 0) {
-			if (check[0].y > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, -1, 0)) &&
-				(check[0].x == 0 || matrix->getVoxel(check[0] + glm::ivec3(-1, -1, 0)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, -1, 0));
-			if (check[0].y < _size.y - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 1, 0)) &&
-				(check[0].x == 0 || matrix->getVoxel(check[0] + glm::ivec3(-1, 1, 0)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, 1, 0));
-			if (check[0].z > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 0, -1)) &&
-				(check[0].x == 0 || matrix->getVoxel(check[0] + glm::ivec3(-1, 0, -1)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, 0, -1));
-			if (check[0].z < _size.z - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 0, 1)) &&
-				(check[0].x == 0 || matrix->getVoxel(check[0] + glm::ivec3(-1, 0, 1)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, 0, 1));
-			m_fillVoxels.push_back(check[0]);
-			check.erase(check.begin());
-		}
-		break;
-	case FACE_BOTTOM:
-		while (check.size() > 0) {
-			if (check[0].x > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(-1, 0, 0)) &&
-				(check[0].y == _size.y - 1 || matrix->getVoxel(check[0] + glm::ivec3(-1, 1, 0)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(-1, 0, 0));
-			if (check[0].x < _size.x - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(1, 0, 0)) &&
-				(check[0].y == _size.y - 1 || matrix->getVoxel(check[0] + glm::ivec3(1, 1, 0)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(1, 0, 0));
-			if (check[0].z > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 0, -1)) &&
-				(check[0].y == _size.y - 1 || matrix->getVoxel(check[0] + glm::ivec3(0, 1, -1)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, 0, -1));
-			if (check[0].z < _size.z - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 0, 1)) &&
-				(check[0].y == _size.y - 1 || matrix->getVoxel(check[0] + glm::ivec3(0, 1, 1)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, 0, 1));
-			m_fillVoxels.push_back(check[0]);
-			check.erase(check.begin());
-		}
-		break;
-	case FACE_TOP:
-		while (check.size() > 0) {
-			if (check[0].x > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(-1, 0, 0)) &&
-				(check[0].y == 0 || matrix->getVoxel(check[0] + glm::ivec3(-1, -1, 0)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(-1, 0, 0));
-			if (check[0].x < _size.x - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(1, 0, 0)) &&
-				(check[0].y == 0 || matrix->getVoxel(check[0] + glm::ivec3(1, -1, 0)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(1, 0, 0));
-			if (check[0].z > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 0, -1)) &&
-				(check[0].y == 0 || matrix->getVoxel(check[0] + glm::ivec3(0, -1, -1)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, 0, -1));
-			if (check[0].z < _size.z - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 0, 1)) &&
-				(check[0].y == 0 || matrix->getVoxel(check[0] + glm::ivec3(0, -1, 1)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, 0, 1));
-			m_fillVoxels.push_back(check[0]);
-			check.erase(check.begin());
-		}
-		break;
-	case FACE_WEST:
-		while (check.size() > 0) {
-			if (check[0].x > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(-1, 0, 0)) &&
-				(check[0].z == _size.z - 1 || matrix->getVoxel(check[0] + glm::ivec3(-1, 0, 1)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(-1, 0, 0));
-			if (check[0].x < _size.x - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(1, 0, 0)) &&
-				(check[0].z == _size.z - 1 || matrix->getVoxel(check[0] + glm::ivec3(1, 0, 1)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(1, 0, 0));
-			if (check[0].y > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, -1, 0)) &&
-				(check[0].z == _size.z - 1 || matrix->getVoxel(check[0] + glm::ivec3(0, -1, 1)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, -1, 0));
-			if (check[0].y < _size.y - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 1, 0)) &&
-				(check[0].z == _size.z - 1 || matrix->getVoxel(check[0] + glm::ivec3(0, 1, 1)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, 1, 0));
-			m_fillVoxels.push_back(check[0]);
-			check.erase(check.begin());
-		}
-		break;
-	case FACE_EAST:
-		while (check.size() > 0) {
-			if (check[0].x > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(-1, 0, 0)) &&
-				(check[0].z == 0 || matrix->getVoxel(check[0] + glm::ivec3(-1, 0, -1)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(-1, 0, 0));
-			if (check[0].x < _size.x - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(1, 0, 0)) &&
-				(check[0].z == 0 || matrix->getVoxel(check[0] + glm::ivec3(1, 0, -1)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(1, 0, 0));
-			if (check[0].y > 0 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, -1, 0)) &&
-				(check[0].z == 0 || matrix->getVoxel(check[0] + glm::ivec3(0, -1, -1)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, -1, 0));
-			if (check[0].y < _size.y - 1 && baseVoxel == matrix->getVoxel(check[0] + glm::ivec3(0, 1, 0)) &&
-				(check[0].z == 0 || matrix->getVoxel(check[0] + glm::ivec3(0, 1, -1)).interactionType == 1))
-				vectorAdd(check, m_fillVoxels, check[0] + glm::ivec3(0, 1, 0));
-			m_fillVoxels.push_back(check[0]);
-			check.erase(check.begin());
-		}
-		break;
-	}
-	m_fillMatrix = matrix->getId();
-	m_fillStart = *m_selectedVoxelOffset;
-	m_fillSide = *m_selectedSide;*/
 
 	return true;
 }

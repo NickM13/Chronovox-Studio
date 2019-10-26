@@ -57,6 +57,7 @@ public:
 	void flip(Sint8 p_axes, glm::vec3 p_focus);
 	void rotate(Sint8 p_axes, glm::vec3 p_focus);
 	void scale(glm::vec3 p_scalar, glm::vec3 p_focus);
+	void autoResize(glm::ivec3* inner, glm::ivec3* ext);
 
 	Sint16 getId() { return m_id; }
 	std::string &getName() { return m_name; }

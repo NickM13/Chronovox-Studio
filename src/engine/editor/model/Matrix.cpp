@@ -2,6 +2,7 @@
 #include "engine\gfx\mesh\MMesh.h"
 #include "engine\gfx\model\MModelObj.h"
 #include "engine\gfx\gui\component\Component.h"
+#include "engine\editor\GPreferences.h"
 
 Matrix::Matrix(Sint16 p_id, std::string p_name, std::string p_parent, glm::vec3 p_pos, glm::ivec3 p_size) {
 	m_id = p_id;
@@ -496,6 +497,60 @@ void Matrix::scale(glm::vec3 p_scalar, glm::vec3 p_focus) {
 
 	// Add position to maintain focus'd center
 	addPosition(glm::vec3(center - center * p_scalar));
+}
+void Matrix::autoResize(glm::ivec3* inner, glm::ivec3* ext) {
+	if (GPreferences::getAutoResize() == GPreferences::AutoResize::OFF) return;
+	glm::ivec3 offset = *ext - *inner;
+
+	// Check that the offset is one voxel from inner
+	if ((offset.y == 0 && offset.z == 0)) {
+		if (offset.x == -1) {
+			if (inner->x == 0) {
+				setSize(m_size + glm::ivec3(1, 0, 0));
+				shiftVoxels(glm::ivec3(1, 0, 0));
+				addPosition(glm::ivec3(-1, 0, 0));
+				inner->x++;
+				ext->x++;
+			}
+		}
+		else if (offset.x == 1) {
+			if (inner->x == m_size.x - 1) {
+				setSize(m_size + glm::ivec3(1, 0, 0));
+			}
+		}
+	}
+	else if (offset.z == 0 && offset.x == 0) {
+		if (offset.y == -1) {
+			if (inner->y == 0) {
+				setSize(m_size + glm::ivec3(0, 1, 0));
+				shiftVoxels(glm::ivec3(0, 1, 0));
+				addPosition(glm::ivec3(0, -1, 0));
+				inner->y++;
+				ext->y++;
+			}
+		}
+		else if (offset.y == 1) {
+			if (inner->y == m_size.y - 1) {
+				setSize(m_size + glm::ivec3(0, 1, 0));
+			}
+		}
+	}
+	else if (offset.x == 0 && offset.y == 0) {
+		if (offset.z == -1) {
+			if (inner->z == 0) {
+				setSize(m_size + glm::ivec3(0, 0, 1));
+				shiftVoxels(glm::ivec3(0, 0, 1));
+				addPosition(glm::ivec3(0, 0, -1));
+				inner->z++;
+				ext->z++;
+			}
+		}
+		else if (offset.z == 1) {
+			if (inner->z == m_size.z - 1) {
+				setSize(m_size + glm::ivec3(0, 0, 1));
+			}
+		}
+	}
 }
 
 bool Matrix::containsPoint(glm::ivec3 p_point) {
