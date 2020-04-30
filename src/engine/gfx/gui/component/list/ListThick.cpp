@@ -53,12 +53,20 @@ std::string shortDate(std::string verbose) {
 }
 
 CListThick::ListThickItem::ListThickItem(std::string name) {
+	if (FILE* file = fopen(name.c_str(), "r")) {
+		fclose(file);
+	}
+	else {
+		valid = false;
+		return;
+	}
 	this->name = name.substr(name.find_last_of('\\') + 1);
 	this->path = name;
 	struct stat fileInfo;
 	stat(name.c_str(), &fileInfo);
 	std::string mod = std::ctime(&fileInfo.st_mtime);
 	this->modified = shortDate(mod);
+	this->mtime = fileInfo.st_mtime;
 }
 
 CListThick::CListThick(std::string p_compName, std::string p_title, Vector2<Sint32> p_pos, Vector2<Sint32> p_size, Uint16 p_itemHeight, Texture* p_listIcon)
@@ -78,13 +86,22 @@ void CListThick::resize() {
 }
 
 Component* CListThick::addItem(std::string p_itemName) {
-	m_itemList.push_back(ListThickItem(p_itemName));
+	ListThickItem lti = ListThickItem(p_itemName);
+	if (!lti.valid) return this;
+	for (Sint32 i = 0; i <= static_cast<Sint32>(m_itemList.size()); i++) {
+		if (i == m_itemList.size() || lti.mtime > m_itemList.at(i).mtime) {
+			m_itemList.insert(m_itemList.begin() + i, lti);
+			break;
+		}
+	}
 	m_maxScroll = std::fmaxf(0, Sint16((m_itemList.size() - m_maxVisible) * m_itemHeight));
 	resize();
 	return this;
 }
 Component* CListThick::insertItem(Uint16 p_index, std::string p_itemName) {
-	m_itemList.insert(m_itemList.begin() + p_index, ListThickItem(p_itemName));
+	ListThickItem lti = ListThickItem(p_itemName);
+	if (!lti.valid) return this;
+	m_itemList.insert(m_itemList.begin() + p_index, lti);
 	m_maxScroll = m_maxScroll = std::fmaxf(0, Sint16((m_itemList.size() - m_maxVisible) * m_itemHeight));
 	resize();
 	return this;
@@ -110,6 +127,9 @@ void CListThick::clear() {
 void CListThick::selectItem(Sint16 id) {
 	m_selectedItem = id;
 	callPressFunction();
+}
+Sint16 CListThick::getSelectedItem() {
+	return m_selectedItem;
 }
 
 void CListThick::input(Sint8& p_interactFlags) {
@@ -247,26 +267,34 @@ void CListThick::render() {
 	Shader::translate(glm::vec3((GLfloat)m_pos.x, (GLfloat)m_pos.y, 0.f));
 	renderItems();
 
-	if (m_maxScroll > 0) {
+	GBuffer::setColor(getElementColor(getElementPos() + "Primary"));
+	GBuffer::addVertexQuad(0, m_size.y);
+	GBuffer::addVertexQuad(m_size.x, m_size.y);
+	GBuffer::setColor(getElementColor(getElementPos() + "Primary").applyScale(1, 1, 1, 0));
+	GBuffer::addVertexQuad(m_size.x, m_size.y - m_itemHeight / 2);
+	GBuffer::addVertexQuad(0, m_size.y - m_itemHeight / 2);
+
+	if (m_maxScroll > 0 && (m_hover || m_dragging)) {
 		Shader::pushMatrixModel();
 
 		GBuffer::setColor(getElementColor(getElementPos() + "Primary"));
-		GBuffer::addVertexQuad(m_size.x - 11, 1);
-		GBuffer::addVertexQuad(m_size.x - 1, 1);
-		GBuffer::addVertexQuad(m_size.x - 1, m_size.y - 1);
-		GBuffer::addVertexQuad(m_size.x - 11, m_size.y - 1);
+		GBuffer::addVertexQuad(m_size.x - 10, 0);
+		GBuffer::addVertexQuad(m_size.x, 0);
+		GBuffer::addVertexQuad(m_size.x, m_size.y);
+		GBuffer::addVertexQuad(m_size.x - 10, m_size.y);
 
 		Shader::translate(glm::vec3(m_size.x - 12, ((GLfloat)m_scroll / m_maxScroll) * (m_size.y - m_scrollBarHeight), 0.f));
 
-		if (m_hover || m_dragging) GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed"));
-		else GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered"));
-		GBuffer::addVertexQuad(3, 3);
-		GBuffer::addVertexQuad(9, 3);
-		GBuffer::addVertexQuad(9, m_scrollBarHeight - 3);
-		GBuffer::addVertexQuad(3, m_scrollBarHeight - 3);
+		if (m_dragging) GBuffer::setColor(getElementColor(getElementPos() + "ActionHovered"));
+		else GBuffer::setColor(getElementColor(getElementPos() + "ActionPressed"));
+		GBuffer::addVertexQuad(4, 2);
+		GBuffer::addVertexQuad(10, 2);
+		GBuffer::addVertexQuad(10, m_scrollBarHeight - 2);
+		GBuffer::addVertexQuad(4, m_scrollBarHeight - 2);
 
 		Shader::popMatrixModel();
 	}
+
 	GBuffer::popScissor();
 	Shader::popMatrixModel();
 }

@@ -55,6 +55,31 @@ public:
 		LEFT = 8,
 		ALL = 15
 	};
+	struct ActiveEvents {
+		bool mousePress, keyPress, mouseScroll;
+
+		ActiveEvents(bool mousePress, bool keyPress, bool mouseScroll)
+			: mousePress(mousePress), keyPress(keyPress), mouseScroll(mouseScroll) {}
+
+		void set(EventFlag flag, bool state) {
+			switch (flag) {
+			case EventFlag::MOUSEOVER:
+				mousePress = false;
+				break;
+			case EventFlag::KEYPRESS:
+				keyPress = false;
+				break;
+			case EventFlag::MOUSESCROLL:
+				mouseScroll = false;
+				break;
+			default: break;
+			}
+		}
+
+		bool isActive(EventFlag flag) {
+
+		}
+	};
 
 protected:
 	function m_pressFunction = 0, m_holdFunction = 0, m_releaseFunction = 0, m_doubleclickFunction = 0;

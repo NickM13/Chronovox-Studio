@@ -4,6 +4,7 @@
 #include "engine\utils\Utilities.h"
 #include "..\Component.h"
 #include "engine\gfx\font\Font.h"
+#include "..\button\Button.h"
 
 class CListThick : public Component {
 public:
@@ -11,6 +12,8 @@ public:
 		std::string name;
 		std::string path;
 		std::string modified;
+		time_t mtime;
+		bool valid;
 		GLfloat hoverTimer = 0;
 		ListThickItem(std::string name = "");
 	};
@@ -40,6 +43,7 @@ public:
 	void clear();
 
 	void selectItem(Sint16 p_index);
+	Sint16 getSelectedItem();
 
 	void input(Sint8& p_interactFlags);
 	void update(GLfloat p_deltaUpdate);

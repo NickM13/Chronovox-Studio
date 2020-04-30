@@ -1,5 +1,11 @@
 #include "engine\utils\directory\LDirectory.h"
 
+#include <direct.h>
+#include <shlobj.h>
+#include <iostream>
+#include <condition_variable>
+#include <iostream>
+
 void LDirectory::getFilesInDirectory(std::vector<std::string>& p_files, std::string p_root, std::string p_fileExtension) {
 	std::string path;
 	for(std::filesystem::directory_entry p : std::filesystem::directory_iterator(p_root)) {
@@ -26,4 +32,16 @@ std::string LDirectory::getProjectPath() {
 	GetModuleFileName(NULL, result, MAX_PATH);
 	path = std::string(result, MAX_PATH);
 	return path.substr(0, path.find_last_of('\\') + 1);
+}
+
+std::string LDirectory::getPreferencePath() {
+	char filepath[MAX_PATH];
+	HRESULT res = SHGetFolderPathA(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, filepath);
+
+	strcat_s(filepath, "\\Chronovox Studio\\Settings\\");
+	if (_mkdir(filepath)) {
+		Logger::logDiagnostic("Directory made");
+	}
+
+	return filepath;
 }

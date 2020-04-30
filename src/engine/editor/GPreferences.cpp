@@ -14,7 +14,7 @@ Sint32 GPreferences::m_gridSpace = 2;
 GPreferences::AutoResize GPreferences::m_autoResize = GPreferences::AutoResize::OFF;
 
 void GPreferences::init() {
-	std::ifstream fs(LDirectory::getProjectPath() + "res\\config\\Preferences.ini");
+	std::ifstream fs(LDirectory::getPreferencePath() + "Preferences");
 	if (fs.good()) {
 		std::string line = "";
 		std::string first, second;
@@ -49,7 +49,7 @@ void GPreferences::init() {
 	fs.close();
 }
 void GPreferences::save() {
-	std::ofstream fs(LDirectory::getProjectPath() + "res\\config\\Preferences.ini");
+	std::ofstream fs(LDirectory::getPreferencePath() + "Preferences");
 	if (fs.good()) {
 		fs << "VIEW=" << static_cast<Sint32>(m_viewMode) << std::endl;
 		fs << "FFPS=" << m_focusFps << std::endl;

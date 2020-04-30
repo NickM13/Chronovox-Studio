@@ -233,7 +233,7 @@ std::string CButtonRadio::getSelectedRadio() {
 }
 void CButtonRadio::incrementSelected() {
 	m_buttonList.at(m_selectedButton)->selected++;
-	if (m_buttonList.at(m_selectedButton)->selected > m_buttonList.at(m_selectedButton)->getRBList().size()) {
+	if (m_buttonList.at(m_selectedButton)->selected > static_cast<Sint32>(m_buttonList.at(m_selectedButton)->getRBList().size())) {
 		m_buttonList.at(m_selectedButton)->selected = 0;
 	}
 }

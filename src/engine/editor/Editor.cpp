@@ -415,6 +415,7 @@ void Editor::resize() {
 }
 
 void Editor::dropFile(const char* path) {
+	Logger::logQuiet(path);
 	LFormat::ImportType formatType = LFormat::valid(path);
 	TEMode* editor = 0;
 	switch (formatType) {

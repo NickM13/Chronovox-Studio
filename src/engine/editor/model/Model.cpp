@@ -6,6 +6,7 @@
 #include "engine\gfx\gui\component\Component.h"
 #include "engine\utils\global\GLua.h"
 #include "engine\editor\GPreferences.h"
+#include "engine\editor\GRecents.h"
 
 #include <direct.h>
 #include <shlobj.h>
@@ -343,6 +344,11 @@ void Model::moveMatrix(bool p_up) {
 			m_nameList->getItem(i + 2).state = 2;
 			m_nameList->removeItem(i);
 		}
+		if (m_nameList->getSelectedItem() == 0) {
+			m_nameList->setSelectedItem(m_nameList->getItemCount() - 1);
+		} else {
+			m_nameList->setSelectedItem(m_nameList->getSelectedItem() - 1);
+		}
 	}
 	else {
 		for (Sint32 i = 1; i < m_nameList->getItemCount(); i++) {
@@ -352,6 +358,12 @@ void Model::moveMatrix(bool p_up) {
 			m_nameList->insertItem(i - 1, m_nameList->getItem(i).name);
 			m_nameList->getItem(i - 1).state = 2;
 			m_nameList->removeItem(i + 1);
+		}
+		if (m_nameList->getSelectedItem() == m_nameList->getItemCount() - 1) {
+			m_nameList->setSelectedItem(0);
+		}
+		else {
+			m_nameList->setSelectedItem(m_nameList->getSelectedItem() + 1);
 		}
 	}
 	Sint32 id = 0;
@@ -949,6 +961,7 @@ bool Model::saveAs() {
 
 	LFormat::save(filepath, m_sModel->getMatrixList());
 	std::string fp = filepath;
+	GRecents::renameFile(getPath(), fp);
 	setDirectory(fp.substr(0, fp.find_last_of('\\') + 1));
 	setName(filename);
 	m_matrixEdit->setChanged(false);
@@ -962,6 +975,7 @@ bool Model::loadOpen(std::string p_fileName) {
 		m_nameList->clear();
 		m_sModel->getMatrixList()->clear();
 		setPath(p_fileName);
+		GRecents::addFile(p_fileName);
 		GFormat::setLoadFunction([&]() { 
 			updateMatrixList();
 			m_matrixEdit->setChanged(false);
