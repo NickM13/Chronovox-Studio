@@ -1,37 +1,5 @@
-## Welcome to GitHub Pages
+## What is it?
 
-You can use the [editor on GitHub](https://github.com/NickM13/Chronovox-Studio/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+Chronovox Studio is a C++ open-source voxel editor, featuring it’s own optimized file format (.csm), as well as the option to export to a few widely known model formats (.obj, .ply, .stl).  It uses a simple and easy to use interface, developed from scratch specifically for this project.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/NickM13/Chronovox-Studio/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+Although it doesn’t have all of the tools one might need, the script generation feature allows for creating unique shapes based on written scripts.  To add your own script, locate the “res/script/generate” folder, create your LUA file, and reload the editor have it show under the generate menu.  More information on functions and variables can be found [here](https://nickvoxel.com/chronovox-studio/generation-script/).
