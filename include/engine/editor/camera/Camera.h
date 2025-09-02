@@ -12,7 +12,7 @@ private:
 	static GLfloat m_autoRotation;
 	static Texture* m_skyTexture;
 	static glm::mat4 m_projectionMatrix;
-	static bool m_draggingRight, m_draggingMiddle;
+	static bool m_draggingRight, m_draggingMiddle, m_initialized;
 
 	static void zoom(GLfloat p_scroll);
 	static void turn(Vector2<Sint32> p_mouseMove);

@@ -10,10 +10,10 @@ private:
 	static float m_loadPercent;
 	static bool m_completed;
 	static std::function<void()> m_loadFunction;
-
 public:
 	static void setLoadPercent(float p_loadPercent);
 	static float getLoadPercent() { return m_loadPercent; }
+	static float isLoading() { return m_loadPercent < 1; }
 
 	static void setLoadFunction(std::function<void()> p_func) { m_loadFunction = p_func; }
 	static void checkLoadFunction();

@@ -88,7 +88,7 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 	destroyMesh();
 
 	m_meshType = MeshType::MESH;
-	Logger::logDiagnostic("Creating VoxelMesh (No AO), size {" + p_dimensions.toString() + "}...");
+	//Logger::logDiagnostic("Creating VoxelMesh (No AO), size {" + p_dimensions.toString() + "}...");
 	GLfloat start = glfwGetTime();
 	
 	glm::vec3 normals[6] = {
@@ -518,8 +518,8 @@ void VoxelMesh::createMesh(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Si
 	glBufferData(GL_ARRAY_BUFFER, m_verticesWire.size() * sizeof(GLfloat) * 3, &m_verticesWire[0].x, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-	Logger::logDiagnostic("Created mesh in " + std::to_string(glfwGetTime() - start) + " seconds");
-	Logger::logDiagnostic("Mesh vertices(" + std::to_string(m_vertices.size()) + "), colors(" + std::to_string(m_colors.size()) + ")");
+	//Logger::logDiagnostic("Created mesh in " + std::to_string(glfwGetTime() - start) + " seconds");
+	//Logger::logDiagnostic("Mesh vertices(" + std::to_string(m_vertices.size()) + "), colors(" + std::to_string(m_colors.size()) + ")");
 }
 
 void VoxelMesh::createMeshAO(Uint16*** p_voxelIds, Sint8*** p_faceData, Vector3<Sint16> p_dimensions) {

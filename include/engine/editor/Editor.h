@@ -55,7 +55,11 @@ private:
 	std::mutex m_autosaveMutex;
 	std::condition_variable m_autosaveCv;
 
+	std::queue<std::string> m_droppedFilesToProcess;
+
 	void closeProject(Sint32 p_index);
+
+	void processDroppedFile();
 
 	bool initGBuffer();
 	bool initAABuffer();

@@ -154,9 +154,9 @@ Container* ModelOverlay::init(Editor* p_editor) {
 		GKey::KeyBind(), []() { m_editor->getModel()->rotateMatrix(AXIS_Z); }));
 	menuBar->addElement("Model_Matrix\\Model_Transform", new CMenubar::Submenu("Model_Scale", "Scale"));
 	menuBar->addElement("Model_Matrix\\Model_Transform\\Model_Scale", new CMenubar::MenuButton("Half All",
-		GKey::KeyBind(GLFW_KEY_G, GLFW_MOD_CONTROL + GLFW_MOD_SHIFT), []() { m_editor->getModel()->scaleMatrix(glm::vec3(0.5f, 0.5f, 0.5f)); }));
+		GKey::KeyBind(GLFW_KEY_T, GLFW_MOD_CONTROL + GLFW_MOD_SHIFT), []() { m_editor->getModel()->scaleMatrix(glm::vec3(0.5f, 0.5f, 0.5f)); }));
 	menuBar->addElement("Model_Matrix\\Model_Transform\\Model_Scale", new CMenubar::MenuButton("Double All",
-		GKey::KeyBind(GLFW_KEY_G, GLFW_MOD_SHIFT), []() { m_editor->getModel()->scaleMatrix(glm::vec3(2.f, 2.f, 2.f)); }));
+		GKey::KeyBind(GLFW_KEY_T, GLFW_MOD_CONTROL), []() { m_editor->getModel()->scaleMatrix(glm::vec3(2.f, 2.f, 2.f)); }));
 	menuBar->addElement("Model_Matrix\\Model_Transform\\Model_Scale", new CMenubar::MenuDivider());
 	menuBar->addElement("Model_Matrix\\Model_Transform\\Model_Scale", new CMenubar::MenuButton("Half X-Axis",
 		GKey::KeyBind(), []() { m_editor->getModel()->scaleMatrix(glm::vec3(0.5f, 1, 1)); }));

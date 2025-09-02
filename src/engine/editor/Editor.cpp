@@ -453,8 +453,9 @@ void Editor::resize() {
 	initAABuffer();
 }
 
-void Editor::dropFile(const char* path) {
-	Logger::logQuiet(path);
+void Editor::processDroppedFile() {
+	if (m_droppedFilesToProcess.empty() || GFormat::isLoading()) return;
+	std::string path = m_droppedFilesToProcess.front();
 	LFormat::ImportType formatType = LFormat::valid(path);
 	TEMode* editor = 0;
 	switch (formatType) {
@@ -480,6 +481,12 @@ void Editor::dropFile(const char* path) {
 		break;
 	default: return;
 	}
+	m_droppedFilesToProcess.pop();
+}
+
+void Editor::dropFile(const char* path) {
+	Logger::logQuiet(path);
+	m_droppedFilesToProcess.push(path);
 }
 
 void Editor::renderMouse() {
@@ -593,6 +600,8 @@ void Editor::update() {
 	}
 
 	Gui::update(m_deltaUpdate);
+
+	processDroppedFile();
 }
 
 void Editor::render2d() {

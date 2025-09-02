@@ -142,7 +142,7 @@ void Application::mouseEnterCallback(GLFWwindow* p_window, int p_Action) {
 }
 
 void Application::dropFileCallback(GLFWwindow* p_window, int count, const char** paths) {
-	for (Sint32 i = 0; i < 1; i++) {
+	for (Sint32 i = 0; i < count; i++) {
 		m_editor->dropFile(paths[i]);
 	}
 	glfwFocusWindow(m_mainWindow);

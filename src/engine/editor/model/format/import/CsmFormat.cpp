@@ -7,9 +7,6 @@
 
 // .csm = Chronovox Studio Model
 
-Uint32 CsmFormat::m_index = 0;
-char* CsmFormat::m_data = 0;
-
 bool CsmFormat::save(std::string p_fileName, std::vector<Matrix*>* p_matrixList) {
 	std::ofstream _file;
 	size_t pos = p_fileName.find_last_of('\\');
@@ -268,8 +265,6 @@ bool CsmFormat::load3(std::vector<Matrix*>* p_matrixList) {
 
 		matrix = new Matrix(i, name, parent, glm::vec3(pos) / glm::vec3(10), size);
 
-		GFormat::setLoadPercent(0.05f);
-
 		volume = size.x * size.y * size.z;
 		matrixIndex = 0;
 
@@ -293,13 +288,15 @@ bool CsmFormat::load3(std::vector<Matrix*>* p_matrixList) {
 				i = 0;
 			}
 		}
-		GFormat::setLoadPercent(0.05f + ((GLfloat)(i + 1) / matrixCount) * 0.9f);
 		p_matrixList->push_back(matrix);
 	}
+	GFormat::setLoadPercent(1.f);
 	return true;
 }
 
 bool CsmFormat::load4(std::vector<Matrix*>* p_matrixList) {
+	GFormat::setLoadPercent(0.05f);
+
 	Sint32 csm, version, blank, matrixCount;
 	csm = FileExt::readInt(m_data, m_index);
 	version = FileExt::readInt(m_data, m_index);
@@ -328,7 +325,7 @@ bool CsmFormat::load4(std::vector<Matrix*>* p_matrixList) {
 
 		matrix = new Matrix(i, name, parent, glm::vec3(pos) / glm::vec3(10), size);
 
-		GFormat::setLoadPercent(0.05f);
+		std::cout << name << std::endl;
 
 		volume = size.x * size.y * size.z;
 		matrixIndex = 0;
@@ -353,8 +350,8 @@ bool CsmFormat::load4(std::vector<Matrix*>* p_matrixList) {
 				i = 0;
 			}
 		}
-		GFormat::setLoadPercent(0.05f + ((GLfloat)(i + 1) / matrixCount) * 0.9f);
 		p_matrixList->push_back(matrix);
+		GFormat::setLoadPercent(0.05f + ((GLfloat)(i + 1) / matrixCount) * 0.9f);
 	}
 	return true;
 }

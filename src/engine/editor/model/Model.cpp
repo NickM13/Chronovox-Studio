@@ -212,7 +212,7 @@ void Model::shiftMatrix(glm::ivec3 p_direction) {
 	}
 }
 void Model::flipMatrix(Sint8 p_axesFlags) {
-	glm::vec3 center = getSelectedMatricesCenter();
+	glm::vec3 center = Camera::getFocus();
 	m_matrixEdit->setCommandChaining(true);
 	for (Matrix* m : getSelectedMatrices()) {
 		m_matrixEdit->setMatrix(m, m->getId());
@@ -223,7 +223,7 @@ void Model::flipMatrix(Sint8 p_axesFlags) {
 	fixSelectedMatrix();
 }
 void Model::rotateMatrix(Sint8 p_axesFlags) {
-	glm::vec3 center = getSelectedMatricesCenter();
+	glm::vec3 center = Camera::getFocus();
 	m_matrixEdit->setCommandChaining(true);
 	for (Matrix* m : getSelectedMatrices()) {
 		m_matrixEdit->setMatrix(m, m->getId());
@@ -234,7 +234,9 @@ void Model::rotateMatrix(Sint8 p_axesFlags) {
 	fixSelectedMatrix();
 }
 void Model::scaleMatrix(glm::vec3 p_scale) {
-	glm::vec3 center = getSelectedMatricesCenter();
+	glm::vec3 center = Camera::getFocus();
+	std::cout << center.x << ", " << center.y << ", " << center.z;
+	//Logger::logNormal(std::to_string(center.x) + ", " + std::to_string(center.y) + ", " + std::to_string(center.z));
 	m_matrixEdit->setCommandChaining(true);
 	for (Matrix* m : getSelectedMatrices()) {
 		m_matrixEdit->setMatrix(m, m->getId());
@@ -845,7 +847,7 @@ void Model::autosave() {
 	char documents[MAX_PATH];
 	HRESULT res = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents);
 	strcat_s(documents, "\\Chronovox Studio\\autosave.csm");
-	CsmFormat::save(documents, m_sModel->getMatrixList());
+	CsmFormat().save(documents, m_sModel->getMatrixList());
 }
 bool Model::autoload() {
 	char documents[MAX_PATH];

@@ -5,13 +5,13 @@
 
 class CsmFormat {
 private:
-	static Uint32 m_index;
-	static char* m_data;
+	Uint32 m_index = 0;
+	char* m_data = 0;
 public:
-	static bool save(std::string p_fileName, std::vector<Matrix*>* p_matrixList);
-	static bool load(std::string p_fileName, std::vector<Matrix*>* p_matrixList);
-	static bool load1(std::vector<Matrix*>* p_matrixList);
-	static bool load2(std::vector<Matrix*>* p_matrixList);
-	static bool load3(std::vector<Matrix*>* p_matrixList);
-	static bool load4(std::vector<Matrix*>* p_matrixList);
+	bool save(std::string p_fileName, std::vector<Matrix*>* p_matrixList);
+	bool load(std::string p_fileName, std::vector<Matrix*>* p_matrixList);
+	bool load1(std::vector<Matrix*>* p_matrixList);
+	bool load2(std::vector<Matrix*>* p_matrixList);
+	bool load3(std::vector<Matrix*>* p_matrixList);
+	bool load4(std::vector<Matrix*>* p_matrixList);
 };

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2042
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36310.24 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Chronovox Studio", "Chronovox Studio.vcxproj", "{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}"
 EndProject
@@ -16,12 +16,15 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.Debug|x64.ActiveCfg = Debug|Win32
+		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.Debug|x64.Build.0 = Debug|Win32
 		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.Debug|x86.ActiveCfg = Debug|Win32
 		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.Debug|x86.Build.0 = Debug|Win32
 		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.Release|x64.ActiveCfg = Release|Win32
+		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.Release|x64.Build.0 = Release|Win32
 		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.Release|x86.ActiveCfg = Release|Win32
 		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.Release|x86.Build.0 = Release|Win32
 		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.ReleaseConsole|x64.ActiveCfg = ReleaseConsole|Win32
+		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.ReleaseConsole|x64.Build.0 = ReleaseConsole|Win32
 		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.ReleaseConsole|x86.ActiveCfg = ReleaseConsole|Win32
 		{1F8BE261-E2FB-4A5F-B970-CACCC352C05F}.ReleaseConsole|x86.Build.0 = ReleaseConsole|Win32
 	EndGlobalSection

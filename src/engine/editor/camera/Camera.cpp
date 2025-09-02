@@ -13,8 +13,11 @@ Texture* Camera::m_skyTexture;
 glm::mat4 Camera::m_projectionMatrix;
 bool Camera::m_draggingRight = false;
 bool Camera::m_draggingMiddle = false;
+bool Camera::m_initialized = false;
 
 void Camera::init() {
+	if (m_initialized) return;
+	m_initialized = true;
 	//m_skyTexture = MTexture::getTexture("DaylightSky.png");
 	reset();
 }
