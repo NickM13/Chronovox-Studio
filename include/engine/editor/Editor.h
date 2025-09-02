@@ -31,6 +31,7 @@ private:
 	GLuint ssaoBuffer, ssaoColorBuffer;
 	GLuint quadVAO = 0, cubeVAO = 0;
 	GLuint quadVBO, cubeVBO = 0;
+	Matrix* m_matrixCopy = 0; // Copy/paste matrix
 
 	struct Project {
 		EditorMode mode = {};
@@ -102,6 +103,10 @@ public:
 	void render2d();
 	void renderGeometry();
 	void renderLight();
+
+	void copyMatrix();
+	void cutMatrix();
+	void pasteMatrix();
 
 	/* Menubar functions */
 

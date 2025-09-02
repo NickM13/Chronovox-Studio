@@ -18,10 +18,14 @@ bool Application::init(char *p_filePath) {
 	GScreen::enableShadows(false);
 	GScreen::setMinScreenSize(Vector2<Sint32>(600.f, 600.f));
 
+	Logger::logDiagnostic("Screen set up");
+
 	if (!glfwInit()) {
 		Logger::logError("glfw failed to initialize");
 		return false;
 	}
+
+	Logger::logDiagnostic("glfwInit called");
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -29,6 +33,8 @@ bool Application::init(char *p_filePath) {
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glfwWindowHint(GLFW_DECORATED, 0);
 	glfwWindowHint(GLFW_FLOATING, 0);
+
+	Logger::logDiagnostic("glfwWindowHints set");
 
 	int monx, mony;
 	GLFWmonitor *monitor = glfwGetPrimaryMonitor();
@@ -55,7 +61,11 @@ bool Application::init(char *p_filePath) {
 	glfwSetWindowIconifyCallback(m_mainWindow, GScreen::windowIconifyCallback);
 	glfwSetWindowFocusCallback(m_mainWindow, GScreen::windowFocusCallback);
 
+	Logger::logDiagnostic("glfwWindow Callbacks set");
+
 	glfwMakeContextCurrent(m_mainWindow);
+
+	Logger::logDiagnostic("Current context window set");
 
 	GLenum error;
 	if ((error = glewInit()) != GLEW_OK) {
@@ -90,9 +100,15 @@ bool Application::init(char *p_filePath) {
 	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	Logger::logDiagnostic("Initialized shaders");
+
 	GLua::init();
 
+	Logger::logDiagnostic("Lua initialized");
+
 	m_editor = new Editor();
+
+	Logger::logDiagnostic("Editor created");
 
 	return true;
 }
@@ -298,14 +314,6 @@ void Application::update() {
 
 void Application::render() {
 	if (GScreen::isIconified()) return;
-
-	glm::mat4 biasMatrix {
-		0.5, 0.0, 0.0, 0.0,
-		0.0, 0.5, 0.0, 0.0,
-		0.0, 0.0, 0.5, 0.0,
-		0.5, 0.5, 0.5, 1.0
-	};
-	glm::mat4 depthBiasMVP = biasMatrix * Shader::getMVP();
 	
 	switch (GPreferences::getViewMode()) {
 	case GPreferences::ViewMode::PERSPECTIVE:

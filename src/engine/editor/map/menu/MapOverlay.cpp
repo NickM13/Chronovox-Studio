@@ -1,13 +1,13 @@
-#include "engine\editor\model\menu\ModelOverlay.h"
+#include "engine\editor\map\menu\MapOverlay.h"
 #include "engine\editor\camera\Camera.h"
 #include "engine\editor\menu\EditorOverlay.h"
 #include "engine\utils\directory\LDirectory.h"
 
-Editor* ModelOverlay::m_editor = 0;
-Container* ModelOverlay::m_container = 0;
-ColorOverlay* ModelOverlay::m_colorOverlay = 0;
+Editor* MapOverlay::m_editor = 0;
+Container* MapOverlay::m_container = 0;
+ColorOverlay* MapOverlay::m_colorOverlay = 0;
 
-Container* ModelOverlay::init(Editor* p_editor) {
+Container* MapOverlay::init(Editor* p_editor) {
 	if (m_container) return 0;
 	m_editor = p_editor;
 
@@ -60,13 +60,13 @@ Container* ModelOverlay::init(Editor* p_editor) {
 	menuBar->addElement("Edit", new CMenubar::MenuDivider())
 		->setVisibleFunction(p_editor->isModel);
 	menuBar->addElement("Edit", new CMenubar::MenuButton("Copy",
-		GKey::KeyBind(GLFW_KEY_C, GLFW_MOD_CONTROL), []() { m_editor->copyMatrix(); }))
+		GKey::KeyBind(GLFW_KEY_C, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editCopy(); }))
 		->setVisibleFunction(p_editor->isModel);
 	menuBar->addElement("Edit", new CMenubar::MenuButton("Cut",
-		GKey::KeyBind(GLFW_KEY_X, GLFW_MOD_CONTROL), []() { m_editor->cutMatrix(); }))
+		GKey::KeyBind(GLFW_KEY_X, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editCut(); }))
 		->setVisibleFunction(p_editor->isModel);
 	menuBar->addElement("Edit", new CMenubar::MenuButton("Paste",
-		GKey::KeyBind(GLFW_KEY_V, GLFW_MOD_CONTROL), []() { m_editor->pasteMatrix(); }))
+		GKey::KeyBind(GLFW_KEY_V, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editPaste(); }))
 		->setVisibleFunction(p_editor->isModel);
 	menuBar->addElement("Edit", new CMenubar::MenuDivider())
 		->setVisibleFunction(p_editor->isModel);
@@ -236,7 +236,7 @@ Container* ModelOverlay::init(Editor* p_editor) {
 
 	// Matrices list and buttons
 
-	workContainer->addComponent(new ContainerPanel("GUI_MATRICES", "Matrices", { -8, -8 }, { 256, 256 },
+	workContainer->addComponent(new ContainerPanel("GUI_MATRICES", "Matrices", { -8, -8 }, { 256, 192 },
 		(Sint8)Component::BorderFlag::ALL), Component::Anchor::BOTTOM_RIGHT, Component::Anchor::NONE)
 		->setElementPos("workspace");
 	workContainer->findComponent("GUI_MATRICES")->addComponent(new CButton("BUTTON_MERGE_MATRIX", "",

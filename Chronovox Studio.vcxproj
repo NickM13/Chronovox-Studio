@@ -25,20 +25,20 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseConsole|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -60,23 +60,23 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)log\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)lib;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\lodepng\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)lib\LuaBridge;$(ProjectDir)lib\Lua\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)lib;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\lodepng\include;$(ProjectDir)lib\LuaBridge;$(ProjectDir)lib\Lua\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
     <ReferencePath>$(ProjectDir)res;$(ReferencePath)</ReferencePath>
-    <LibraryPath>$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Debug;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\Lua\lib;$(ProjectDir)lib\OpenAL\lib;$(ProjectDir)lib\tinyobjloader\lib\Debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Debug;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\Lua\lib;$(ProjectDir)lib\tinyobjloader\lib\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)log\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)lib;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\lodepng\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)lib\LuaBridge;$(ProjectDir)lib\Lua\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)lib;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\lodepng\include;$(ProjectDir)lib\LuaBridge;$(ProjectDir)lib\Lua\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
     <ReferencePath>$(ProjectDir)res;$(ProjectDir)dll\Release;$(ReferencePath)</ReferencePath>
-    <LibraryPath>$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Release;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\Lua\lib;$(ProjectDir)lib\OpenAL\lib;$(ProjectDir)lib\tinyobjloader\lib\Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Release;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\Lua\lib;$(ProjectDir)lib\tinyobjloader\lib\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseConsole|Win32'">
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)log\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)lib;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\freealut\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\lodepng\include;$(ProjectDir)lib\OpenAL\include;$(ProjectDir)lib\LuaBridge;$(ProjectDir)lib\Lua\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)lib;$(ProjectDir)lib\glfw\include;$(ProjectDir)lib\freetype\include;$(ProjectDir)lib\glew\include;$(ProjectDir)lib\glm\include;$(ProjectDir)lib\lodepng\include;$(ProjectDir)lib\LuaBridge;$(ProjectDir)lib\Lua\include;$(ProjectDir)lib\tinyobjloader\include;$(ProjectDir)\include;$(ProjectDir)\res;$(IncludePath)</IncludePath>
     <ReferencePath>$(ProjectDir)res;$(ProjectDir)dll\Release;$(ReferencePath)</ReferencePath>
-    <LibraryPath>$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Release;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\freealut\lib;$(ProjectDir)lib\Lua\lib;$(ProjectDir)lib\OpenAL\lib;$(ProjectDir)lib\tinyobjloader\lib\Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)lib\glew\lib;$(ProjectDir)lib\glfw\lib;$(ProjectDir)lib\glm\lib\Release;$(ProjectDir)lib\freetype\lib;$(ProjectDir)lib\Lua\lib;$(ProjectDir)lib\tinyobjloader\lib\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -123,7 +123,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;lua51.lib;OpenAL32.lib;alut.lib;freetype.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;glfw3.lib;lua51.lib;freetype.lib;glm_static.lib;tinyobjloader.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <EntryPointSymbol>
       </EntryPointSymbol>
@@ -136,14 +136,14 @@
     <ClCompile Include="src\engine\editor\camera\Camera.cpp" />
     <ClCompile Include="src\engine\editor\GPreferences.cpp" />
     <ClCompile Include="src\engine\editor\menu\FreshOverlay.cpp" />
-    <ClCompile Include="src\engine\editor\model\command\MDeleteCommand.cpp" />
-    <ClCompile Include="src\engine\editor\model\command\MDrawCommand.cpp" />
-    <ClCompile Include="src\engine\editor\model\command\MMoveCommand.cpp" />
-    <ClCompile Include="src\engine\editor\model\command\MNewCommand.cpp" />
-    <ClCompile Include="src\engine\editor\model\command\MPasteCommand.cpp" />
-    <ClCompile Include="src\engine\editor\model\command\MRenameCommand.cpp" />
-    <ClCompile Include="src\engine\editor\model\command\MReorderCommand.cpp" />
-    <ClCompile Include="src\engine\editor\model\command\MResizeCommand.cpp" />
+    <ClCompile Include="src\engine\editor\model\command\ModelDeleteCommand.cpp" />
+    <ClCompile Include="src\engine\editor\model\command\ModelDrawCommand.cpp" />
+    <ClCompile Include="src\engine\editor\model\command\ModelMoveCommand.cpp" />
+    <ClCompile Include="src\engine\editor\model\command\ModelNewCommand.cpp" />
+    <ClCompile Include="src\engine\editor\model\command\ModelPasteCommand.cpp" />
+    <ClCompile Include="src\engine\editor\model\command\ModelRenameCommand.cpp" />
+    <ClCompile Include="src\engine\editor\model\command\ModelReorderCommand.cpp" />
+    <ClCompile Include="src\engine\editor\model\command\ModelResizeCommand.cpp" />
     <ClCompile Include="src\engine\editor\model\EditMatrix.cpp" />
     <ClCompile Include="src\engine\editor\model\format\import\CsmFormat.cpp" />
     <ClCompile Include="src\engine\editor\model\format\export\ObjFormat.cpp" />
@@ -369,9 +369,6 @@
     <None Include="res\cursor\aero_nwse.cur" />
     <None Include="res\cursor\aero_pen.cur" />
     <None Include="res\cursor\aero_unavail.cur" />
-    <None Include="res\cursor\arrow.cur">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
     <None Include="res\cursor\beam.cur" />
     <None Include="res\shader\depthRTT.frag" />
     <None Include="res\shader\depthRTT.vert" />

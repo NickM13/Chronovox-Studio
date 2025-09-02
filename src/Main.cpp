@@ -15,7 +15,7 @@
 
 int main(int argc, char* argv[]) {
 	//_crtBreakAlloc;
-	Logger::init(static_cast<Sint8>(Logger::Verbosity::QUIET));
+	Logger::init(static_cast<Sint8>(Logger::Verbosity::DIAGNOSTIC));
 	Logger::logQuiet("Program launched using main");
 	Logger::logQuiet("Initializing...");
 	bool _success;
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
 }
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow) {
-	Logger::init(static_cast<Sint8>(Logger::Verbosity::QUIET));
+	Logger::init(static_cast<Sint8>(Logger::Verbosity::DIAGNOSTIC));
 	Logger::logQuiet("Program launched using WinMain");
 	Logger::logQuiet("Initializing...");
 	if (Application::getInstance().init()) {

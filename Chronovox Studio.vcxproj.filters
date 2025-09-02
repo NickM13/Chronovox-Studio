@@ -231,24 +231,6 @@
     <ClCompile Include="src\engine\editor\model\format\GFormat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\editor\model\command\MDeleteCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\command\MDrawCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\command\MMoveCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\command\MNewCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\command\MPasteCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\command\MResizeCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\editor\model\format\import\CsmFormat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -273,12 +255,6 @@
     <ClCompile Include="src\engine\editor\model\tool\voxel\VTReplace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\editor\model\command\MRenameCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\editor\model\command\MReorderCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\editor\GPreferences.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -295,6 +271,30 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="include\engine\editor\GRecents.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\command\ModelDeleteCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\command\ModelPasteCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\command\ModelDrawCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\command\ModelMoveCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\command\ModelNewCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\command\ModelResizeCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\command\ModelRenameCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\editor\model\command\ModelReorderCommand.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -695,9 +695,6 @@
     <None Include="res\shader\gui.vert" />
     <None Include="res\shader\gui.frag" />
     <None Include="res\texture\gui\Logo.svg" />
-    <None Include="res\cursor\arrow.cur">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="res\cursor\aero_arrow.cur">
       <Filter>Resource Files</Filter>
     </None>

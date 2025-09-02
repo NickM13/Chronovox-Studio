@@ -32,6 +32,7 @@ Editor::EditorMode Editor::m_editorMode;
 Editor::Editor() {
 	m_deltaUpdate = 0.f;
 	m_lastUpdate = 0.f;
+	m_matrixCopy = 0;
 	m_editorState = EditorState::STARTING;
 	MTexture::init();
 	MModelObj::init();
@@ -294,6 +295,44 @@ void Editor::renderCube() {
 	glBindVertexArray(cubeVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
+}
+
+void Editor::copyMatrix() {
+	Model* m_model = getModel();
+	if (m_model == 0) return;
+	if (m_matrixCopy) delete m_matrixCopy;
+	m_matrixCopy = new Matrix(*m_model->getMatrix(m_model->getEditMatrix()->getId()));
+}
+
+void Editor::cutMatrix() {
+	Model* m_model = getModel();
+	if (m_model == 0) return;
+	copyMatrix();
+	m_model->deleteSelectedMatrices();
+}
+
+void Editor::pasteMatrix() {
+	Model* m_model = getModel();
+	if (m_model == 0) return;
+	if (m_matrixCopy) {
+		m_model->getEditMatrix()->setCommandListOpen(false);
+		m_model->addMatrix(m_matrixCopy->getName(), Camera::getPosition() - (glm::vec3(m_matrixCopy->getSize()) / glm::vec3(2)), m_matrixCopy->getSize());
+		Matrix* _matrix = m_model->getMatrix(Sint16(m_model->getMatrixNames().size()) - 1);
+		_matrix->setPosition(Camera::getFocus() - (glm::vec3(m_matrixCopy->getSize()) / glm::vec3(2)));
+		MNewCommand* _cmd = new MNewCommand(_matrix, m_model->getMatrixList(), Uint16(m_model->getMatrixList().size()) - 1, m_model->getNameList());
+		m_model->getEditMatrix()->addCommand(_cmd);
+		for (Uint16 x = 0; x < m_matrixCopy->getSize().x; x++) {
+			for (Uint16 y = 0; y < m_matrixCopy->getSize().y; y++) {
+				for (Uint16 z = 0; z < m_matrixCopy->getSize().z; z++) {
+					_matrix->setVoxel({ x, y, z }, m_matrixCopy->getVoxel({ x, y, z }));
+				}
+			}
+		}
+		m_model->selectMatrix(m_model->getMatrixList().size() - 1);
+		m_model->getEditMatrix()->reset();
+		m_model->getEditMatrix()->setCommandListOpen(true);
+		m_model->getEditMatrix()->addCommand(new MNewCommand(m_model->getMatrix(Sint16(m_model->getMatrixList().size()) - 1), m_model->getMatrixList(), Uint16(m_model->getMatrixList().size()) - 1, m_model->getNameList()));
+	}
 }
 
 bool Editor::attemptClose() {
