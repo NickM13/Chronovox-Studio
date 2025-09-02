@@ -31,7 +31,6 @@ private:
 
 	// Matrices
 	SimpleModel* m_sModel = 0;
-	Matrix* m_matrixCopy = 0; // Copy/paste matrix
 	CList* m_nameList = 0;
 
 	// Editting tool variables
@@ -90,12 +89,11 @@ public:
 	void undo();
 	void redo();
 
-	void copyMatrix();
-	void pasteMatrix();
-
 	void setVoxel(Uint16 p_matrix, glm::ivec3 p_pos, Voxel p_voxel);
 	Voxel getVoxel(Uint16 p_matrix, glm::ivec3 p_pos);
 	Uint16 getVoxelId(Uint16 p_matrix, glm::ivec3 p_pos);
+
+	CList* getNameList() { return m_nameList; }
 
 	void resize(Uint16 p_matrixId, glm::ivec3 p_offset, glm::ivec3 p_size);
 	void shiftMatrix(glm::ivec3 p_direction);
@@ -130,7 +128,7 @@ public:
 	std::vector<std::string> getMatrixNames();
 	Matrix* getMatrix(Sint16 id);
 	Matrix* getMatrix(std::string p_name);
-	std::vector<Matrix*> getMatrixList() { return *m_sModel->getMatrixList(); }
+	std::vector<Matrix*>& getMatrixList() { return *m_sModel->getMatrixList(); }
 	std::vector<Matrix*> getVisibleMatrices();
 	Matrix* getSelectedMatrix();
 	std::vector<Matrix*> getSelectedMatrices();
@@ -171,9 +169,6 @@ public:
 	void editMergeMatrix();
 	void editNewMatrix();
 	void editMatrixProperties();
-	void editCopy();
-	void editCut();
-	void editPaste();
 	void editSelectAll();
 	void editUndo();
 	void editRedo();

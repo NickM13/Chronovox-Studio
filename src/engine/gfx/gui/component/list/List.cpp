@@ -198,7 +198,7 @@ void CList::input(Sint8& p_interactFlags) {
 		}
 	}
 	if ((p_interactFlags & (Sint8)EventFlag::MOUSESCROLL) && m_hover) {
-		m_scroll = m_scroll - GMouse::getMouseScroll() * 4;
+		m_scroll = m_scroll - GMouse::getMouseScroll() * m_itemHeight;
 		p_interactFlags -= (Sint8)EventFlag::MOUSESCROLL;
 	}
 
@@ -262,7 +262,7 @@ void CList::renderItems() {
 		GBuffer::addQuadFilled({ 0, m_itemHeight }, { m_size.x, 1 });
 
 		GBuffer::setColor(Color());
-		GBuffer::setTexture(m_itemList.at(y).visible ? m_visibleTexture->getTexId() : m_invisibleTexture->getTexId());
+		GBuffer::setTexture(m_itemList.at(y + m_scroll / m_itemHeight).visible ? m_visibleTexture->getTexId() : m_invisibleTexture->getTexId());
 		GBuffer::setUV(0, 1); GBuffer::addVertexQuad(0, 0);
 		GBuffer::setUV(1, 1); GBuffer::addVertexQuad(24, 0);
 		GBuffer::setUV(1, 0); GBuffer::addVertexQuad(24, 24);

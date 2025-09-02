@@ -1,13 +1,13 @@
-#include "engine\editor\model\menu\ModelOverlay.h"
+#include "engine\editor\map\menu\MapOverlay.h"
 #include "engine\editor\camera\Camera.h"
 #include "engine\editor\menu\EditorOverlay.h"
 #include "engine\utils\directory\LDirectory.h"
 
-Editor* ModelOverlay::m_editor = 0;
-Container* ModelOverlay::m_container = 0;
-ColorOverlay* ModelOverlay::m_colorOverlay = 0;
+Editor* MapOverlay::m_editor = 0;
+Container* MapOverlay::m_container = 0;
+ColorOverlay* MapOverlay::m_colorOverlay = 0;
 
-Container* ModelOverlay::init(Editor* p_editor) {
+Container* MapOverlay::init(Editor* p_editor) {
 	if (m_container) return 0;
 	m_editor = p_editor;
 
@@ -60,13 +60,13 @@ Container* ModelOverlay::init(Editor* p_editor) {
 	menuBar->addElement("Edit", new CMenubar::MenuDivider())
 		->setVisibleFunction(p_editor->isModel);
 	menuBar->addElement("Edit", new CMenubar::MenuButton("Copy",
-		GKey::KeyBind(GLFW_KEY_C, GLFW_MOD_CONTROL), []() { m_editor->copyMatrix(); }))
+		GKey::KeyBind(GLFW_KEY_C, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editCopy(); }))
 		->setVisibleFunction(p_editor->isModel);
 	menuBar->addElement("Edit", new CMenubar::MenuButton("Cut",
-		GKey::KeyBind(GLFW_KEY_X, GLFW_MOD_CONTROL), []() { m_editor->cutMatrix(); }))
+		GKey::KeyBind(GLFW_KEY_X, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editCut(); }))
 		->setVisibleFunction(p_editor->isModel);
 	menuBar->addElement("Edit", new CMenubar::MenuButton("Paste",
-		GKey::KeyBind(GLFW_KEY_V, GLFW_MOD_CONTROL), []() { m_editor->pasteMatrix(); }))
+		GKey::KeyBind(GLFW_KEY_V, GLFW_MOD_CONTROL), []() { m_editor->getModel()->editPaste(); }))
 		->setVisibleFunction(p_editor->isModel);
 	menuBar->addElement("Edit", new CMenubar::MenuDivider())
 		->setVisibleFunction(p_editor->isModel);
@@ -149,14 +149,14 @@ Container* ModelOverlay::init(Editor* p_editor) {
 	menuBar->addElement("Model_Matrix\\Model_Transform\\Model_Rotate", new CMenubar::MenuButton("90° X-Axis",
 		GKey::KeyBind(), []() { m_editor->getModel()->rotateMatrix(AXIS_X); }));
 	menuBar->addElement("Model_Matrix\\Model_Transform\\Model_Rotate", new CMenubar::MenuButton("90° Y-Axis",
-		GKey::KeyBind(GLFW_KEY_R, GLFW_MOD_CONTROL), []() { m_editor->getModel()->rotateMatrix(AXIS_Y); }));
+		GKey::KeyBind(), []() { m_editor->getModel()->rotateMatrix(AXIS_Y); }));
 	menuBar->addElement("Model_Matrix\\Model_Transform\\Model_Rotate", new CMenubar::MenuButton("90° Z-Axis",
 		GKey::KeyBind(), []() { m_editor->getModel()->rotateMatrix(AXIS_Z); }));
 	menuBar->addElement("Model_Matrix\\Model_Transform", new CMenubar::Submenu("Model_Scale", "Scale"));
 	menuBar->addElement("Model_Matrix\\Model_Transform\\Model_Scale", new CMenubar::MenuButton("Half All",
-		GKey::KeyBind(GLFW_KEY_G, GLFW_MOD_CONTROL + GLFW_MOD_SHIFT), []() { m_editor->getModel()->scaleMatrix(glm::vec3(0.5f, 0.5f, 0.5f)); }));
+		GKey::KeyBind(), []() { m_editor->getModel()->scaleMatrix(glm::vec3(0.5f, 0.5f, 0.5f)); }));
 	menuBar->addElement("Model_Matrix\\Model_Transform\\Model_Scale", new CMenubar::MenuButton("Double All",
-		GKey::KeyBind(GLFW_KEY_G, GLFW_MOD_SHIFT), []() { m_editor->getModel()->scaleMatrix(glm::vec3(2.f, 2.f, 2.f)); }));
+		GKey::KeyBind(), []() { m_editor->getModel()->scaleMatrix(glm::vec3(2.f, 2.f, 2.f)); }));
 	menuBar->addElement("Model_Matrix\\Model_Transform\\Model_Scale", new CMenubar::MenuDivider());
 	menuBar->addElement("Model_Matrix\\Model_Transform\\Model_Scale", new CMenubar::MenuButton("Half X-Axis",
 		GKey::KeyBind(), []() { m_editor->getModel()->scaleMatrix(glm::vec3(0.5f, 1, 1)); }));
@@ -236,7 +236,7 @@ Container* ModelOverlay::init(Editor* p_editor) {
 
 	// Matrices list and buttons
 
-	workContainer->addComponent(new ContainerPanel("GUI_MATRICES", "Matrices", { -8, -8 }, { 256, 256 },
+	workContainer->addComponent(new ContainerPanel("GUI_MATRICES", "Matrices", { -8, -8 }, { 256, 192 },
 		(Sint8)Component::BorderFlag::ALL), Component::Anchor::BOTTOM_RIGHT, Component::Anchor::NONE)
 		->setElementPos("workspace");
 	workContainer->findComponent("GUI_MATRICES")->addComponent(new CButton("BUTTON_MERGE_MATRIX", "",

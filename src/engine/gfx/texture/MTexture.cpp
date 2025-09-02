@@ -74,7 +74,8 @@ void MTexture::terminate() {
 
 Texture* MTexture::getTexture(std::string p_texturePath, bool p_includeGlfw) {
 	if(m_textures.find(p_texturePath) == m_textures.end()) {
-		m_textures.insert({ p_texturePath, loadTexture(LDirectory::getProjectPath() + "res\\texture\\" + p_texturePath, p_includeGlfw) });
+		Texture* tex = loadTexture(LDirectory::getProjectPath() + "res\\texture\\" + p_texturePath, p_includeGlfw);
+		m_textures.insert({ p_texturePath, tex });
 		//Logger::logWarning("Texture file could not be found: \"" + p_texturePath + "\"");
 	}
 	return m_textures.at(p_texturePath);
@@ -82,7 +83,7 @@ Texture* MTexture::getTexture(std::string p_texturePath, bool p_includeGlfw) {
 Texture* MTexture::getTextureExternal(std::string p_texturePath, bool p_includeGlfw) {
 	if (m_textures.find(p_texturePath) == m_textures.end()) {
 		m_textures.insert({ p_texturePath, loadTexture(p_texturePath, p_includeGlfw) });
-		//Logger::logWarning("Texture file could not be found: \"" + p_texturePath + "\"");
+		Logger::logWarning("Texture file could not be found: \"" + p_texturePath + "\"");
 	}
 	return m_textures.at(p_texturePath);
 }

@@ -180,7 +180,7 @@ void CListThick::input(Sint8& p_interactFlags) {
 		}
 	}
 	if ((p_interactFlags & (Sint8)EventFlag::MOUSESCROLL) && m_hover) {
-		m_scroll = m_scroll - GMouse::getMouseScroll() * 4;
+		m_scroll = m_scroll - GMouse::getMouseScroll() * m_itemHeight;
 		p_interactFlags -= (Sint8)EventFlag::MOUSESCROLL;
 	}
 

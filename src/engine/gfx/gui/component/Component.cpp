@@ -56,7 +56,26 @@ Component* Component::addComponent(Component* p_comp, Anchor p_posAnchor, Anchor
 Component* Component::findComponent(std::string p_compName) { return this; }
 
 Color& Component::getElementColor(std::string p_element) {
-	return m_colorThemeMap.at(p_element);
+	auto it = m_colorThemeMap.find(p_element);
+	if (it == m_colorThemeMap.end()) {
+		std::ostringstream msg;
+		msg << "Error: Element '" << p_element << "' not found. Available keys: ";
+
+		for (const auto& pair : m_colorThemeMap) {
+			msg << pair.first << ", ";
+		}
+
+		// Remove trailing comma and space, if any
+		std::string errMsg = msg.str();
+		if (!m_colorThemeMap.empty()) {
+			errMsg.pop_back();
+			errMsg.pop_back();
+		}
+		Logger::logError(p_element);
+
+		return Color("A020F0");
+	}
+	return it->second;
 }
 Color& Component::getPrimaryColor() {
 	if (getElementPos() != "") {

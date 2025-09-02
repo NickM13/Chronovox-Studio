@@ -18,10 +18,14 @@ bool Application::init(char *p_filePath) {
 	GScreen::enableShadows(false);
 	GScreen::setMinScreenSize(Vector2<Sint32>(600.f, 600.f));
 
+	Logger::logQuiet("Setting GScreen values");
+
 	if (!glfwInit()) {
 		Logger::logError("glfw failed to initialize");
 		return false;
 	}
+
+	Logger::logQuiet("GLFW Initialized");
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -30,8 +34,11 @@ bool Application::init(char *p_filePath) {
 	glfwWindowHint(GLFW_DECORATED, 0);
 	glfwWindowHint(GLFW_FLOATING, 0);
 
+	Logger::logQuiet("Setting GLFW Hints");
+
 	int monx, mony;
 	GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+	Logger::logQuiet("Found primary monitor");
 	glfwGetMonitorPos(monitor, &monx, &mony);
 	const GLFWvidmode *mode = glfwGetVideoMode(monitor);
 	m_screenSize = Vector2<Uint16>(std::fminf(1280, mode->width - 128), std::fminf(768, mode->height - 128));
@@ -45,6 +52,8 @@ bool Application::init(char *p_filePath) {
 
 	GScreen::initWindow(m_mainWindow);
 
+	Logger::logQuiet("Window initialized");
+
 	glfwSetKeyCallback(m_mainWindow, GKey::keyCallback);
 	glfwSetMouseButtonCallback(m_mainWindow, GMouse::mousePressCallback);
 	glfwSetCursorPosCallback(m_mainWindow, GMouse::mouseMovedCallback);
@@ -57,11 +66,15 @@ bool Application::init(char *p_filePath) {
 
 	glfwMakeContextCurrent(m_mainWindow);
 
+	Logger::logQuiet("GLFW Window set up");
+
 	GLenum error;
 	if ((error = glewInit()) != GLEW_OK) {
 		Logger::logError(std::string("glew failed to initialize: ").append((const char*)glewGetErrorString(error)));
 		return false;
 	}
+
+	Logger::logQuiet("GLEW Set up");
 
 	Shader::init();
 	Shader::getProgram("simple")
@@ -86,9 +99,12 @@ bool Application::init(char *p_filePath) {
 		->loadShader(GL_VERTEX_SHADER, "ssaa.vert")
 		->loadShader(GL_FRAGMENT_SHADER, "ssaa.frag");
 
+	Logger::logQuiet("Shaders set up");
+
 	glClearColor(0.1f, 0.1f, 0.1f, 1.f);
 	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
 	GLua::init();
 
@@ -298,14 +314,6 @@ void Application::update() {
 
 void Application::render() {
 	if (GScreen::isIconified()) return;
-
-	glm::mat4 biasMatrix {
-		0.5, 0.0, 0.0, 0.0,
-		0.0, 0.5, 0.0, 0.0,
-		0.0, 0.0, 0.5, 0.0,
-		0.5, 0.5, 0.5, 1.0
-	};
-	glm::mat4 depthBiasMVP = biasMatrix * Shader::getMVP();
 	
 	switch (GPreferences::getViewMode()) {
 	case GPreferences::ViewMode::PERSPECTIVE:

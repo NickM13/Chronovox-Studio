@@ -31,6 +31,7 @@ private:
 	GLuint ssaoBuffer, ssaoColorBuffer;
 	GLuint quadVAO = 0, cubeVAO = 0;
 	GLuint quadVBO, cubeVBO = 0;
+	Matrix* m_matrixCopy = 0; // Copy/paste matrix
 
 	struct Project {
 		EditorMode mode = {};
@@ -71,7 +72,12 @@ public:
 	static bool isAnimation()	{ return (m_cProj && m_cProj->mode == EditorMode::ANIMATION); }
 	static bool isModel()		{ return (m_cProj && m_cProj->mode == EditorMode::MODEL); }
 
-	static Model* getModel()			{ if (m_cProj && m_cProj->mode == EditorMode::MODEL) return (Model*)m_cProj->editor; return 0; }
+	static Model* getModel() {
+		if (m_cProj && m_cProj->mode == EditorMode::MODEL) {
+			return (Model*)m_cProj->editor;
+		}
+		return 0;
+	}
 
 	static void setDataString(std::string* p_dataString);
 
@@ -102,6 +108,10 @@ public:
 	void render2d();
 	void renderGeometry();
 	void renderLight();
+
+	void copyMatrix();
+	void cutMatrix();
+	void pasteMatrix();
 
 	/* Menubar functions */
 
