@@ -64,6 +64,8 @@ bool Application::init(char *p_filePath) {
 	glfwSetWindowIconifyCallback(m_mainWindow, GScreen::windowIconifyCallback);
 	glfwSetWindowFocusCallback(m_mainWindow, GScreen::windowFocusCallback);
 
+	Logger::logDiagnostic("glfwWindow Callbacks set");
+
 	glfwMakeContextCurrent(m_mainWindow);
 
 	Logger::logQuiet("GLFW Window set up");
@@ -105,10 +107,15 @@ bool Application::init(char *p_filePath) {
 	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	Logger::logDiagnostic("Initialized shaders");
 
 	GLua::init();
 
+	Logger::logDiagnostic("Lua initialized");
+
 	m_editor = new Editor();
+
+	Logger::logDiagnostic("Editor created");
 
 	return true;
 }
