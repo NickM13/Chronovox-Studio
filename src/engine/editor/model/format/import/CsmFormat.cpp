@@ -325,8 +325,6 @@ bool CsmFormat::load4(std::vector<Matrix*>* p_matrixList) {
 
 		matrix = new Matrix(i, name, parent, glm::vec3(pos) / glm::vec3(10), size);
 
-		std::cout << name << std::endl;
-
 		volume = size.x * size.y * size.z;
 		matrixIndex = 0;
 

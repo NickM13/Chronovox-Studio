@@ -456,6 +456,7 @@ void Editor::resize() {
 void Editor::processDroppedFile() {
 	if (m_droppedFilesToProcess.empty() || GFormat::isLoading()) return;
 	std::string path = m_droppedFilesToProcess.front();
+	m_droppedFilesToProcess.pop();
 	LFormat::ImportType formatType = LFormat::valid(path);
 	TEMode* editor = 0;
 	switch (formatType) {
@@ -481,7 +482,6 @@ void Editor::processDroppedFile() {
 		break;
 	default: return;
 	}
-	m_droppedFilesToProcess.pop();
 }
 
 void Editor::dropFile(const char* path) {
